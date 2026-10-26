@@ -1,0 +1,28 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'vn.vuaphapsu.game'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'vn.vuaphapsu.game'
+        minSdk 21
+        targetSdk 34
+        versionCode 146
+        versionName '12.4'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

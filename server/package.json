@@ -1,0 +1,12 @@
+{
+  "name": "giang-ma-su-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "node": "node src/node-server.js"
+  },
+  "devDependencies": { "wrangler": "4.40.0" },
+  "dependencies": { "ws": "8.18.0" }
+}
