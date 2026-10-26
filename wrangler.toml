@@ -1,0 +1,27 @@
+# Cấu hình cho Cloudflare Workers Builds (nối thẳng repo GitHub này với Worker "giangmaluc").
+# Mỗi lần đẩy code, Cloudflare chạy `npx wrangler deploy` ở thư mục gốc repo:
+#  1. lệnh build bên dưới tạo bản web online (đăng nhập + chơi chung) vào server/public
+#  2. đưa server (server/src/worker.js) và trang game lên https://giangmaluc.<tài-khoản>.workers.dev
+name = "giangmaluc"
+main = "server/src/worker.js"
+compatibility_date = "2025-09-01"
+
+[build]
+command = "python3 online/build_online.py server/public --server same && cp -r img server/public/ && (cp web/vt323-*.woff2 server/public/ 2>/dev/null || true)"
+
+[[durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
+# Bản xem trước (nhánh khác main): Cloudflare tạo kho Durable Object riêng cho mỗi bản, không đụng dữ liệu thật
+[[previews.durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
+# Gói miễn phí của Cloudflare cần Durable Object dùng SQLite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["World"]
+
+[assets]
+directory = "./server/public"

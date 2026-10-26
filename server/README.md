@@ -3,9 +3,17 @@
 Server nhỏ chạy trên **Cloudflare Workers** (gói miễn phí đủ cho vài trăm người cùng online).
 Một địa chỉ phục vụ cả trang game và kết nối chơi:
 
-- `https://giang-ma-su-online.<tên-tài-khoản>.workers.dev/` : vào chơi bằng trình duyệt
-- `wss://giang-ma-su-online.<tên-tài-khoản>.workers.dev/ws` : kết nối của game (app Android dùng địa chỉ này)
-- `/top` : bảng xếp hạng PvP (JSON), `/status` : số người đang online
+- `https://giangmaluc.<tên-tài-khoản>.workers.dev/` : vào chơi bằng trình duyệt
+- `wss://giangmaluc.<tên-tài-khoản>.workers.dev/ws` : kết nối của game (app Android dùng địa chỉ này)
+- `/top` : bảng xếp hạng PvP (JSON), `/` : số người đang online
+- `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me`, `/save` : tài khoản và bản lưu theo tài khoản
+
+## Tài khoản người chơi
+Muốn vào chơi online thì phải đăng ký (tên đăng nhập 3-16 ký tự + mật khẩu từ 6 ký tự) hoặc đăng nhập.
+Mật khẩu không lưu dạng chữ thường: server giữ muối ngẫu nhiên và băm PBKDF2-SHA256 100.000 vòng.
+Đăng nhập xong máy giữ một phiên (token, hạn 120 ngày) và tiến trình chơi được gửi lên server mỗi 20 giây,
+nên đổi máy hay cài lại app, đăng nhập vào là chơi tiếp. Một tài khoản chỉ chơi ở một nơi một lúc:
+máy vào sau đẩy máy trước ra để hai máy không ghi đè bản lưu của nhau. Mất mật khẩu thì chưa lấy lại được.
 
 ## Bật server lần đầu (làm một lần)
 1. Tạo tài khoản miễn phí ở https://dash.cloudflare.com/sign-up
@@ -15,6 +23,9 @@ Một địa chỉ phục vụ cả trang game và kết nối chơi:
    Trong repo GitHub chứa thư mục game: **Settings → Secrets and variables → Actions → New repository secret**,
    thêm `CLOUDFLARE_API_TOKEN` và `CLOUDFLARE_ACCOUNT_ID`. Từ đó mỗi lần đẩy code lên nhánh `main`,
    workflow "Deploy online server" tự đưa server lên và in địa chỉ trong phần Summary.
+3b. Cách nhanh nhất (Cloudflare tự lấy code từ GitHub): trong **Workers & Pages** tạo Worker tên `giangmaluc`,
+   vào **Settings → Builds → Connect** chọn repo này, để nguyên thư mục gốc `/` và lệnh deploy `npx wrangler deploy`.
+   File `wrangler.toml` ở gốc repo tự tạo bản web online rồi đưa server lên mỗi lần đẩy code. Dùng cách này thì không cần 2 secret ở bước 3.
 4. Cách B (trên máy tính có Node.js 20+): trong thư mục game chạy
    ```
    python3 online/build_online.py server/public --server same
@@ -31,8 +42,9 @@ rồi mở http://localhost:8787 (cần tạo `server/public` như bước 4). H
 
 ## Cấu trúc
 - `src/hub.js`: lõi server (sảnh, phòng đấu, chuyển tiếp trạng thái, giới hạn tốc độ, bảng xếp hạng)
+- `src/accounts.js`: tài khoản, phiên đăng nhập và bản lưu theo tài khoản
 - `src/worker.js`: bản Cloudflare (một Durable Object "World" giữ cả thế giới)
 - `src/node-server.js`: bản Node (tự host trên VPS nếu muốn)
 - Phía game: `online/onl.js` (hàm `onlWsRoom`), tạo bản game bằng `online/build_online.py --server ...`
 
-Lưu ý: tiến trình chơi vẫn lưu trên máy người chơi; server chỉ chuyển vị trí, chat, trận PvP và giữ bảng xếp hạng.
+Lưu ý: server giữ tài khoản, bản lưu của từng tài khoản và bảng xếp hạng; phần còn lại chỉ là chuyển tiếp vị trí, chat và trận PvP.

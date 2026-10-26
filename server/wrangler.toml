@@ -1,4 +1,4 @@
-name = "giang-ma-su-online"
+name = "giangmaluc"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 
@@ -6,10 +6,19 @@ compatibility_date = "2025-09-01"
 name = "WORLD"
 class_name = "World"
 
+# Bản xem trước (nhánh khác main): Cloudflare tạo kho Durable Object riêng cho mỗi bản, không đụng dữ liệu thật
+[[previews.durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
 # Gói miễn phí của Cloudflare cần Durable Object dùng SQLite
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["World"]
+
+# Tạo bản web online vào public/ trước khi đưa lên (cả khi Cloudflare build với thư mục gốc là server/)
+[build]
+command = "cd .. && python3 online/build_online.py server/public --server same && cp -r img server/public/ && (cp web/vt323-*.woff2 server/public/ 2>/dev/null || true)"
 
 # Trang game (bản online) phục vụ luôn từ Worker: https://<tên>.workers.dev/
 # Thư mục public/ do build_online.py tạo ra (xem README.md), không cần sửa tay.

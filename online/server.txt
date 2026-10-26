@@ -1,0 +1,1 @@
+wss://giangmaluc.giangmaluc.workers.dev/ws
