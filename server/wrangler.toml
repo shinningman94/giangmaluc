@@ -1,4 +1,4 @@
-name = "giang-ma-su-online"
+name = "giangmaluc"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 
