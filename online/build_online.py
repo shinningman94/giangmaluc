@@ -53,6 +53,14 @@ def build(server='', dual=False, src_path=None):
     rep("[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},{t:'Rời đấu trường',def:1}]);",
         "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'}]:[]),{t:'Rời đấu trường',def:1}]);")
     rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){onlOpen(1);return;}if(i===0)await arenaPick();')
+    # đặt tên nhân vật khi bắt đầu chơi online; mọi chữ "Minh Dạ" hiện ra được thay bằng tên đó
+    rep('async function startNew(){newGame();',
+        "async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);")
+    rep('async function continueGame(){applySave(SAVED);', 'async function continueGame(){applySave(SAVED);if(ONLM)await onlHeroFix();')
+    rep('function txt(s,x,y,o={}){', 'function txt(s,x,y,o={}){s=onlHN(s);')
+    rep('function wrap(s,maxW,size){', 'function wrap(s,maxW,size){s=onlHN(s);')
+    # lời thoại hiện dần từng chữ: thay trước để không lộ nửa chữ "Minh D"
+    rep('DLG={lines:Array.isArray(lines)?lines:[lines],', 'DLG={lines:(Array.isArray(lines)?lines:[lines]).map(onlHN),')
     rep('/* ---------- main loop ---------- */', onl + '\n/* ---------- main loop ---------- */')
     return s
 

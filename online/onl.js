@@ -129,6 +129,26 @@ function onlAuthAsk(){onlBuildUI();held.length=0;return new Promise(done=>{
     busyA=false;$('.go').disabled=false;};
   setTimeout(()=>{(iu.value?ip:iu).focus();},50);});}
 
+/* ---------- đặt tên nhân vật: thay tên Minh Dạ có sẵn bằng tên người chơi chọn (G.hn) ---------- */
+function onlHN(s){return ONLM&&G&&G.hn&&typeof s==='string'&&s.indexOf('Minh Dạ')>=0?s.split('Minh Dạ').join(G.hn):s;}
+function onlHeroAsk(def,canBack=true){onlBuildUI();held.length=0;return new Promise(done=>{
+  const d=document.createElement('div');d.id='onlAuth';d.innerHTML=`<form autocomplete="off"><h3>Đặt tên nhân vật</h3>
+<label>Tên pháp sư của bạn<input name="hero" maxlength="12" spellcheck="false"></label>
+<p class="err"></p><button class="go" type="submit">Bắt đầu</button>${canBack?'<button class="back" type="button">Quay lại</button>':''}
+<p class="note">2-12 ký tự, có thể dùng chữ có dấu. Tên này thay cho Minh Dạ trong cả câu chuyện.</p></form>`;document.body.appendChild(d);
+  const f=d.querySelector('form'),iu=f.querySelector('input'),$=q=>d.querySelector(q);iu.value=def||'';
+  for(const ev of['keydown','keyup','pointerdown','touchstart','wheel'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  const close=v=>{d.remove();try{cv.focus();}catch(_){}done(v);};
+  if(canBack)$('.back').onclick=()=>close(null);
+  f.onsubmit=e=>{e.preventDefault();const n=onlClean(iu.value).replace(/\s+/g,' ');
+    if([...n].length<2||[...n].length>12){$('.err').textContent='Tên dài 2-12 ký tự';return;}sfx('ok');close(n);};
+  setTimeout(()=>{iu.focus();iu.select();},50);});}
+function onlHeroDef(){const a=ONL.acc&&ONL.acc.u||ONL.nm||'';return [...onlClean(a)].slice(0,12).join('');}
+function onlHeroSet(n){G.hn=n;for(const u of G.party||[])if(u.id==='diep')u.name=n;}
+/* bản lưu online cũ chưa có tên riêng: hỏi một lần khi vào tiếp */
+async function onlHeroFix(){if(!G||G.hn)return;const hero=(G.party||[]).find(u=>u.id==='diep');
+  const n=await onlHeroAsk(hero&&hero.name!=='Minh Dạ'?hero.name:onlHeroDef(),false);onlHeroSet(n);try{save();}catch(_){}}
+
 /* ---------- sảnh: người chơi khác ---------- */
 function onlPeers(ch){
   for(const p of ch.peers){if(p.sameTab){ONL.me=p.peer;break;}}

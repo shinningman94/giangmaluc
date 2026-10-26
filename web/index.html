@@ -1674,13 +1674,13 @@ function sfx(k){try{switch(k){
 }}catch(e){}}
 
 /* ---------- drawing helpers ---------- */
-function txt(s,x,y,o={}){const size=o.size||10;c.font=`${size}px ${FONT}`;c.textAlign=o.align||'left';c.textBaseline='top';
+function txt(s,x,y,o={}){s=onlHN(s);const size=o.size||10;c.font=`${size}px ${FONT}`;c.textAlign=o.align||'left';c.textBaseline='top';
   if(o.outline!==false){c.lineJoin='round';c.lineWidth=o.lw||1.4;c.strokeStyle=o.outline||'#1b1224';c.strokeText(s,x,y);}
   c.fillStyle=o.color||'#fff';c.fillText(s,x,y);}
 function tw(s,size){c.font=`${size}px ${FONT}`;return c.measureText(s).width;}
 /* v9.3: cỡ chữ lớn nhất (nguyên) để s vừa bề rộng w, không nhỏ hơn mn */
 function fitS(s,size,w,mn=6){while(size>mn&&tw(s,size)>w)size--;return size;}
-function wrap(s,maxW,size){const out=[];for(const para of String(s).split('\n')){let line='';for(const w of para.split(' ')){const t=line?line+' '+w:w;if(tw(t,size)>maxW&&line){out.push(line);line=w;}else line=t;}out.push(line);}return out;}
+function wrap(s,maxW,size){s=onlHN(s);const out=[];for(const para of String(s).split('\n')){let line='';for(const w of para.split(' ')){const t=line?line+' '+w:w;if(tw(t,size)>maxW&&line){out.push(line);line=w;}else line=t;}out.push(line);}return out;}
 function rect(x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h);}
 function win(x,y,w,h,top='#2c3a78',bot='#1a2250',bd='#e8e4f8'){rect(x,y,w,h,'#0c0a18');rect(x+1,y+1,w-2,h-2,bd);rect(x+2,y+2,w-4,h-4,bot);rect(x+2,y+2,w-4,Math.floor((h-4)/2),top);for(let i=x+2;i<x+w-2;i+=2)rect(i,y+2+Math.floor((h-4)/2),1,1,top);}
 function orn(x,y,w,h,fill,dark){rect(x,y,w,h,'#2a1810');rect(x+1,y+1,w-2,h-2,'#f0d890');rect(x+2,y+2,w-4,h-4,'#8a5a30');
@@ -1802,7 +1802,7 @@ function press(k){
 }
 
 /* ---------- dialog & choices ---------- */
-function say(lines,speaker){return new Promise(res=>{DLG={lines:Array.isArray(lines)?lines:[lines],i:0,shown:0,speaker,res};});}
+function say(lines,speaker){return new Promise(res=>{DLG={lines:(Array.isArray(lines)?lines:[lines]).map(onlHN),i:0,shown:0,speaker,res};});}
 function dlgNext(){const L=DLG.lines[DLG.i];if(DLG.shown<L.length){DLG.shown=L.length;return;}sfx('sel');DLG.i++;DLG.shown=0;if(DLG.i>=DLG.lines.length){const r=DLG.res;DLG=null;r();}}
 function drawDlg(dt){if(!DLG)return;hits.length=0;SCR.length=0;const L=DLG.lines[DLG.i];DLG.shown=Math.min(L.length,DLG.shown+dt*0.05);
   if(PORT){const n=Math.min(7,wrap(L,W-24,10).length),h=Math.max(56,20+n*11),y0=H-h-(scene==='map'?24:6);win(4,y0,W-8,h,'#3a2a20','#241810','#f0d890');
@@ -1856,9 +1856,9 @@ const BIOT=[null,[40,60,100,.1],[60,30,0,.04],[50,15,100,.32]],BION=[null,null,'
 function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;}
 function regKey(x,y){return zoneAt(x,y)+bioAt(x,y)*10;}
 function regName(k){return BION[Math.floor(k/10)]||ZONES[k%10].n;}
-async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
+async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
   run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua 24 kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
-async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
+async function continueGame(){applySave(SAVED);if(ONLM)await onlHeroFix();scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
 const titleWisps=Array.from({length:14},(_,i)=>({x:hash(i,1)*W,y:hash(i,2)*H,s:.2+hash(i,3)*.5,p:hash(i,4)*6}));
 function drawTitleP(){const k=H/160;c.drawImage(bgFor('boss'),Math.round((W-240*k)/2),0,Math.round(240*k),H);rect(0,0,W,H,'rgba(10,6,20,.5)');
   for(const w of titleWisps){const y=(w.y*2.5-time*w.s*0.02+H*10)%H;const x=w.x%W+Math.sin(time/700+w.p)*6;c.globalAlpha=.5+.5*Math.sin(time/300+w.p);rect(Math.round(x),Math.round(y),2,2,'#9fe0ff');c.globalAlpha=1;}
@@ -4571,6 +4571,26 @@ function onlAuthAsk(){onlBuildUI();held.length=0;return new Promise(done=>{
       $('.err').textContent=r.d.err||('Lỗi server ('+r.st+')');}catch(_){$('.err').textContent='Không nối được server. Kiểm tra mạng rồi thử lại.';}
     busyA=false;$('.go').disabled=false;};
   setTimeout(()=>{(iu.value?ip:iu).focus();},50);});}
+
+/* ---------- đặt tên nhân vật: thay tên Minh Dạ có sẵn bằng tên người chơi chọn (G.hn) ---------- */
+function onlHN(s){return ONLM&&G&&G.hn&&typeof s==='string'&&s.indexOf('Minh Dạ')>=0?s.split('Minh Dạ').join(G.hn):s;}
+function onlHeroAsk(def,canBack=true){onlBuildUI();held.length=0;return new Promise(done=>{
+  const d=document.createElement('div');d.id='onlAuth';d.innerHTML=`<form autocomplete="off"><h3>Đặt tên nhân vật</h3>
+<label>Tên pháp sư của bạn<input name="hero" maxlength="12" spellcheck="false"></label>
+<p class="err"></p><button class="go" type="submit">Bắt đầu</button>${canBack?'<button class="back" type="button">Quay lại</button>':''}
+<p class="note">2-12 ký tự, có thể dùng chữ có dấu. Tên này thay cho Minh Dạ trong cả câu chuyện.</p></form>`;document.body.appendChild(d);
+  const f=d.querySelector('form'),iu=f.querySelector('input'),$=q=>d.querySelector(q);iu.value=def||'';
+  for(const ev of['keydown','keyup','pointerdown','touchstart','wheel'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  const close=v=>{d.remove();try{cv.focus();}catch(_){}done(v);};
+  if(canBack)$('.back').onclick=()=>close(null);
+  f.onsubmit=e=>{e.preventDefault();const n=onlClean(iu.value).replace(/\s+/g,' ');
+    if([...n].length<2||[...n].length>12){$('.err').textContent='Tên dài 2-12 ký tự';return;}sfx('ok');close(n);};
+  setTimeout(()=>{iu.focus();iu.select();},50);});}
+function onlHeroDef(){const a=ONL.acc&&ONL.acc.u||ONL.nm||'';return [...onlClean(a)].slice(0,12).join('');}
+function onlHeroSet(n){G.hn=n;for(const u of G.party||[])if(u.id==='diep')u.name=n;}
+/* bản lưu online cũ chưa có tên riêng: hỏi một lần khi vào tiếp */
+async function onlHeroFix(){if(!G||G.hn)return;const hero=(G.party||[]).find(u=>u.id==='diep');
+  const n=await onlHeroAsk(hero&&hero.name!=='Minh Dạ'?hero.name:onlHeroDef(),false);onlHeroSet(n);try{save();}catch(_){}}
 
 /* ---------- sảnh: người chơi khác ---------- */
 function onlPeers(ch){
