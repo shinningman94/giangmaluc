@@ -4200,11 +4200,16 @@ function arFloor(F){rect(F.x-2,F.y-3,F.w+4,F.h+5,'#3a2a1c');const g=c.createLine
   rect(F.x,F.y,F.w,16,'#5a4636');for(let x=F.x;x<F.x+F.w;x+=12){rect(x,F.y,11,7,'#6e5a46');rect(x+6,F.y+8,11,7,'#66523e');}rect(F.x,F.y+16,F.w,2,'#2a1e14');
   for(let x=F.x+16;x<F.x+F.w;x+=48){rect(x,F.y-2,4,18,'#8a2a22');rect(x-2,F.y-3,8,3,'#c8a040');c.globalAlpha=.55+.3*Math.sin(time/200+x);rect(x,F.y+2,4,3,'#ffd060');c.globalAlpha=1;}
   c.globalAlpha=.25;c.strokeStyle='#fff0d0';c.lineWidth=1;c.beginPath();c.ellipse(F.x+F.w/2,F.y+F.h*.62,F.w*.36,F.h*.3,0,0,7);c.stroke();c.beginPath();c.moveTo(F.x+F.w/2,F.y+20);c.lineTo(F.x+F.w/2,F.y+F.h);c.stroke();c.globalAlpha=1;}
-function arDrawF(f){if(!f)return;const th=PORT?21:18,mv=f.mv&&!f.act,k=f.hp<=0?'down':f.act?f.act.k:f.hurt>0?'hit':mv?'walk':'idle';const F=arFrame(f.id,arPose(f.id,k,f.wp||0),f.face<0,th);
+/* v12.7 hoạt ảnh đi giống quái trên bản đồ (drawLanternsRow): quái khung đi riêng (LMAPS) đi liên tục, đi lên dùng dáng 'back',
+   còn lại đổi walk/idle mỗi 180ms; thân nhấp nhô nhẹ sin(time/380) cả khi đứng */
+function arWalkK(f){const a=ANIM[f.id];if(!a)return'idle';if(LMAPS[f.id])return'walk';
+  if(a.pose.back!==undefined&&(f.vy||0)<-Math.abs(f.vx||0)*1.2)return'back';
+  if(a.pose.walk!==undefined)return Math.floor(time/180)%2?'walk':'idle';return'walk';}
+function arDrawF(f){if(!f)return;const th=PORT?21:18,mv=f.mv&&!f.act,k=f.hp<=0?'down':f.act?f.act.k:f.hurt>0?'hit':mv?arWalkK(f):'idle';const F=arFrame(f.id,arPose(f.id,k,f.wp||0),f.face<0,th);
   c.globalAlpha=.3;c.fillStyle='#000';c.beginPath();c.ellipse(f.x,f.y,6,1.8,0,0,7);c.fill();c.globalAlpha=1;
   if(f.buff>0){c.globalAlpha=.3;c.fillStyle='#ff6040';c.beginPath();c.ellipse(f.x,f.y,7.5,2.2,0,0,7);c.fill();c.globalAlpha=1;}
   for(const g of f.gh){c.globalAlpha=g.life/260*.4;c.drawImage(F.img,Math.round((g.x-F.w/2)*S)/S,Math.round((g.y-F.h)*S)/S,F.w,F.h);}c.globalAlpha=1;
-  const bob=mv?-Math.abs(Math.sin((f.wp||0)/3.8))*1.1:0,dx=f.act&&f.act.k==='sweep'?f.face*3:0;
+  const bob=f.hp>0?Math.sin(time/380+(f.side==='a'?0:2.1))*1.1:0,dx=f.act&&f.act.k==='sweep'?f.face*3:0;
   if(f.hurt>0&&Math.floor(time/50)%2)c.globalAlpha=.45;if(f.inv>0)c.globalAlpha=.6;if(f.hp<=0)c.globalAlpha=Math.max(0,AR.pt/1300);
   c.drawImage(F.img,Math.round((f.x-F.w/2+dx)*S)/S,Math.round((f.y-F.h+bob)*S)/S,F.w,F.h);c.globalAlpha=1;
   if(f.shield>0)arDrawShield(f,th);if(f.stun>0)arDrawStun(f,F.h);
