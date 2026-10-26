@@ -6,6 +6,11 @@ compatibility_date = "2025-09-01"
 name = "WORLD"
 class_name = "World"
 
+# Bản xem trước (nhánh khác main): Cloudflare tạo kho Durable Object riêng cho mỗi bản, không đụng dữ liệu thật
+[[previews.durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
 # Gói miễn phí của Cloudflare cần Durable Object dùng SQLite
 [[migrations]]
 tag = "v1"
