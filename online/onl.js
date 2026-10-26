@@ -16,7 +16,7 @@ function onlClean(t){return String(t||'').replace(ONL_BAD,'').trim();}
 /* server riêng (build_online.py --server wss://...) thay cho kênh room của claude.ai; để trống thì dùng claude.ai */
 const ONL_SERVER='';
 /* bộ chuyển: WebSocket tới server riêng nhưng có cùng kiểu gọi như room của claude.ai (presence, onPeers, join...) */
-function onlWsRoom(url){const rooms=new Map(),cls=[];let ws=null,you=null,conn=false,wait=1000,pingT=null;
+function onlWsRoom(url,o={}){const rooms=new Map(),cls=[];let ws=null,you=null,conn=false,wait=1000,pingT=null,dead=false;
   let dev='';try{dev=localStorage.getItem('gms-dev')||'';if(!dev){dev='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('gms-dev',dev);}}catch(_){dev='d'+Math.random().toString(36).slice(2,12);}
   const tx=o=>{if(ws&&ws.readyState===1)ws.send(JSON.stringify(o));};
   const setConn=c=>{if(c===conn)return;conn=c;for(const f of cls)try{f(c);}catch(e){console.error(e);}};
@@ -33,24 +33,27 @@ function onlWsRoom(url){const rooms=new Map(),cls=[];let ws=null,you=null,conn=f
   function join(n){if(rooms.has(n))return Promise.resolve(rooms.get(n).api);if(!conn)return Promise.reject({code:'upstream_error'});
     const R=mk(n);rooms.set(n,R);tx({t:'join',r:n});return new Promise((res,rej)=>{R.wq.push(res);setTimeout(()=>{if(!R.ready){rooms.delete(n);rej({code:'upstream_error'});}},8000);});}
   function connect(){try{ws=new WebSocket(url);}catch(e){setTimeout(connect,wait);return;}
-    ws.onopen=()=>{wait=1000;tx({t:'hello',id:dev,v:1});clearInterval(pingT);pingT=setInterval(()=>tx({t:'ping'}),25000);};
+    ws.onopen=()=>{wait=1000;tx({t:'hello',id:dev,v:1,tok:o.tok||undefined});clearInterval(pingT);pingT=setInterval(()=>tx({t:'ping'}),25000);};
     ws.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}
       if(m.t==='welcome'){you=m.you;for(const[n,R]of rooms){R.others.clear();R.ready=false;if(n)tx({t:'join',r:n});}setConn(true);return;}
+      if(m.t==='auth'){if(o.onAuth)o.onAuth(m.u);return;}
+      if(m.t==='err'&&(m.m==='auth'||m.m==='dup')){dead=true;if(o.onErr)o.onErr(m.m);return;}
       const R=rooms.get(typeof m.r==='string'?m.r:'');if(!R)return;
       if(m.t==='peers'){R.others.clear();for(const q of m.list||[])if(q.peer!==you)R.others.set(q.peer,Object.freeze(q.p||{}));R.ready=true;R.dirty=true;R.flush();R.build();const w=R.wq;R.wq=[];w.forEach(f=>f(R.api));}
       else if(m.t==='up'&&m.peer!==you){R.others.set(m.peer,Object.freeze(m.p||{}));R.build();}
       else if(m.t==='gone'){R.others.delete(m.peer);R.build();}};
     ws.onclose=()=>{clearInterval(pingT);setConn(false);for(const R of rooms.values()){R.others.clear();R.ready=false;R.build();}
-      for(const[n]of[...rooms])if(n)rooms.delete(n);setTimeout(connect,wait);wait=Math.min(15000,wait*2);};
+      for(const[n]of[...rooms])if(n)rooms.delete(n);if(dead)return;setTimeout(connect,wait);wait=Math.min(15000,wait*2);};
     ws.onerror=()=>{};}
   const L=mk('');rooms.set('',L);connect();return L.api;}
 /* ONL_DUAL: app thường có thêm nút 'Chơi online' ở màn hình đầu; ONLM bật khi người chơi chọn chế độ online */
 const ONL_DUAL=false;let ONLM=!ONL_DUAL;const ONL_KEY='giang-ma-su-online-v1';
 async function onlConnect(){if(onlConnect.d)return;onlConnect.d=1;try{
-  const SRV=ONL_SERVER==='same'?(location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws':ONL_SERVER;
-  if(SRV&&/^wss?:\/\/[^/]/.test(SRV)){ONL.room=null;ONL.top=SRV.replace(/^ws/,'http').replace(/\/ws$/,'/top');const room=onlWsRoom(SRV);let user=null;
+  const SRV=onlSrv();
+  if(SRV){ONL.room=null;ONL.top=onlHttp()+'/top';if(ONL.acc)ONL.nm=ONL.acc.u;
+    const room=onlWsRoom(SRV,{tok:ONL.acc&&ONL.acc.tok,onAuth:u=>{ONL.nm=u;onlUI();},onErr:onlAuthErr});let user=null;
     if(window.claude&&typeof window.claude.use==='function'){try{user=await Promise.race([window.claude.use('user'),new Promise(r=>setTimeout(()=>r(null),3000))]);}catch(_){}}
-    ONL.user=user;ONL.room=room;room.onConnection(c=>{ONL.conn=c;ONL.err=c?'':'Đang nối lại server...';onlUI();});room.onPeers(onlPeers);
+    ONL.user=user;ONL.room=room;room.onConnection(c=>{ONL.conn=c;if(!ONL.dead)ONL.err=c?'':'Đang nối lại server...';onlUI();});room.onPeers(onlPeers);
     if(!ONL.nm&&user){try{const v=await user.me();ONL.nm=onlClean(v&&v.name).slice(0,18);}catch(_){}}
     if(!ONL.nm){ONL.nm='Pháp Sư '+ri(100,999);try{localStorage.setItem('gms-onl-nm',ONL.nm);}catch(_){}}onlUI();return;}
   if(!window.claude||typeof window.claude.use!=='function'){ONL.err='Bản online chỉ chạy khi mở trên claude.ai';onlUI();return;}
@@ -63,11 +66,68 @@ async function onlConnect(){if(onlConnect.d)return;onlConnect.d=1;try{
   if(!ONL.nm)ONL.nm='Pháp Sư '+ri(100,999);
   onlUI();
 }catch(e){console.error(e);ONL.err='Lỗi kết nối';onlUI();}}
-if(ONLM)onlConnect();
-function onlTitleItems(a){if(ONL_DUAL&&!ONLM&&ONL_SERVER)a.push({l:'Chơi online',f:onlEnter});}
+if(ONLM)setTimeout(()=>{if(onlSrv())onlBoot();else onlConnect();},0);
+function onlTitleItems(a){if(ONL_DUAL&&!ONLM&&ONL_SERVER)a.push({l:'Chơi online',f:onlEnter});
+  if(ONLM&&ONL.gate){a.length=0;a.push({l:ONL.gate===1?'Đang tải tài khoản...':'Đăng nhập / Đăng ký',f:()=>{if(ONL.gate===2)onlBoot();}});titleIdx=0;}}
 /* vào chế độ online: bản lưu riêng, bản đồ chung, nối server */
-function onlEnter(){if(!ONL_SERVER){toast('Bản này chưa có địa chỉ server online');return;}ONLM=true;KEY=ONL_KEY;SAVED=loadSave();onlConnect();if(SAVED)continueGame();else startNew();}
-function onlLeaveMode(){try{save();}catch(_){}location.reload();}
+async function onlEnter(){if(!ONL_SERVER){toast('Bản này chưa có địa chỉ server online');return;}if(onlEnter.b)return;onlEnter.b=1;
+  try{if(onlSrv()&&!await onlLogin())return;ONLM=true;KEY=ONL_KEY;SAVED=loadSave();onlConnect();if(SAVED)continueGame();else startNew();}finally{onlEnter.b=0;}}
+async function onlLeaveMode(){try{save();}catch(_){}await onlUpload(true);location.reload();}
+/* ---------- tài khoản (chỉ khi chơi bằng server riêng; bản claude.ai dùng tên tài khoản claude.ai) ----------
+   Đăng nhập xong thì tải bản lưu của tài khoản về máy, rồi cứ 20 giây (và khi rời trang) gửi bản lưu mới lên server,
+   nên đổi máy hay cài lại app vẫn chơi tiếp được. Một tài khoản chỉ chơi ở một nơi một lúc. */
+function onlSrv(){const S=ONL_SERVER==='same'?(location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws':ONL_SERVER;return S&&/^wss?:\/\/[^/]/.test(S)?S:'';}
+function onlHttp(){return onlSrv().replace(/^ws/,'http').replace(/\/ws$/,'');}
+function onlLS(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(_){}return null;}
+ONL.acc=null;try{const a=JSON.parse(onlLS('gms-onl-acc')||'null');if(a&&a.u&&a.tok)ONL.acc=a;}catch(_){}
+ONL.uph=onlLS('gms-onl-uph')||'';
+function onlHash(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}return t.length+':'+(h>>>0).toString(36);}
+async function onlApi(path,method,body){const h={'content-type':'application/json'};if(ONL.acc)h.authorization='Bearer '+ONL.acc.tok;
+  const r=await fetch(onlHttp()+path,{method:method||'GET',headers:h,body:body?JSON.stringify(body):undefined});let d={};try{d=await r.json();}catch(_){}return{st:r.status,d};}
+function onlForget(){ONL.acc=null;onlLS('gms-onl-acc',null);}
+/* tải bản lưu của tài khoản về máy. Máy còn tiến trình chưa kịp gửi lên (và server chưa bị máy khác ghi) thì giữ bản của máy */
+async function onlSync(){const r=await onlApi('/save');if(r.st===401){onlForget();return false;}if(r.st!==200)throw new Error('save '+r.st);
+  const me=ONL.acc.u.toLowerCase(),owner=onlLS('gms-onl-owner')||'';if(owner&&owner!==me){onlLS(ONL_KEY,null);onlLS('gms-onl-uph',null);onlLS('gms-onl-upat',null);ONL.uph='';}
+  const loc=onlLS(ONL_KEY),srvAt=+r.d.at||0,myAt=+(onlLS('gms-onl-upat')||0);
+  if(r.d.d&&!(loc&&owner===me&&onlHash(loc)!==ONL.uph&&srvAt<=myAt)){onlLS(ONL_KEY,r.d.d);ONL.uph=onlHash(r.d.d);onlLS('gms-onl-uph',ONL.uph);onlLS('gms-onl-upat',String(srvAt));}
+  onlLS('gms-onl-owner',me);if(onlLS(ONL_KEY)&&onlHash(onlLS(ONL_KEY))!==ONL.uph)await onlUpload(true,ONL_KEY);return true;}
+async function onlUpload(force,key){if(!ONL.acc||ONL.kick||(!ONLM&&!key))return;if(ONL.upBusy){if(!force)return;await ONL.upBusy;}
+  const s=onlLS(key||KEY);if(!s)return;const h=onlHash(s);if(h===ONL.uph&&!force)return;
+  ONL.upBusy=(async()=>{try{const r=await onlApi('/save','PUT',{d:s});if(r.st===200){ONL.uph=h;onlLS('gms-onl-uph',h);onlLS('gms-onl-upat',String(r.d.at||0));ONL.upErr=0;}
+    else if(r.st===401)onlAuthErr('auth');else ONL.upErr=1;}catch(_){ONL.upErr=1;}})();await ONL.upBusy;ONL.upBusy=null;}
+setInterval(()=>{if(ONLM)onlUpload();},20000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&ONLM&&ONL.acc){try{save();}catch(_){}onlUpload();}});
+/* đăng nhập (nếu chưa) rồi tải bản lưu; false nếu người chơi bỏ qua hoặc không nối được server */
+async function onlLogin(){for(let i=0;i<4;i++){if(!ONL.acc&&!await onlAuthAsk())return false;
+  try{if(await onlSync())return true;}catch(e){toast('Không nối được server online, thử lại sau');return false;}}return false;}
+/* bản do server phục vụ (không có chế độ một người): màn hình đầu chỉ có nút đăng nhập cho tới khi xong */
+async function onlBoot(){ONL.gate=1;if(await onlLogin()){SAVED=loadSave();ONL.gate=0;onlConnect();}else ONL.gate=2;}
+function onlAuthErr(m){ONL.dead=1;if(m==='dup'){ONL.kick=1;ONL.conn=false;ONL.err='Tài khoản này vừa vào game ở máy khác. Tiến trình ở máy này không được lưu lên server nữa.';toast('Tài khoản đang chơi ở máy khác');onlUI();return;}
+  onlForget();ONL.err='Phiên đăng nhập hết hạn. Tải lại trang để đăng nhập lại.';toast('Phiên đăng nhập hết hạn, đăng nhập lại');onlUI();}
+async function onlLogout(){try{save();}catch(_){}await onlUpload(true);try{await onlApi('/auth/logout','POST',{});}catch(_){}
+  onlForget();onlLS(ONL_KEY,null);onlLS('gms-onl-owner',null);onlLS('gms-onl-uph',null);onlLS('gms-onl-upat',null);location.reload();}
+function onlAuthAsk(){onlBuildUI();held.length=0;return new Promise(done=>{
+  const d=document.createElement('div');d.id='onlAuth';d.innerHTML=`<form autocomplete="on"><h3>Giáng Ma Sư Online</h3><nav><button type="button" data-m="0">Đăng nhập</button><button type="button" data-m="1">Đăng ký</button></nav>
+<label>Tên đăng nhập<input name="username" autocomplete="username" maxlength="16" autocapitalize="off" spellcheck="false"></label>
+<label>Mật khẩu<input name="password" type="password" maxlength="64"></label><label class="r2">Nhập lại mật khẩu<input name="password2" type="password" maxlength="64" autocomplete="new-password"></label>
+<p class="err"></p><button class="go" type="submit">Đăng nhập</button><button class="back" type="button">${ONL_DUAL?'Quay lại':'Để sau'}</button>
+<p class="note"></p></form>`;document.body.appendChild(d);
+  const f=d.querySelector('form'),$=q=>d.querySelector(q),[iu,ip,ip2]=f.querySelectorAll('input');let mode=0,busyA=false;
+  for(const ev of['keydown','keyup','pointerdown','touchstart','wheel'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
+  const setMode=m=>{mode=m;d.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));$('.r2').style.display=m?'':'none';$('.go').textContent=m?'Tạo tài khoản':'Đăng nhập';
+    ip.autocomplete=m?'new-password':'current-password';$('.err').textContent='';$('.note').textContent=m?'Tên đăng nhập 3-16 ký tự (chữ không dấu, số, _), cũng là tên hiện trong game. Mật khẩu ít nhất 6 ký tự. Nhớ kỹ mật khẩu: hiện chưa có cách lấy lại.':'Tiến trình online lưu theo tài khoản: đăng nhập ở máy nào cũng chơi tiếp được.';};
+  d.querySelectorAll('nav button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));setMode(onlLS('gms-onl-last')?0:1);if(onlLS('gms-onl-last'))iu.value=onlLS('gms-onl-last');
+  const close=v=>{d.remove();try{cv.focus();}catch(_){}done(v);};
+  $('.back').onclick=()=>close(false);
+  f.onsubmit=async e=>{e.preventDefault();if(busyA)return;const u=iu.value.trim(),p=ip.value;
+    if(!/^[a-zA-Z0-9_]{3,16}$/.test(u)){$('.err').textContent='Tên đăng nhập 3-16 ký tự, chỉ chữ không dấu, số và _';return;}
+    if(p.length<6){$('.err').textContent='Mật khẩu ít nhất 6 ký tự';return;}if(mode&&p!==ip2.value){$('.err').textContent='Hai lần nhập mật khẩu không giống nhau';return;}
+    busyA=true;$('.go').disabled=true;$('.err').textContent='Đang gửi...';
+    try{ONL.acc=null;const r=await onlApi(mode?'/auth/register':'/auth/login','POST',{u,p});
+      if(r.st===200&&r.d.tok){ONL.acc={u:r.d.u,tok:r.d.tok};onlLS('gms-onl-acc',JSON.stringify(ONL.acc));onlLS('gms-onl-last',r.d.u);sfx('ok');close(true);return;}
+      $('.err').textContent=r.d.err||('Lỗi server ('+r.st+')');}catch(_){$('.err').textContent='Không nối được server. Kiểm tra mạng rồi thử lại.';}
+    busyA=false;$('.go').disabled=false;};
+  setTimeout(()=>{(iu.value?ip:iu).focus();},50);});}
 
 /* ---------- sảnh: người chơi khác ---------- */
 function onlPeers(ch){
@@ -254,9 +314,19 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
 #onlInv button{font:18px var(--font);border-radius:4px;padding:2px 12px;cursor:pointer;border:1px solid #f0d890}
 #onlInv .ok{background:#c0602a;color:#fff}#onlInv .no{background:#2c2440;color:#f1e6c8}
 #onlWait{position:fixed;z-index:31;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);display:none;gap:8px;align-items:center;background:#151022f0;border:1px solid #f0d890;border-radius:6px;padding:4px 10px;color:#fff0c8;font:18px var(--font)}
+#onlAuth{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:#07040ecc;touch-action:auto}
+#onlAuth form{width:min(92vw,360px);background:#151022f8;border:2px solid #f0d890;border-radius:6px;padding:10px 14px;color:#f1e6c8;font:18px var(--font);display:flex;flex-direction:column;gap:6px;user-select:text;-webkit-user-select:text}
+#onlAuth h3{margin:0;text-align:center;color:#ffe8a0;font:24px var(--font)}
+#onlAuth nav{display:flex;gap:4px}#onlAuth nav button{flex:1;font:18px var(--font);color:#f1e6c8;background:#2c2440;border:1px solid #5a4a6a;border-radius:4px;padding:3px;cursor:pointer}
+#onlAuth nav button.on{background:#7a2a22;border-color:#f0d890;color:#fff}
+#onlAuth label{display:flex;flex-direction:column;font-size:16px;color:#c8bcd8}
+#onlAuth input{font:20px var(--font);color:#fff;background:#0c0a18;border:1px solid #5a4a6a;border-radius:4px;padding:4px 6px;margin-top:2px}
+#onlAuth .go{font:20px var(--font);background:#c0602a;color:#fff;border:1px solid #f0d890;border-radius:4px;padding:4px;cursor:pointer}#onlAuth .go:disabled{opacity:.6}
+#onlAuth .back{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;padding:2px;cursor:pointer}
+#onlAuth .err{margin:0;min-height:1.1em;color:#ff9a8a;font-size:16px}#onlAuth .note{margin:0;color:#a397b6;font-size:15px}
 #onlWait button{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;cursor:pointer}`;
   document.head.appendChild(st);const d=document.createElement('div');d.innerHTML=`<button id="onlBtn" type="button">🌐 <span>…</span></button><div id="onlFeed"></div>
-<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="3">Xếp hạng</button><button data-t="2">Tên</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
+<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="3">Xếp hạng</button><button data-t="2">${onlSrv()?'Tài khoản':'Tên'}</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
 <div id="onlInv"><span></span><button class="ok" type="button">Nhận</button><button class="no" type="button">Từ chối</button></div><div id="onlWait"><span></span><button type="button">Hủy</button></div>`;
   document.body.appendChild(d);const $=s=>d.querySelector(s);
   const U={btn:$('#onlBtn'),feed:$('#onlFeed'),panel:$('#onlPanel'),body:$('#onlBody'),foot:$('#onlPanel footer'),inv:$('#onlInv'),wait:$('#onlWait')};
@@ -275,6 +345,7 @@ function onlStatus(r){return r.sc==='battle'?'đang đánh quái':r.sc==='arena'
 function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelectorAll('header [data-t]').forEach(b=>b.classList.toggle('on',+b.dataset.t===ONL.tab));
   const B=U.body,Ft=U.foot;const keepScroll=ONL.tab===0&&B.scrollTop+B.clientHeight>=B.scrollHeight-8;B.textContent='';Ft.textContent='';
   const note=t=>{const p=document.createElement('p');p.className='note';p.textContent=t;B.appendChild(p);};
+  if(ONL.room&&ONL.dead&&ONL.err)note(ONL.err);
   if(!ONL.room){note(ONL.err||'Đang kết nối...');note('Bản online cần mở trên claude.ai. Bạn bè được chủ game chia sẻ link artifact là vào chơi cùng được.');}
   if(ONL.tab===0){if(!ONL.chat.length)note('Chưa có tin nhắn. Mọi người đang mở game đều thấy tin nhắn của thầy, và câu chat hiện trên đầu nhân vật.');
     for(const m of ONL.chat){const p=document.createElement('p');if(m.me)p.className='me';const i=document.createElement('i');i.textContent=m.nm+': ';p.appendChild(i);p.appendChild(document.createTextNode(m.t));B.appendChild(p);}
@@ -298,14 +369,18 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
     ONL.topD.slice(0,50).forEach((r,i)=>{const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.textContent=(i+1)+'. '+onlClean(r.nm).slice(0,18);
       const sm=document.createElement('small');sm.textContent='Lv '+(r.lv|0)+' · '+arRank(r.rp|0)+' ('+(r.rp|0)+' điểm) · '+(r.w|0)+'T/'+(r.l|0)+'B';sp.appendChild(sm);row.appendChild(sp);B.appendChild(row);});
     if(!ONL.topD.length)note('Chưa có ai trên bảng. Thắng hoặc thua một trận PvP là có tên.');}
+  else if(onlSrv()&&ONL.acc){note('Tài khoản: '+ONL.acc.u+'. Tên này hiện trên đầu nhân vật và trong chat.');
+    note(ONL.kick?'Tài khoản đang chơi ở máy khác: tiến trình ở máy này không được lưu lên server.':ONL.upErr?'Chưa gửi được tiến trình lên server (mất mạng?), game sẽ thử lại.':'Tiến trình được lưu lên server theo tài khoản.');
+    const q=document.createElement('button');q.className='b';q.textContent='Đăng xuất';q.onclick=()=>{q.disabled=true;onlLogout();};B.appendChild(q);
+    if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q2=document.createElement('button');q2.className='b';q2.textContent='Về chế độ một người';q2.style.marginLeft='6px';q2.onclick=onlLeaveMode;B.appendChild(q2);}}
   else{note('Tên hiện trên đầu nhân vật và trong chat (tối đa 18 ký tự).');const inp=document.createElement('input');inp.maxLength=18;inp.value=onlNick();const sb=document.createElement('button');sb.className='b';sb.textContent='Lưu tên';
     sb.onclick=()=>{const v=onlClean(inp.value).slice(0,18);if(!v)return;ONL.nm=v;try{localStorage.setItem('gms-onl-nm',v);}catch(_){}onlSend(true);toast('Đã đổi tên: '+v);onlOpen(1);};
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sb.onclick();});Ft.appendChild(inp);Ft.appendChild(sb);
     if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q=document.createElement('button');q.className='b';q.textContent='Về chế độ một người';q.onclick=onlLeaveMode;B.appendChild(q);}}}
 let onlLastVis='',onlLastRender=0,onlRectK='';
 function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open;
-  const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
-  if(lab!==onlLastVis){onlLastVis=lab;U.btn.style.display=showBtn?'block':'none';U.btn.firstElementChild.textContent=ONL.room?(ONL.conn?n+' online':'đang nối...'):'offline';
+  const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
+  if(lab!==onlLastVis){onlLastVis=lab;U.btn.style.display=showBtn?'block':'none';U.btn.firstElementChild.textContent=ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline';
     let bd=U.btn.querySelector('b');if(ONL.unread){if(!bd){bd=document.createElement('b');U.btn.appendChild(bd);}bd.textContent=String(Math.min(99,ONL.unread));}else if(bd)bd.remove();}
   U.feed.style.display=scene==='map'&&!DLG&&!CH?'flex':'none';
   if(scene==='map'||scene==='title'){const r=cv.getBoundingClientRect(),k=r.width/W,key=[r.left,r.top,r.width,r.height,PORT,scene].join();
@@ -320,4 +395,4 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP()};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};

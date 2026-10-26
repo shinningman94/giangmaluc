@@ -4,7 +4,7 @@
 //
 // Giao thức (JSON):
 //  client -> server
-//   {t:'hello', id, v}            id: mã thiết bị ngẫu nhiên lưu ở máy (dùng cho bảng xếp hạng)
+//   {t:'hello', id, v, tok}       id: mã thiết bị ngẫu nhiên lưu ở máy; tok: phiên đăng nhập (bắt buộc khi server có tài khoản)
 //   {t:'p', r, p}                 đặt presence (cả object) ở phòng r ('' = sảnh)
 //   {t:'join', r} / {t:'leave', r}
 //   {t:'ping'}
@@ -13,7 +13,8 @@
 //   {t:'peers', r, list:[{peer,p}]}  ảnh chụp cả phòng (khi vào phòng)
 //   {t:'up', r, peer, p}          một người đổi presence
 //   {t:'gone', r, peer}           một người rời phòng
-//   {t:'err', m}
+//   {t:'auth', u}                 đăng nhập xong (u: tên tài khoản), lúc này mới vào sảnh
+//   {t:'err', m}                  m: 'auth' phiên hết hạn / 'dup' tài khoản vừa vào từ máy khác (server đóng kết nối)
 
 export const LIMITS = { maxPeers: 400, maxRoomsPerPeer: 8, maxPresence: 4096, maxMsgPerSec: 45, maxDuelRoom: 4 };
 const ROOM_RE = /^duel-[a-z0-9]{4,16}$/;
@@ -22,9 +23,10 @@ const BAD = new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u2028-\\
 const clean = (s, n) => String(s || '').replace(BAD, '').trim().slice(0, n);
 
 export class Hub {
-  // send(sock, string), close(sock) do nơi gọi cung cấp; store: {get(k), put(k,v)} hoặc null
-  constructor({ send, close, store }) {
-    this.send = send; this.close = close; this.store = store;
+  // send(sock, string), close(sock, code, reason) do nơi gọi cung cấp; store: {get(k), put(k,v)} hoặc null
+  // auth: Accounts (accounts.js) thì bắt buộc đăng nhập mới vào sảnh, tên hiển thị là tên tài khoản
+  constructor({ send, close, store, auth = null }) {
+    this.send = send; this.close = close; this.store = store; this.auth = auth;
     this.peers = new Map();   // sock -> peer
     this.rooms = new Map();   // name -> Map(peerId -> peer)
     this.seq = 0;
@@ -33,11 +35,11 @@ export class Hub {
   online() { return this.peers.size; }
 
   open(sock) {
-    if (this.peers.size >= LIMITS.maxPeers) { this.send(sock, JSON.stringify({ t: 'err', m: 'full' })); this.close(sock); return; }
-    const peer = { id: 'p' + (++this.seq).toString(36) + Math.random().toString(36).slice(2, 6), sock, dev: null, pres: new Map(), rooms: new Set(), tb: 0, tn: 0 };
+    if (this.peers.size >= LIMITS.maxPeers) { this.send(sock, JSON.stringify({ t: 'err', m: 'full' })); this.close(sock, 1013, 'full'); return; }
+    const peer = { id: 'p' + (++this.seq).toString(36) + Math.random().toString(36).slice(2, 6), sock, dev: null, pres: new Map(), rooms: new Set(), tb: 0, tn: 0, ok: !this.auth, acc: null, q: null };
     this.peers.set(sock, peer);
     this.out(peer, { t: 'welcome', you: peer.id, n: this.peers.size });
-    this.join(peer, '');
+    if (peer.ok) this.join(peer, '');
   }
 
   message(sock, raw) {
@@ -49,19 +51,38 @@ export class Hub {
     let m; try { m = JSON.parse(raw); } catch { return; }
     if (!m || typeof m !== 'object') return;
     if (m.t === 'ping') return this.out(peer, { t: 'pong' });
-    if (m.t === 'hello') { if (ID_RE.test(m.id || '')) peer.dev = m.id; return; }
+    if (m.t === 'hello') {
+      if (!this.auth) { if (ID_RE.test(m.id || '')) peer.dev = m.id; return; }
+      if (peer.ok || peer.q) return;
+      peer.q = [];
+      this.auth.verify(m.tok).then(a => this.authed(peer, a), () => this.authed(peer, null));
+      return;
+    }
+    if (!peer.ok) { if (peer.q && peer.q.length < 40) peer.q.push(raw); return; } // chờ xác minh phiên xong
     const r = typeof m.r === 'string' ? m.r : '';
     if (r !== '' && !ROOM_RE.test(r)) return;
     if (m.t === 'join') return this.join(peer, r);
     if (m.t === 'leave') return r ? this.leave(peer, r) : undefined;
     if (m.t === 'p') {
       if (!peer.rooms.has(r) || !m.p || typeof m.p !== 'object' || Array.isArray(m.p)) return;
-      const p = m.p; if (typeof p.nm === 'string') p.nm = clean(p.nm, 18);
+      const p = m.p; if (peer.acc) p.nm = peer.acc.n; else if (typeof p.nm === 'string') p.nm = clean(p.nm, 18);
       const js = JSON.stringify(p); if (js.length > LIMITS.maxPresence) return;
       peer.pres.set(r, p);
       this.cast(r, JSON.stringify({ t: 'up', r, peer: peer.id, p }), peer);
       if (r === '' && peer.dev && typeof p.rp === 'number') this.rank(peer.dev, p);
     }
+  }
+
+  authed(peer, a) {
+    if (!this.peers.has(peer.sock)) return;
+    if (!a) { this.out(peer, { t: 'err', m: 'auth' }); this.close(peer.sock, 4001, 'auth'); return; }
+    // một tài khoản chỉ chơi ở một nơi: máy vào sau đẩy máy trước ra (tránh hai máy ghi đè bản lưu của nhau)
+    for (const q of this.peers.values()) if (q !== peer && q.acc && q.acc.u === a.u) { this.out(q, { t: 'err', m: 'dup' }); this.close(q.sock, 4002, 'dup'); this.closed(q.sock); }
+    peer.acc = a; peer.dev = 'a:' + a.u; peer.ok = true;
+    this.out(peer, { t: 'auth', u: a.n });
+    this.join(peer, '');
+    const q = peer.q; peer.q = null;
+    for (const raw of q) this.message(peer.sock, raw);
   }
 
   join(peer, r) {
