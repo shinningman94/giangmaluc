@@ -11,6 +11,10 @@ class_name = "World"
 tag = "v1"
 new_sqlite_classes = ["World"]
 
+# Tạo bản web online vào public/ trước khi đưa lên (cả khi Cloudflare build với thư mục gốc là server/)
+[build]
+command = "cd .. && python3 online/build_online.py server/public --server same && cp -r img server/public/ && (cp web/vt323-*.woff2 server/public/ 2>/dev/null || true)"
+
 # Trang game (bản online) phục vụ luôn từ Worker: https://<tên>.workers.dev/
 # Thư mục public/ do build_online.py tạo ra (xem README.md), không cần sửa tay.
 [assets]
