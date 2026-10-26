@@ -28,7 +28,7 @@ function onlWsRoom(url,o={}){const rooms=new Map(),cls=[];let ws=null,you=null,c
     R.api={name,presence(patch){for(const k in patch){if(patch[k]===null)delete R.mine[k];else R.mine[k]=patch[k];}R.mine={...R.mine};R.dirty=true;if(!R.tm)R.tm=setTimeout(R.flush,33);return Promise.resolve();},
       peers:()=>R.snap,onPeers(f){R.ls.push(f);setTimeout(()=>f({peers:R.snap,joined:R.snap,left:[],updated:[]}),0);return()=>{R.ls=R.ls.filter(x=>x!==f);};},
       connected:()=>conn,onConnection(f){cls.push(f);setTimeout(()=>f(conn),0);return()=>{};},emit:()=>Promise.resolve(),on:()=>()=>{},
-      join:n=>join(n),leave(){rooms.delete(name);tx({t:'leave',r:name});R.ls=[];return Promise.resolve();}};
+      join:n=>join(n),raw:x=>tx(x),leave(){rooms.delete(name);tx({t:'leave',r:name});R.ls=[];return Promise.resolve();}};
     return R;}
   function join(n){if(rooms.has(n))return Promise.resolve(rooms.get(n).api);if(!conn)return Promise.reject({code:'upstream_error'});
     const R=mk(n);rooms.set(n,R);tx({t:'join',r:n});return new Promise((res,rej)=>{R.wq.push(res);setTimeout(()=>{if(!R.ready){rooms.delete(n);rej({code:'upstream_error'});}},8000);});}
@@ -156,7 +156,7 @@ function onlPeers(ch){
   for(const p of ch.peers){if(p.sameTab||p.kind!=='viewer')continue;const s=p.presence||{};live.add(p.peer);
     let r=ONL.peers.get(p.peer);const fresh=!r;
     if(!r){r={peer:p.peer,x:+s.x||0,y:+s.y||0,sayI:0,sayT:'',sayAt:0};ONL.peers.set(p.peer,r);}
-    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;r.sc=String(s.sc||'');
+    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;r.sc=String(s.sc||'');
     r.rp=s.rp|0||1000;r.w=s.w|0;r.l=s.l|0;r.on=s.sc&&s.sc!=='title';
     if(fresh||Math.abs(r.tx-r.x)>96||Math.abs(r.ty-r.y)>96){r.x=r.tx;r.y=r.ty;}
     const sy=s.say&&typeof s.say==='object'?s.say:null;
@@ -207,7 +207,38 @@ function onlTitle(){if(!ONLM)return;txt(ONL.room?'BẢN ONLINE · '+(ONL.peers.s
 function onlChallenge(peer){const r=ONL.peers.get(peer);if(!r)return;if(!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
   if(ONL.duel){toast('Thầy đang có một lời thách đấu');return;}
   const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
+  if(r.bot)return onlBotChallenge(r);
   ONL.duel={n:Math.random().toString(36).slice(2,10),to:peer,nm:r.nm,rp:r.rp,st:'ask',t0:performance.now()};onlSend(true);toast('Đã gửi lời thách đấu tới '+r.nm);onlUI();}
+/* người chơi máy của server: luôn nhận lời (trừ khi đang đấu với người khác), trận chạy ở máy mình bằng AI đấu trường */
+function onlBotChallenge(r){const nm=r.hn||r.nm;if(r.sc==='pvp'){toast(nm+' đang trong một trận khác');return;}
+  const D={bot:1,n:'b'+Date.now().toString(36),to:r.peer,nm,rp:r.rp||1000,lv:r.lv||1,st:'ask',t0:performance.now()};ONL.duel=D;toast('Đã gửi lời thách đấu tới '+nm);onlUI();
+  setTimeout(()=>{if(ONL.duel!==D)return;const q=ONL.peers.get(D.to);if(!q||q.sc==='pvp'){ONL.duel=null;toast(nm+' từ chối thách đấu');onlUI();return;}
+    D.st='go';toast(nm+' nhận lời! Ra bản đồ để vào trận');onlUI();},ri(1200,2600));}
+async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw&&ONL.room.raw(x);}catch(_){}};raw({t:'botduel',b:D.to});
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
+  if(C.length>=3){await say(['Trận thách đấu với '+D.nm+'. Chọn 3 đồng hành ra sân.'],'Đấu Trường');
+    sel=await new Promise(res=>{ARS={C,sel:ARLAST.filter(u=>C.includes(u)).slice(0,3),col:0,i:0,sc:0,res,prev:scene};scene='arsel';});if(sel)ARLAST=sel.slice();}
+  else{sel=C.slice(0,3);await say(['Thầy chưa đủ 3 đồng hành, '+sel.map(u=>u.name).join(', ')+' sẽ ra sân.'],'Đấu Trường');}
+  if(!sel){raw({t:'botres',b:D.to,cancel:1});ONL.duel=null;onlSend(true);onlUI();toast('Đã hủy trận');return;}
+  const z=clamp(Math.floor((D.rp-750)/260),0,5),ids=[];for(let i=0;i<3;i++){let id;for(let t=0;t<12;t++){id=poolPick(clamp(z-ri(0,1),0,5));if(!ids.includes(id))break;}ids.push(id);}
+  const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),lv=clamp(avg+clamp(Math.round((D.rp-P.rp)/110),-4,6),1,LVMAX),te=ids.map(id=>makeUnit(id,clamp(lv+ri(-1,1),1,LVMAX)));
+  await say(['Đội của '+D.nm+': '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.'],'Đấu Trường');
+  const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
+  setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
+  AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:clamp((D.rp-700)/1500,.1,1)};
+  AR.a=arFighter(ta[0],'a',sel[0]);AR.e=arFighter(te[0],'e');
+  scene='arena';await tween(350,t=>{stripes=1-t;});
+  const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills,quit=AR.quit;
+  scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
+  raw({t:'botres',b:D.to,win:!!win});ONL.duel=null;
+  const E=arElo(P.rp,D.rp),d=Math.max(6,Math.round(32*Math.abs((win?1:0)-E)));
+  if(win){P.w++;P.rp+=d;const sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.2)),true);
+    blogAdd('Thắng '+D.nm+' (người chơi) · +'+d+' điểm PvP');sfx('got');
+    await say(['Thầy thắng '+D.nm+'! Nhận '+sv+' bạc, đồng hành ra sân nhận kinh nghiệm.','+'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
+  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.05*(1+kills))),true);
+    blogAdd('Thua '+D.nm+' (người chơi) · -'+d+' điểm PvP');
+    await say([(quit?'Thầy bỏ cuộc. ':'')+'Thua '+D.nm+', hạ được '+kills+'/'+te.length+' đồng hành của đối thủ.','-'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
+  save();onlSend(true);onlUI();}
 function onlDuelSignal(r,du){const me=ONL.me;if(!me)return;const ok=du&&typeof du==='object'&&du.to===me&&typeof du.n==='string';
   const D=ONL.duel;
   if(D&&D.st==='ask'&&D.to===r.peer&&ok&&du.n===D.n){
@@ -226,7 +257,7 @@ function onlWaitFoe(D,pred,ms,msg){return new Promise(res=>{const t0=performance
   const iv=setInterval(()=>{const p=onlFoe(D);if(p&&pred(p.presence)){clearInterval(iv);D.waitMsg='';res(p);}
     else if(D.cancel||performance.now()-t0>ms){clearInterval(iv);D.waitMsg='';res(null);}},120);});}
 function onlFoe(D){if(!D.r)return null;return D.r.peers().find(p=>!p.sameTab&&p.kind==='viewer')||null;}
-async function onlDuelFlow(){const D=ONL.duel;if(!D)return;
+async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBotDuel(D);
   try{D.r=await ONL.room.join('duel-'+D.n);}catch(e){toast('Không vào được phòng đấu');ONL.duel=null;onlSend(true);return;}
   onlSend(true);
   const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
