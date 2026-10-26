@@ -11,6 +11,8 @@ export const BOT_DEFS = [
   { u: 'TieuPhong', hn: 'Tiêu Phong', lv: 31, rp: 1390, w: 51, l: 22 },
   { u: 'BachLien', hn: 'Bạch Liên', lv: 24, rp: 1250, w: 30, l: 21 },
   { u: 'ThienAn99', hn: 'Thiên Ân', lv: 13, rp: 1090, w: 11, l: 12 },
+  // lvp: cấp luôn hơn người chơi bấy nhiêu cấp (mỗi máy tự cộng vào cấp của mình; server ghi theo người cao cấp nhất)
+  { u: 'LamPhong', hn: 'Lâm Phong', lv: 3, rp: 1300, w: 35, l: 14, lvp: 2 },
 ];
 const IDLE = [
   'Có ai đi săn ma ở Rừng Âm U không?', 'Ma Đèn Lồng đêm nay ra nhiều quá', 'Ai biết chỗ mua Hồi Hồn Đan rẻ không?',
@@ -66,7 +68,9 @@ export class Bots {
   async save() { const st = this.hub.store; if (!st) return; for (const b of this.list) await st.put('bot:' + b.u, { lv: b.lv, rp: b.rp, w: b.w, l: b.l }); }
 
   pres(b) {
+    if (b.lvp) { let top = 0; for (const q of this.hub.peers.values()) { const pr = q.ok && q.pres.get(''); if (pr && typeof pr.lv === 'number') top = Math.max(top, pr.lv | 0); } b.lv = Math.min(102, Math.max(1, top) + b.lvp); }
     const p = { v: 1, nm: b.u, hn: b.hn, sc: b.busy ? 'pvp' : 'map', x: Math.round(b.x), y: Math.round(b.y), f: b.f, m: b.mv, lv: b.lv, rp: b.rp, w: b.w, l: b.l, bot: 1, du: null };
+    if (b.lvp) p.lvp = b.lvp;
     if (b.say) p.say = b.say;
     return p;
   }
@@ -129,7 +133,7 @@ export class Bots {
     if (cancel) { this.push(b, true); return; }
     const d = Math.round(rnd(10, 22));
     if (win) { b.l++; b.rp = Math.max(700, b.rp - d); } else { b.w++; b.rp += d; }
-    if (Math.random() < 0.25) b.lv = Math.min(100, b.lv + 1);
+    if (!b.lvp && Math.random() < 0.25) b.lv = Math.min(100, b.lv + 1);
     this.later(rnd(1200, 3000), () => this.talk(b, pick(win ? WIN : LOSE)));
     this.hub.rank(b.peer.dev, this.pres(b)); this.save();
   }

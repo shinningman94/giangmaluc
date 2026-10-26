@@ -51,9 +51,9 @@ Lưu ý: server giữ tài khoản, bản lưu của từng tài khoản và b�
 
 ## Người chơi máy (bot)
 
-Server có sẵn 5 bot (`src/bots.js`): mỗi bot có tài khoản thật (mật khẩu ngẫu nhiên, không ai đăng nhập được), đi lại quanh Làng Hương Khói và các làng gần đó, chào người mới vào, trả lời khi được gọi tên và có tên trên bảng xếp hạng. Bot chỉ chạy khi có người chơi thật đang online.
+Server có sẵn 6 bot (`src/bots.js`): mỗi bot có tài khoản thật (mật khẩu ngẫu nhiên, không ai đăng nhập được), đi lại quanh Làng Hương Khói và các làng gần đó, chào người mới vào, trả lời khi được gọi tên và có tên trên bảng xếp hạng. Bot chỉ chạy khi có người chơi thật đang online.
 
 - Thách đấu bot: bot nhận lời sau 1-3 giây (trừ khi đang đấu với người khác). Trận chạy trên máy người chơi bằng AI đấu trường; kết quả cộng/trừ điểm PvP của người chơi và của bot.
-- Đổi tên, cấp, điểm của bot: sửa `BOT_DEFS` trong `src/bots.js`. Câu nói của bot: các mảng `IDLE`, `GREET`, `REPLY`.
+- Đổi tên, cấp, điểm của bot: sửa `BOT_DEFS` trong `src/bots.js`. Bot có `lvp` (Lâm Phong: 2) luôn cao hơn người chơi bấy nhiêu cấp; khi đấu, đội của bot cao hơn đồng hành mạnh nhất của người chơi bấy nhiêu cấp. Câu nói của bot: các mảng `IDLE`, `GREET`, `REPLY`.
 - Đường đi của bot lấy từ bản đồ thật (`src/botpaths.js`). Khi bản đồ game đổi, chạy lại `node online/tools/botpaths.js` ở thư mục gốc (cần Python 3 và Playwright).
 - Tắt bot: `new Hub({ ..., bots: false })` trong `worker.js` / `node-server.js`.

@@ -10,8 +10,8 @@ android {
         applicationId 'vn.vuaphapsu.game'
         minSdk 21
         targetSdk 34
-        versionCode 150
-        versionName '12.8'
+        versionCode 151
+        versionName '12.9'
     }
 
     buildTypes {
