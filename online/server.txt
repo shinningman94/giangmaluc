@@ -1,1 +1,1 @@
-wss://giangmaluc.giangmaluc.workers.dev/ws
+wss://game.giangmaluc.workers.dev/ws

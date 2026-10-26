@@ -1,7 +1,7 @@
-# Cấu hình cho Cloudflare Workers Builds (nối thẳng repo GitHub này với Worker "giangmaluc").
+# Cấu hình cho Cloudflare Workers Builds (nối thẳng repo GitHub này với Worker "game").
 # Mỗi lần đẩy code, Cloudflare chạy `npx wrangler deploy` ở thư mục gốc repo:
 #  1. lệnh build bên dưới tạo bản web online (đăng nhập + chơi chung) vào server/public
-#  2. đưa server (server/src/worker.js) và trang game lên https://giangmaluc.<tài-khoản>.workers.dev
+#  2. đưa server (server/src/worker.js) và trang game lên https://game.giangmaluc.workers.dev
 name = "game"
 main = "server/src/worker.js"
 compatibility_date = "2025-09-01"

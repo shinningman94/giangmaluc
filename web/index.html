@@ -4457,7 +4457,7 @@ function onlFree(){return G&&scene==='map'&&!busy&&!DLG&&!CH&&!MENU;}
 const ONL_BAD=new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u206f\\ufeff]','g');
 function onlClean(t){return String(t||'').replace(ONL_BAD,'').trim();}
 /* server riêng (build_online.py --server wss://...) thay cho kênh room của claude.ai; để trống thì dùng claude.ai */
-const ONL_SERVER="wss://giangmaluc.giangmaluc.workers.dev/ws";
+const ONL_SERVER="wss://game.giangmaluc.workers.dev/ws";
 /* bộ chuyển: WebSocket tới server riêng nhưng có cùng kiểu gọi như room của claude.ai (presence, onPeers, join...) */
 function onlWsRoom(url,o={}){const rooms=new Map(),cls=[];let ws=null,you=null,conn=false,wait=1000,pingT=null,dead=false;
   let dev='';try{dev=localStorage.getItem('gms-dev')||'';if(!dev){dev='d'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('gms-dev',dev);}}catch(_){dev='d'+Math.random().toString(36).slice(2,12);}

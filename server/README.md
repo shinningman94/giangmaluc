@@ -3,8 +3,8 @@
 Server nhỏ chạy trên **Cloudflare Workers** (gói miễn phí đủ cho vài trăm người cùng online).
 Một địa chỉ phục vụ cả trang game và kết nối chơi:
 
-- `https://giangmaluc.<tên-tài-khoản>.workers.dev/` : vào chơi bằng trình duyệt
-- `wss://giangmaluc.<tên-tài-khoản>.workers.dev/ws` : kết nối của game (app Android dùng địa chỉ này)
+- `https://game.giangmaluc.workers.dev/` : vào chơi bằng trình duyệt
+- `wss://game.giangmaluc.workers.dev/ws` : kết nối của game (app Android dùng địa chỉ này)
 - `/top` : bảng xếp hạng PvP (JSON), `/` : số người đang online
 - `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me`, `/save` : tài khoản và bản lưu theo tài khoản
 
@@ -23,7 +23,7 @@ máy vào sau đẩy máy trước ra để hai máy không ghi đè bản lưu 
    Trong repo GitHub chứa thư mục game: **Settings → Secrets and variables → Actions → New repository secret**,
    thêm `CLOUDFLARE_API_TOKEN` và `CLOUDFLARE_ACCOUNT_ID`. Từ đó mỗi lần đẩy code lên nhánh `main`,
    workflow "Deploy online server" tự đưa server lên và in địa chỉ trong phần Summary.
-3b. Cách nhanh nhất (Cloudflare tự lấy code từ GitHub): trong **Workers & Pages** tạo Worker tên `giangmaluc`,
+3b. Cách nhanh nhất (Cloudflare tự lấy code từ GitHub): trong **Workers & Pages** tạo Worker tên `game`,
    vào **Settings → Builds → Connect** chọn repo này, để nguyên thư mục gốc `/` và lệnh deploy `npx wrangler deploy`.
    File `wrangler.toml` ở gốc repo tự tạo bản web online rồi đưa server lên mỗi lần đẩy code. Dùng cách này thì không cần 2 secret ở bước 3.
 4. Cách B (trên máy tính có Node.js 20+): trong thư mục game chạy
