@@ -1,0 +1,17 @@
+name = "giang-ma-su-online"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[[durable_objects.bindings]]
+name = "WORLD"
+class_name = "World"
+
+# Gói miễn phí của Cloudflare cần Durable Object dùng SQLite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["World"]
+
+# Trang game (bản online) phục vụ luôn từ Worker: https://<tên>.workers.dev/
+# Thư mục public/ do build_online.py tạo ra (xem README.md), không cần sửa tay.
+[assets]
+directory = "./public"

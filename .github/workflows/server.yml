@@ -1,0 +1,43 @@
+name: Deploy online server
+
+# Đưa server + bản web online lên Cloudflare Workers (gói miễn phí).
+# Cần 2 secret trong Settings → Secrets and variables → Actions:
+#   CLOUDFLARE_API_TOKEN  (tạo bằng mẫu "Edit Cloudflare Workers")
+#   CLOUDFLARE_ACCOUNT_ID
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra secret
+        id: chk
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "Chưa có CLOUDFLARE_API_TOKEN, bỏ qua bước đưa server lên." >> "$GITHUB_STEP_SUMMARY"; echo "ok=0" >> "$GITHUB_OUTPUT"; else echo "ok=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.ok == '1'
+        with:
+          node-version: '22'
+      - name: Tạo bản web online
+        if: steps.chk.outputs.ok == '1'
+        run: |
+          python3 online/build_online.py server/public --server same
+          cp -r img server/public/
+          cp vt323-*.woff2 server/public/ 2>/dev/null || cp web/vt323-*.woff2 server/public/ 2>/dev/null || true
+      - name: Đưa lên Cloudflare
+        if: steps.chk.outputs.ok == '1'
+        working-directory: server
+        run: |
+          npm install --no-audit --no-fund
+          npx wrangler deploy | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "### Server đã chạy" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Chơi trên web: $URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Địa chỉ server cho app: ${URL/https/wss}/ws" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,46 @@
+name: Build APK and web
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  # địa chỉ server online (wss://.../ws); để trống thì dùng file online/server.txt
+  ONLINE_SERVER: ${{ vars.ONLINE_SERVER }}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - run: python3 build.py
+      - run: gradle -p android assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VuaPhapSu-apk
+          path: android/app/build/outputs/apk/release/*.apk
+
+  web:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 build.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - uses: actions/deploy-pages@v4
