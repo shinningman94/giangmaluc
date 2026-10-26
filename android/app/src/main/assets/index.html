@@ -4097,8 +4097,8 @@ const SITES={
    điều khiển trực tiếp bằng cần gạt bên trái và nút đánh / kỹ năng bên phải (kiểu arena thời gian thực). */
 let AR=null;
 const AJ={on:false,id:null,ox:0,oy:0,x:0,y:0,vx:0,vy:0};
-function arLay(){if(PORT){const fh=H-44-96;return{F:{x:2,y:44,w:W-4,h:fh},J:{x:44,y:H-48,r:30},A:{x:W-38,y:H-46,r:19},S:[{x:W-86,y:H-24},{x:W-84,y:H-72},{x:W-38,y:H-90}],sr:14,D:{x:W-128,y:H-92,r:12},X:{x:4,y:H-15,w:36,h:13}};}
-  return{F:{x:2,y:25,w:236,h:133},J:{x:30,y:128,r:23},A:{x:214,y:133,r:15},S:[{x:184,y:147},{x:187,y:117},{x:212,y:104}],sr:10,D:{x:160,y:146,r:10},X:{x:102,y:148,w:36,h:11}};}
+function arLay(){if(PORT){const fh=H-44-96;return{F:{x:2,y:44,w:W-4,h:fh},J:{x:44,y:H-48,r:30},A:{x:W-40,y:H-46,r:14},S:[{x:W-86,y:H-24},{x:W-84,y:H-72},{x:W-38,y:H-90}],sr:14,D:{x:W-128,y:H-92,r:12},X:{x:4,y:H-15,w:36,h:13}};}
+  return{F:{x:2,y:25,w:236,h:133},J:{x:30,y:128,r:23},A:{x:215,y:134,r:11},S:[{x:184,y:147},{x:187,y:117},{x:212,y:104}],sr:10,D:{x:160,y:146,r:10},X:{x:102,y:148,w:36,h:11}};}
 /* khung hình to, nét ở độ phân giải màn hình (giống folFrame nhưng cao th) */
 const ARFC=new Map();
 function arPose(id,k,wp){const a=ANIM[id];if(!a)return k;if(k==='walk'&&a.pose.walk===undefined){if(a.pose.w1!==undefined)return'w'+(1+Math.floor(wp===undefined?time/140:wp/6)%3);return'idle';}
