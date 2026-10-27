@@ -5,6 +5,8 @@
    - phòng riêng 'duel-<mã>': trạng thái võ sĩ đang ra sân, đạn vừa bắn, danh sách đòn trúng (bên đánh tự tính sát thương)
    Không có room (mở file thường, app Android) thì game chạy như bản một người. */
 let onlUIq=0;
+/* người chơi muốn bỏ bong bóng chat trên đầu nhân vật: chat chỉ hiện trong khung Trò chuyện */
+const ONL_BUBBLE=false;
 const ONL={room:null,user:null,me:null,ok:false,err:'',nm:'',peers:new Map(),chat:[],unread:0,sayI:0,sayT:'',sayAt:0,
   duel:null,inv:null,lastSend:0,lastJ:'',tab:0,open:false,ui:null,conn:false};
 try{ONL.nm=(localStorage.getItem('gms-onl-nm')||'').slice(0,18);}catch(_){}
@@ -190,10 +192,10 @@ function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
     const HF=heroMapFrame(r.mv?'w'+(Math.floor(time/110)%4):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
     const top=hy+15-HF.oy-2,tag=(r.hn||r.nm)+(r.sc==='battle'||r.sc==='arena'||r.sc==='pvp'?' ⚔':'');
     txt(tag,hx+8,top-8,{size:7,align:'center',color:r.sc==='pvp'?'#ffb070':'#9fe8ff',outline:'#120d18'});
-    if(r.sayT&&performance.now()-r.sayAt<6000){const L=wrap(r.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=top-10-h;
+    if(ONL_BUBBLE&&r.sayT&&performance.now()-r.sayAt<6000){const L=wrap(r.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=top-10-h;
       c.globalAlpha=.92;rect(bx,by,w,h,'#fff8e8');rect(bx,by+h,w,1,'#5a4a3a');rect(hx+7,by+h,3,2,'#fff8e8');c.globalAlpha=1;L.forEach((l,i)=>txt(l,hx+8,by+2+i*8,{size:7,align:'center',color:'#2a1a10'}));}}
   /* bong bóng chat của chính mình */
-  if(ONL.sayT&&performance.now()-ONL.sayAt<6000&&Math.floor((PL.py+8)/TS)===y&&ONL.room){const hx=Math.round(PL.px-camX),hy=Math.round(PL.py-camY),L=wrap(ONL.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=hy-34-h;
+  if(ONL_BUBBLE&&ONL.sayT&&performance.now()-ONL.sayAt<6000&&Math.floor((PL.py+8)/TS)===y&&ONL.room){const hx=Math.round(PL.px-camX),hy=Math.round(PL.py-camY),L=wrap(ONL.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=hy-34-h;
     c.globalAlpha=.92;rect(bx,by,w,h,'#e8fff0');rect(hx+7,by+h,3,2,'#e8fff0');c.globalAlpha=1;L.forEach((l,i)=>txt(l,hx+8,by+2+i*8,{size:7,align:'center',color:'#10301a'}));}}
 function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
   for(const r of ONL.peers.values()){const k=Math.min(1,dt/110);r.x+=(r.tx-r.x)*k;r.y+=(r.ty-r.y)*k;r.mv=r.m||Math.abs(r.tx-r.x)+Math.abs(r.ty-r.y)>1.5;}
