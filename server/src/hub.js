@@ -129,14 +129,15 @@ export class Hub {
     const b = await this.loadBoard(); const w = p.w | 0, l = p.l | 0;
     if (!w && !l && !b[dev]) return;
     const o = b[dev];
-    if (o && o.rp === (p.rp | 0) && o.w === w && o.l === l && o.nm === p.nm) return;
-    b[dev] = { nm: clean(p.nm, 18) || 'Pháp Sư', rp: p.rp | 0, w, l, lv: p.lv | 0, at: Date.now() };
+    const hn = clean(p.hn, 12);
+    if (o && o.rp === (p.rp | 0) && o.w === w && o.l === l && o.nm === p.nm && (o.hn || '') === hn) return;
+    b[dev] = { nm: clean(p.nm, 18) || 'Pháp Sư', hn, rp: p.rp | 0, w, l, lv: p.lv | 0, at: Date.now() };
     const keys = Object.keys(b); if (keys.length > 2000) { keys.sort((x, y) => b[x].at - b[y].at).slice(0, keys.length - 2000).forEach(k => delete b[k]); }
     this.boardDirty = true;
   }
   async flush() { if (this.boardDirty && this.store) { this.boardDirty = false; await this.store.put('board', this.board); } }
   async top(n = 50) {
     const b = await this.loadBoard();
-    return Object.values(b).sort((x, y) => y.rp - x.rp).slice(0, n).map(({ nm, rp, w, l, lv }) => ({ nm, rp, w, l, lv }));
+    return Object.values(b).sort((x, y) => y.rp - x.rp).slice(0, n).map(({ nm, hn, rp, w, l, lv }) => ({ nm, hn: hn || '', rp, w, l, lv }));
   }
 }

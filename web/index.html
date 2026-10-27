@@ -4284,8 +4284,8 @@ async function arBoard(){const A=arenaData(),L=A.bots.map(b=>({n:b.n,rp:b.rp,w:b
 function arenaTown(p){const ti=townAt(p.x,p.y);return ti>=0&&WD.towns[ti]?WD.towns[ti]:p&&p.n?{n:p.n}:null;}
 async function arenaMenu(p){const A=arenaData();const T=arenaTown(p);
   for(;;){const i=await ask('Đấu Trường '+(T?T.n:''),`Tìm trận để gặp ngẫu nhiên một đấu sĩ cùng tầm điểm hạng, mỗi bên 3 đồng hành ra đấu lần lượt 1 chọi 1. Hạng: ${arRank(A.rp)} (${A.rp} điểm, thứ ${arPos(A)}/${A.bots.length+1}) · thắng ${A.w} · thua ${A.l} · chuỗi thắng ${A.st}.`,
-    [{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'}]:[]),{t:'Rời đấu trường',def:1}]);
-    if(ONLM&&i===3){onlOpen(1);return;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
+    [{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);
+    if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
 /* v12.3: màn chọn đội hình kiểu Tháp Trấn Hồn: trái là các đồng hành (không có Minh Dạ), phải là 3 ô ra trận theo thứ tự */
 let ARS=null,ARLAST=[];
 function arenaPick(){const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(C.length<3)return say('Thầy không được tự ra sân. Cần ít nhất 3 đồng hành (trong đội hoặc trong Tháp Trấn Hồn) mới vào được đấu trường.','Quản Đấu Trường');
@@ -4647,11 +4647,25 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
 function onlTitle(){if(!ONLM)return;txt(ONL.room?'BẢN ONLINE · '+(ONL.peers.size+1)+' người đang chơi':'BẢN ONLINE · chưa kết nối',W/2,PORT?71:60,{size:9,align:'center',color:'#9fe8ff',outline:'#120d18'});}
 
 /* ---------- thách đấu ---------- */
-function onlChallenge(peer){const r=ONL.peers.get(peer);if(!r)return;if(!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
+function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
   if(ONL.duel){toast('Thầy đang có một lời thách đấu');return;}
   const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
   if(r.bot)return onlBotChallenge(r);
   ONL.duel={n:Math.random().toString(36).slice(2,10),to:peer,nm:r.nm,rp:r.rp,st:'ask',t0:performance.now()};onlSend(true);toast('Đã gửi lời thách đấu tới '+r.nm);onlUI();}
+/* Đấu Trường: thách đấu người chơi online và bảng xếp hạng online (gộp từ bảng online vào menu đấu trường) */
+async function onlArenaDuel(){if(!ONL.room){await say('Chưa nối được server online, thử lại sau.','Quản Đấu Trường');return false;}
+  if(ONL.duel){await say('Thầy đang có một lời thách đấu chờ trả lời.','Quản Đấu Trường');return false;}
+  const L=[...ONL.peers.values()].filter(r=>r.on).sort((p,q)=>(Math.abs(p.tx-PL.px)+Math.abs(p.ty-PL.py))-(Math.abs(q.tx-PL.px)+Math.abs(q.ty-PL.py))).slice(0,8);
+  if(!L.length){await say('Chưa có người chơi nào khác đang online.','Quản Đấu Trường');return false;}
+  const P=onlPvp(),i=await ask('Thách đấu online','Điểm PvP của thầy: '+arRank(P.rp)+' ('+P.rp+' điểm, '+P.w+' thắng / '+P.l+' thua). Chọn đối thủ: mỗi bên 3 đồng hành, ra sân lần lượt 1 chọi 1.',
+    L.map(r=>({t:(r.hn||r.nm)+' · Lv '+r.lv+' · '+arRank(r.rp)+(r.sc!=='map'?' (đang bận)':''),dis:r.sc!=='map'})).concat([{t:'Quay lại',def:1}]));
+  const r=L[i];if(!r)return false;onlChallenge(r.peer,true);return !!ONL.duel;}
+async function onlArenaTop(){let d;try{d=await (await fetch(ONL.top)).json();}catch(_){d=null;}
+  if(!Array.isArray(d)||!d.length){await say(d?'Chưa có ai trên bảng. Thắng hoặc thua một trận PvP là có tên.':'Không tải được bảng xếp hạng, thử lại sau.','Quản Đấu Trường');return;}
+  const me=onlNick(),pos=d.findIndex(r=>r.nm===me),row=(r,k)=>(k+1)+'. '+(onlClean(r.hn).slice(0,12)||onlClean(r.nm).slice(0,18))+' · Lv '+(r.lv|0)+' · '+arRank(r.rp|0)+' ('+(r.rp|0)+') · '+(r.w|0)+'T/'+(r.l|0)+'B',pages=[];
+  const top=d.slice(0,15);for(let k=0;k<top.length;k+=3)pages.push(top.slice(k,k+3).map((r,j)=>row(r,k+j)).join('\n'));
+  pages.push(pos>=0?'Thầy đứng thứ '+(pos+1)+'/'+d.length+' trên bảng PvP toàn server.':'Thầy chưa có tên trên bảng PvP. Đấu một trận online là có tên.');
+  await say(pages,'Bảng xếp hạng online');}
 /* người chơi máy của server: luôn nhận lời (trừ khi đang đấu với người khác), trận chạy ở máy mình bằng AI đấu trường */
 function onlBotChallenge(r){const nm=r.hn||r.nm;if(r.sc==='pvp'){toast(nm+' đang trong một trận khác');return;}
   const D={bot:1,n:'b'+Date.now().toString(36),to:r.peer,nm,rp:r.rp||1000,lv:r.lv||1,lvp:r.lvp,st:'ask',t0:performance.now()};ONL.duel=D;toast('Đã gửi lời thách đấu tới '+nm);onlUI();
@@ -4820,7 +4834,7 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
 #onlAuth .err{margin:0;min-height:1.1em;color:#ff9a8a;font-size:16px}#onlAuth .note{margin:0;color:#a397b6;font-size:15px}
 #onlWait button{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;cursor:pointer}`;
   document.head.appendChild(st);const d=document.createElement('div');d.innerHTML=`<button id="onlBtn" type="button">🌐 <span>…</span></button><div id="onlFeed"></div>
-<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="3">Xếp hạng</button><button data-t="2">${onlSrv()?'Tài khoản':'Tên'}</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
+<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="2">${onlSrv()?'Tài khoản':'Tên'}</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
 <div id="onlInv"><span></span><button class="ok" type="button">Nhận</button><button class="no" type="button">Từ chối</button></div><div id="onlWait"><span></span><button type="button">Hủy</button></div>`;
   document.body.appendChild(d);const $=s=>d.querySelector(s);
   const U={btn:$('#onlBtn'),feed:$('#onlFeed'),panel:$('#onlPanel'),body:$('#onlBody'),foot:$('#onlPanel footer'),inv:$('#onlInv'),wait:$('#onlWait')};
@@ -4851,12 +4865,11 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
   else if(ONL.tab===1){const L=[...ONL.peers.values()].sort((p,q)=>(q.rp||0)-(p.rp||0));const P=G?onlPvp():null;
     note('Thầy: '+onlNick()+(P?' · PvP '+arRank(P.rp)+' ('+P.rp+' điểm, '+P.w+'T/'+P.l+'B)':'')+(ONL.room?'':' · offline'));
     if(!L.length&&ONL.room)note('Chưa có ai khác đang mở game. Chia sẻ link artifact cho bạn bè để cùng chơi.');
-    for(const r of L){const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.textContent=r.nm+(r.guest?' (khách)':'');const sm=document.createElement('small');
+    for(const r of L){const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.textContent=(r.hn||r.nm)+(r.guest?' (khách)':'');const sm=document.createElement('small');
       const dist=G&&r.on?Math.round((Math.abs(r.tx-PL.px)+Math.abs(r.ty-PL.py))/TS):null;
       sm.textContent=(r.on?'Lv '+r.lv+' · '+arRank(r.rp)+' ('+r.rp+') · ':'')+onlStatus(r)+(dist!==null?' · cách '+dist+' ô':'');sp.appendChild(sm);row.appendChild(sp);
-      const b=document.createElement('button');b.className='b';const mine=ONL.duel&&ONL.duel.to===r.peer;b.textContent=mine?'Đang chờ...':'Thách đấu';
-      b.disabled=!!ONL.duel||!G||r.sc!=='map'||!onlFree();b.onclick=()=>{onlChallenge(r.peer);onlRender();};row.appendChild(b);B.appendChild(row);}
-    note('Thách đấu: mỗi bên chọn 3 đồng hành, ra sân lần lượt 1 chọi 1 như Đấu Trường. Thắng được bạc, kinh nghiệm và điểm PvP.');}
+      B.appendChild(row);}
+    note('Muốn thách đấu hay xem bảng xếp hạng online thì vào Đấu Trường ở làng gần nhất.');}
   else if(ONL.tab===3){if(!ONL.top){note('Bảng xếp hạng toàn server chỉ có khi chơi bằng server riêng.');return;}
     if(!ONL.topD||Date.now()-ONL.topAt>20000){ONL.topAt=Date.now();note('Đang tải...');fetch(ONL.top).then(r=>r.json()).then(d=>{ONL.topD=Array.isArray(d)?d:[];onlUI();}).catch(()=>{ONL.topD=[];onlUI();});if(!ONL.topD)return;}
     note('Bảng xếp hạng PvP toàn server (cập nhật khi người chơi online).');
@@ -4872,7 +4885,7 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sb.onclick();});Ft.appendChild(inp);Ft.appendChild(sb);
     if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q=document.createElement('button');q.className='b';q.textContent='Về chế độ một người';q.onclick=onlLeaveMode;B.appendChild(q);}}}
 let onlLastVis='',onlLastRender=0,onlRectK='';
-function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open;
+function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open&&!CH&&!MENU;
   const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
   if(lab!==onlLastVis){onlLastVis=lab;U.btn.style.display=showBtn?'block':'none';U.btn.firstElementChild.textContent=ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline';
     let bd=U.btn.querySelector('b');if(ONL.unread){if(!bd){bd=document.createElement('b');U.btn.appendChild(bd);}bd.textContent=String(Math.min(99,ONL.unread));}else if(bd)bd.remove();}
@@ -4889,7 +4902,7 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
 
 /* ---------- main loop ---------- */
 let last=performance.now();

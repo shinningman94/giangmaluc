@@ -51,8 +51,8 @@ def build(server='', dual=False, src_path=None):
     rep('updateMap(dt);\n', 'updateMap(dt);onlTick(dt);\n')
     rep("if(scene==='title')drawTitle();", "if(scene==='title'){drawTitle();onlTitle();}")
     rep("[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},{t:'Rời đấu trường',def:1}]);",
-        "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'}]:[]),{t:'Rời đấu trường',def:1}]);")
-    rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){onlOpen(1);return;}if(i===0)await arenaPick();')
+        "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);")
+    rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();')
     # đặt tên nhân vật khi bắt đầu chơi online; mọi chữ "Minh Dạ" hiện ra được thay bằng tên đó
     rep('async function startNew(){newGame();',
         "async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);")
