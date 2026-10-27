@@ -315,7 +315,8 @@ function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arF
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
-  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}
+  /* đối thủ đang né: báo sang để máy họ hiện NÉ và hồi linh lực (13.4) */
+  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');hit({d:0,n:1});}return;}
   if(typeof arCalc!=='function'){onlHurtOld(a,b,x,o,hit);return;}
   /* 13.1: bên đánh tính trúng/chí mạng/sát thương bằng công thức đánh theo lượt (arCalc) với chỉ số đối thủ gửi sang,
      rồi gửi kèm hiệu ứng (bỏng, độc, suy yếu, phá giáp, choáng, mê loạn...) để máy đối thủ tự áp lên đồng hành của họ */
@@ -339,7 +340,8 @@ function onlHurtOld(a,b,x,o,hit){if(typeof arHit==='function'&&R()*100>arHit(a,b
   const r=arDmg(a,b,x),e={};if(o.stun&&R()<.6)e.stun=900;if(o.slow)e.slow=2500;hit({d:r.d,c:r.cr?1:0,e});
   b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
   if(o.drain){const v=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
-function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;
+function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;
+  if(b.inv>0||h.n){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');if(typeof arMp==='function')arMp(b,6);}return;}
   if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}
   if(h.dc){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');return;}
   const d=h.x?0:clamp(h.d|0,0,99999);if(!h.x){b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
