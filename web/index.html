@@ -4112,39 +4112,89 @@ function arFrame(id,k,fl,th){const key=id+'|'+k+(fl?'f':'')+th+'@'+S;if(ARFC.has
   const x=n.getContext('2d');x.imageSmoothingEnabled=!!a;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   if(a){const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);}
   const r={img:n,w:bw*sc,h:bh*sc};if(ARFC.size>300)ARFC.clear();ARFC.set(key,r);return r;}
-/* kỹ năng theo lượt đổi sang dạng đấu trường */
-function arSk(s){const k=s.k;let t='proj';if(k==='heal'||k==='pheal'||k==='revive')t='heal';else if(k==='guard'||k==='pguard'||k==='decoy'||k==='phase')t='shield';else if(k==='buff'||k==='focus'||k==='rally'||k==='steal')t='buff';
-  const col={drain:'#d070ff',stun:'#90e8ff',weak:'#90ff90',conf:'#ff90d0',brk:'#ff8040',sum:'#ffe080'}[k]||'#ffd060';
-  const el=arEl(s);return{s,t,k,el,x:s.x||1.3,c:s.c||0,cd:2600+(s.c||0)*140+(s.cd||0)*700,col:t==='proj'?ARPAL[el][1]:col,n:s.n};}
-function arFighter(u,side,src){const sk=skillsOf(u).filter(s=>s.k!=='revive').slice(0,3).map(arSk);const L=arLay(),F=L.F;
-  return{u,src,side,id:u.id,name:u.name,lv:u.lv,x:side==='a'?F.x+30:F.x+F.w-30,y:F.y+F.h*.6,mhp:Math.max(1,u.mhp),hp:Math.max(1,u.mhp),mmp:Math.max(1,u.mmp),mp:Math.max(1,u.mmp),
-    atk:u.atk,def:u.def,skl:u.skl,spd:u.spd,ranged:!!(SPECIES[u.id]&&SPECIES[u.id].ranged),iq:side==='e'&&AR?AR.iq:.5,face:side==='a'?1:-1,cd:{a:0,s:[0,0,0],d:0},inv:0,dash:null,gh:[],sk,stun:0,shield:0,buff:0,slow:0,hurt:0,act:null,mv:0,ai:0,jx:0,jy:0};}
-/* v13.0 chỉ số giống hệt ngoài bản đồ: máu/linh lực thật, sát thương chia 3 để trận dài như cũ */
-function arDmg(a,b,x){let d=a.atk*x*(a.buff>0?1.4:1)-b.def*.55;d=Math.max(1+a.atk*.2*x,d)*(.9+R()*.2)/3;let cr=false;if(R()<.04+a.skl*.006){d*=1.5;cr=true;}if(b.shield>0)d*=.5;return{d:Math.max(1,Math.round(d)),cr};}
+/* v13.1 kỹ năng đấu trường giống hệt đánh theo lượt (cast/castL trong h_battle): cùng hệ số sát thương, linh lực, tỉ lệ trúng/chí mạng,
+   hiệu ứng (bỏng, độc, chảy máu, phá giáp, suy yếu, choáng, mê loạn, hộ thể, thần hộ pháp, hư ảnh, hình nhân giấy, gọi hồn, triệu hồi...).
+   Một "lượt" đổi thành ARTURN ms; đánh thường hồi 6 linh lực như ngoài trận. */
+const ARTURN=1500;
+function arSk(s){const D=s.L?LSK[s.L]:s,k=D.k;let t='proj';
+  if(k==='heal'||k==='pheal'||k==='revive')t='heal';else if(k==='guard'||k==='pguard'||k==='decoy'||k==='phase')t='shield';
+  else if(k==='buff'||k==='focus'||k==='steal')t='buff';else if(s.L&&(k==='weak'||k==='conf'))t='curse';else if(k==='sum'||k==='summon')t='sum';
+  const col={drain:'#d070ff',stun:'#90e8ff',weak:'#c8a8ff',conf:'#ffd27a',brk:'#ff8040',sum:'#ffe080',summon:'#ff9a50'}[k]||D.col||'#ffd060';
+  const el=arEl(s);return{s,D,L:s.L,t,k,el,x:D.x||1,c:s.c||0,cd:Math.max(1200,(D.cd||0)*ARTURN),max:D.max||0,col:t==='proj'?ARPAL[el][1]:col,n:s.n};}
+function arFighter(u,side,src,hpr){const sk=skillsOf(u).slice(0,3).map(arSk);const L=arLay(),F=L.F,mhp=Math.max(1,u.mhp);
+  return{u,src,side,id:u.id,name:u.name,lv:u.lv,x:side==='a'?F.x+30:F.x+F.w-30,y:F.y+F.h*.6,mhp,hp:hpr?Math.max(1,Math.ceil(mhp*hpr)):mhp,mmp:Math.max(1,u.mmp),mp:Math.max(1,u.mmp),
+    atk:u.atk,def:u.def,skl:u.skl,spd:u.spd,ranged:!!(SPECIES[u.id]&&SPECIES[u.id].ranged),iq:side==='e'&&AR?AR.iq:.5,face:side==='a'?1:-1,cd:{a:0,s:[0,0,0],d:0},inv:0,dash:null,gh:[],sk,
+    stun:0,shield:0,buff:0,slow:0,hurt:0,act:null,mv:0,ai:0,jx:0,jy:0,st:{weak:0,brk:0,burn:0,conf:0,phase:0},bt:0,psn:0,bld:0,decoy:0,foc:0,use:{},sum:null};}
+/* công thức calc của trận theo lượt: (Công + vũ khí) x hệ số, trừ Thủ; trúng = vũ khí + Kỹ x2 - Tốc địch x2 */
+function arCalc(a,d,mult,hitB=0,crB=0){const w=weapon(a.u),as=a.st||{},ds=d.st||{};
+  let dmg=(a.atk+w.mt)*mult*(as.weak>0?.7:1)-d.def*(ds.brk>0?.6:1);if(a.buff>0)dmg*=1.3;if(d.shield>0)dmg*=.5;
+  const hit=clamp(w.hit+hitB+a.skl*2-d.spd*2-(SPECIES[d.id]&&SPECIES[d.id].ev||0)-(ds.phase>0?45:0),5,100);
+  return{hit,dmg:Math.max(1,Math.round(dmg)),crt:clamp(w.crt+crB+Math.floor(a.skl/2)-Math.floor(d.skl/3),0,100)};}
 function arPop(x,y,t,col){AR.pops.push({x,y,t,col,life:900});}
-function arHurt(a,b,x,o={}){if(b.hp<=0)return;if(AR.pvp&&b.side==='e')return onlHurtRemote(a,b,x,o);if(b.inv<=0&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);b.hp=Math.max(0,b.hp-r.d);b.hurt=220;b.kb=(b.x>a.x?1:-1)*4;
-  arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':b.side==='a'?'#ff8080':'#ffffff');sfx(r.cr?'crit':'hit');
-  arFxHit(a,b,o,r.cr);
-  if(o.drain){const h=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+h);arPop(a.x,a.y-23,'+'+h,'#80ff90');}
-  if(o.stun&&R()<.6){b.stun=900;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}
-  if(o.slow){b.slow=2500;arPop(b.x,b.y-27,'CHẬM','#90ff90');}
-  if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');arFxKO(b);}}
-function arAttack(f){if(f.cd.a>0||f.stun>0||f.hp<=0)return;const o=arOpp(f);f.cd.a=arACd(f);f.act={k:f.ranged?'throw':'sweep',t:260};
+function arDmgTo(b,d,col){b.hp=Math.max(0,b.hp-d);b.hurt=220;arPop(b.x,b.y-21,String(d),col||(b.side==='a'?'#ff8080':'#ffffff'));if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');arFxKO(b);}}
+function arHeal(f,v){v=Math.max(1,Math.round(v));f.hp=Math.min(f.mhp,f.hp+v);arPop(f.x,f.y-23,'+'+v,'#80ff90');sfx('heal');}
+function arClean(f,ks){for(const k of ks){if(k==='stun')f.stun=0;else f.st[k]=0;}}
+/* một đòn trúng: o = {x, hitB, crB, drain, burn, poison, weak, brk, stun, inf, p, tn, bleed, rally, aoe, auto} */
+function arHurt(a,b,x,o={}){if(b.hp<=0)return;if(AR.pvp&&b.side==='e')return onlHurtRemote(a,b,x,o);if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}
+  const f=arCalc(a,b,x,o.hitB||0,o.crB||0);
+  if(!o.auto&&!((R()*100+R()*100)/2<f.hit)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}
+  if(b.decoy){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');arBurst(b.x,b.y-8,'tali',12,.07);return;}
+  const cr=!o.auto&&R()*100<f.crt,d=cr?f.dmg*2:f.dmg;b.kb=(b.x>a.x?1:-1)*4;
+  arDmgTo(b,d,cr?'#ffe060':null);if(cr)arPop(b.x,b.y-30,'CHÍ MẠNG!','#ffd040');sfx(cr?'crit':'hit');arFxHit(a,b,o,cr);
+  if(o.drain&&a.hp>0)arHeal(a,d*(o.drain===true?.5:o.drain));
+  if(b.hp<=0)return;const T=ARTURN;
+  if(o.burn&&R()<o.burn){b.st.burn=3*T;b.bt=T;arPop(b.x,b.y-27,'BỎNG','#ff8a3a');}
+  if(o.poison&&R()<o.poison){b.st.burn=3*T;b.bt=T;b.psn=1;arPop(b.x,b.y-27,'TRÚNG ĐỘC','#b8e070');}
+  if(o.weak){b.st.weak=3*T;arPop(b.x,b.y-27,'SUY YẾU','#c8a8ff');}
+  if(o.brk){b.st.brk=3*T;arPop(b.x,b.y-27,'PHÁ GIÁP','#ff9a6a');}
+  if(o.stun&&R()<o.stun){b.stun=T;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}
+  if(o.inf&&R()<(o.p??1)){const tn=(o.tn||1)+1;if(o.inf==='stun'){b.stun=tn*T*.6;arPop(b.x,b.y-27,'ĐÓNG BĂNG','#a8e8ff');}
+    else{b.st[o.inf]=tn*T;if(o.inf==='burn'){b.bt=T;if(o.bleed)b.bld=1;}arPop(b.x,b.y-27,o.bleed?'CHẢY MÁU':{brk:'PHÁ GIÁP',burn:'BỎNG',weak:'SUY YẾU',conf:'MÊ LOẠN'}[o.inf]||'',o.bleed?'#ff6060':'#ffb080');}}
+  if(o.rally)arRally(a,b);
+  if(o.aoe&&a.side==='a')arAoe(a,x*o.aoe);}
+/* trợ chiến: đồng đội chưa ra sân mỗi người đánh thêm nửa đòn */
+function arRally(a,b){const A=AR,team=a.side==='a'?A.ta.slice(A.ai+1):A.te.slice(A.ei+1);for(const u of team){if(b.hp<=0)break;
+  const d=Math.max(1,Math.round(arCalc({u,atk:u.atk,skl:u.skl},b,1).dmg*.5));arDmgTo(b,d,'#9ad8ff');arPop(b.x,b.y-30,u.name+' trợ chiến','#9ad8ff');}}
+/* sóng chấn lan sang quỷ đang chờ (mỗi con giữ lại ít nhất 1 máu) */
+function arAoe(a,x){const A=AR;A.pre=A.pre||{};let n=0;for(let i=A.ei+1;i<A.te.length;i++){const u=A.te[i];const d=Math.max(1,Math.round(arCalc(a,{id:u.id,def:u.def,spd:u.spd,skl:u.skl},x).dmg));A.pre[i]=(A.pre[i]||0)+d;n++;}
+  if(n)arPop(a.x,a.y-34,'LAN SANG '+n+' QUỶ','#7af0ff');}
+function arConfSelf(f){if(f.st.conf>0&&R()<.5){f.act={k:'turn',t:300};arPop(f.x,f.y-27,'MÊ LOẠN','#ffd27a');const d=arCalc(f,f,.5).dmg;f.kb=-f.face*3;arDmgTo(f,d);return true;}return false;}
+function arAttack(f){if(f.cd.a>0||f.stun>0||f.hp<=0)return;const o=arOpp(f);f.cd.a=arACd(f);f.mp=Math.min(f.mmp,f.mp+6);if(arConfSelf(f))return;f.act={k:f.ranged?'throw':'sweep',t:260};
   if(f.ranged){AR.pj.push({x:f.x+f.face*10,y:f.y-8,vx:f.face*175,vy:(o?clamp((o.y-f.y)*1.4,-60,60):0),side:f.side,f,x2:1,col:'#fff0b0',r:2.6,life:1300,el:'spirit'});return;}
   arFxSlash(f);
   if(o&&Math.abs(o.y-f.y)<8&&(o.x-f.x)*f.face>-5&&Math.abs(o.x-f.x)<15)arHurt(f,o,1);else sfx('miss');}
-function arCast(f,i){const S0=f.sk[i];if(!S0||f.cd.s[i]>0||f.stun>0||f.hp<=0)return false;if(f.mp<S0.c){if(f.side==='a'){sfx('no');toast('Không đủ linh lực');}return false;}
-  f.mp-=S0.c;f.cd.s[i]=S0.cd;f.act={k:S0.t==='proj'?'throw':'raise',t:380};sfx('cast');arFxCast(f,S0);if(f.side==='a'||R()<1)arPop(f.x,f.y-29,S0.n,S0.col);
-  if(S0.t==='heal'){const v=Math.round(f.mhp*(S0.x<1?S0.x:.3));f.hp=Math.min(f.mhp,f.hp+v);arPop(f.x,f.y-23,'+'+v,'#80ff90');sfx('heal');}
-  else if(S0.t==='shield'){f.shield=3500;}
-  else if(S0.t==='buff'){f.buff=4500;}
-  else{const o=arOpp(f);AR.pj.push({x:f.x+f.face*10,y:f.y-8,vx:f.face*150,vy:o?clamp((o.y-f.y)*1.2,-70,70):0,side:f.side,f,x2:S0.x*1.15,col:S0.col,r:4.5,life:1500,el:S0.el,sk:1,drain:S0.k==='drain',stun:S0.k==='stun',slow:S0.k==='weak'||S0.k==='conf'});}
+function arShoot(f,S0,o,i=0,home=0){const op=arOpp(f);AR.pj.push(Object.assign({x:f.x+f.face*(10-i*14),y:f.y-8,vx:f.face*150,vy:op&&!home?clamp((op.y-f.y)*1.2,-70,70):0,side:f.side,f,col:S0.col,r:home?3.4:4.5,life:home?2600:1500,el:S0.el,sk:1,home},o));}
+function arCast(f,i){const S0=f.sk[i];if(!S0||f.cd.s[i]>0||f.stun>0||f.hp<=0)return false;const D=S0.D,s=S0.s,k=S0.k,A=AR,T=ARTURN;
+  const no=f.mp<S0.c?'Không đủ linh lực':S0.max&&(f.use[S0.n]||0)>=S0.max?'Đã dùng hết lượt':k==='steal'&&A.stole?'Đã móc túi trận này':null;
+  if(no){if(f.side==='a'){sfx('no');toast(no);}return false;}
+  f.mp-=S0.c;f.cd.s[i]=S0.cd;f.use[S0.n]=(f.use[S0.n]||0)+1;f.act={k:S0.t==='proj'||S0.t==='curse'?'throw':'raise',t:380};sfx('cast');arFxCast(f,S0);arPop(f.x,f.y-29,S0.n,S0.col);
+  if(S0.t==='proj'&&arConfSelf(f))return true;
+  const op=arOpp(f);
+  if(k==='heal'){if(s.clean||S0.L)arClean(f,s.clean?['weak','burn','conf','stun','brk']:['weak','burn','conf']);arHeal(f,Math.ceil(f.mhp*S0.x));}
+  else if(k==='pheal'){arClean(f,['weak','burn','conf','stun']);arHeal(f,Math.ceil(f.mhp*S0.x));}
+  else if(k==='revive'){const team=f.side==='a'?A.ta:A.te,idx=f.side==='a'?A.ai:A.ei,dead=team.slice(0,idx).find(u=>!(A.rv||[]).includes(u));
+    if(!dead){arPop(f.x,f.y-34,'TỰ CHỮA THƯƠNG','#80ff90');arHeal(f,Math.ceil(f.mhp*.2));}
+    else{(A.rv=A.rv||[]).push(dead);team.splice(idx+1,0,dead);if(f.side==='a')A.sa.splice(idx+1,0,A.sa[team.indexOf(dead)]);(A.hpr=A.hpr||new Map()).set(dead,s.x);
+      arPop(f.x,f.y-34,dead.name+' sẽ tỉnh lại!','#80ff90');sfx('heal');}}
+  else if(k==='guard'){f.shield=(S0.L?D.tn:3)*T;arPop(f.x,f.y-34,'HỘ THỂ','#ffe080');}
+  else if(k==='pguard'){f.shield=Math.max(f.shield,3*T);arPop(f.x,f.y-34,'BONG BÓNG HỘ MỆNH','#b0ffd0');}
+  else if(k==='buff'){f.shield=3*T;f.buff=3*T;arPop(f.x,f.y-34,'THẦN HỘ PHÁP','#ffe080');}
+  else if(k==='phase'){f.st.phase=3*T;arPop(f.x,f.y-34,'HƯ ẢNH','#9fd0ff');}
+  else if(k==='decoy'){f.decoy=1;arPop(f.x,f.y-34,'PHÂN THÂN','#f0e0b0');}
+  else if(k==='focus'){f.foc=1;arPop(f.x,f.y-34,'SÁT KHÍ','#ff9090');}
+  else if(k==='steal'){A.stole=1;if(f.side==='a'&&op){const n=ri(3,6)+Math.round(f.lv*.8);G.silver+=n;sfx('coin');arPop(op.x,op.y-27,'+'+n+' BẠC','#ffe080');}}
+  else if(k==='weak'&&S0.L){if(op){op.st.weak=(D.tn+1)*T;if(AR.pvp)onlCurse(op,'weak',op.st.weak);arPop(op.x,op.y-27,'SUY YẾU','#c8a8ff');arFxHit(f,op,{el:'dark',sk:1},false);}}
+  else if(k==='conf'&&S0.L){if(op){const c=arCalc(f,op,1,15);if(!((R()*100+R()*100)/2<c.hit))arPop(op.x,op.y-27,'TRƯỢT','#c8e0ff');else if(R()<D.p){op.st.conf=(D.tn+1)*T;if(AR.pvp)onlCurse(op,'conf',op.st.conf);arPop(op.x,op.y-27,'MÊ LOẠN','#ffd27a');arFxHit(f,op,{el:'tali',sk:1},false);}else arPop(op.x,op.y-27,'KHÁNG','#c8e0ff');}}
+  else if(k==='summon'){const n=Math.max(1,Math.round(S0.x));for(let j=0;j<n;j++)arShoot(f,S0,{x2:.5,auto:1},j,1);}
+  else if(k==='sum'){f.sum={n:3,t:400,x:S0.x,p:s.p||0,drain:s.drain||0,S0};arPop(f.x,f.y-34,'HIỆN THÂN','#c8f0ff');}
+  else{const foc=f.foc;f.foc=0;const x=s.grudge?Math.min(2.5,S0.x+1.5*(1-f.hp/f.mhp)):S0.x*(foc?1.2:1);
+    const o={x2:x,hitB:15+(D.hb||0),crB:(D.cr||0)+(foc?30:0),drain:k==='drain',burn:s.burn||0,poison:s.poison||0,weak:k==='weak',brk:k==='brk',stun:k==='stun'?s.p:0,rally:k==='rally',inf:D.inf,p:D.p,tn:D.tn,bleed:D.bleed,aoe:D.aoe};
+    for(let j=0;j<(D.hits||1);j++)arShoot(f,S0,j?Object.assign({},o,{rally:0,aoe:0}):o,j);}
   return true;}
 function arOpp(f){return f.side==='a'?AR.e:AR.a;}
 function arSpeed(f){return Math.min(140,30+f.spd*1.25)*(f.slow>0?.55:1)/1000;}
 /* Tốc cao: chạy nhanh, đánh nhanh, khó bị trúng; Kỹ cao: đánh trúng hơn (giống công thức trúng đòn theo lượt) */
-function arHit(a,b){return clamp(92+(a.skl-b.spd)*1.5,55,100);}
-function arACd(f){return(f.ranged?720:560)*(1.3-Math.min(.6,f.spd/100));}
+function arACd(f){return(f.ranged?1000:850)*(1.3-Math.min(.6,f.spd/100));}
 /* v12.6 di chuyển mượt như trên bản đồ: vận tốc tăng/giảm dần, khung bước chân theo quãng đường đã đi, vẽ lệch dưới 1 điểm ảnh */
 function arMove(f,vx,vy,dt){const L=AR.L.F,sp=arSpeed(f),n=Math.hypot(vx,vy);let tx=0,ty=0;
   if(n>=.15&&f.stun<=0){const k=Math.min(1,n);tx=vx/n*sp*k;ty=vy/n*sp*k;}
@@ -4155,15 +4205,21 @@ function arMove(f,vx,vy,dt){const L=AR.L.F,sp=arSpeed(f),n=Math.hypot(vx,vy);let
 function arAI(f,dt){const o=arOpp(f);if(!o||o.hp<=0||f.stun>0||f.dash)return;f.ai-=dt;const dx=o.x-f.x,dy=o.y-f.y,d=Math.hypot(dx,dy),want=f.ranged?80:9;
   if(f.ai<=0){const iq=f.iq===undefined?.5:f.iq;f.ai=(350+R()*450)*(1.45-iq*.8);f.jx=(R()-.5)*1.4;f.jy=(R()-.5)*1.6;
     const us=f.sk.map((s,i)=>i).filter(i=>f.cd.s[i]<=0&&f.mp>=f.sk[i].c);
-    const hl=us.find(i=>f.sk[i].t==='heal');if(hl!==undefined&&f.hp<f.mhp*.4&&R()<.7)arCast(f,hl);
-    else{const pr=us.filter(i=>f.sk[i].t==='proj');const bf=us.filter(i=>f.sk[i].t!=='proj'&&f.sk[i].t!=='heal');
-      if(pr.length&&Math.abs(dy)<22&&R()<.45)arCast(f,pr[ri(0,pr.length-1)]);else if(bf.length&&d<90&&R()<.25)arCast(f,bf[0]);}}
+    const hl=us.find(i=>f.sk[i].t==='heal'&&f.sk[i].k!=='revive');const rv=us.find(i=>f.sk[i].k==='revive');const idx=f.side==='a'?AR.ai:AR.ei;
+    if(hl!==undefined&&f.hp<f.mhp*.4&&R()<.7)arCast(f,hl);else if(rv!==undefined&&idx>0&&R()<.5)arCast(f,rv);
+    else{const pr=us.filter(i=>f.sk[i].t==='proj');const cu=us.filter(i=>(f.sk[i].t==='curse'||f.sk[i].t==='sum')&&!(f.sk[i].k==='weak'&&o.st.weak>0)&&!(f.sk[i].k==='conf'&&o.st.conf>0));
+      const bf=us.filter(i=>f.sk[i].t==='shield'&&f.shield<=0&&f.st.phase<=0&&!f.decoy||f.sk[i].t==='buff'&&!(f.sk[i].k==='focus'&&f.foc)&&!(f.sk[i].k==='buff'&&f.buff>0));
+      if(pr.length&&Math.abs(dy)<22&&R()<.45)arCast(f,pr[ri(0,pr.length-1)]);else if(cu.length&&R()<.3)arCast(f,cu[0]);else if(bf.length&&d<90&&R()<.25)arCast(f,bf[0]);}}
   let vx=0,vy=0;if(Math.abs(d-want)>(f.mv?4:10))vx=Math.sign(dx)*(d>want?1:-1);vy=Math.abs(dy)>(f.mv?2:6)?Math.sign(dy)*Math.min(1,Math.abs(dy)/10):0;vx+=f.jx*.6;vy+=f.jy*.5;
   if(f.ranged&&d<50){vx=-Math.sign(dx);}
   arMove(f,vx,vy,dt*.92);if(Math.abs(dx)>3)f.face=dx>=0?1:-1;
   if(Math.abs(dy)<8&&(f.ranged?Math.abs(dx)<170:Math.abs(dx)<14))arAttack(f);}
-function arTick(f,dt){arFxTick(f,dt);for(const k of['stun','shield','buff','slow','hurt','inv'])if(f[k]>0)f[k]=Math.max(0,f[k]-dt);f.cd.a=Math.max(0,f.cd.a-dt);f.cd.d=Math.max(0,f.cd.d-dt);arDashTick(f,dt);if(f.kb){const m=Math.sign(f.kb)*Math.min(Math.abs(f.kb),dt*.045);f.kb-=m;if(Math.abs(f.kb)<.01)f.kb=0;f.x=clamp(f.x+m,AR.L.F.x+10,AR.L.F.x+AR.L.F.w-10);}f.cd.s=f.cd.s.map(v=>Math.max(0,v-dt));
-  if(f.act){f.act.t-=dt;if(f.act.t<=0)f.act=null;}if(f.hp>0)f.mp=Math.min(f.mmp,f.mp+dt*.0035*Math.max(4,f.mmp/6));}
+function arTick(f,dt){arFxTick(f,dt);for(const k of['stun','shield','buff','slow','hurt','inv'])if(f[k]>0)f[k]=Math.max(0,f[k]-dt);for(const k in f.st)if(f.st[k]>0)f.st[k]=Math.max(0,f.st[k]-dt);arStatTick(f,dt);f.cd.a=Math.max(0,f.cd.a-dt);f.cd.d=Math.max(0,f.cd.d-dt);arDashTick(f,dt);if(f.kb){const m=Math.sign(f.kb)*Math.min(Math.abs(f.kb),dt*.045);f.kb-=m;if(Math.abs(f.kb)<.01)f.kb=0;f.x=clamp(f.x+m,AR.L.F.x+10,AR.L.F.x+AR.L.F.w-10);}f.cd.s=f.cd.s.map(v=>Math.max(0,v-dt));
+  if(f.act){f.act.t-=dt;if(f.act.t<=0)f.act=null;}}
+/* bỏng/độc/chảy máu mất 6% máu mỗi lượt; vật triệu hồi ra đòn 3 lần */
+function arStatTick(f,dt){if(f.hp<=0||!AR||AR.phase!=='fight')return;
+  if(f.st.burn>0){f.bt-=dt;if(f.bt<=0){f.bt=ARTURN;arDmgTo(f,Math.max(1,Math.round(f.mhp*.06)),f.psn?'#b8e070':f.bld?'#ff6060':'#ff8a3a');arBurst(f.x,f.y-8,f.psn?'poison':'fire',6,.05);}}else f.psn=f.bld=0;
+  const S=f.sum;if(S){S.t-=dt;if(S.t<=0){S.t=1200;arShoot(f,S.S0,{x2:S.x,auto:1,stun:S.p,drain:S.drain},0,1);if(--S.n<=0)f.sum=null;}}}
 function arUpdate(dt){const A=AR;if(A&&A.pvp)return onlArUpdate(dt);if(!A||DLG||CH)return;A.t+=dt;arFxUpdate(dt);A.pops.forEach(p=>{p.life-=dt;p.y-=dt*.02;});A.pops=A.pops.filter(p=>p.life>0);
   if(A.phase==='ready'){A.pt-=dt;if(A.pt<=0){A.phase='fight';sfx('enc');}}
   for(const f of[A.a,A.e])if(f)arTick(f,dt);
@@ -4172,15 +4228,15 @@ function arUpdate(dt){const A=AR;if(A&&A.pvp)return onlArUpdate(dt);if(!A||DLG||
   if(!a.dash){arMove(a,vx,vy,dt);if(Math.abs(vx)>.2)a.face=vx>0?1:-1;else if(!a.mv)a.face=e.x>=a.x?1:-1;}
   if(A.hold)arAttack(a);
   arAI(e,dt);
-  for(const p of A.pj){p.x+=p.vx*dt/1000;p.y+=p.vy*dt/1000;p.life-=dt;arFxTrail(p,dt);const t=p.side==='a'?e:a;
+  for(const p of A.pj){if(p.home){const t0=p.side==='a'?e:a;if(t0){const dx=t0.x-p.x,dy=t0.y-8-p.y,dd=Math.hypot(dx,dy)||1;p.vx=dx/dd*140;p.vy=dy/dd*140;}}p.x+=p.vx*dt/1000;p.y+=p.vy*dt/1000;p.life-=dt;arFxTrail(p,dt);const t=p.side==='a'?e:a;
     if(t===e&&!p.ck&&t.hp>0&&Math.abs(p.x-t.x)<(p.sk?46:34)&&(t.x-p.x)*p.vx>0){p.ck=1;if(R()<(p.sk?.25:.08)+t.iq*(p.sk?.4:.18))arDodge(t,0,t.y>A.L.F.y+A.L.F.h*.55?-1:1);}
     if(t&&t.hp>0&&t.inv<=0&&Math.abs(p.x-t.x)<8&&Math.abs(p.y-(t.y-8))<8){p.life=0;arHurt(p.f,t,p.x2,p);}
     if(p.x<A.L.F.x-10||p.x>A.L.F.x+A.L.F.w+10)p.life=0;}
   A.pj=A.pj.filter(p=>p.life>0);
   for(const f of[a,e])if(f.hp<=0&&!f.gone){f.gone=1;A.phase='ko';A.pt=1300;A.ko=f;}}
 function arNext(){if(AR.pvp)return onlArNext();const A=AR,f=A.ko;A.ko=null;A.pj.length=0;A.rg.length=0;const L=A.L.F;
-  if(f.side==='a'){A.ai++;if(A.ai>=A.ta.length)return arEnd(false);A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai]);A.a.y=A.e.y;}
-  else{A.ei++;A.kills++;if(A.ei>=A.te.length)return arEnd(true);A.e=arFighter(A.te[A.ei],'e');A.e.y=A.a.y;}
+  if(f.side==='a'){A.ai++;if(A.ai>=A.ta.length)return arEnd(false);A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai],A.hpr&&A.hpr.get(A.ta[A.ai]));if(A.hpr)A.hpr.delete(A.ta[A.ai]);A.a.y=A.e.y;}
+  else{A.ei++;A.kills++;if(A.ei>=A.te.length)return arEnd(true);A.e=arFighter(A.te[A.ei],'e',null,A.hpr&&A.hpr.get(A.te[A.ei]));if(A.hpr)A.hpr.delete(A.te[A.ei]);if(A.pre&&A.pre[A.ei])A.e.hp=Math.max(1,A.e.hp-A.pre[A.ei]);A.e.y=A.a.y;}
   A.a.x=Math.min(A.a.x,L.x+L.w*.35);A.e.x=Math.max(A.e.x,L.x+L.w*.65);A.phase='ready';A.pt=1100;}
 function arEnd(win){const A=AR;A.phase='end';A.win=win;A.pt=1600;sfx(win?'lvl':'fail');}
 function arenaInput(k){const A=AR;if(!A)return;if(A.phase==='end'){if(A.pt<=0){const r=A.res;A.res=null;if(r)r(A.win);}return;}
@@ -4289,7 +4345,7 @@ function arenaTown(p){const ti=townAt(p.x,p.y);return ti>=0&&WD.towns[ti]?WD.tow
 async function arenaMenu(p){const A=arenaData();const T=arenaTown(p);
   for(;;){const i=await ask('Đấu Trường '+(T?T.n:''),`Tìm trận để gặp ngẫu nhiên một đấu sĩ cùng tầm điểm hạng, mỗi bên 3 đồng hành ra đấu lần lượt 1 chọi 1. Hạng: ${arRank(A.rp)} (${A.rp} điểm, thứ ${arPos(A)}/${A.bots.length+1}) · thắng ${A.w} · thua ${A.l} · chuỗi thắng ${A.st}.`,
     [{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);
-    if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Đồng hành ra sân với đúng Máu, Linh lực, Công, Thủ, Kỹ, Tốc như ngoài bản đồ. Tốc càng cao chạy càng nhanh, đánh càng nhanh và càng dễ né đòn; Kỹ cao thì ít đánh trượt.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
+    if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Đồng hành ra sân với đúng Máu, Linh lực, Công, Thủ, Kỹ, Tốc như ngoài bản đồ. Tốc càng cao chạy càng nhanh, đánh càng nhanh và càng dễ né đòn; Kỹ cao thì ít đánh trượt.','Kỹ năng giống hệt khi đánh theo lượt: cùng sức mạnh, linh lực và hiệu ứng (bỏng, độc, phá giáp, suy yếu, choáng, mê loạn, hộ thể, hư ảnh, gọi hồn...). Mỗi lượt tính bằng khoảng 1,5 giây. Đánh thường hồi 6 linh lực.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
 /* v12.3: màn chọn đội hình kiểu Tháp Trấn Hồn: trái là các đồng hành (không có Minh Dạ), phải là 3 ô ra trận theo thứ tự */
 let ARS=null,ARLAST=[];
 function arenaPick(){const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(C.length<3)return say('Thầy không được tự ra sân. Cần ít nhất 3 đồng hành (trong đội hoặc trong Tháp Trấn Hồn) mới vào được đấu trường.','Quản Đấu Trường');
@@ -4337,7 +4393,7 @@ async function arenaFight(sel){const A=arenaData();
   await say(['Đang tìm đối thủ cùng tầm hạng...'],'Đấu Trường');const bot=arMatch(A),te=arenaFoes(sel,bot);
   await say(['Đã tìm thấy: '+bot.n+' · '+arRank(bot.rp)+' ('+bot.rp+' điểm).','Đội đối thủ: '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.','Trống trận nổi lên. Khán giả reo hò!'],'Quản Đấu Trường');
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
-  setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:bot.n,iq:clamp((bot.rp-700)/1500,.1,1)};AR.a=arFighter(ta[0],'a',sel[0]);AR.e=arFighter(te[0],'e');
+  setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:bot.n,iq:clamp((bot.rp-700)/1500,.1,1)};AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=arFighter(AR.te[0],'e');
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills;
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
@@ -4353,7 +4409,7 @@ async function arenaFight(sel){const A=arenaData();
   else{A.l++;A.st=0;for(const u of sel){const e=rv(Math.round(expNeed(u.lv)*.06*(1+kills)));await expTo(u,e,true);}blogAdd('Thua '+bot.n+' ở đấu trường (hạ '+kills+'/3) · -'+d+' điểm hạng');
     await say([`Thua ${bot.n}, hạ được ${kills}/3 đối thủ. Đồng hành vẫn học được chút kinh nghiệm. Chuỗi thắng quay về 0.`,rk+(t1<t0?' Bị tụt bậc hạng!':'')],'Quản Đấu Trường');}
   save();}
-window.__ar={arCast,arAttack,arEl,skillsOf,get ARS(){return ARS},arenaPick,get ROT(){return ROT},houseArt,arenaTown,get AR(){return AR},AJ,arenaFight,arBoard,arLay,arenaData,makeUnit,get G(){return G},get scene(){return scene},get W(){return W},get H(){return H}};
+window.__ar={arCast,arSk,SK,LSK,arAttack,arEl,skillsOf,get ARS(){return ARS},arenaPick,get ROT(){return ROT},houseArt,arenaTown,get AR(){return AR},AJ,arenaFight,arBoard,arLay,arenaData,makeUnit,get G(){return G},get scene(){return scene},get W(){return W},get H(){return H}};
 try{if(window.AndroidApp&&window.AndroidApp.setLandscape)window.AndroidApp.setLandscape(false);}catch(_){}
 
 /* ---------- v12.4 hiệu ứng kỹ năng đấu trường ----------
@@ -4688,8 +4744,8 @@ async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw
   await say(['Đội của '+D.nm+': '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.'],'Đấu Trường');
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
-  AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:clamp((D.rp-700)/1500,.1,1)};
-  AR.a=arFighter(ta[0],'a',sel[0]);AR.e=arFighter(te[0],'e');
+  AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:clamp((D.rp-700)/1500,.1,1)};
+  AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=arFighter(AR.te[0],'e');
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills,quit=AR.quit;
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
@@ -4738,9 +4794,9 @@ async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBo
   D.foeRp=fs.rp|0||D.rp||1000;
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
-  AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1800,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:.5,
+  AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1800,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:.5,
     pvp:{D,hi:0,hits:[],pi:0,pjs:[],seenHit:0,seenPj:0,lastSend:0,lost:0,eix:0,out:0,eKo:-1}};
-  AR.a=arFighter(ta[0],'a',sel[0]);AR.e=onlStubFighter(te[0]);
+  AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=onlStubFighter(AR.te[0]);
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills,quit=AR.quit,left=AR.pvp.left;if(!win)AR.pvp.out=1;AR.pvp.lastSend=0;onlDuelSend();
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
@@ -4761,20 +4817,49 @@ function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
-  /* 13.0: Kỹ bên đánh và Tốc đối thủ quyết định đánh trượt; báo cho đối thủ thấy chữ TRƯỢT */
-  if(b.inv<=0&&typeof arHit==='function'&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');P.hits.push({i:++P.hi,d:0,m:1});if(P.hits.length>12)P.hits.shift();return;}
-  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);const h={i:++P.hi,d:r.d,c:r.cr?1:0,s:o.stun&&R()<.6?1:0,w:o.slow?1:0};
-  P.hits.push(h);if(P.hits.length>12)P.hits.shift();b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
+  const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
+  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}
+  if(typeof arCalc!=='function'){onlHurtOld(a,b,x,o,hit);return;}
+  /* 13.1: bên đánh tính trúng/chí mạng/sát thương bằng công thức đánh theo lượt (arCalc) với chỉ số đối thủ gửi sang,
+     rồi gửi kèm hiệu ứng (bỏng, độc, suy yếu, phá giáp, choáng, mê loạn...) để máy đối thủ tự áp lên đồng hành của họ */
+  const f=arCalc(a,b,x,o.hitB||0,o.crB||0);
+  if(!o.auto&&!((R()*100+R()*100)/2<f.hit)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');hit({d:0,m:1});return;}
+  if(b.decoy){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');hit({d:0,dc:1});return;}
+  const cr=!o.auto&&R()*100<f.crt;let d=cr?f.dmg*2:f.dmg;const T=typeof ARTURN==='number'?ARTURN:1500,e={};
+  if(o.burn&&R()<o.burn)e.burn=3*T;
+  if(o.poison&&R()<o.poison){e.burn=3*T;e.psn=1;}
+  if(o.weak)e.weak=3*T;if(o.brk)e.brk=3*T;
+  if(o.stun&&R()<o.stun)e.stun=T;
+  if(o.inf&&R()<(o.p??1)){const tn=(o.tn||1)+1;if(o.inf==='stun')e.stun=tn*T*.6;else{e[o.inf]=tn*T;if(o.inf==='burn'&&o.bleed)e.bld=1;}}
+  /* trợ chiến: đồng đội đang chờ của mình đánh thêm nửa đòn, cộng vào cùng một đòn gửi đi */
+  if(o.rally){const A=AR;for(const u of A.ta.slice(A.ai+1)){const v=Math.max(1,Math.round(arCalc({u,atk:u.atk,skl:u.skl},b,1).dmg*.5));d+=v;arPop(b.x,b.y-30,u.name+' trợ chiến','#9ad8ff');}}
+  hit({d,c:cr?1:0,e});b.hurt=220;sfx(cr?'crit':'hit');arPop(b.x,b.y-21,String(d),cr?'#ffe060':'#ffffff');if(cr)arPop(b.x,b.y-30,'CHÍ MẠNG!','#ffd040');onlFx('hit',a,b,o,cr);
+  if(o.drain&&a.hp>0){const v=Math.max(1,Math.round(d*(o.drain===true?.5:o.drain)));a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
+/* kỹ năng nguyền (Suy yếu, Mê loạn) đặt thẳng trạng thái lên đối thủ: gửi sang để máy đối thủ áp vào */
+function onlCurse(op,k,ms){const P=AR&&AR.pvp;if(!P||op!==AR.e)return;P.hits.push({i:++P.hi,d:0,x:1,e:{[k]:ms}});if(P.hits.length>12)P.hits.shift();}
+/* bản game cũ (trước 13.1) không có arCalc */
+function onlHurtOld(a,b,x,o,hit){if(typeof arHit==='function'&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');hit({d:0,m:1});return;}
+  const r=arDmg(a,b,x),e={};if(o.stun&&R()<.6)e.stun=900;if(o.slow)e.slow=2500;hit({d:r.d,c:r.cr?1:0,e});
+  b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
   if(o.drain){const v=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
-function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}const d=clamp(h.d|0,0,99999);
-  b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
-  arPop(b.x,b.y-21,(h.c?'!':'')+d,h.c?'#ffe060':'#ff8080');sfx(h.c?'crit':'hit');if(A.e)onlFx('hit',A.e,b,{},!!h.c);
-  if(h.s){b.stun=900;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}if(h.w){b.slow=2500;arPop(b.x,b.y-27,'CHẬM','#90ff90');}
-  if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');onlFx('ko',b);}}
+function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;
+  if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}
+  if(h.dc){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');return;}
+  const d=h.x?0:clamp(h.d|0,0,99999);if(!h.x){b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
+  arPop(b.x,b.y-21,String(d),h.c?'#ffe060':'#ff8080');if(h.c)arPop(b.x,b.y-30,'CHÍ MẠNG!','#ffd040');sfx(h.c?'crit':'hit');if(A.e)onlFx('hit',A.e,b,{},!!h.c);}
+  if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');onlFx('ko',b);return;}
+  const e=h.e&&typeof h.e==='object'?h.e:{},ms=v=>clamp(+v||0,0,20000),T=typeof ARTURN==='number'?ARTURN:1500,st=b.st||(b.st={});
+  if(h.s)e.stun=900;if(h.w)e.slow=2500;
+  if(e.stun){b.stun=ms(e.stun);arPop(b.x,b.y-27,e.stun>T?'ĐÓNG BĂNG':'CHOÁNG',e.stun>T?'#a8e8ff':'#ffe060');}
+  if(e.slow){b.slow=ms(e.slow);arPop(b.x,b.y-27,'CHẬM','#90ff90');}
+  if(e.burn){st.burn=ms(e.burn);b.bt=T;b.psn=e.psn?1:0;b.bld=e.bld?1:0;arPop(b.x,b.y-27,e.psn?'TRÚNG ĐỘC':e.bld?'CHẢY MÁU':'BỎNG',e.psn?'#b8e070':e.bld?'#ff6060':'#ff8a3a');}
+  if(e.weak){st.weak=ms(e.weak);arPop(b.x,b.y-27,'SUY YẾU','#c8a8ff');}
+  if(e.brk){st.brk=ms(e.brk);arPop(b.x,b.y-27,'PHÁ GIÁP','#ff9a6a');}
+  if(e.conf){st.conf=ms(e.conf);arPop(b.x,b.y-27,'MÊ LOẠN','#ffd27a');}}
 function onlDuelSend(){const A=AR,P=A.pvp,D=P.D;if(!D.r)return;const now=performance.now();if(now-P.lastSend<60)return;P.lastSend=now;
   const F=A.L.F,f=A.a,q=v=>Math.round(v*1000)/1000;
   const o={ix:A.ai,out:P.out||(A.phase==='end'&&!A.win)?1:0,ph:A.phase};
-  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,sp:f.spd,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
+  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,sp:f.spd,sk:f.skl,dc:f.decoy?1:0,es:f.st?{w:f.st.weak>0?1:0,b:f.st.brk>0?1:0,p:f.st.phase>0?1:0,c:f.st.conf>0?1:0,u:f.st.burn>0?1:0}:0,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
     k:f.act?f.act.k:'',sh:f.shield>0?1:0,bf:f.buff>0?1:0,st:f.stun>0?1:0,iv:f.inv>0?1:0});
   o.hits=P.hits;o.pj=P.pjs;D.r.presence(o).catch(()=>{});}
 function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',dt);A.pops.forEach(p=>{p.life-=dt;p.y-=dt*.02;});A.pops=A.pops.filter(p=>p.life>0);
@@ -4782,16 +4867,16 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   const foe=onlFoe(P.D),s=foe&&foe.presence;
   if(!foe){P.lost+=dt;if(P.lost>6000&&A.phase!=='end'){P.left=1;A.kills=A.te.length;arEnd(true);}}else P.lost=0;
   if(s&&typeof s.ix==='number'){
-    if(s.ix>P.eix&&s.ix<A.te.length){P.eix=s.ix;A.ei=s.ix;A.kills=s.ix;const t=A.te[s.ix];A.e=onlStubFighter({id:SPECIES[s.id]?s.id:t.id,name:t.name,lv:t.lv});}
+    if(s.ix>P.eix&&s.ix<A.te.length+6){P.eix=s.ix;A.ei=s.ix;A.kills=Math.min(s.ix,A.te.length);const t=A.te[s.ix]||{id:s.id,name:s.n,lv:s.lv};A.e=onlStubFighter({id:SPECIES[s.id]?s.id:t.id,name:String(s.n||t.name).slice(0,24),lv:s.lv|0||t.lv});}
     const e=A.e;if(e&&typeof s.x==='number'){const tx=F.x+(1-clamp(s.x,0,1))*F.w,ty=F.y+clamp(+s.y||0,0,1)*F.h;
       if(e.nx===undefined){e.x=tx;e.y=ty;}e.nx=1;const k=Math.min(1,dt/70),x0=e.x,y0=e.y;e.x+=(tx-e.x)*k;e.y+=(ty-e.y)*k;
       if(dt>0){e.vx=(e.x-x0)/dt;e.vy=(e.y-y0)/dt;e.wp=(e.wp||0)+Math.hypot(e.x-x0,e.y-y0);}e.face=-(s.f<0?-1:1);
-      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;if(s.sp>=0)e.spd=s.sp;
+      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;if(s.sp>=0)e.spd=s.sp;if(s.sk>=0)e.skl=s.sk;e.decoy=s.dc?1:0;if(e.st){const q=s.es||{};e.st.weak=q.w?500:0;e.st.brk=q.b?500:0;e.st.phase=q.p?500:0;e.st.conf=q.c?500:0;}
       e.inv=s.iv?200:0;if(!s.iv)e.mp0=0;else if(e.gh&&(!e.gh.length||e.gh[e.gh.length-1].life<215))e.gh.push({x:e.x,y:e.y,life:260});e.shield=s.sh?500:0;e.buff=s.bf?500:0;e.stun=s.st?200:0;e.mv=s.mv?1:0;const nk=s.k?String(s.k).slice(0,12):'';if(nk==='sweep'&&e.lastK!=='sweep')onlFx('slash',e);e.lastK=nk;e.act=e.hp<=0?{k:'down',t:1e9}:nk?{k:nk,t:200}:null;
       if(e.hp<=0&&P.eKo!==P.eix){P.eKo=P.eix;arPop(e.x,e.y-30,e.name+' bị hạ!','#ffe070');sfx('fail');onlFx('ko',e);}}
     if(Array.isArray(s.hits))for(const h of s.hits){if(!h||typeof h.i!=='number'||h.i<=P.seenHit)continue;P.seenHit=h.i;onlTakeHit(h);}
     if(Array.isArray(s.pj))for(const p of s.pj){if(!p||typeof p.i!=='number'||p.i<=P.seenPj)continue;P.seenPj=p.i;
-      A.pj.push({x:F.x+(1-clamp(+p.x||0,0,1))*F.w,y:F.y+clamp(+p.y||0,-.5,1.5)*F.h,vx:-(+p.vx||0)*F.w,vy:(+p.vy||0)*F.h,side:'e',ghost:1,col:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:'#ffd060',r:clamp(+p.r||3,2,6),life:1500,el:/^[a-z]{1,12}$/.test(p.el)?p.el:'spirit',sk:p.sk?1:0});}
+      A.pj.push({home:p.h?1:0,x:F.x+(1-clamp(+p.x||0,0,1))*F.w,y:F.y+clamp(+p.y||0,-.5,1.5)*F.h,vx:-(+p.vx||0)*F.w,vy:(+p.vy||0)*F.h,side:'e',ghost:1,col:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:'#ffd060',r:clamp(+p.r||3,2,6),life:1500,el:/^[a-z]{1,12}$/.test(p.el)?p.el:'spirit',sk:p.sk?1:0});}
     if(s.out&&A.phase!=='end'){A.kills=A.te.length;arEnd(true);}}
   if(A.phase==='ready'){A.pt-=dt;if(A.pt<=0){A.phase='fight';sfx('enc');}}
   for(const f of[A.a,A.e])if(f)arTick(f,dt);
@@ -4799,7 +4884,8 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   let vx=AJ.on?AJ.vx:0,vy=AJ.on?AJ.vy:0;if(held.includes('left'))vx-=1;if(held.includes('right'))vx+=1;if(held.includes('up'))vy-=1;if(held.includes('down'))vy+=1;
   if(!a.dash){arMove(a,vx,vy,dt);if(Math.abs(vx)>.2)a.face=vx>0?1:-1;else if(!a.mv&&e)a.face=e.x>=a.x?1:-1;}
   if(A.hold)arAttack(a);
-  for(const p of A.pj){if(p.side==='a'&&!p.nid){p.nid=++P.pi;P.pjs.push({i:p.nid,x:Math.round((p.x-F.x)/F.w*1000)/1000,y:Math.round((p.y-F.y)/F.h*1000)/1000,vx:Math.round(p.vx/F.w*1000)/1000,vy:Math.round(p.vy/F.h*1000)/1000,c:p.col,r:p.r,el:p.el||'',sk:p.sk?1:0});if(P.pjs.length>6)P.pjs.shift();}
+  for(const p of A.pj){if(p.side==='a'&&!p.nid){p.nid=++P.pi;P.pjs.push({i:p.nid,x:Math.round((p.x-F.x)/F.w*1000)/1000,y:Math.round((p.y-F.y)/F.h*1000)/1000,vx:Math.round(p.vx/F.w*1000)/1000,vy:Math.round(p.vy/F.h*1000)/1000,c:p.col,r:p.r,el:p.el||'',sk:p.sk?1:0,h:p.home?1:0});if(P.pjs.length>6)P.pjs.shift();}
+    if(p.home){const t0=p.side==='a'?e:a;if(t0){const dx=t0.x-p.x,dy=t0.y-8-p.y,dd=Math.hypot(dx,dy)||1;p.vx=dx/dd*140;p.vy=dy/dd*140;}}
     p.x+=p.vx*dt/1000;p.y+=p.vy*dt/1000;p.life-=dt;onlFx('trail',p,dt);const t=p.side==='a'?e:a;
     if(t&&t.hp>0&&Math.abs(p.x-t.x)<11&&Math.abs(p.y-(t.y-ONL_HY))<ONL_HR){p.life=0;if(!p.ghost)arHurt(p.f,t,p.x2,p);}
     if(p.x<F.x-10||p.x>F.x+F.w+10)p.life=0;}
@@ -4807,7 +4893,7 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   if(a.hp<=0&&!a.gone){a.gone=1;A.phase='ko';A.pt=1300;A.ko=a;}}
 function onlArNext(){const A=AR,P=A.pvp,L=A.L.F;A.ko=null;A.ai++;if(A.rg)A.rg.length=0;
   if(A.ai>=A.ta.length){A.ai=A.ta.length-1;P.out=1;onlDuelSend();P.lastSend=0;return arEnd(false);}
-  A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai]);A.a.x=L.x+L.w*.2;A.a.y=A.e?A.e.y:A.a.y;A.phase='ready';A.pt=900;}
+  A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai],A.hpr&&A.hpr.get(A.ta[A.ai]));if(A.hpr)A.hpr.delete(A.ta[A.ai]);A.a.x=L.x+L.w*.2;A.a.y=A.e?A.e.y:A.a.y;A.phase='ready';A.pt=900;}
 
 /* ---------- giao diện HTML phủ lên canvas (chat, danh sách người chơi, lời mời) ---------- */
 function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('style');st.textContent=`

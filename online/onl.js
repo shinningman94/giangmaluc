@@ -241,8 +241,8 @@ async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw
   await say(['Đội của '+D.nm+': '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.'],'Đấu Trường');
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
-  AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:clamp((D.rp-700)/1500,.1,1)};
-  AR.a=arFighter(ta[0],'a',sel[0]);AR.e=arFighter(te[0],'e');
+  AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:clamp((D.rp-700)/1500,.1,1)};
+  AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=arFighter(AR.te[0],'e');
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills,quit=AR.quit;
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
@@ -291,9 +291,9 @@ async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBo
   D.foeRp=fs.rp|0||D.rp||1000;
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
-  AR={L,ta,sa:sel,te,ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1800,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:.5,
+  AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1800,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:.5,
     pvp:{D,hi:0,hits:[],pi:0,pjs:[],seenHit:0,seenPj:0,lastSend:0,lost:0,eix:0,out:0,eKo:-1}};
-  AR.a=arFighter(ta[0],'a',sel[0]);AR.e=onlStubFighter(te[0]);
+  AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=onlStubFighter(AR.te[0]);
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills,quit=AR.quit,left=AR.pvp.left;if(!win)AR.pvp.out=1;AR.pvp.lastSend=0;onlDuelSend();
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
@@ -314,20 +314,49 @@ function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
-  /* 13.0: Kỹ bên đánh và Tốc đối thủ quyết định đánh trượt; báo cho đối thủ thấy chữ TRƯỢT */
-  if(b.inv<=0&&typeof arHit==='function'&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');P.hits.push({i:++P.hi,d:0,m:1});if(P.hits.length>12)P.hits.shift();return;}
-  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);const h={i:++P.hi,d:r.d,c:r.cr?1:0,s:o.stun&&R()<.6?1:0,w:o.slow?1:0};
-  P.hits.push(h);if(P.hits.length>12)P.hits.shift();b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
+  const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
+  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}
+  if(typeof arCalc!=='function'){onlHurtOld(a,b,x,o,hit);return;}
+  /* 13.1: bên đánh tính trúng/chí mạng/sát thương bằng công thức đánh theo lượt (arCalc) với chỉ số đối thủ gửi sang,
+     rồi gửi kèm hiệu ứng (bỏng, độc, suy yếu, phá giáp, choáng, mê loạn...) để máy đối thủ tự áp lên đồng hành của họ */
+  const f=arCalc(a,b,x,o.hitB||0,o.crB||0);
+  if(!o.auto&&!((R()*100+R()*100)/2<f.hit)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');hit({d:0,m:1});return;}
+  if(b.decoy){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');hit({d:0,dc:1});return;}
+  const cr=!o.auto&&R()*100<f.crt;let d=cr?f.dmg*2:f.dmg;const T=typeof ARTURN==='number'?ARTURN:1500,e={};
+  if(o.burn&&R()<o.burn)e.burn=3*T;
+  if(o.poison&&R()<o.poison){e.burn=3*T;e.psn=1;}
+  if(o.weak)e.weak=3*T;if(o.brk)e.brk=3*T;
+  if(o.stun&&R()<o.stun)e.stun=T;
+  if(o.inf&&R()<(o.p??1)){const tn=(o.tn||1)+1;if(o.inf==='stun')e.stun=tn*T*.6;else{e[o.inf]=tn*T;if(o.inf==='burn'&&o.bleed)e.bld=1;}}
+  /* trợ chiến: đồng đội đang chờ của mình đánh thêm nửa đòn, cộng vào cùng một đòn gửi đi */
+  if(o.rally){const A=AR;for(const u of A.ta.slice(A.ai+1)){const v=Math.max(1,Math.round(arCalc({u,atk:u.atk,skl:u.skl},b,1).dmg*.5));d+=v;arPop(b.x,b.y-30,u.name+' trợ chiến','#9ad8ff');}}
+  hit({d,c:cr?1:0,e});b.hurt=220;sfx(cr?'crit':'hit');arPop(b.x,b.y-21,String(d),cr?'#ffe060':'#ffffff');if(cr)arPop(b.x,b.y-30,'CHÍ MẠNG!','#ffd040');onlFx('hit',a,b,o,cr);
+  if(o.drain&&a.hp>0){const v=Math.max(1,Math.round(d*(o.drain===true?.5:o.drain)));a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
+/* kỹ năng nguyền (Suy yếu, Mê loạn) đặt thẳng trạng thái lên đối thủ: gửi sang để máy đối thủ áp vào */
+function onlCurse(op,k,ms){const P=AR&&AR.pvp;if(!P||op!==AR.e)return;P.hits.push({i:++P.hi,d:0,x:1,e:{[k]:ms}});if(P.hits.length>12)P.hits.shift();}
+/* bản game cũ (trước 13.1) không có arCalc */
+function onlHurtOld(a,b,x,o,hit){if(typeof arHit==='function'&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');hit({d:0,m:1});return;}
+  const r=arDmg(a,b,x),e={};if(o.stun&&R()<.6)e.stun=900;if(o.slow)e.slow=2500;hit({d:r.d,c:r.cr?1:0,e});
+  b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
   if(o.drain){const v=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
-function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}const d=clamp(h.d|0,0,99999);
-  b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
-  arPop(b.x,b.y-21,(h.c?'!':'')+d,h.c?'#ffe060':'#ff8080');sfx(h.c?'crit':'hit');if(A.e)onlFx('hit',A.e,b,{},!!h.c);
-  if(h.s){b.stun=900;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}if(h.w){b.slow=2500;arPop(b.x,b.y-27,'CHẬM','#90ff90');}
-  if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');onlFx('ko',b);}}
+function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;
+  if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}
+  if(h.dc){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');return;}
+  const d=h.x?0:clamp(h.d|0,0,99999);if(!h.x){b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
+  arPop(b.x,b.y-21,String(d),h.c?'#ffe060':'#ff8080');if(h.c)arPop(b.x,b.y-30,'CHÍ MẠNG!','#ffd040');sfx(h.c?'crit':'hit');if(A.e)onlFx('hit',A.e,b,{},!!h.c);}
+  if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');onlFx('ko',b);return;}
+  const e=h.e&&typeof h.e==='object'?h.e:{},ms=v=>clamp(+v||0,0,20000),T=typeof ARTURN==='number'?ARTURN:1500,st=b.st||(b.st={});
+  if(h.s)e.stun=900;if(h.w)e.slow=2500;
+  if(e.stun){b.stun=ms(e.stun);arPop(b.x,b.y-27,e.stun>T?'ĐÓNG BĂNG':'CHOÁNG',e.stun>T?'#a8e8ff':'#ffe060');}
+  if(e.slow){b.slow=ms(e.slow);arPop(b.x,b.y-27,'CHẬM','#90ff90');}
+  if(e.burn){st.burn=ms(e.burn);b.bt=T;b.psn=e.psn?1:0;b.bld=e.bld?1:0;arPop(b.x,b.y-27,e.psn?'TRÚNG ĐỘC':e.bld?'CHẢY MÁU':'BỎNG',e.psn?'#b8e070':e.bld?'#ff6060':'#ff8a3a');}
+  if(e.weak){st.weak=ms(e.weak);arPop(b.x,b.y-27,'SUY YẾU','#c8a8ff');}
+  if(e.brk){st.brk=ms(e.brk);arPop(b.x,b.y-27,'PHÁ GIÁP','#ff9a6a');}
+  if(e.conf){st.conf=ms(e.conf);arPop(b.x,b.y-27,'MÊ LOẠN','#ffd27a');}}
 function onlDuelSend(){const A=AR,P=A.pvp,D=P.D;if(!D.r)return;const now=performance.now();if(now-P.lastSend<60)return;P.lastSend=now;
   const F=A.L.F,f=A.a,q=v=>Math.round(v*1000)/1000;
   const o={ix:A.ai,out:P.out||(A.phase==='end'&&!A.win)?1:0,ph:A.phase};
-  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,sp:f.spd,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
+  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,sp:f.spd,sk:f.skl,dc:f.decoy?1:0,es:f.st?{w:f.st.weak>0?1:0,b:f.st.brk>0?1:0,p:f.st.phase>0?1:0,c:f.st.conf>0?1:0,u:f.st.burn>0?1:0}:0,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
     k:f.act?f.act.k:'',sh:f.shield>0?1:0,bf:f.buff>0?1:0,st:f.stun>0?1:0,iv:f.inv>0?1:0});
   o.hits=P.hits;o.pj=P.pjs;D.r.presence(o).catch(()=>{});}
 function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',dt);A.pops.forEach(p=>{p.life-=dt;p.y-=dt*.02;});A.pops=A.pops.filter(p=>p.life>0);
@@ -335,16 +364,16 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   const foe=onlFoe(P.D),s=foe&&foe.presence;
   if(!foe){P.lost+=dt;if(P.lost>6000&&A.phase!=='end'){P.left=1;A.kills=A.te.length;arEnd(true);}}else P.lost=0;
   if(s&&typeof s.ix==='number'){
-    if(s.ix>P.eix&&s.ix<A.te.length){P.eix=s.ix;A.ei=s.ix;A.kills=s.ix;const t=A.te[s.ix];A.e=onlStubFighter({id:SPECIES[s.id]?s.id:t.id,name:t.name,lv:t.lv});}
+    if(s.ix>P.eix&&s.ix<A.te.length+6){P.eix=s.ix;A.ei=s.ix;A.kills=Math.min(s.ix,A.te.length);const t=A.te[s.ix]||{id:s.id,name:s.n,lv:s.lv};A.e=onlStubFighter({id:SPECIES[s.id]?s.id:t.id,name:String(s.n||t.name).slice(0,24),lv:s.lv|0||t.lv});}
     const e=A.e;if(e&&typeof s.x==='number'){const tx=F.x+(1-clamp(s.x,0,1))*F.w,ty=F.y+clamp(+s.y||0,0,1)*F.h;
       if(e.nx===undefined){e.x=tx;e.y=ty;}e.nx=1;const k=Math.min(1,dt/70),x0=e.x,y0=e.y;e.x+=(tx-e.x)*k;e.y+=(ty-e.y)*k;
       if(dt>0){e.vx=(e.x-x0)/dt;e.vy=(e.y-y0)/dt;e.wp=(e.wp||0)+Math.hypot(e.x-x0,e.y-y0);}e.face=-(s.f<0?-1:1);
-      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;if(s.sp>=0)e.spd=s.sp;
+      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;if(s.sp>=0)e.spd=s.sp;if(s.sk>=0)e.skl=s.sk;e.decoy=s.dc?1:0;if(e.st){const q=s.es||{};e.st.weak=q.w?500:0;e.st.brk=q.b?500:0;e.st.phase=q.p?500:0;e.st.conf=q.c?500:0;}
       e.inv=s.iv?200:0;if(!s.iv)e.mp0=0;else if(e.gh&&(!e.gh.length||e.gh[e.gh.length-1].life<215))e.gh.push({x:e.x,y:e.y,life:260});e.shield=s.sh?500:0;e.buff=s.bf?500:0;e.stun=s.st?200:0;e.mv=s.mv?1:0;const nk=s.k?String(s.k).slice(0,12):'';if(nk==='sweep'&&e.lastK!=='sweep')onlFx('slash',e);e.lastK=nk;e.act=e.hp<=0?{k:'down',t:1e9}:nk?{k:nk,t:200}:null;
       if(e.hp<=0&&P.eKo!==P.eix){P.eKo=P.eix;arPop(e.x,e.y-30,e.name+' bị hạ!','#ffe070');sfx('fail');onlFx('ko',e);}}
     if(Array.isArray(s.hits))for(const h of s.hits){if(!h||typeof h.i!=='number'||h.i<=P.seenHit)continue;P.seenHit=h.i;onlTakeHit(h);}
     if(Array.isArray(s.pj))for(const p of s.pj){if(!p||typeof p.i!=='number'||p.i<=P.seenPj)continue;P.seenPj=p.i;
-      A.pj.push({x:F.x+(1-clamp(+p.x||0,0,1))*F.w,y:F.y+clamp(+p.y||0,-.5,1.5)*F.h,vx:-(+p.vx||0)*F.w,vy:(+p.vy||0)*F.h,side:'e',ghost:1,col:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:'#ffd060',r:clamp(+p.r||3,2,6),life:1500,el:/^[a-z]{1,12}$/.test(p.el)?p.el:'spirit',sk:p.sk?1:0});}
+      A.pj.push({home:p.h?1:0,x:F.x+(1-clamp(+p.x||0,0,1))*F.w,y:F.y+clamp(+p.y||0,-.5,1.5)*F.h,vx:-(+p.vx||0)*F.w,vy:(+p.vy||0)*F.h,side:'e',ghost:1,col:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:'#ffd060',r:clamp(+p.r||3,2,6),life:1500,el:/^[a-z]{1,12}$/.test(p.el)?p.el:'spirit',sk:p.sk?1:0});}
     if(s.out&&A.phase!=='end'){A.kills=A.te.length;arEnd(true);}}
   if(A.phase==='ready'){A.pt-=dt;if(A.pt<=0){A.phase='fight';sfx('enc');}}
   for(const f of[A.a,A.e])if(f)arTick(f,dt);
@@ -352,7 +381,8 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   let vx=AJ.on?AJ.vx:0,vy=AJ.on?AJ.vy:0;if(held.includes('left'))vx-=1;if(held.includes('right'))vx+=1;if(held.includes('up'))vy-=1;if(held.includes('down'))vy+=1;
   if(!a.dash){arMove(a,vx,vy,dt);if(Math.abs(vx)>.2)a.face=vx>0?1:-1;else if(!a.mv&&e)a.face=e.x>=a.x?1:-1;}
   if(A.hold)arAttack(a);
-  for(const p of A.pj){if(p.side==='a'&&!p.nid){p.nid=++P.pi;P.pjs.push({i:p.nid,x:Math.round((p.x-F.x)/F.w*1000)/1000,y:Math.round((p.y-F.y)/F.h*1000)/1000,vx:Math.round(p.vx/F.w*1000)/1000,vy:Math.round(p.vy/F.h*1000)/1000,c:p.col,r:p.r,el:p.el||'',sk:p.sk?1:0});if(P.pjs.length>6)P.pjs.shift();}
+  for(const p of A.pj){if(p.side==='a'&&!p.nid){p.nid=++P.pi;P.pjs.push({i:p.nid,x:Math.round((p.x-F.x)/F.w*1000)/1000,y:Math.round((p.y-F.y)/F.h*1000)/1000,vx:Math.round(p.vx/F.w*1000)/1000,vy:Math.round(p.vy/F.h*1000)/1000,c:p.col,r:p.r,el:p.el||'',sk:p.sk?1:0,h:p.home?1:0});if(P.pjs.length>6)P.pjs.shift();}
+    if(p.home){const t0=p.side==='a'?e:a;if(t0){const dx=t0.x-p.x,dy=t0.y-8-p.y,dd=Math.hypot(dx,dy)||1;p.vx=dx/dd*140;p.vy=dy/dd*140;}}
     p.x+=p.vx*dt/1000;p.y+=p.vy*dt/1000;p.life-=dt;onlFx('trail',p,dt);const t=p.side==='a'?e:a;
     if(t&&t.hp>0&&Math.abs(p.x-t.x)<11&&Math.abs(p.y-(t.y-ONL_HY))<ONL_HR){p.life=0;if(!p.ghost)arHurt(p.f,t,p.x2,p);}
     if(p.x<F.x-10||p.x>F.x+F.w+10)p.life=0;}
@@ -360,7 +390,7 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
   if(a.hp<=0&&!a.gone){a.gone=1;A.phase='ko';A.pt=1300;A.ko=a;}}
 function onlArNext(){const A=AR,P=A.pvp,L=A.L.F;A.ko=null;A.ai++;if(A.rg)A.rg.length=0;
   if(A.ai>=A.ta.length){A.ai=A.ta.length-1;P.out=1;onlDuelSend();P.lastSend=0;return arEnd(false);}
-  A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai]);A.a.x=L.x+L.w*.2;A.a.y=A.e?A.e.y:A.a.y;A.phase='ready';A.pt=900;}
+  A.a=arFighter(A.ta[A.ai],'a',A.sa[A.ai],A.hpr&&A.hpr.get(A.ta[A.ai]));if(A.hpr)A.hpr.delete(A.ta[A.ai]);A.a.x=L.x+L.w*.2;A.a.y=A.e?A.e.y:A.a.y;A.phase='ready';A.pt=900;}
 
 /* ---------- giao diện HTML phủ lên canvas (chat, danh sách người chơi, lời mời) ---------- */
 function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('style');st.textContent=`

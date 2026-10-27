@@ -66,6 +66,11 @@ def build(server='', dual=False, src_path=None):
     rep("let ZOOMI=0;try{ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}",
         "let ZOOMI=0;try{const zs=localStorage.getItem('gms-zoom'),zp=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;"
         "ZOOMI=(/^https?:/.test(location.protocol)||zs==null)?(zp?1:2):clamp(+zs,0,2)||0;}catch(e){}")
+    # PvP online: kỹ năng nguyền đặt trạng thái thẳng lên đối thủ, gửi sang máy đối thủ (bản 13.1+; bản cũ không có thì bỏ qua)
+    for k in ('weak', 'conf'):
+        a = "op.st.%s=(D.tn+1)*T;" % k
+        if a in s:
+            rep(a, a + "if(AR.pvp)onlCurse(op,'%s',op.st.%s);" % (k, k))
     rep('/* ---------- main loop ---------- */', onl + '\n/* ---------- main loop ---------- */')
     return s
 
