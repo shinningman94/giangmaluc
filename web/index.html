@@ -4117,18 +4117,19 @@ function arSk(s){const k=s.k;let t='proj';if(k==='heal'||k==='pheal'||k==='reviv
   const col={drain:'#d070ff',stun:'#90e8ff',weak:'#90ff90',conf:'#ff90d0',brk:'#ff8040',sum:'#ffe080'}[k]||'#ffd060';
   const el=arEl(s);return{s,t,k,el,x:s.x||1.3,c:s.c||0,cd:2600+(s.c||0)*140+(s.cd||0)*700,col:t==='proj'?ARPAL[el][1]:col,n:s.n};}
 function arFighter(u,side,src){const sk=skillsOf(u).filter(s=>s.k!=='revive').slice(0,3).map(arSk);const L=arLay(),F=L.F;
-  return{u,src,side,id:u.id,name:u.name,lv:u.lv,x:side==='a'?F.x+30:F.x+F.w-30,y:F.y+F.h*.6,mhp:Math.max(30,u.mhp*3),hp:Math.max(30,u.mhp*3),mmp:Math.max(10,u.mmp),mp:Math.max(10,u.mmp),
+  return{u,src,side,id:u.id,name:u.name,lv:u.lv,x:side==='a'?F.x+30:F.x+F.w-30,y:F.y+F.h*.6,mhp:Math.max(1,u.mhp),hp:Math.max(1,u.mhp),mmp:Math.max(1,u.mmp),mp:Math.max(1,u.mmp),
     atk:u.atk,def:u.def,skl:u.skl,spd:u.spd,ranged:!!(SPECIES[u.id]&&SPECIES[u.id].ranged),iq:side==='e'&&AR?AR.iq:.5,face:side==='a'?1:-1,cd:{a:0,s:[0,0,0],d:0},inv:0,dash:null,gh:[],sk,stun:0,shield:0,buff:0,slow:0,hurt:0,act:null,mv:0,ai:0,jx:0,jy:0};}
-function arDmg(a,b,x){let d=a.atk*x*(a.buff>0?1.4:1)-b.def*.55;d=Math.max(1+a.atk*.2*x,d)*(.9+R()*.2);let cr=false;if(R()<.04+a.skl*.006){d*=1.5;cr=true;}if(b.shield>0)d*=.5;return{d:Math.max(1,Math.round(d)),cr};}
+/* v13.0 chỉ số giống hệt ngoài bản đồ: máu/linh lực thật, sát thương chia 3 để trận dài như cũ */
+function arDmg(a,b,x){let d=a.atk*x*(a.buff>0?1.4:1)-b.def*.55;d=Math.max(1+a.atk*.2*x,d)*(.9+R()*.2)/3;let cr=false;if(R()<.04+a.skl*.006){d*=1.5;cr=true;}if(b.shield>0)d*=.5;return{d:Math.max(1,Math.round(d)),cr};}
 function arPop(x,y,t,col){AR.pops.push({x,y,t,col,life:900});}
-function arHurt(a,b,x,o={}){if(b.hp<=0)return;if(AR.pvp&&b.side==='e')return onlHurtRemote(a,b,x,o);if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);b.hp=Math.max(0,b.hp-r.d);b.hurt=220;b.kb=(b.x>a.x?1:-1)*4;
+function arHurt(a,b,x,o={}){if(b.hp<=0)return;if(AR.pvp&&b.side==='e')return onlHurtRemote(a,b,x,o);if(b.inv<=0&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);b.hp=Math.max(0,b.hp-r.d);b.hurt=220;b.kb=(b.x>a.x?1:-1)*4;
   arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':b.side==='a'?'#ff8080':'#ffffff');sfx(r.cr?'crit':'hit');
   arFxHit(a,b,o,r.cr);
   if(o.drain){const h=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+h);arPop(a.x,a.y-23,'+'+h,'#80ff90');}
   if(o.stun&&R()<.6){b.stun=900;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}
   if(o.slow){b.slow=2500;arPop(b.x,b.y-27,'CHẬM','#90ff90');}
   if(b.hp<=0){b.act={k:'down',t:1e9};sfx('fail');arFxKO(b);}}
-function arAttack(f){if(f.cd.a>0||f.stun>0||f.hp<=0)return;const o=arOpp(f);f.cd.a=f.ranged?720:560;f.act={k:f.ranged?'throw':'sweep',t:260};
+function arAttack(f){if(f.cd.a>0||f.stun>0||f.hp<=0)return;const o=arOpp(f);f.cd.a=arACd(f);f.act={k:f.ranged?'throw':'sweep',t:260};
   if(f.ranged){AR.pj.push({x:f.x+f.face*10,y:f.y-8,vx:f.face*175,vy:(o?clamp((o.y-f.y)*1.4,-60,60):0),side:f.side,f,x2:1,col:'#fff0b0',r:2.6,life:1300,el:'spirit'});return;}
   arFxSlash(f);
   if(o&&Math.abs(o.y-f.y)<8&&(o.x-f.x)*f.face>-5&&Math.abs(o.x-f.x)<15)arHurt(f,o,1);else sfx('miss');}
@@ -4140,7 +4141,10 @@ function arCast(f,i){const S0=f.sk[i];if(!S0||f.cd.s[i]>0||f.stun>0||f.hp<=0)ret
   else{const o=arOpp(f);AR.pj.push({x:f.x+f.face*10,y:f.y-8,vx:f.face*150,vy:o?clamp((o.y-f.y)*1.2,-70,70):0,side:f.side,f,x2:S0.x*1.15,col:S0.col,r:4.5,life:1500,el:S0.el,sk:1,drain:S0.k==='drain',stun:S0.k==='stun',slow:S0.k==='weak'||S0.k==='conf'});}
   return true;}
 function arOpp(f){return f.side==='a'?AR.e:AR.a;}
-function arSpeed(f){return(34+Math.min(60,f.spd)*1.1)*(f.slow>0?.55:1)/1000;}
+function arSpeed(f){return Math.min(140,30+f.spd*1.25)*(f.slow>0?.55:1)/1000;}
+/* Tốc cao: chạy nhanh, đánh nhanh, khó bị trúng; Kỹ cao: đánh trúng hơn (giống công thức trúng đòn theo lượt) */
+function arHit(a,b){return clamp(92+(a.skl-b.spd)*1.5,55,100);}
+function arACd(f){return(f.ranged?720:560)*(1.3-Math.min(.6,f.spd/100));}
 /* v12.6 di chuyển mượt như trên bản đồ: vận tốc tăng/giảm dần, khung bước chân theo quãng đường đã đi, vẽ lệch dưới 1 điểm ảnh */
 function arMove(f,vx,vy,dt){const L=AR.L.F,sp=arSpeed(f),n=Math.hypot(vx,vy);let tx=0,ty=0;
   if(n>=.15&&f.stun<=0){const k=Math.min(1,n);tx=vx/n*sp*k;ty=vy/n*sp*k;}
@@ -4240,7 +4244,7 @@ function arCtrl(){const A=AR,L=A.L,f=A.a;
   const btn=(x,y,r,col,lab,cdv,dis)=>{c.globalAlpha=.85;c.fillStyle='#120d18';c.beginPath();c.arc(x,y,r+1,0,7);c.fill();c.fillStyle=dis?'#4a4458':col;c.beginPath();c.arc(x,y,r,0,7);c.fill();
     if(cdv>0){c.fillStyle='rgba(10,8,20,.65)';c.beginPath();c.moveTo(x,y);c.arc(x,y,r,-Math.PI/2,-Math.PI/2+cdv*Math.PI*2);c.closePath();c.fill();}c.globalAlpha=1;
     txt(lab,x,y-(PORT?4:3),{size:fitS(lab,PORT?8:6,r*2-2,5),align:'center',color:'#fff',outline:'#120d18'});};
-  btn(L.A.x,L.A.y,L.A.r,A.hold?'#e0a040':'#c0602a',f.ranged?'Bắn':'Đánh',f.cd.a/(f.ranged?720:560),false);
+  btn(L.A.x,L.A.y,L.A.r,A.hold?'#e0a040':'#c0602a',f.ranged?'Bắn':'Đánh',f.cd.a/arACd(f),false);
   for(let i=0;i<3;i++){const s=f.sk[i],b=L.S[i];if(!s){c.globalAlpha=.3;c.fillStyle='#120d18';c.beginPath();c.arc(b.x,b.y,L.sr,0,7);c.fill();c.globalAlpha=1;continue;}
     const nm=s.n.split(' ').slice(0,2).join(' ');btn(b.x,b.y,L.sr,s.t==='heal'?'#2a8a50':s.t==='shield'?'#2a6aa0':s.t==='buff'?'#a04a2a':'#6a3aa0',nm,f.cd.s[i]/s.cd,f.mp<s.c);
     if(!PORT)txt(String(s.c),b.x+L.sr-2,b.y+L.sr-6,{size:6,align:'center',color:'#a8c8ff',outline:'#120d18'});else txt(String(s.c),b.x,b.y+L.sr-2,{size:7,align:'center',color:'#a8c8ff',outline:'#120d18'});}
@@ -4285,7 +4289,7 @@ function arenaTown(p){const ti=townAt(p.x,p.y);return ti>=0&&WD.towns[ti]?WD.tow
 async function arenaMenu(p){const A=arenaData();const T=arenaTown(p);
   for(;;){const i=await ask('Đấu Trường '+(T?T.n:''),`Tìm trận để gặp ngẫu nhiên một đấu sĩ cùng tầm điểm hạng, mỗi bên 3 đồng hành ra đấu lần lượt 1 chọi 1. Hạng: ${arRank(A.rp)} (${A.rp} điểm, thứ ${arPos(A)}/${A.bots.length+1}) · thắng ${A.w} · thua ${A.l} · chuỗi thắng ${A.st}.`,
     [{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);
-    if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
+    if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();else if(i===1)await arBoard();else if(i===2)await say(['Thầy không tự ra sân, chỉ chọn 3 đồng hành ở màn Chọn đội hình. Vào trận thì màn hình tự xoay ngang.','Kéo cần gạt bên trái (hoặc phím mũi tên / WASD) để di chuyển trên sàn đấu.','Đồng hành ra sân với đúng Máu, Linh lực, Công, Thủ, Kỹ, Tốc như ngoài bản đồ. Tốc càng cao chạy càng nhanh, đánh càng nhanh và càng dễ né đòn; Kỹ cao thì ít đánh trượt.','Nút to bên phải là đánh thường, giữ nút để đánh liên tục (phím Z). Ba nút nhỏ là kỹ năng của đồng hành đang ra trận (phím 1, 2, 3), tốn linh lực và phải chờ hồi chiêu.','Nút Né (phím Shift hoặc X) lướt nhanh theo hướng cần gạt, đứng yên thì lách chéo ra sau. Trong lúc lướt không trúng đòn, hồi chiêu hơn 1 giây. Cũng có thể né bằng cách đi lệch hàng với đối thủ. Khi một đồng hành kiệt sức, người tiếp theo trong đội vào thay. Hạ cả 3 đồng hành của đối thủ là thắng.','Tìm trận sẽ ghép thầy với một đấu sĩ có điểm hạng gần bằng. Thắng được cộng điểm hạng, thua bị trừ. Đối thủ hạng càng cao thì đội càng mạnh và chơi càng khôn. Lên bậc hạng mới lần đầu được thưởng.','Bot ở bảng xếp hạng cũng tự đấu với nhau nên thứ hạng luôn thay đổi.','Máu ở đấu trường tính riêng, không ảnh hưởng máu thật của đội. Thắng được bạc, công đức và kinh nghiệm.'],'Quản Đấu Trường');else return;}}
 /* v12.3: màn chọn đội hình kiểu Tháp Trấn Hồn: trái là các đồng hành (không có Minh Dạ), phải là 3 ô ra trận theo thứ tự */
 let ARS=null,ARLAST=[];
 function arenaPick(){const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(C.length<3)return say('Thầy không được tự ra sân. Cần ít nhất 3 đồng hành (trong đội hoặc trong Tháp Trấn Hồn) mới vào được đấu trường.','Quản Đấu Trường');
@@ -4754,10 +4758,13 @@ function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...
   else if(k==='slash'&&typeof arFxSlash==='function')arFxSlash(...a);else if(k==='trail'&&typeof arFxTrail==='function')arFxTrail(...a);else if(k==='upd'&&typeof arFxUpdate==='function')arFxUpdate(...a);}catch(e){}}
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
-function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);const h={i:++P.hi,d:r.d,c:r.cr?1:0,s:o.stun&&R()<.6?1:0,w:o.slow?1:0};
+function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
+  /* 13.0: Kỹ bên đánh và Tốc đối thủ quyết định đánh trượt; báo cho đối thủ thấy chữ TRƯỢT */
+  if(b.inv<=0&&typeof arHit==='function'&&R()*100>arHit(a,b)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');P.hits.push({i:++P.hi,d:0,m:1});if(P.hits.length>12)P.hits.shift();return;}
+  if(b.inv>0){if(!b.mp0){b.mp0=1;arPop(b.x,b.y-21,'NÉ','#c8f0ff');}return;}const r=arDmg(a,b,x);const h={i:++P.hi,d:r.d,c:r.cr?1:0,s:o.stun&&R()<.6?1:0,w:o.slow?1:0};
   P.hits.push(h);if(P.hits.length>12)P.hits.shift();b.hurt=220;sfx(r.cr?'crit':'hit');arPop(b.x,b.y-21,(r.cr?'!':'')+r.d,r.cr?'#ffe060':'#ffffff');onlFx('hit',a,b,o,r.cr);
   if(o.drain){const v=Math.round(r.d*.5);a.hp=Math.min(a.mhp,a.hp+v);arPop(a.x,a.y-23,'+'+v,'#80ff90');}}
-function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;const d=clamp(h.d|0,0,99999);
+function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return;if(b.inv>0)return;if(h.m){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');return;}const d=clamp(h.d|0,0,99999);
   b.hp=Math.max(0,b.hp-d);b.hurt=220;b.kb=(A.e&&A.e.x>b.x?-1:1)*4;
   arPop(b.x,b.y-21,(h.c?'!':'')+d,h.c?'#ffe060':'#ff8080');sfx(h.c?'crit':'hit');if(A.e)onlFx('hit',A.e,b,{},!!h.c);
   if(h.s){b.stun=900;arPop(b.x,b.y-27,'CHOÁNG','#ffe060');}if(h.w){b.slow=2500;arPop(b.x,b.y-27,'CHẬM','#90ff90');}
@@ -4765,7 +4772,7 @@ function onlTakeHit(h){const A=AR,b=A.a;if(!b||b.hp<=0||A.phase!=='fight')return
 function onlDuelSend(){const A=AR,P=A.pvp,D=P.D;if(!D.r)return;const now=performance.now();if(now-P.lastSend<60)return;P.lastSend=now;
   const F=A.L.F,f=A.a,q=v=>Math.round(v*1000)/1000;
   const o={ix:A.ai,out:P.out||(A.phase==='end'&&!A.win)?1:0,ph:A.phase};
-  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
+  if(f)Object.assign(o,{id:f.id,n:f.name,lv:f.lv,hp:Math.ceil(f.hp),mhp:f.mhp,mp:Math.round(f.mp),mmp:f.mmp,def:f.def,sp:f.spd,x:q((f.x-F.x)/F.w),y:q((f.y-F.y)/F.h),f:f.face,mv:f.mv?1:0,
     k:f.act?f.act.k:'',sh:f.shield>0?1:0,bf:f.buff>0?1:0,st:f.stun>0?1:0,iv:f.inv>0?1:0});
   o.hits=P.hits;o.pj=P.pjs;D.r.presence(o).catch(()=>{});}
 function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',dt);A.pops.forEach(p=>{p.life-=dt;p.y-=dt*.02;});A.pops=A.pops.filter(p=>p.life>0);
@@ -4777,7 +4784,7 @@ function onlArUpdate(dt){const A=AR,P=A.pvp,F=A.L.F;A.t+=dt;if(A.fx)onlFx('upd',
     const e=A.e;if(e&&typeof s.x==='number'){const tx=F.x+(1-clamp(s.x,0,1))*F.w,ty=F.y+clamp(+s.y||0,0,1)*F.h;
       if(e.nx===undefined){e.x=tx;e.y=ty;}e.nx=1;const k=Math.min(1,dt/70),x0=e.x,y0=e.y;e.x+=(tx-e.x)*k;e.y+=(ty-e.y)*k;
       if(dt>0){e.vx=(e.x-x0)/dt;e.vy=(e.y-y0)/dt;e.wp=(e.wp||0)+Math.hypot(e.x-x0,e.y-y0);}e.face=-(s.f<0?-1:1);
-      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;
+      if(typeof s.hp==='number'){if(s.hp<e.hp-.5&&!e.hurt)e.hurt=160;e.hp=clamp(s.hp,0,1e6);}if(s.mhp>0)e.mhp=s.mhp;if(typeof s.mp==='number')e.mp=s.mp;if(s.mmp>0)e.mmp=s.mmp;if(s.def>=0)e.def=s.def;if(s.sp>=0)e.spd=s.sp;
       e.inv=s.iv?200:0;if(!s.iv)e.mp0=0;else if(e.gh&&(!e.gh.length||e.gh[e.gh.length-1].life<215))e.gh.push({x:e.x,y:e.y,life:260});e.shield=s.sh?500:0;e.buff=s.bf?500:0;e.stun=s.st?200:0;e.mv=s.mv?1:0;const nk=s.k?String(s.k).slice(0,12):'';if(nk==='sweep'&&e.lastK!=='sweep')onlFx('slash',e);e.lastK=nk;e.act=e.hp<=0?{k:'down',t:1e9}:nk?{k:nk,t:200}:null;
       if(e.hp<=0&&P.eKo!==P.eix){P.eKo=P.eix;arPop(e.x,e.y-30,e.name+' bị hạ!','#ffe070');sfx('fail');onlFx('ko',e);}}
     if(Array.isArray(s.hits))for(const h of s.hits){if(!h||typeof h.i!=='number'||h.i<=P.seenHit)continue;P.seenHit=h.i;onlTakeHit(h);}
