@@ -3026,13 +3026,16 @@ async function finish(res){B.phase='end';
   await fadeTo(0,300);save();return res;}
 /* v13.5 hai bên cân nhau: mọi đấu thủ (ta và địch) vẽ cùng chiều cao thân BTH, trùm cao hơn một chút */
 const BTH=62;
+/* v13.8 quái vẫn trông to hơn vì thân bè ngang: địch thấp hơn 14% và cả hai bên bị giới hạn bề ngang thân */
+const EBH=.86,BTW=56;
+function bScale(i,h){return Math.min(h/i.h,BTW*h/BTH/i.w);}
 function drawBattle(dt){const E=B.enemy,A=B.ally;
   const sh=B.shake>0&&SET.shk?(R()-.5)*B.shake:0;B.shake=Math.max(0,B.shake-dt*.02);
   const SY=PORT?18:0;if(SY){const bg=bgFor(B.bg);c.drawImage(bg,0,0,240,1,0,0,W,SY);}
   c.save();c.translate(Math.round(sh)+(PORT?-30:0)+240,SY);c.scale(-1,1);c.drawImage(bgFor(B.bg),0,0);
   if(B.dark>0){c.globalAlpha=B.dark*.5;rect(0,0,240,104,'#300818');c.globalAlpha=1;}
   drawFxU(dt);
-  const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*(E.boss?BTH*1.18:BTH)/ei.h;
+  const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.18:1));
   const ew=Math.round(ei.w*ek),eh=Math.round(ei.h*ek);const ex=Math.round(62-ew/2+B.eo.x),ey=Math.round(100-eh+B.eo.y+bob-4);
   const eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;
   c.globalAlpha=.28;rect(46,99,32,3,'#000');c.globalAlpha=1;
@@ -3040,7 +3043,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   if(B.eA>0){c.globalAlpha=B.eA*(E.kind==='Vong Linh'?.92:1);c.drawImage(E.ai&&E.ai.enr?redT(es):es,eX,eY,eW,eH);if(B.eF>0){c.globalAlpha=B.eF*(ANIM[E.id]?.45:1);c.drawImage(white(es),eX,eY,eW,eH);}c.globalAlpha=1;}
   if((E.kind==='Oán Linh'||E.boss)&&B.eA>0&&Math.random()<.25)fx.push({k:'p',x:ex+R()*ew,y:ey+eh*.6+R()*eh*.4,vx:0,vy:-.5,life:700,max:700,col:E.boss?'#b060ff':'#ff4060',sz:1});
   if(B.eA>.5)drawWisps(E,ex+ew/2,ey+eh*.55,ew/2+8);
-  const ai=bSpr(A,'a'),as=ai.img;const sc=BTH/ai.h;/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
+  const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH);/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
   const ax=Math.round(176-aw/2+B.ao.x),ay=Math.round(100-ah+B.ao.y+(A.id!=='diep'?Math.round(Math.sin(time/420+1)*2)-4:0));
   const aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;
   c.globalAlpha=.28;rect(160,99,32,3,'#000');c.globalAlpha=1;
