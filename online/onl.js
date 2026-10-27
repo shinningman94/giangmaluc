@@ -203,7 +203,13 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
   const D=ONL.duel;if(D){if(D.st==='ask'&&performance.now()-D.t0>30000){toast('Không ai nhận lời thách đấu');ONL.duel=null;onlUI();}
     if(D.st==='go'&&onlFree()){D.st='run';run(onlDuelFlow);}}
   onlUIFrame();}
-function onlTitle(){if(!ONLM)return;txt(ONL.room?'BẢN ONLINE · '+(ONL.peers.size+1)+' người đang chơi':'BẢN ONLINE · chưa kết nối',W/2,PORT?71:60,{size:9,align:'center',color:'#9fe8ff',outline:'#120d18'});}
+/* người chơi muốn bỏ số người online ở màn hình đầu và bản đồ; trên bản đồ có nút CHAT cạnh MENU */
+function onlTitle(){}
+function onlHudBtns(x,y,w,h,ty,sz){const w1=Math.floor((w-2)/2),w2=w-w1-2,x2=x+w1+2;
+  win(x,y,w1,h,'#7a2a22','#5a1a18','#ffe8a0');txt('CHAT',x+w1/2,ty,{size:sz,align:'center',color:'#fff8e0'});
+  win(x2,y,w2,h,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',x2+w2/2,ty,{size:sz,align:'center',color:'#fff8e0'});
+  if(ONL.unread){const n=String(Math.min(99,ONL.unread)),bw=Math.max(7,n.length*4+3);rect(x+w1-bw+2,y-3,bw,7,'#0c0a18');rect(x+w1-bw+3,y-2,bw-2,5,'#d03030');txt(n,x+w1-bw/2+2,y-4,{size:7,align:'center',color:'#fff'});}}
+function onlHudHits(x,y,w,h){const w1=Math.floor(w/2);hit(x,y,w1,h,()=>{audio();onlOpen(0);});hit(x+w1,y,w-w1,h,()=>openMenu());}
 
 /* ---------- thách đấu ---------- */
 function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
@@ -479,7 +485,7 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sb.onclick();});Ft.appendChild(inp);Ft.appendChild(sb);
     if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q=document.createElement('button');q.className='b';q.textContent='Về chế độ một người';q.onclick=onlLeaveMode;B.appendChild(q);}}}
 let onlLastVis='',onlLastRender=0,onlRectK='';
-function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open&&!CH&&!MENU;
+function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=false;
   const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
   if(lab!==onlLastVis){onlLastVis=lab;U.btn.style.display=showBtn?'block':'none';U.btn.firstElementChild.textContent=ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline';
     let bd=U.btn.querySelector('b');if(ONL.unread){if(!bd){bd=document.createElement('b');U.btn.appendChild(bd);}bd.textContent=String(Math.min(99,ONL.unread));}else if(bd)bd.remove();}
