@@ -4291,7 +4291,7 @@ function arDrawF(f){if(!f)return;const th=PORT?21:18,mv=f.mv&&!f.act,k=f.hp<=0?'
   if(f.hurt>0&&Math.floor(time/50)%2)c.globalAlpha=.45;if(f.inv>0)c.globalAlpha=.6;if(f.hp<=0)c.globalAlpha=Math.max(0,AR.pt/1300);
   c.drawImage(F.img,Math.round((f.x-F.w/2+dx)*S)/S,Math.round((f.y-F.h+bob)*S)/S,F.w,F.h);c.globalAlpha=1;
   if(f.shield>0)arDrawShield(f,th);if(f.stun>0)arDrawStun(f,F.h);
-  bar(f.x-9,f.y-F.h-3,18,2,f.hp/f.mhp,f.side==='a'?'#60e070':'#ff5050');}
+  if(f.side==='e')bar(f.x-9,f.y-F.h-3,18,2,f.hp/f.mhp,'#ff5050');}
 function arHud(){const A=AR,P=PORT,w=P?(W-6)/2:Math.min(150,(W-8)/2);for(const[f,x,al,ti,team]of[[A.a,2,'left',A.ai,A.ta],[A.e,W-2-w,'right',A.ei,A.te]]){
   win(x,1,w,P?40:23,f.side==='a'?'#2c4a88':'#7a2a2a',f.side==='a'?'#1a2a58':'#4a1818');const tx=al==='left'?x+5:x+w-5;
   txt(f.name,tx,P?3:2,{size:fitS(f.name,P?9:8,w-40),align:al,color:'#fff'});txt('Lv '+f.lv,al==='left'?x+w-5:x+5,P?4:3,{size:7,align:al==='left'?'right':'left',color:'#f8e080'});
