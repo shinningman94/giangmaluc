@@ -2380,7 +2380,7 @@ function drawWeather(camX,camY){const now=time,dt=WX.lt?Math.min(60,now-WX.lt):1
 
 
 /* ---------- menu (stats, party, tribulations, gear, map) ---------- */
-const TABS=['Chỉ số','Đội hình','Kiếp nạn','Pháp bảo','Bản đồ','Cài đặt'];
+const TABS=['Chỉ số','Đội hình','Kiếp nạn','Pháp bảo','Bản đồ','Giáng Ma Lục','Cài đặt'];
 const onOff=v=>v?'Bật':'Tắt',setTg=k=>()=>{SET[k]=SET[k]?0:1;saveSet();sfx('sel');};
 function setRows(){return[{l:'Âm thanh',v:onOff(!muted),f:toggleSnd,d:'Bật hoặc tắt toàn bộ tiếng động trong game.'},
   {l:'Tầm nhìn bản đồ',v:ZOOMN[ZOOMI],f:cycleZoom,d:'Gần, Xa hoặc Rất xa: thu phóng bản đồ khi đi lại.'},
@@ -2395,7 +2395,7 @@ function drawSettingsP(t,b){const M=MENU,rs=setRows(),rh=30;win(2,t,W-4,b-t,'#2c
   rs.forEach((r,i)=>{const y=t+6+i*rh,sel=i===M.i;if(sel)rect(5,y-2,W-10,rh-2,'#4a64c0');txt(r.l,10,y+1,{size:10,color:'#e0e8ff'});
     win(W-62,y+1,54,16,'#2c2238','#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(r.v,W-35,y+4,{size:9,align:'center',color:r.v==='Tắt'?'#a8a0c0':'#fff8e0'});hit(4,y-2,W-8,rh-2,()=>{M.i=i;r.f();});});
   const r=rs[M.i]||rs[0],ls=wrap(r.d,W-20,8);ls.forEach((l,j)=>txt(l,10,Math.min(b-6-ls.length*10,t+10+rs.length*rh)+j*10,{size:8,color:'#b8c0e0'}));}
-function openMenu(){sfx('ok');MENU={tab:0,i:0,sub:null,si:0};scene='menu';for(const k of['bag','pty','nan'])delete SCO[k];}
+function openMenu(){sfx('ok');MENU={tab:0,i:0,sub:null,si:0};scene='menu';for(const k of['bag','pty','nan','dex'])delete SCO[k];}
 /* v5.6: danh sách trong menu cuộn bằng vuốt; đổi lựa chọn bằng phím thì tự cuộn tới */
 function listShow(key,i,rh,h){const M=MENU;if(M['l_'+key]===i)return;M['l_'+key]=i;scrollShow(key,i*rh,(i+1)*rh,h);}
 function closeMenu(){sfx('sel');const f=MENU&&MENU.done;MENU=null;scene='map';save();if(f)f();}
@@ -2472,7 +2472,7 @@ function partySub(){const i=MENU.i,u=G.party[i],n=G.party.length,o=[];
   if(u.id!=='diep')o.push({l:'Siêu độ, cho đi (+3 công đức)',f:()=>{G.party.splice(i,1);G.merit+=3;MENU.i=0;sfx('pur');toast(u.name+' được siêu thoát');}});
   o.push({l:'Đóng',f:()=>{}});return o;}
 function gearSub(){if(MENU.i>=G.inv.length){const k=consList()[MENU.i-G.inv.length];return k?consSub(k):[{l:'Đóng',f:()=>{}}];}const it=G.inv[MENU.i];return[{l:'Trang bị'+(it?' ('+cmpEq(it).t+')':''),f:()=>{equip(MENU.i);MENU.i=Math.min(MENU.i,Math.max(0,G.inv.length-1));sfx('ok');}},{l:'Bỏ đi',f:()=>{G.inv.splice(MENU.i,1);MENU.i=Math.max(0,Math.min(MENU.i,G.inv.length-1));}},{l:'Đóng',f:()=>{}}];}
-function menuLen(){return[statRows().length,pList().length,0,G.inv.length+consList().length,0,setRows().length][MENU.tab];}
+function menuLen(){return[statRows().length,pList().length,0,G.inv.length+consList().length,0,dexIds().length,setRows().length][MENU.tab];}
 function menuInput(k){const M=MENU;if(M.tower)return twInput(k);if(M.warp)return warpInput(k);
   if(M.info||M.guide){if(k==='up'||k==='down'){M.tsc=(M.tsc||0)+(k==='up'?-24:24);return;}if(k==='a'||k==='b'||k==='menu'){M.info=null;M.guide=0;sfx('sel');}return;}
   if(M.sub){const o=M.sub();if(k==='up'||k==='down'){M.si=(M.si+(k==='up'?-1:1)+o.length)%o.length;sfx('sel');}else if(k==='b'){M.sub=null;sfx('sel');}else if(k==='a'){const f=o[M.si].f;M.sub=null;f();save();}return;}
@@ -2483,12 +2483,13 @@ function menuInput(k){const M=MENU;if(M.tower)return twInput(k);if(M.warp)return
     if(M.tab===0){const r=statRows()[M.i];if(r.act==='guide'){M.guide=1;M.tsc=0;sfx('ok');return;}if(r.act)return meditate();if(G.pts>0){r.add();G.pts--;sfx('ok');}else{sfx('no');toast('Chưa có điểm cộng. Lên cấp để nhận thêm.');}}
     else if(M.tab===1&&pList().length){M.sub=partySub;M.si=0;sfx('ok');}
     else if(M.tab===3&&menuLen()){M.sub=gearSub;M.si=0;sfx('ok');}
-    else if(M.tab===5){const r=setRows()[M.i];if(r)r.f();}}}
+    else if(M.tab===5){const id=dexIds()[M.i];if(id)dexOpen(id);}
+    else if(M.tab===6){const r=setRows()[M.i];if(r)r.f();}}}
 function meditate(){const w=30-(G.steps-G.med);if(w>0){sfx('no');toast('Tâm còn đang tĩnh. Đi thêm '+w+' bước nữa rồi hãy thiền.');return;}
   G.med=G.steps;healAll(.3);for(const u of G.party)u.mp=u.mmp;sfx('heal');toast('Ngồi thiền: cả đội hồi 30% HP, đầy linh lực');}
 function drawMenu(){MENU.trect=null;if(MENU.tower)return drawTower();if(MENU.warp)return drawWarp();if(PORT){drawMenuP();if(MENU.info)infoOverlay();else if(MENU.guide)guideOverlay();return;}const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)rect(0,y,W,1,'#1a1428');
-  TABS.forEach((t,i)=>{const x=2+i*39.4,sel=i===M.tab;win(Math.round(x),2,38,14,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(t,Math.round(x)+19,4,{size:9,align:'center',color:sel?'#fff':'#c8bcd8'});hit(Math.round(x),2,38,14,()=>{M.tab=i;M.i=0;M.sub=null;sfx('sel');});});
-  [drawStats,drawParty,drawNan,drawGear,drawWorld,drawSettings][M.tab]();if(M.info)return infoOverlay();if(M.guide)return guideOverlay();
+  const tbw=236/TABS.length;TABS.forEach((t,i)=>{const x=2+i*tbw,sel=i===M.tab,L=tabLbl(t,tbw-4,9);win(Math.round(x),2,Math.round(tbw-1),14,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(L.t,Math.round(x+tbw/2),4+(9-L.sz)/2,{size:L.sz,align:'center',color:sel?'#fff':'#c8bcd8'});hit(Math.round(x),2,Math.round(tbw-1),14,()=>{M.tab=i;M.i=0;M.sub=null;sfx('sel');});});
+  [drawStats,drawParty,drawNan,drawGear,drawWorld,drawDex,drawSettings][M.tab]();if(M.info)return infoOverlay();if(M.guide)return guideOverlay();
   if(M.sub){hits.length=0;SCR.length=0;const o=M.sub();const h=o.length*12+6;win(36,Math.min(50,146-h),168,h,'#7a2a22','#5a1a18','#ffe8a0');const oy=Math.min(50,146-h);o.forEach((op,i)=>{txt((i===M.si?'▶ ':'  ')+op.l,42,oy+3+i*12,{size:9,color:i===M.si?'#fff':'#e0c8c0'});hit(36,oy+3+i*12,168,12,()=>{M.si=i;menuInput('a');});});}
   win(186,148,51,11,'#7a2a22','#5a1a18','#ffe8a0');txt('Đóng ✕',211,148,{size:8,align:'center',color:'#fff8e0'});hit(186,147,51,13,()=>closeMenu());}
 function row(x,y,l,v,sel,col='#fff'){if(sel)rect(x-2,y,110,10,'#4a64c0');txt(l,x,y,{size:9,color:'#cfd8ff'});txt(String(v),x+105,y,{size:9,align:'right',color:col});}
@@ -2496,7 +2497,7 @@ function drawStats(){const d=diep();win(2,18,118,130,'#2c3a78','#1a2250');
   const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit],['seal','Bùa trấn yểm',G.charms],['pill','Hồi Hồn Đan',G.pill.hp],['pillb','Tụ Linh Đan',G.pill.mp]];
   res.forEach(([i,l,v],k)=>{icS(i,6,21+k*11,9);txt(l,17,20+k*11,{size:9,color:'#cfd8ff'});txt(String(v),114,20+k*11,{size:9,align:'right',color:'#fff'});});
   const y=88;txt('Kiếp nạn: '+G.nan+'/'+NAN.length,6,y,{size:9,color:'#ffe8a0'});txt('Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),6,y+10,{size:9,color:'#f0d0ff'});
-  txt('Sổ yêu quái: '+Object.keys(G.dex).length+'/'+(Object.keys(SPECIES).length-1),6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
+  txt('Giáng Ma Lục: '+dexCount()+'/'+dexIds().length,6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
   txt('Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,6,y+40,{size:8,color:'#b8a8d0'});
   win(122,18,116,130,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,126,20,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv),234,21,{size:8,align:'right',color:'#f8e080'});
   {const s=G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận 3 điểm cộng';txt(s,126,31,{size:fitS(s,8,108),color:G.pts?'#80ff90':'#a8a0c0'});}
@@ -2539,7 +2540,7 @@ function infoText(L,x,y,b,lh,sz,xr){const M=MENU,h=b-y,tot=L.length*lh,max=Math.
 function infoOverlay(){const M=MENU,u=M.info;hits.length=0;SCR.length=0;rect(0,0,W,H,'rgba(8,6,14,.75)');hit(0,0,W,H,()=>{M.info=null;sfx('sel');});
   if(PORT){infoP(u,26,H-24);txt('Chạm ngoài khung chữ để đóng',W/2,H-18,{size:9,align:'center',color:'#ffe8a0'});return;}
   win(2,2,236,146,'#2c3a78','#1a2250');const sp=sprite(u.id),sc=Math.min(1,52/sp.height,62/sp.width);drawPic(u.id,5,4,sp.width*sc,sp.height*sc,u.id!=='diep','tl');
-  txt(u.name,70,5,{size:10,color:'#fff'});txt(u.kind+' · Lv '+u.lv,70,17,{size:8,color:KINDC[u.kind]});txt('EXP '+u.exp+'/'+expNeed(u.lv),70,26,{size:8,color:'#f8e080'});
+  txt(u.name,70,5,{size:10,color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),70,17,{size:8,color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv),70,26,{size:8,color:'#f8e080'});
   [['HP',u.hp+'/'+u.mhp],['LL',u.mp+'/'+u.mmp],['Lực',u.atk],['Kỹ',u.skl],['Tốc',u.spd],['Thủ',u.def]].forEach(([l,v],i)=>{const x=i%2?194:148,yy=6+Math.floor(i/2)*10;txt(l,x,yy,{size:8,color:'#cfd8ff'});txt(String(v),x+40,yy,{size:8,align:'right',color:'#fff'});});
   rect(6,57,228,1,'#4a5a9a');infoText(infoLines(u,226),8,61,140,8,8,234);txt('Chạm ngoài khung chữ để đóng',120,149,{size:8,align:'center',color:'#ffe8a0'});}
 /* v5.0 bảng hướng dẫn chỉ số: cùng công thức với calc() trong h_battle.js và capP() */
@@ -2646,9 +2647,9 @@ function drawMenuP(){const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)r
   txt(TABS[M.tab],W/2,4,{size:12,align:'center',color:'#ffe8a0'});
   win(W-56,2,54,18,'#7a2a22','#5a1a18','#ffe8a0');txt('Đóng ✕',W-29,5,{size:9,align:'center',color:'#fff8e0'});hit(W-58,0,58,22,()=>closeMenu());
   const tb=(W-4)/TABS.length,ty=H-25;TABS.forEach((t,i)=>{const x=Math.round(2+i*tb),w=Math.round(2+(i+1)*tb)-x-1,sel=i===M.tab;
-    win(x,ty,w,23,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(t,x+w/2,ty+6,{size:8,align:'center',color:sel?'#fff':'#c8bcd8'});
+    const L=tabLbl(t,w-2,8);win(x,ty,w,23,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(L.t,x+w/2,ty+6+(8-L.sz)/2,{size:L.sz,align:'center',color:sel?'#fff':'#c8bcd8'});
     hit(x,ty-2,w+1,27,()=>{M.tab=i;M.i=0;M.sub=null;sfx('sel');});});
-  [drawStatsP,drawPartyP,drawNanP,drawGearP,drawWorldP,drawSettingsP][M.tab](23,ty-3);
+  [drawStatsP,drawPartyP,drawNanP,drawGearP,drawWorldP,drawDexP,drawSettingsP][M.tab](23,ty-3);
   if(M.sub){hits.length=0;SCR.length=0;const o=M.sub();const rh=20,h=o.length*rh+8,w=W-28,x=14,y=Math.round((H-h)/2);rect(0,0,W,H,'rgba(8,6,14,.55)');win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');
     o.forEach((op,i)=>{const yy=y+4+i*rh,sel=i===M.si;if(sel)rect(x+3,yy,w-6,rh-1,'#a83a2f');txt(op.l,x+10,yy+4,{size:10,color:sel?'#fff':'#f0d8c8'});hit(x,yy,w,rh,()=>{M.si=i;menuInput('a');});});}}
 function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Math.floor((b-t-128)/rows.length),12,16);const hA=27+rows.length*rh+3;
@@ -2662,7 +2663,7 @@ function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Mat
   const y=t+hA+3;win(2,y,W-4,Math.min(b-y,94),'#2c3a78','#1a2250');
   const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit],['seal','Bùa trấn yểm',G.charms],['pill','Hồi Hồn Đan',G.pill.hp],['pillb','Tụ Linh Đan',G.pill.mp]];
   const cw=(W-12)/2;res.forEach(([ic0,l,v],k)=>{const x=Math.round(6+(k%2)*cw),yy=y+4+Math.floor(k/2)*11;icS(ic0,x,yy+1,9);txt(l,x+11,yy,{size:8,color:'#cfd8ff'});txt(String(v),Math.round(x+cw-4),yy,{size:9,align:'right',color:'#fff'});});
-  const y2=y+39;[['Kiếp nạn: '+G.nan+'/'+NAN.length,'#ffe8a0'],['Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),'#f0d0ff'],['Sổ yêu quái: '+Object.keys(G.dex).length+'/'+(Object.keys(SPECIES).length-1)+' · Bước: '+G.steps,'#cfe'],['Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,'#b8a8d0']]
+  const y2=y+39;[['Kiếp nạn: '+G.nan+'/'+NAN.length,'#ffe8a0'],['Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),'#f0d0ff'],['Giáng Ma Lục: '+dexCount()+'/'+dexIds().length+' · Bước: '+G.steps,'#cfe'],['Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,'#b8a8d0']]
     .forEach(([l,col],i)=>{if(y2+i*10+10<=b)txt(l,7,y2+i*10,{size:9,color:col});});}
 function drawPartyP(t,b){const cw=Math.floor((W-6)/2),ch=24,PLs=pList(),inT=MENU.tw,vh=3*(ch+1)-1,sc=scrollArea('pty',0,t,W,vh,Math.ceil(PLs.length/2)*(ch+1)-1);listShow('pty',Math.floor(MENU.i/2),ch+1,vh);clipOn(0,t,W,vh);
   PLs.forEach((u,k)=>{const i=k,x=2+(k%2)*(cw+2),y=t+Math.floor(k/2)*(ch+1)-sc;if(y+ch<t||y>t+vh)return;const sel=i===MENU.i;win(x,y,cw,ch,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');
@@ -2673,7 +2674,7 @@ function drawPartyP(t,b){const cw=Math.floor((W-6)/2),ch=24,PLs=pList(),inT=MENU
   const u=PLs[MENU.i];if(u)infoP(u,y,b);}
 function infoP(u,y,b){const w=weapon(u);win(2,y,W-4,b-y,'#2c3a78','#1a2250');
   const sp=sprite(u.id);const sc=Math.min(1,50/sp.height,70/sp.width);drawPic(u.id,6,y+3,sp.width*sc,sp.height*sc,u.id!=='diep','tl');
-  txt(u.name,W-7,y+3,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+' · Lv '+u.lv,W-7,y+14,{size:8,align:'right',color:KINDC[u.kind]});txt('EXP '+u.exp+'/'+expNeed(u.lv),W-7,y+23,{size:8,align:'right',color:'#f8e080'});
+  txt(u.name,W-7,y+3,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),W-7,y+14,{size:8,align:'right',color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv),W-7,y+23,{size:8,align:'right',color:'#f8e080'});
   const st=[['HP',u.hp+'/'+u.mhp],['LL',u.mp+'/'+u.mmp],['Lực',u.atk],['Kỹ',u.skl],['Tốc',u.spd],['Thủ',u.def]];let yy=y+56;
   st.forEach(([l,v],i)=>{const x=i%2?W/2+3:8,ry=yy+Math.floor(i/2)*10;txt(l,x,ry,{size:9,color:'#cfd8ff'});txt(String(v),x+W/2-16,ry,{size:9,align:'right',color:'#fff'});});
   yy+=32;infoText(infoLines(u,W-16),8,yy,b-3,9,8,W-7);}
@@ -2701,6 +2702,29 @@ function drawWorldP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');const s=(W-12)/MW,
   const ly=oy+MH*s+6;const lg=[['#f8e070','Làng'],['#5af0c0','Trấn Ma Ti'],['#ff5a4a','Đền chùa'],['#b060ff','Hang quỷ'],['#ffb070','Danh thắng'],['#7ad0ff','Người chờ'],['#ff2a6a','Quỷ Môn'],['#fff8e0','NPC dấu ?']];
   lg.forEach(([cc,l],i)=>{const x=10+(i%2)*((W-16)/2),y=ly+Math.floor(i/2)*11;if(y+10>b)return;rect(Math.round(x),y+3,4,4,cc);txt(l,Math.round(x)+7,y,{size:9,color:'#d8d0e8'});});
   const y2=ly+47,left=Math.round((1-progAt(PL.x,PL.y))*(WD.path.length-1));if(y2+20<b)wrap('Vùng hiện tại: '+ZONES[zoneAt(PL.x,PL.y)].n+'. Theo hành trình còn khoảng '+left+' bước nữa tới Quỷ Môn Quan.',W-20,8).forEach((l,i)=>txt(l,10,y2+i*9,{size:8,color:'#c8c0d8'}));}
+
+/* v13.6 Giáng Ma Lục: sổ ghi mọi loài yêu ma; loài chưa đụng độ hiện bóng mờ, khóa thông tin. G.dex[id]: 1 đã gặp, 2 đã thu phục (foe() trong f_map.js ghi) */
+let DEXI=null;
+function dexIds(){if(!DEXI)DEXI=Object.keys(SPECIES).filter(id=>id!=='diep').map((id,k)=>[id,k]).sort((a,b)=>{const ra=RANKS.indexOf(rankOf(a[0])),rb=RANKS.indexOf(rankOf(b[0]));return(ra<0?9:ra)-(rb<0?9:rb)||a[1]-b[1];}).map(a=>a[0]);return DEXI;}
+function dexSeen(id){return!!(G.dex[id]||caught(id));}
+function dexCount(){return dexIds().filter(dexSeen).length;}
+function tabLbl(t,w,sz){for(let z=sz;z>=sz-2;z--)if(tw(t,z)<=w)return{t,sz:z};const s=t==='Giáng Ma Lục'?'Ma Lục':t;return{t:s,sz:tw(s,sz)<=w?sz:sz-1};}
+function dexOpen(id){if(!dexSeen(id)){sfx('no');toast('Chưa đụng độ loài này. Gặp nó trên đường để mở thông tin.');return;}
+  const u=makeUnit(id,1,{full:true});u.dexv=caught(id)?'✦ Đã thu phục':'Đã đụng độ';MENU.info=u;MENU.tsc=0;sfx('ok');}
+function dexTile(id,x,y,w,h,sel){const s=dexSeen(id),cap=s&&caught(id),rk=rankOf(id);
+  win(x,y,w,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':s?'#5a4a6a':'#352c40');
+  if(s)drawPic(id,x+3,y+3,w-6,h-6);else{c.save();c.globalAlpha=.28;c.filter='grayscale(1) brightness(.35)';drawPic(id,x+3,y+3,w-6,h-6);c.restore();txt('?',x+w/2,y+h/2-5,{size:10,align:'center',color:'#9a8aac'});}
+  if(s&&rk)txt(rk,x+2,y+1,{size:7,color:RKC[rk],outline:'#1d1626'});if(cap)txt('✦',x+w-2,y+1,{size:7,align:'right',color:'#ffe8a0',outline:'#1d1626'});}
+function dexGrid(x,y,w,h,cols,th){const L=dexIds(),tw0=Math.floor(w/cols),rows=Math.ceil(L.length/cols);const sc=scrollArea('dex',x,y,w,h,rows*th);listShow('dex',Math.floor(MENU.i/cols),th,h);clipOn(x,y,w,h);
+  L.forEach((id,i)=>{const tx=x+(i%cols)*tw0,ty=Math.round(y+Math.floor(i/cols)*th-sc);if(ty+th<y||ty>y+h)return;dexTile(id,tx,ty,tw0-1,th-1,i===MENU.i);hitC(tx,ty,tw0-1,th-1,()=>{MENU.i=i;dexOpen(id);},y,h);});clipOff();scrollBar('dex',x+w+1,y,h);}
+function dexFoot(x,y,xr,sz){const id=dexIds()[MENU.i];if(!id)return;if(!dexSeen(id)){txt('▶ ??? · chưa đụng độ',x,y,{size:sz,color:'#9a8aac'});return;}
+  const sp=SPECIES[id],rk=rankOf(id);txt('▶ '+sp.name,x,y,{size:sz,color:'#fff'});txt(sp.kind+(rk?' · hạng '+rk:''),xr,y,{size:sz-1,align:'right',color:KINDC[sp.kind]||'#cfe'});}
+function drawDex(){win(2,18,236,130,'#2c3a78','#1a2250');const n=dexIds().length,m=dexIds().filter(id=>dexSeen(id)&&caught(id)).length;
+  txt('Đã gặp '+dexCount()+'/'+n+' · Đã thu phục '+m,8,21,{size:9,color:'#ffe8a0'});txt('chạm để xem',232,22,{size:8,align:'right',color:'#a8a0c0'});
+  dexGrid(6,32,226,104,8,26);dexFoot(8,138,232,9);}
+function drawDexP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');const n=dexIds().length,m=dexIds().filter(id=>dexSeen(id)&&caught(id)).length;
+  txt('Đã gặp '+dexCount()+'/'+n+' · Thu phục '+m,8,t+4,{size:9,color:'#ffe8a0'});const cols=4,gw=W-14,th=Math.floor(gw/cols)+2,gh=b-t-34;
+  dexGrid(6,t+16,gw,gh,cols,th);dexFoot(8,b-14,W-8,9);}
 
 /* v9.7: phải nhanh hơn đối phương từ 10 Tốc trở lên mới liên kích (×2); v10.9.2: người chơi nâng lên 20 */
 const X2SPD=20;
@@ -4535,6 +4559,6 @@ layout.ready=1;layout();relayout();
 function imgsReady(){return Promise.all([FLA,BLA,RDA,TMTIMG,CDIMG,FXA,ITA,SMA,ARA].map(im=>im.complete?0:new Promise(r=>{im.addEventListener('load',r);im.addEventListener('error',r);})));}
 const go=()=>{if(go.d)return;go.d=1;requestAnimationFrame(frame);};
 Promise.all([(document.fonts&&document.fonts.load?document.fonts.load('10px VT323'):Promise.resolve()).catch(()=>{}),loadAnims(),imgsReady()]).then(go,go);setTimeout(go,6000);
-window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
+window.__dexi=id=>dexIds().indexOf(id);window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
 })();
 </script>
