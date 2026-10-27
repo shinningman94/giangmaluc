@@ -2183,7 +2183,7 @@ const POIOBJ={V:'sign',S:'torii',Q:'cave',R:'lantern',G:'gate',T:'tranmati'};
 const LTAR={bia:'qstele',gieng:'qwell',mieu:'qmieu'};
 const LTOBJ={bia:'stele',gieng:'well',cay:'banyan',mieu:'shrine',quan:'tea',mo:'tomb',thap:'bell',dong:'grotto',cd:'shrine'};
 /* v8.2: người chơi muốn tùy chọn ống kính xa trong cài đặt: vẽ thế giới với khung nhìn rộng gấp ZOOM rồi thu nhỏ, HUD giữ nguyên cỡ */
-const ZOOMS=[1,1.5,2],ZOOMN=['Gần','Xa','Rất xa'];let ZOOMI=0;try{if(!/^https?:/.test(location.protocol))ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}
+const ZOOMS=[1,1.5,2],ZOOMN=['Gần','Xa','Rất xa'];let ZOOMI=0;try{const zs=localStorage.getItem('gms-zoom'),zp=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;ZOOMI=(/^https?:/.test(location.protocol)||zs==null)?(zp?1:2):clamp(+zs,0,2)||0;}catch(e){}
 function mapZoom(){return ZOOMS[ZOOMI]||1;}
 function cycleZoom(){ZOOMI=(ZOOMI+1)%ZOOMS.length;try{localStorage.setItem('gms-zoom',String(ZOOMI));}catch(e){}sfx('sel');toast('Tầm nhìn: '+ZOOMN[ZOOMI]);}
 function drawMap(){const Z=mapZoom(),W0=W,H0=H;if(Z>1){W=Math.round(W0*Z);H=Math.round(H0*Z);c.setTransform(S/Z,0,0,S/Z,0,0);}

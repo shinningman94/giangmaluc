@@ -61,9 +61,11 @@ def build(server='', dual=False, src_path=None):
     rep('function wrap(s,maxW,size){', 'function wrap(s,maxW,size){s=onlHN(s);')
     # lời thoại hiện dần từng chữ: thay trước để không lộ nửa chữ "Minh D"
     rep('DLG={lines:Array.isArray(lines)?lines:[lines],', 'DLG={lines:(Array.isArray(lines)?lines:[lines]).map(onlHN),')
-    # bản web: mỗi lần mở trang luôn bắt đầu ở tầm nhìn "Gần" (không lấy lại "Xa/Rất xa" đã lưu); app Android giữ như cũ
+    # tầm nhìn tự động khi vào game: máy tính "Rất xa", điện thoại "Xa". Bản web áp dụng mỗi lần mở trang;
+    # app Android chỉ dùng khi chưa từng chọn trong Cài đặt
     rep("let ZOOMI=0;try{ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}",
-        "let ZOOMI=0;try{if(!/^https?:/.test(location.protocol))ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}")
+        "let ZOOMI=0;try{const zs=localStorage.getItem('gms-zoom'),zp=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;"
+        "ZOOMI=(/^https?:/.test(location.protocol)||zs==null)?(zp?1:2):clamp(+zs,0,2)||0;}catch(e){}")
     rep('/* ---------- main loop ---------- */', onl + '\n/* ---------- main loop ---------- */')
     return s
 
