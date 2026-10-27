@@ -51,8 +51,8 @@ def build(server='', dual=False, src_path=None):
     rep('updateMap(dt);\n', 'updateMap(dt);onlTick(dt);\n')
     rep("if(scene==='title')drawTitle();", "if(scene==='title'){drawTitle();onlTitle();}")
     rep("[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},{t:'Rời đấu trường',def:1}]);",
-        "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'}]:[]),{t:'Rời đấu trường',def:1}]);")
-    rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){onlOpen(1);return;}if(i===0)await arenaPick();')
+        "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);")
+    rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();')
     # đặt tên nhân vật khi bắt đầu chơi online; mọi chữ "Minh Dạ" hiện ra được thay bằng tên đó
     rep('async function startNew(){newGame();',
         "async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);")
@@ -61,6 +61,11 @@ def build(server='', dual=False, src_path=None):
     rep('function wrap(s,maxW,size){', 'function wrap(s,maxW,size){s=onlHN(s);')
     # lời thoại hiện dần từng chữ: thay trước để không lộ nửa chữ "Minh D"
     rep('DLG={lines:Array.isArray(lines)?lines:[lines],', 'DLG={lines:(Array.isArray(lines)?lines:[lines]).map(onlHN),')
+    # tầm nhìn tự động khi vào game: máy tính "Rất xa", điện thoại "Xa". Bản web áp dụng mỗi lần mở trang;
+    # app Android chỉ dùng khi chưa từng chọn trong Cài đặt
+    rep("let ZOOMI=0;try{ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}",
+        "let ZOOMI=0;try{const zs=localStorage.getItem('gms-zoom'),zp=matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<600;"
+        "ZOOMI=(/^https?:/.test(location.protocol)||zs==null)?(zp?1:2):clamp(+zs,0,2)||0;}catch(e){}")
     rep('/* ---------- main loop ---------- */', onl + '\n/* ---------- main loop ---------- */')
     return s
 

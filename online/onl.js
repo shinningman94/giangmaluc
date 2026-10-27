@@ -156,7 +156,7 @@ function onlPeers(ch){
   for(const p of ch.peers){if(p.sameTab||p.kind!=='viewer')continue;const s=p.presence||{};live.add(p.peer);
     let r=ONL.peers.get(p.peer);const fresh=!r;
     if(!r){r={peer:p.peer,x:+s.x||0,y:+s.y||0,sayI:0,sayT:'',sayAt:0};ONL.peers.set(p.peer,r);}
-    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;r.sc=String(s.sc||'');
+    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.lvp=s.lvp|0;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;if(r.lvp&&G){const d=diep();r.lv=(d?d.lv:1)+r.lvp;}r.sc=String(s.sc||'');
     r.rp=s.rp|0||1000;r.w=s.w|0;r.l=s.l|0;r.on=s.sc&&s.sc!=='title';
     if(fresh||Math.abs(r.tx-r.x)>96||Math.abs(r.ty-r.y)>96){r.x=r.tx;r.y=r.ty;}
     const sy=s.say&&typeof s.say==='object'?s.say:null;
@@ -204,14 +204,28 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
 function onlTitle(){if(!ONLM)return;txt(ONL.room?'BẢN ONLINE · '+(ONL.peers.size+1)+' người đang chơi':'BẢN ONLINE · chưa kết nối',W/2,PORT?71:60,{size:9,align:'center',color:'#9fe8ff',outline:'#120d18'});}
 
 /* ---------- thách đấu ---------- */
-function onlChallenge(peer){const r=ONL.peers.get(peer);if(!r)return;if(!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
+function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
   if(ONL.duel){toast('Thầy đang có một lời thách đấu');return;}
   const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
   if(r.bot)return onlBotChallenge(r);
   ONL.duel={n:Math.random().toString(36).slice(2,10),to:peer,nm:r.nm,rp:r.rp,st:'ask',t0:performance.now()};onlSend(true);toast('Đã gửi lời thách đấu tới '+r.nm);onlUI();}
+/* Đấu Trường: thách đấu người chơi online và bảng xếp hạng online (gộp từ bảng online vào menu đấu trường) */
+async function onlArenaDuel(){if(!ONL.room){await say('Chưa nối được server online, thử lại sau.','Quản Đấu Trường');return false;}
+  if(ONL.duel){await say('Thầy đang có một lời thách đấu chờ trả lời.','Quản Đấu Trường');return false;}
+  const L=[...ONL.peers.values()].filter(r=>r.on).sort((p,q)=>(Math.abs(p.tx-PL.px)+Math.abs(p.ty-PL.py))-(Math.abs(q.tx-PL.px)+Math.abs(q.ty-PL.py))).slice(0,8);
+  if(!L.length){await say('Chưa có người chơi nào khác đang online.','Quản Đấu Trường');return false;}
+  const P=onlPvp(),i=await ask('Thách đấu online','Điểm PvP của thầy: '+arRank(P.rp)+' ('+P.rp+' điểm, '+P.w+' thắng / '+P.l+' thua). Chọn đối thủ: mỗi bên 3 đồng hành, ra sân lần lượt 1 chọi 1.',
+    L.map(r=>({t:(r.hn||r.nm)+' · Lv '+r.lv+' · '+arRank(r.rp)+(r.sc!=='map'?' (đang bận)':''),dis:r.sc!=='map'})).concat([{t:'Quay lại',def:1}]));
+  const r=L[i];if(!r)return false;onlChallenge(r.peer,true);return !!ONL.duel;}
+async function onlArenaTop(){let d;try{d=await (await fetch(ONL.top)).json();}catch(_){d=null;}
+  if(!Array.isArray(d)||!d.length){await say(d?'Chưa có ai trên bảng. Thắng hoặc thua một trận PvP là có tên.':'Không tải được bảng xếp hạng, thử lại sau.','Quản Đấu Trường');return;}
+  const me=onlNick(),pos=d.findIndex(r=>r.nm===me),row=(r,k)=>(k+1)+'. '+(onlClean(r.hn).slice(0,12)||onlClean(r.nm).slice(0,18))+' · Lv '+(r.lv|0)+' · '+arRank(r.rp|0)+' ('+(r.rp|0)+') · '+(r.w|0)+'T/'+(r.l|0)+'B',pages=[];
+  const top=d.slice(0,15);for(let k=0;k<top.length;k+=3)pages.push(top.slice(k,k+3).map((r,j)=>row(r,k+j)).join('\n'));
+  pages.push(pos>=0?'Thầy đứng thứ '+(pos+1)+'/'+d.length+' trên bảng PvP toàn server.':'Thầy chưa có tên trên bảng PvP. Đấu một trận online là có tên.');
+  await say(pages,'Bảng xếp hạng online');}
 /* người chơi máy của server: luôn nhận lời (trừ khi đang đấu với người khác), trận chạy ở máy mình bằng AI đấu trường */
 function onlBotChallenge(r){const nm=r.hn||r.nm;if(r.sc==='pvp'){toast(nm+' đang trong một trận khác');return;}
-  const D={bot:1,n:'b'+Date.now().toString(36),to:r.peer,nm,rp:r.rp||1000,lv:r.lv||1,st:'ask',t0:performance.now()};ONL.duel=D;toast('Đã gửi lời thách đấu tới '+nm);onlUI();
+  const D={bot:1,n:'b'+Date.now().toString(36),to:r.peer,nm,rp:r.rp||1000,lv:r.lv||1,lvp:r.lvp,st:'ask',t0:performance.now()};ONL.duel=D;toast('Đã gửi lời thách đấu tới '+nm);onlUI();
   setTimeout(()=>{if(ONL.duel!==D)return;const q=ONL.peers.get(D.to);if(!q||q.sc==='pvp'){ONL.duel=null;toast(nm+' từ chối thách đấu');onlUI();return;}
     D.st='go';toast(nm+' nhận lời! Ra bản đồ để vào trận');onlUI();},ri(1200,2600));}
 async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw&&ONL.room.raw(x);}catch(_){}};raw({t:'botduel',b:D.to});
@@ -221,7 +235,7 @@ async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw
   else{sel=C.slice(0,3);await say(['Thầy chưa đủ 3 đồng hành, '+sel.map(u=>u.name).join(', ')+' sẽ ra sân.'],'Đấu Trường');}
   if(!sel){raw({t:'botres',b:D.to,cancel:1});ONL.duel=null;onlSend(true);onlUI();toast('Đã hủy trận');return;}
   const z=clamp(Math.floor((D.rp-750)/260),0,5),ids=[];for(let i=0;i<3;i++){let id;for(let t=0;t<12;t++){id=poolPick(clamp(z-ri(0,1),0,5));if(!ids.includes(id))break;}ids.push(id);}
-  const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),lv=clamp(avg+clamp(Math.round((D.rp-P.rp)/110),-4,6),1,LVMAX),te=ids.map(id=>makeUnit(id,clamp(lv+ri(-1,1),1,LVMAX)));
+  const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),lv=D.lvp?clamp(Math.max(...sel.map(u=>u.lv))+D.lvp,1,LVMAX):clamp(avg+clamp(Math.round((D.rp-P.rp)/110),-4,6),1,LVMAX),te=ids.map(id=>makeUnit(id,D.lvp?lv:clamp(lv+ri(-1,1),1,LVMAX)));
   await say(['Đội của '+D.nm+': '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.'],'Đấu Trường');
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
@@ -377,7 +391,7 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
 #onlAuth .err{margin:0;min-height:1.1em;color:#ff9a8a;font-size:16px}#onlAuth .note{margin:0;color:#a397b6;font-size:15px}
 #onlWait button{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;cursor:pointer}`;
   document.head.appendChild(st);const d=document.createElement('div');d.innerHTML=`<button id="onlBtn" type="button">🌐 <span>…</span></button><div id="onlFeed"></div>
-<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="3">Xếp hạng</button><button data-t="2">${onlSrv()?'Tài khoản':'Tên'}</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
+<div id="onlPanel" role="dialog" aria-label="Chơi online"><header><button data-t="0">Trò chuyện</button><button data-t="1">Người chơi</button><button data-t="2">${onlSrv()?'Tài khoản':'Tên'}</button><button class="x" aria-label="Đóng">✕</button></header><div id="onlBody"></div><footer></footer></div>
 <div id="onlInv"><span></span><button class="ok" type="button">Nhận</button><button class="no" type="button">Từ chối</button></div><div id="onlWait"><span></span><button type="button">Hủy</button></div>`;
   document.body.appendChild(d);const $=s=>d.querySelector(s);
   const U={btn:$('#onlBtn'),feed:$('#onlFeed'),panel:$('#onlPanel'),body:$('#onlBody'),foot:$('#onlPanel footer'),inv:$('#onlInv'),wait:$('#onlWait')};
@@ -408,12 +422,11 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
   else if(ONL.tab===1){const L=[...ONL.peers.values()].sort((p,q)=>(q.rp||0)-(p.rp||0));const P=G?onlPvp():null;
     note('Thầy: '+onlNick()+(P?' · PvP '+arRank(P.rp)+' ('+P.rp+' điểm, '+P.w+'T/'+P.l+'B)':'')+(ONL.room?'':' · offline'));
     if(!L.length&&ONL.room)note('Chưa có ai khác đang mở game. Chia sẻ link artifact cho bạn bè để cùng chơi.');
-    for(const r of L){const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.textContent=r.nm+(r.guest?' (khách)':'');const sm=document.createElement('small');
+    for(const r of L){const row=document.createElement('div');row.className='row';const sp=document.createElement('span');sp.textContent=(r.hn||r.nm)+(r.guest?' (khách)':'');const sm=document.createElement('small');
       const dist=G&&r.on?Math.round((Math.abs(r.tx-PL.px)+Math.abs(r.ty-PL.py))/TS):null;
       sm.textContent=(r.on?'Lv '+r.lv+' · '+arRank(r.rp)+' ('+r.rp+') · ':'')+onlStatus(r)+(dist!==null?' · cách '+dist+' ô':'');sp.appendChild(sm);row.appendChild(sp);
-      const b=document.createElement('button');b.className='b';const mine=ONL.duel&&ONL.duel.to===r.peer;b.textContent=mine?'Đang chờ...':'Thách đấu';
-      b.disabled=!!ONL.duel||!G||r.sc!=='map'||!onlFree();b.onclick=()=>{onlChallenge(r.peer);onlRender();};row.appendChild(b);B.appendChild(row);}
-    note('Thách đấu: mỗi bên chọn 3 đồng hành, ra sân lần lượt 1 chọi 1 như Đấu Trường. Thắng được bạc, kinh nghiệm và điểm PvP.');}
+      B.appendChild(row);}
+    note('Muốn thách đấu hay xem bảng xếp hạng online thì vào Đấu Trường ở làng gần nhất.');}
   else if(ONL.tab===3){if(!ONL.top){note('Bảng xếp hạng toàn server chỉ có khi chơi bằng server riêng.');return;}
     if(!ONL.topD||Date.now()-ONL.topAt>20000){ONL.topAt=Date.now();note('Đang tải...');fetch(ONL.top).then(r=>r.json()).then(d=>{ONL.topD=Array.isArray(d)?d:[];onlUI();}).catch(()=>{ONL.topD=[];onlUI();});if(!ONL.topD)return;}
     note('Bảng xếp hạng PvP toàn server (cập nhật khi người chơi online).');
@@ -429,7 +442,7 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sb.onclick();});Ft.appendChild(inp);Ft.appendChild(sb);
     if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q=document.createElement('button');q.className='b';q.textContent='Về chế độ một người';q.onclick=onlLeaveMode;B.appendChild(q);}}}
 let onlLastVis='',onlLastRender=0,onlRectK='';
-function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open;
+function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=(scene==='map'||scene==='title')&&!ONL.open&&!CH&&!MENU;
   const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
   if(lab!==onlLastVis){onlLastVis=lab;U.btn.style.display=showBtn?'block':'none';U.btn.firstElementChild.textContent=ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline';
     let bd=U.btn.querySelector('b');if(ONL.unread){if(!bd){bd=document.createElement('b');U.btn.appendChild(bd);}bd.textContent=String(Math.min(99,ONL.unread));}else if(bd)bd.remove();}
@@ -446,4 +459,4 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};

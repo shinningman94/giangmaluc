@@ -1884,7 +1884,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=a.box;if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);const d=src.getContext('2d').getImageData(0,0,src.width,src.height).data;let x0=src.width,y0=src.height,x1=0,y1=0;
     for(let y=0;y<src.height;y++)for(let x=0;x<src.width;x++)if(d[(y*src.width+x)*4+3]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}bx=x0;by=y0;bw=x1-x0+1;bh=y1-y0+1;}
-  const th=id==='hon_ma'?19:23,sc=th/bh,n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='hon_ma'?26:23,sc=th/bh,n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
