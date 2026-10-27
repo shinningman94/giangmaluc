@@ -61,6 +61,9 @@ def build(server='', dual=False, src_path=None):
     rep('function wrap(s,maxW,size){', 'function wrap(s,maxW,size){s=onlHN(s);')
     # lời thoại hiện dần từng chữ: thay trước để không lộ nửa chữ "Minh D"
     rep('DLG={lines:Array.isArray(lines)?lines:[lines],', 'DLG={lines:(Array.isArray(lines)?lines:[lines]).map(onlHN),')
+    # bản web: mỗi lần mở trang luôn bắt đầu ở tầm nhìn "Gần" (không lấy lại "Xa/Rất xa" đã lưu); app Android giữ như cũ
+    rep("let ZOOMI=0;try{ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}",
+        "let ZOOMI=0;try{if(!/^https?:/.test(location.protocol))ZOOMI=clamp(+(localStorage.getItem('gms-zoom')||0),0,2)||0;}catch(e){}")
     rep('/* ---------- main loop ---------- */', onl + '\n/* ---------- main loop ---------- */')
     return s
 
