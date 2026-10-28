@@ -264,7 +264,7 @@ function lskP(k){if(LSKC[k])return LSKC[k];const s=LSK[k];return LSKC[k]={n:s.n,
 function allSkillsOf(u){if(u.id==='diep')return[SK.diep0,SK.diep1].concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0}));
   const a=typeof AIC!=='undefined'&&AIC[u.id];
   const own=a?a.n.sk.filter(k=>!LSK[k].enr).map(lskP):u.id==='eliza'?[SK.eliza0,SK.eliza1]:u.id==='morphin'?[SK.morphin0,SK.morphin1]:SK[u.id]?[SK[u.id]]:[];
-  const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=u.cl==null?-99:u.cl;
+  const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=-99;/* v14.1: người chơi muốn đồng hành giữ nguyên mọi kỹ năng lúc còn là quái, không khóa theo cấp nữa */
   return all.map((s,i)=>({s,lv:i<2?0:b+(i<SKUNL.length?SKUNL[i]:18+4*(i-6))}));}
 function skillsOf(u){return allSkillsOf(u).filter(o=>u.lv>=o.lv).map(o=>o.s);}
 /* chiêu dùng được lúc này không: đủ linh lực, hết hồi chiêu, chưa dùng quá số lần */
@@ -2575,7 +2575,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Chỉ thu phục được khi quái còn từ 30% máu trở xuống; máu càng ít tỉ lệ càng cao (gần cạn máu +30%). Lúc đó mỗi lượt được chọn: Thu phục, Đánh cho phục (đánh nương tay, sát thương nhỏ, không giết, mỗi lần +5% tỉ lệ, tối đa +20%) hoặc đánh tiếp.',2],
   ['Trong Vật phẩm, Bùa trấn yểm thu phục được bất kể quái còn bao nhiêu máu (tỉ lệ vẫn tính như trên, máu càng thấp càng dễ).',2],
   ['Mỗi lần thử tốn bùa và mất lượt; thất bại thì quái đánh trả. Hết máu thì quái được siêu độ: nhận công đức, bạc, đồ rơi và kinh nghiệm.',2],
-  ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Mới thu phục chỉ mở 2 chiêu đầu; các chiêu sau mở khi lên thêm 3, 6, 10, 14, 18 cấp so với lúc thu phục (xem ở Đội hình › Xem thông tin chi tiết).',1],
+  ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp; mọi chiêu dùng được ngay (xem ở Đội hình › Xem thông tin chi tiết).',1],
   ['Lên cấp',0],
   ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600. Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
   ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 3 điểm cộng: HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
@@ -2996,7 +2996,7 @@ async function subdue(E){B.phase='end';if(E.stolen){G.silver+=E.stolen;B.loot.pu
   const i=E.capOK?0:1;
   sqHit(E.id,i===0);(B.out=B.out||[]).push((i===0?'thu phục ':'siêu độ ')+E.name);
   if(i===0){
-    sfx('got');spark(B.tal.x+8,B.tal.y+8,'#fff8a0',30,1.8);fxS('spark',B.tal.x+8,B.tal.y+8,1000,1,{grow:.5});fxS('ring',62,70,1200,1.1,{rise:20,grow:.3});const u={...E,exp:0,b:{}};if(E.ai){if(E.ai.enr){u.atk=E.ai.atk0;u.spd=E.ai.spd0;}delete u.ai;}if(E.dbl){Object.assign(u,E.dbl);delete u.dbl;}if(E.boss&&E.id!=='phongdo'){const f=makeUnit(E.id,E.lv,{full:true});for(const k of['mhp','mmp','atk','skl','spd','def'])u[k]=f[k];u.mp=u.mmp;}delete u.boss;delete u.b3;delete u.elite;delete u.pat;u.cl=u.lv;u.hp=Math.max(1,Math.ceil(u.mhp*.5));const tw=G.party.length>=6;if(tw)toTower(u);else G.party.push(u);G.dex[E.id]=2;G.stats.capture++;
+    sfx('got');spark(B.tal.x+8,B.tal.y+8,'#fff8a0',30,1.8);fxS('spark',B.tal.x+8,B.tal.y+8,1000,1,{grow:.5});fxS('ring',62,70,1200,1.1,{rise:20,grow:.3});const u={...E,exp:0,b:{}};if(E.ai){if(E.ai.enr){u.atk=E.ai.atk0;u.spd=E.ai.spd0;}delete u.ai;}if(E.dbl){Object.assign(u,E.dbl);delete u.dbl;}/* v14.1: thu phục giữ nguyên cấp, chỉ số, máu và linh lực tối đa như lúc còn là quái (kể cả tinh anh, trùm); hồi đầy khi nhập đội */delete u.boss;delete u.b3;delete u.elite;delete u.pat;delete u.tame;delete u.capB;delete u.capOK;delete u.stolen;u.cl=u.lv;u.hp=u.mhp;u.mp=u.mmp;(B.caps=B.caps||[]).push(u);const tw=G.party.length>=6;if(tw)toTower(u);else G.party.push(u);G.dex[E.id]=2;G.stats.capture++;
     B.msg=E.name+(tw?' được đưa vào Tháp Trấn Hồn!':' gia nhập đội!');if(tw)B.loot.push(E.name+' vào Tháp Trấn Hồn');B.gain.push([E,.7]);await wait(800);B.tal=null;}
   else if(i===1){sfx('pur');pose('e','halo',Infinity);B.msg=E.name+' đã được siêu thoát.';fxG('cirG',62,96,1600,1.15);/* v9.3.1: giữ cột sáng vàng, bỏ lấp lánh vàng */await tween(1200,t=>{B.pillar=Math.sin(Math.min(1,t*1.6)*Math.PI/2)*(t>.8?(1-t)*5:1);B.eo.y=-40*ease(t);B.eA=1-t;});B.pillar=0;
     G.merit+=mer;G.stats.purify++;const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+Math.ceil(d.mhp*.1));if(B.ally===d)B.hp.a=d.hp;let extra='';if(R()<.3){G.charms++;extra=', +1 bùa';}B.loot.push(`+${mer} công đức${extra}`);G.stats.kill++;if(G.sect==='necro'){healAll(.1);B.hp.a=B.ally.hp;B.loot.push('tử khí hồi máu');}
@@ -3017,7 +3017,7 @@ async function finish(res){B.phase='end';
   {const nm=[...new Set(B.foes.map(f=>f.name))].join(', '),lv=Math.max(...B.foes.map(f=>f.lv));
    blogAdd(res==='win'?`${B.out&&B.out.length?(o=>o[0].toUpperCase()+o.slice(1))(B.out.join(', ')):'Thắng '+nm} (Lv ${lv})${B.loot.length?' · '+B.loot.join(', '):''}`:res==='lose'?`Thua trước ${nm} (Lv ${lv})`:`Bỏ chạy khỏi ${nm} (Lv ${lv})`);}
   if(res==='win'){if(hasPerk('eliza')){let n=0;for(const u of G.party)if(u.hp<=0){u.hp=1;n++;}if(n)B.loot.push('Eliza dìu '+n+' người dậy');}if(G.sect==='amduong'&&R()<.35){G.charms++;B.loot.push('+1 bùa');}if(G.sect==='thuoc'){healAll(.15);B.loot.push('cả đội hồi 15% HP');}B.msg='Chiến thắng!';if(B.loot.length){B.msg='Chiến lợi phẩm: '+B.loot.join(', ');}await wait(900);
-    const mem=G.party.slice(0,3).filter(u=>u.hp>0);if(B.ally.hp>0&&!mem.includes(B.ally))mem.unshift(B.ally);
+    const mem=G.party.slice(0,3).filter(u=>u.hp>0&&!(B.caps||[]).includes(u));/* v14.1: hồn vừa thu phục không nhận kinh nghiệm trận đó để giữ nguyên cấp */if(B.ally.hp>0&&!mem.includes(B.ally))mem.unshift(B.ally);
     for(const u of mem){let n=0;for(const[E,m]of B.gain)n+=expFor(E,u)*m*(u===B.ally?1:.6);await expTo(u,Math.round(n));}}
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
