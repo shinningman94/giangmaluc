@@ -1650,8 +1650,8 @@ async function run(fn){busy++;PL.path=null;try{await fn();}catch(e){console.erro
 
 /* ---------- audio ---------- */
 /* v9.0: bảng Cài đặt trong menu, lưu riêng khỏi file save */
-/* v14.5: Cài đặt chia Hệ thống / Chiến đấu: vol âm lượng, lfx giảm hạt hiệu ứng, ap tự uống thuốc dưới ap% máu, av né quái hơn mình av cấp, (14.6: bỏ đánh nương tay theo yêu cầu) */
-const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
+/* v14.5: Cài đặt chia Hệ thống / Chiến đấu: vol âm lượng, lfx giảm hạt hiệu ứng, ap tự uống thuốc dưới ap% máu, av né quái hơn mình av cấp, (14.6: bỏ đánh nương tay theo yêu cầu), 14.7: tm bật/tắt lựa chọn Đánh cho phục trong bảng thu phục */
+const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0,tm:1};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
 function saveSet(){try{localStorage.setItem('gms-set',JSON.stringify(SET));}catch(e){}}
 let AC=null,muted=!SET.snd,noiseBuf=null;
 function toggleSnd(){muted=!muted;SET.snd=muted?0:1;saveSet();sfx('sel');}
@@ -2394,7 +2394,8 @@ const SETG=['Cài đặt hệ thống','Cài đặt chiến đấu'],APS=[0,20,3
 const setCy=(k,L)=>()=>{SET[k]=L[(L.indexOf(SET[k])+1)%L.length];saveSet();sfx('sel');};
 function setRows(){if(MENU&&MENU.sg)return[
   {l:'Tự dùng thuốc',v:SET.ap?'Dưới '+SET.ap+'%':'Tắt',f:setCy('ap',APS),d:'Khi máu người đang ra trận còn dưới mức này, tự uống Hồi Hồn Đan (nếu còn) thay cho lượt đánh.'},
-  {l:'Né quái mạnh hơn',v:SET.av?'Hơn '+SET.av+' cấp':'Tắt',f:setCy('av',AVS),d:'Tự né, không giao chiến với quái hoang cao hơn Minh Dạ từ chừng này cấp trở lên. Trận nhiệm vụ, sào huyệt và trùm cốt truyện vẫn phải đánh.'}];
+  {l:'Né quái mạnh hơn',v:SET.av?'Hơn '+SET.av+' cấp':'Tắt',f:setCy('av',AVS),d:'Tự né, không giao chiến với quái hoang cao hơn Minh Dạ từ chừng này cấp trở lên. Trận nhiệm vụ, sào huyệt và trùm cốt truyện vẫn phải đánh.'},
+  {l:'Đánh cho phục',v:onOff(SET.tm),f:setTg('tm'),d:'Bật: bảng thu phục có thêm lựa chọn Đánh cho phục (đánh nhẹ, không giết, +5% tỉ lệ mỗi lần). Tắt: bảng chỉ còn Thu phục và Đánh tiếp.'}];
   return[{l:'Âm thanh',v:onOff(!muted),f:toggleSnd,d:'Bật hoặc tắt toàn bộ tiếng động trong game.'},
   {l:'Âm lượng',v:VOLN[SET.vol]||'Vừa',f:()=>{SET.vol=((SET.vol|0)+1)%VOLS.length;saveSet();sfx('ok');},d:'Nhỏ, Vừa hoặc To: độ lớn của tiếng động.'},
   {l:'Tầm nhìn bản đồ',v:ZOOMN[ZOOMI],f:cycleZoom,d:'Gần, Xa hoặc Rất xa: thu phóng bản đồ khi đi lại.'},
@@ -2996,9 +2997,9 @@ function capDis(E){return G.charms<capNeed(E)?'Không đủ bùa trấn yểm':t
 async function capAsk(E){const cp=Math.round(capP(E)*100),need=capNeed(E),dis=capDis(E),pc=Math.max(1,Math.round(E.hp/E.mhp*100));
   const i=await ask(E.name+' sắp khuất phục',`${E.name} chỉ còn ${pc}% máu, oán khí đã yếu. Tỉ lệ thu phục ${cp}%${E.tame?' (đã được đánh cho phục '+E.tame+' lần)':''}. Thầy định làm gì?`,[
     {t:`Thu phục (-${need} bùa, tỉ lệ ${cp}%)`,dis},
-    {t:'Đánh cho phục (đánh nương tay, +5% tỉ lệ)'},
+    ...(SET.tm?[{t:'Đánh cho phục (đánh nương tay, +5% tỉ lệ)'}]:[]),
     {t:'Đánh tiếp như thường',def:!!dis}]);
-  return i===0?'cap':i===1?'tame':null;}
+  return i===0?'cap':i===1&&SET.tm?'tame':null;}
 async function tameHit(A,E){B.msg=A.name+' đánh nương tay cho '+E.name+' chịu phục';pose('a','dash',380);await wait(260);
   const d=Math.min(E.hp-1,ri(1,Math.max(1,Math.round(E.mhp*.03))));if(d>0){E.hp-=d;sfx('hit');spark(62,72,'#ffe8a0',8,.9);popup(62,50,String(d),'#ffe8a0');pose('e','hit',420);B.eF=1;await hpTo('e',E,E.hp);B.eF=0;}else{sfx('miss');popup(62,50,'KIỆT SỨC','#ffe8a0');}
   if((E.tame||0)<4){E.tame=(E.tame||0)+1;popup(62,36,'+5% THU PHỤC','#a8f0b0');}await wait(450);return'turn';}
