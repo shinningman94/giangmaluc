@@ -512,7 +512,7 @@ ANIM_SRC.cung_thu={n:8,w:125,h:136,box:[23,12,94,123],sc:.5,fd:[1,1,1,1,-1,1,1,1
   src:'img/cung_thu.png'};
 LOOK.cung_thu=()=>LOOK.kiem_si();
 /* Minh Dạ (nhân vật chính, id vẫn là diep) cùng hồ ly linh: 0 đứng, 1 thủ thế, 2 giơ kiếm, 3 chém, 4 thu kiếm, 5 giật mình, 6-7 nhăn đau, 8 gượng dậy, 9-11 bước đi (0,9,10,11 là vòng đi bộ) */
-ANIM_SRC.diep={n:12,w:160,h:148,box:[17,17,105,127],sc:.5,pose:{idle:1,ready:1,guard:1,turn:4,raise:2,breath:2,halo:2,dash:3,sweep:3,shock:5,hit:6,down:7,rec:8,back:0,w0:0,w1:9,w2:10,w3:11},
+ANIM_SRC.diep={n:12,w:480,h:444,box:[51,51,315,381],sc:.5/3,pose:{idle:1,ready:1,guard:1,turn:4,raise:2,breath:2,halo:2,dash:3,sweep:3,shock:5,hit:6,down:7,rec:8,back:0,w0:0,w1:9,w2:10,w3:11},
   src:'img/diep.png'};
 function loadAnims(){return Promise.all(Object.entries(ANIM_SRC).map(([id,a])=>new Promise(res=>{const im=new Image();
   im.onload=()=>{const fr=[];for(let i=0;i<a.n;i++){const k=document.createElement('canvas');k.width=a.w;k.height=a.h;k.getContext('2d').drawImage(im,i*a.w,0,a.w,a.h,0,0,a.w,a.h);fr.push(k);}
@@ -1890,7 +1890,7 @@ function mapInput(k){if(PL.moving||busy)return;
   if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
 function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
 /* Minh Dạ on the map: the battle sheet itself at a quarter size, so one source pixel lands on one screen pixel (canvas is 4x) and he keeps all the detail he has in battle */
-const HMK=.25;
+const HMK=40/ANIM_SRC.diep.w/* v14.9: khung Minh Dạ nét gấp 3, giữ cỡ trên bản đồ */;
 /* followers walk in Minh Dạ's footsteps: a trail of his recent positions, each companion a fixed distance back along it */
 function trackTrail(){const t=PL.trail||(PL.trail=[]),p=t[0];if(!p||Math.abs(p.x-PL.px)+Math.abs(p.y-PL.py)>24){PL.trail=[{x:PL.px,y:PL.py,f:PL.face||1}];return;}
   if(p.x!==PL.px||p.y!==PL.py){t.unshift({x:PL.px,y:PL.py,f:PL.face||1});if(t.length>90)t.length=90;}}
@@ -1898,11 +1898,13 @@ function folPos(d){const t=PL.trail||[];let a=t[0]||{x:PL.px,y:PL.py,f:PL.face||
   return{x:a.x-(a.f||1)*d,y:a.y,f:a.f||1};}
 /* a companion's own art (sheet frame or code sprite) resampled once onto the 4x canvas, so it stays sharp at map size */
 const FOLC=new Map();
+function folBB(src,t){const d=src.getContext('2d').getImageData(0,0,src.width,src.height).data;let x0=src.width,y0=src.height,x1=0,y1=0;
+  for(let y=0;y<src.height;y++)for(let x=0;x<src.width;x++)if(d[(y*src.width+x)*4+3]>t){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}return x1<x0?[0,0,src.width,src.height]:[x0,y0,x1-x0+1,y1-y0+1];}
 function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))return FOLC.get(key);const a=ANIM[id];let src,bx,by,bw,bh,fi=0;
-  if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=a.box;if(nativeLeft(a,fi))fl=!fl;}
-  else{src=sprite(id);const d=src.getContext('2d').getImageData(0,0,src.width,src.height).data;let x0=src.width,y0=src.height,x1=0,y1=0;
-    for(let y=0;y<src.height;y++)for(let x=0;x<src.width;x++)if(d[(y*src.width+x)*4+3]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}bx=x0;by=y0;bw=x1-x0+1;bh=y1-y0+1;}
-  const th=id==='hon_ma'?26:23,sc=th/bh,n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
+  let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
+  else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
+  const th=id==='hon_ma'?26:23,sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
@@ -3058,6 +3060,8 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
   BVIS.set(id,r);return r;}
 const BSZ={zashiki:.88};/* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
+/* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
+function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
 function drawBattle(dt){const E=B.enemy,A=B.ally;
   const sh=B.shake>0&&SET.shk?(R()-.5)*B.shake:0;B.shake=Math.max(0,B.shake-dt*.02);
   const SY=PORT?18:0;if(SY){const bg=bgFor(B.bg);c.drawImage(bg,0,0,240,1,0,0,W,SY);}
@@ -3069,14 +3073,14 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   const eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;
   c.globalAlpha=.28;rect(46,99,32,3,'#000');c.globalAlpha=1;
   if((E.kind==='Oán Linh'||E.boss||E.elite)&&B.eA>0){c.globalAlpha=.25+.1*Math.sin(time/200);c.drawImage(white(es),eX-1,eY,eW+2,eH);c.globalAlpha=1;}
-  if(B.eA>0){c.globalAlpha=B.eA*(E.kind==='Vong Linh'?.92:1);c.drawImage(E.ai&&E.ai.enr?redT(es):es,eX,eY,eW,eH);if(B.eF>0){c.globalAlpha=B.eF*(ANIM[E.id]?.45:1);c.drawImage(white(es),eX,eY,eW,eH);}c.globalAlpha=1;}
+  if(B.eA>0){c.globalAlpha=B.eA*(E.kind==='Vong Linh'?.92:1);bSmo(es,eW);c.drawImage(E.ai&&E.ai.enr?redT(es):es,eX,eY,eW,eH);c.imageSmoothingEnabled=false;if(B.eF>0){c.globalAlpha=B.eF*(ANIM[E.id]?.45:1);c.drawImage(white(es),eX,eY,eW,eH);}c.globalAlpha=1;}
   if((E.kind==='Oán Linh'||E.boss)&&B.eA>0&&Math.random()<.25)fx.push({k:'p',x:ex+R()*ew,y:ey+eh*.6+R()*eh*.4,vx:0,vy:-.5,life:700,max:700,col:E.boss?'#b060ff':'#ff4060',sz:1});
   if(B.eA>.5)drawWisps(E,ex+ew/2,ey+eh*.55,ew/2+8);
   const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH,A.id);/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
   const ax=Math.round(176-aw/2+B.ao.x),ay=Math.round(100-ah*(1-bVis(A.id).b)+B.ao.y+(A.id!=='diep'?Math.round(Math.sin(time/420+1)*2)-4:0));
   const aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;
   c.globalAlpha=.28;rect(160,99,32,3,'#000');c.globalAlpha=1;
-  if(B.aA>0){c.globalAlpha=B.aA;c.drawImage(as,aX,aY,aW,aH);if(B.aF>0){c.globalAlpha=B.aF*(ANIM[A.id]?.45:1);c.drawImage(white(as),aX,aY,aW,aH);}c.globalAlpha=1;}
+  if(B.aA>0){c.globalAlpha=B.aA;bSmo(as,aW);c.drawImage(as,aX,aY,aW,aH);c.imageSmoothingEnabled=false;if(B.aF>0){c.globalAlpha=B.aF*(ANIM[A.id]?.45:1);c.drawImage(white(as),aX,aY,aW,aH);}c.globalAlpha=1;}
   if(A.b&&A.b.guard){c.globalAlpha=.3+.15*Math.sin(time/150);c.strokeStyle='#ffe080';c.lineWidth=1;c.beginPath();c.ellipse(176,74,26,30,0,0,Math.PI*2);c.stroke();c.globalAlpha=1;}
   drawSpirit();
   if(B.ast){const m=B.ast.img||flip(sprite(B.ast.u.id));const s2=B.ast.sc||.55;c.globalAlpha=.85;c.drawImage(m,Math.round(B.ast.x),Math.round(B.ast.y||40),Math.round(m.width*s2),Math.round(m.height*s2));c.globalAlpha=1;}
