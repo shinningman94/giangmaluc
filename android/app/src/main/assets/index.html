@@ -1663,8 +1663,8 @@ async function run(fn){busy++;PL.path=null;try{await fn();}catch(e){console.erro
 
 /* ---------- audio ---------- */
 /* v9.0: bảng Cài đặt trong menu, lưu riêng khỏi file save */
-/* v14.5: Cài đặt chia Hệ thống / Chiến đấu: vol âm lượng, lfx giảm hạt hiệu ứng, ap tự uống thuốc dưới ap% máu, av né quái hơn mình av cấp, nt đánh nương tay */
-const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0,nt:0};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
+/* v14.5: Cài đặt chia Hệ thống / Chiến đấu: vol âm lượng, lfx giảm hạt hiệu ứng, ap tự uống thuốc dưới ap% máu, av né quái hơn mình av cấp, (14.6: bỏ đánh nương tay theo yêu cầu) */
+const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
 function saveSet(){try{localStorage.setItem('gms-set',JSON.stringify(SET));}catch(e){}}
 let AC=null,muted=!SET.snd,noiseBuf=null;
 function toggleSnd(){muted=!muted;SET.snd=muted?0:1;saveSet();sfx('sel');}
@@ -2407,8 +2407,7 @@ const SETG=['Cài đặt hệ thống','Cài đặt chiến đấu'],APS=[0,20,3
 const setCy=(k,L)=>()=>{SET[k]=L[(L.indexOf(SET[k])+1)%L.length];saveSet();sfx('sel');};
 function setRows(){if(MENU&&MENU.sg)return[
   {l:'Tự dùng thuốc',v:SET.ap?'Dưới '+SET.ap+'%':'Tắt',f:setCy('ap',APS),d:'Khi máu người đang ra trận còn dưới mức này, tự uống Hồi Hồn Đan (nếu còn) thay cho lượt đánh.'},
-  {l:'Né quái mạnh hơn',v:SET.av?'Hơn '+SET.av+' cấp':'Tắt',f:setCy('av',AVS),d:'Tự né, không giao chiến với quái hoang cao hơn Minh Dạ từ chừng này cấp trở lên. Trận nhiệm vụ, sào huyệt và trùm cốt truyện vẫn phải đánh.'},
-  {l:'Đánh nương tay',v:onOff(SET.nt),f:setTg('nt'),d:'Bật: đòn đánh không kết liễu quái, luôn chừa lại ít nhất 1 máu để thu phục. Chọn "Đánh tiếp như thường" thì lượt đó vẫn đánh chết được.'}];
+  {l:'Né quái mạnh hơn',v:SET.av?'Hơn '+SET.av+' cấp':'Tắt',f:setCy('av',AVS),d:'Tự né, không giao chiến với quái hoang cao hơn Minh Dạ từ chừng này cấp trở lên. Trận nhiệm vụ, sào huyệt và trùm cốt truyện vẫn phải đánh.'}];
   return[{l:'Âm thanh',v:onOff(!muted),f:toggleSnd,d:'Bật hoặc tắt toàn bộ tiếng động trong game.'},
   {l:'Âm lượng',v:VOLN[SET.vol]||'Vừa',f:()=>{SET.vol=((SET.vol|0)+1)%VOLS.length;saveSet();sfx('ok');},d:'Nhỏ, Vừa hoặc To: độ lớn của tiếng động.'},
   {l:'Tầm nhìn bản đồ',v:ZOOMN[ZOOMI],f:cycleZoom,d:'Gần, Xa hoặc Rất xa: thu phóng bản đồ khi đi lại.'},
@@ -2862,25 +2861,21 @@ async function startBattle(foes,o={}){
     else if(B.forced&&B.auto){/* tự động: đưa người còn nhiều máu nhất ra thay */let bi=-1;G.party.forEach((u,i)=>{if(u.hp>0&&u!==B.ally&&(bi<0||u.hp/u.mhp>G.party[bi].hp/G.party[bi].mhp))bi=i;});await wait(300);act='sw:'+bi;}
     else if(B.forced){B.msg='Chọn người ra trận thay '+B.ally.name;act=await menuChoice('sw');}
     else if(SET.ap&&B.ally.hp>0&&B.ally.hp*100<B.ally.mhp*SET.ap&&G.pill.hp>0){/* v14.5: cài đặt chiến đấu tự dùng thuốc */B.msg='Máu dưới '+SET.ap+'%: tự uống thuốc';await wait(300);act='pill:hp';}
-    else if(B.auto&&capOpen(B.enemy)&&!B.enemy.capSeen){/* v11.6.1: quái vào ngưỡng thu phục thì tạm tắt tự động trong trận này để chọn bằng tay (G.auto giữ nguyên cho trận sau) */B.enemy.capSeen=1;B.auto=false;B.msg='Tắt tự động: '+B.enemy.name+' đã yếu, có thể thu phục';B.msgT=1200;sfx('sel');await wait(500);const r=await capAsk(B.enemy);if(!r)B.ntOff=1;act=r||await menuChoice();}
+    else if(B.auto&&capOpen(B.enemy)&&!B.enemy.capSeen){/* v11.6.1: quái vào ngưỡng thu phục thì tạm tắt tự động trong trận này để chọn bằng tay (G.auto giữ nguyên cho trận sau) */B.enemy.capSeen=1;B.auto=false;B.msg='Tắt tự động: '+B.enemy.name+' đã yếu, có thể thu phục';B.msgT=1200;sfx('sel');await wait(500);const r=await capAsk(B.enemy);act=r||await menuChoice();}
     else if(B.auto){await wait(300);act=aiPick(B.ally);}
-    else if(capOpen(B.enemy)){const r=await capAsk(B.enemy);if(!r)B.ntOff=1;act=r||await menuChoice();}
+    else if(capOpen(B.enemy)){const r=await capAsk(B.enemy);act=r||await menuChoice();}
     else act=await menuChoice();
     B.phase='anim';
     const r=await doAct(act);
     if(r==='run'){res='run';break;}
     if(r==='noturn')continue;
     if(B.sum){if(B.sum.fresh)B.sum.fresh=0;else if(B.enemy.hp>0)await summonStrike();}
-    await mercy();
-    if(B.enemy.hp>0&&B.ally.hp>0){await enemyTurn();await mercy();}B.ntOff=0;
+    if(B.enemy.hp>0&&B.ally.hp>0)await enemyTurn();
     if(B.ally.hp<=0){sfx('fail');pose('a','down',Infinity);B.msg=B.ally.name+' đã kiệt sức!';await tween(500,t=>{B.aA=1-t;});await wait(300);}
     for(const u of[B.ally,B.enemy])for(const k of['weak','brk','guard','burn','conf','might','phase'])if(u.b[k]>0)u.b[k]--;
     for(const u of G.party)if(u.b&&u.b.cd)for(const k in u.b.cd)if(u.b.cd[k]>0)u.b.cd[k]--;
   }
   return finish(res);}
-/* v14.5: chế độ đánh nương tay: quái có thể thu phục không bị kết liễu, giữ lại 1 máu (trừ lượt chọn đánh tiếp như thường) */
-async function mercy(){const E=B.enemy;if(!SET.nt||B.ntOff||!E||E.hp>0||E.capOK||B.o.kind==='judge'||B.o.kind==='duel'||E.id==='diep')return;
-  E.hp=1;B.hp.e=1;B.pose.e=null;B.eA=1;popup(62,40,'NƯƠNG TAY','#ffe8a0');B.msg='Nương tay, chừa lại cho '+E.name+' một hơi để thu phục';await wait(500);}
 async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.hp;B.eA=1;B.eS=1;B.eo.x=-90;B.eo.y=0;B.msg='Tiếp theo: '+E.name+(E.elite?' (tinh anh)':'');await tween(380,t=>{B.eo.x=-90*(1-ease(t));});await wait(300);}
 async function doAct(act){const A=B.ally,E=B.enemy;if(act==='stunned')return;
   if(A.b.conf>0&&(act==='atk'||act.startsWith('sk:'))&&R()<.5){B.msg=A.name+' mê loạn, tự đánh vào mình!';pose('a','turn',450);await wait(350);await hurt('a',A,calc(A,A,.5).dmg);return'turn';}
