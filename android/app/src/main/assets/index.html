@@ -248,8 +248,10 @@ const SLOTN={w:'Vũ khí',a:'Áo',t:'Pháp khí',b:'Bảo vật'};
 function mkItem(tier,s){tier=clamp(tier,0,4);s=s||['w','a','t','b'][ri(0,3)];const rl=RELIC.filter(r=>r.s===s&&r.tier===tier);if(rl.length&&(s==='b'||R()<.3))return mkRelic(rl[ri(0,rl.length-1)]);if(s==='b')return mkRelic(RELIC.filter(r=>r.s==='b').sort((a,b)=>Math.abs(a.tier-tier)-Math.abs(b.tier-tier))[0]);return{s,n:ITN[s][tier],v:tier*2+2+ri(0,2),tier};}
 function itemDesc(it){return(it.s==='w'?'+'+it.v+' Lực':it.s==='a'?'+'+Math.ceil(it.v*.6)+' Thủ, +'+it.v*2+' HP':it.s==='b'?'+'+Math.ceil(it.v/2)+' Tốc, +'+it.v+' HP':'+'+it.v*3+' Linh lực, +'+Math.ceil(it.v/2)+' Kỹ')+exDesc(it);}
 function makeUnit(id,lv,o={}){const sp=SPECIES[id];const u={id,name:o.name||sp.name,kind:sp.kind,lv,exp:0};
-  for(const k of STATS)u[k]=sp.base[k]+Math.round(sp.grow[k]/100*(lv-1)*(o.full?1:(0.85+R()*0.3)));
-  u.mhp=u.hp;u.mmp=sp.mp+Math.round((sp.mpg||2)*(lv-1));
+  /* v14.4: mỗi con quái là một cá thể riêng: chỉ số gốc ±10%, tư chất (u.gr) ±15% so với loài; thu phục giữ nguyên cả hai */
+  if(o.full||id==='diep'){for(const k of STATS)u[k]=sp.base[k]+Math.round(sp.grow[k]/100*(lv-1));u.mhp=u.hp;u.mmp=sp.mp+Math.round((sp.mpg||2)*(lv-1));}
+  else{u.gr={};for(const k of STATS){u.gr[k]=Math.max(1,Math.round(sp.grow[k]*(0.85+R()*0.3)));u[k]=Math.max(1,Math.round(sp.base[k]*(0.9+R()*0.2)))+Math.round(u.gr[k]/100*(lv-1));}
+    u.mhp=u.hp;u.mmp=Math.max(1,Math.round(sp.mp*(0.9+R()*0.2)+(sp.mpg||2)*(lv-1)*(0.9+R()*0.2)));}
   if(o.boss&&sp.rk&&RKM[sp.rk]!==1){const rm=1/RKM[sp.rk];for(const k of STATS)u[k]=Math.round(u[k]*rm);u.mhp=u.hp;}
   const m=o.boss?[1.8,1.2]:o.elite?[1.35,1.12]:null;
   if(m){u.mhp=Math.round(u.mhp*m[0]);for(const k of['atk','skl','spd','def'])u[k]=Math.round(u[k]*m[1]);}
@@ -2534,14 +2536,14 @@ function drawParty(){const PLs=pList(),inT=MENU.tw,sc=scrollArea('pty',2,18,96,1
 const KINDD={'Pháp Sư':'người sống tu đạo trừ tà, dùng bùa chú và kiếm gỗ đào.','Vong Linh':'hồn người chết chưa siêu thoát, thân ảnh mờ ảo nên khó bị đánh trúng.','Thức Thần':'linh thể do phép thuật gọi ra, giỏi dùng hình nhân giấy chịu đòn thay.',
   'Tinh Linh':'hồn của cây cỏ núi rừng, giỏi chữa thương và giải độc.','Oán Linh':'hồn mang oán hận, càng bị thương càng đánh mạnh.','Cương Thi':'xác chết bật dậy, nhảy vồ làm đối thủ choáng.','Xác Chết':'xác thối rữa mang độc, đòn đánh làm trúng độc.'};
 function infoLines(u,wd){const sp=SPECIES[u.id],sk=skillsOf(u),w=weapon(u),out=[],add=(t,col)=>wrap(t,wd,8).forEach(l=>out.push([l,col]));
-  const gn={hp:'Máu',atk:'Lực',skl:'Kỹ',spd:'Tốc',def:'Thủ'},gk=Object.keys(gn).filter(k=>sp.grow&&sp.grow[k]!=null).sort((a,b)=>sp.grow[b]-sp.grow[a]);
+  const gn={hp:'Máu',atk:'Lực',skl:'Kỹ',spd:'Tốc',def:'Thủ'},gw=u.gr||sp.grow,gk=Object.keys(gn).filter(k=>gw&&gw[k]!=null).sort((a,b)=>gw[b]-gw[a]);
   const pi=G.party.indexOf(u),pos=pi===0?'ra trận đầu':pi>0&&pi<3?'trợ chiến':pi>=3?'dự bị trong đội':(G.box||[]).includes(u)?'đang ở Tháp Trấn Hồn':'';
   if(u.id!=='diep'&&!u.dexv){const l=Math.floor(loyOf(u));add('Trung thành: '+l+'/100'+(l<1?'. Hết trung thành nên không chịu ra trận; ở Tháp Trấn Hồn tự hồi dần, đầy sau 2 ngày, hoặc cho ăn Linh Quả.':'. Mỗi trận thua bị đưa về Trấn Ma Ti mất 2 điểm; về 0 sẽ không chịu ra trận.'),l<1?'#ff6070':l<30?'#ffb060':'#ff9ad0');}
   const rk=rankOf(u.id);if(rk)add('Hạng '+rk+': '+RKN[rk]+'; chỉ số và tư chất x'+RKM[rk]+'.',RKC[rk]);
   add('Hệ '+u.kind+': '+(KINDD[u.kind]||''),KINDC[u.kind]||'#fff');
   add('Tầm đánh: '+(sp.ranged?'đánh xa':'cận chiến')+(pos?' · Vị trí: '+pos:''),'#c8d8ff');
   add('Vũ khí: '+w.n+' (uy lực '+w.mt+', chính xác '+w.hit+'%, chí mạng '+w.crt+'%)','#ffe8c0');
-  if(gk.length)add('Tư chất: lên cấp tăng mạnh '+gk.slice(0,2).map(k=>gn[k]+' '+sp.grow[k]+'%').join(', ')+'; yếu nhất '+gn[gk[gk.length-1]]+' '+sp.grow[gk[gk.length-1]]+'%.','#c8d8ff');
+  if(gk.length)add('Tư chất'+(u.gr?' riêng':'')+': '+gk.map(k=>gn[k]+' '+gw[k]+'%').join(', ')+'. Lên cấp tăng mạnh nhất '+gn[gk[0]]+', yếu nhất '+gn[gk[gk.length-1]]+'.','#c8d8ff');
   out.push(['Kỹ năng:','#c8f0c8']);allSkillsOf(u).forEach(o=>{const x=o.s;if(u.lv>=o.lv)add('• '+x.n+' ('+x.c+' LL): '+x.d,'#e0d8f0');else add('• [Khóa, mở ở cấp '+o.lv+'] '+x.n+': '+x.d,'#8a8098');});
   if(u.perk&&RECRUIT[u.perk])add('Tài riêng: '+RECRUIT[u.perk].perk,'#ffd0a0');
   if(sp.desc){out.push(['Lai lịch:','#c8f0c8']);add(sp.desc,'#d8d0e8');}
@@ -3019,7 +3021,7 @@ async function subdue(E){B.phase='end';if(E.stolen){G.silver+=E.stolen;B.loot.pu
   B.eS=1;}
 /* v10.4: huy hiệu hạng S..E ở góc bảng tên quái */
 function rkBadge(u,xr,y){const r=rankOf(u.id);if(!r)return;const w=r.length>1?24:21,x=xr-w-1;c.fillStyle='#1a0a10';c.fillRect(x-1,y,w+2,8);c.fillStyle=RKC[r];c.fillRect(x,y,w,7);txt('Hạng '+r,x+w/2,y,{size:6,align:'center',color:'#fff',outline:'#1a0a10',lw:1});}
-function levelUp(u){const g={};const half=u.id==='diep';for(const k of STATS){const gr=SPECIES[u.id].grow[k]*(half?.6:1);g[k]=Math.floor(gr/100)+(R()*100<gr%100?1:0);}
+function levelUp(u){const g={};const half=u.id==='diep';for(const k of STATS){const gr=(u.gr&&u.gr[k]!=null?u.gr[k]:SPECIES[u.id].grow[k])*(half?.6:1);g[k]=Math.floor(gr/100)+(R()*100<gr%100?1:0);}
   if(!STATS.some(k=>g[k]))g.hp=1;u.lv++;u.mhp+=g.hp+(half?1:0);u.hp+=g.hp+(half?1:0);for(const k of['atk','skl','spd','def'])u[k]+=g[k];g.mp=(SPECIES[u.id].mpg||2);u.mmp+=g.mp;u.mp+=g.mp;if(half)G.pts+=3;return g;}
 async function expTo(u,n,quiet){if(!u||u.lv>=LVMAX||n<=0)return;const inB=scene==='battle'&&B&&!quiet;
   if(inB){B.msg=u.name+' nhận '+n+' EXP';B.expBar={u,v:u.exp};}
