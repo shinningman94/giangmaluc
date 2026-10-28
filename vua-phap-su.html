@@ -1862,7 +1862,7 @@ function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]
 function regKey(x,y){return zoneAt(x,y)+bioAt(x,y)*10;}
 function regName(k){return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
-  run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua 24 kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
+  run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
 async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
 const titleWisps=Array.from({length:14},(_,i)=>({x:hash(i,1)*W,y:hash(i,2)*H,s:.2+hash(i,3)*.5,p:hash(i,4)*6}));
 function drawTitleP(){const k=H/160;c.drawImage(bgFor('boss'),Math.round((W-240*k)/2),0,Math.round(240*k),H);rect(0,0,W,H,'rgba(10,6,20,.5)');
@@ -1872,7 +1872,7 @@ function drawTitleP(){const k=H/160;c.drawImage(bgFor('boss'),Math.round((W-240*
   txt('GIÁNG MA SƯ',W/2,Math.round(H*.08),{size:27,align:'center',color:'#ffe8a0',outline:'#5a1a18',lw:2.5});
   txt('HÀNG MA LỘ',W/2,Math.round(H*.08)+28,{size:13,align:'center',color:'#f0d0d0',outline:'#2a0a14'});
   const it=titleItems();const y0=Math.round(H*.66);it.forEach((o,i)=>{const y=y0+i*30;const sel=i===titleIdx;win(22,y,W-44,24,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(o.l,W/2,y+5,{size:12,align:'center',color:sel?'#fff8e0':'#c8bcd8'});hit(22,y,W-44,24,()=>{titleIdx=i;sfx('ok');o.f();});});
-  wrap('24 kiếp nạn · Thu phục · Siêu độ · Tiêu diệt',W-16,9).forEach((l,i,a)=>txt(l,W/2,H-12-(a.length-i)*10,{size:9,align:'center',color:'#b8a8d0'}));}
+  wrap('Thu phục · Siêu độ · Tiêu diệt',W-16,9).forEach((l,i,a)=>txt(l,W/2,H-12-(a.length-i)*10,{size:9,align:'center',color:'#b8a8d0'}));}
 function drawTitle(){if(PORT)return drawTitleP();
   c.drawImage(bgFor('boss'),0,0);rect(0,0,W,H,'rgba(10,6,20,.45)');
   for(const w of titleWisps){const y=(w.y-time*w.s*0.02+H*10)%H;const x=w.x+Math.sin(time/700+w.p)*6;c.globalAlpha=.5+.5*Math.sin(time/300+w.p);rect(Math.round(x),Math.round(y),2,2,'#9fe0ff');c.globalAlpha=1;}
@@ -1880,7 +1880,7 @@ function drawTitle(){if(PORT)return drawTitleP();
   txt('GIÁNG MA SƯ',W/2,14,{size:30,align:'center',color:'#ffe8a0',outline:'#5a1a18',lw:2.5});
   txt('HÀNG MA LỘ',W/2,44,{size:12,align:'center',color:'#f0d0d0',outline:'#2a0a14'});
   const it=titleItems();it.forEach((o,i)=>{const y=108+i*16;const sel=i===titleIdx;win(70,y,100,14,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(o.l,W/2,y+2,{size:10,align:'center',color:sel?'#fff8e0':'#c8bcd8'});hit(70,y,100,14,()=>{titleIdx=i;sfx('ok');o.f();});});
-  txt('24 kiếp nạn · Thu phục · Siêu độ · Tiêu diệt',W/2,146,{size:9,align:'center',color:'#b8a8d0'});}
+  txt('Thu phục · Siêu độ · Tiêu diệt',W/2,146,{size:9,align:'center',color:'#b8a8d0'});}
 
 /* ---------- map movement & steps ---------- */
 const DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
@@ -3592,7 +3592,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={nu_oan:25,cuong_thi:31},LOUT={nu_oan:'#b8a4f0'};
+const LMH={nu_oan:25,cuong_thi:31,zashiki:20}/* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
