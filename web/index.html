@@ -1559,7 +1559,7 @@ function newGame(){const seed=ONLM?12345:ri(1,99999);WD=genRegion(seed);seen=new
   PL.x=RNODES[0].x;PL.y=RNODES[0].y;G.home=homeTMT(PL.x,PL.y);snapPL();reveal();placeMarker();spawnLanterns();}
 function snapPL(){PL.px=PL.x*TS;PL.py=PL.y*TS;PL.moving=false;}
 function seenStr(){let s='';for(let i=0;i<seen.length;i+=4){s+=((seen[i]|seen[i+1]<<1|seen[i+2]<<2|seen[i+3]<<3)).toString(16);}return s;}
-function save(){if(!G)return;try{localStorage.setItem(KEY,JSON.stringify({G,seen:seenStr(),vt:vtStr(),x:PL.x,y:PL.y,mw:MW,mv:6}));}catch(e){}}
+function save(){if(!G)return;loyTick();try{localStorage.setItem(KEY,JSON.stringify({G,seen:seenStr(),vt:vtStr(),x:PL.x,y:PL.y,mw:MW,mv:6}));}catch(e){}}
 /* save từ bản đồ đường thẳng (trước v4.5): giữ tiến độ, chuyển trạng thái điểm đến theo tên,
    đưa thầy pháp tới làng gần chỗ đang làm kiếp nạn và mở sương mù dọc phần hành trình đã đi */
 function migrateRegion(s){const sw=s.mw||120,OW=genLine(G.seed,sw/120),np={};for(const p of OW.pois){const st=G.poi[p.x+','+p.y];if(!st)continue;const q=WD.pois.find(q=>q.k===p.k&&q.n===p.n);if(q)np[q.x+','+q.y]=st;}G.poi=np;
@@ -2086,7 +2086,7 @@ async function landmark(p,s){const lt=p.lt,tr=tierAt(p.x,p.y);
 /* Tháp Trấn Hồn: đội tối đa 6, hồn dư được gửi ở đây (G.box). Hồn thu phục khi đội đã đầy cũng tự vào tháp */
 const TOWER_MAX=50;
 function towerFree(){return G.party.length<6||(G.box||[]).length<TOWER_MAX;}
-function toTower(u){u.hp=u.mhp;u.mp=u.mmp;if(u.b)u.b={};(G.box||(G.box=[])).push(u);}
+function toTower(u){if(u.id!=='diep'&&loyOf(u)<100&&!u.loyT)u.loyT=Date.now();u.hp=u.mhp;u.mp=u.mmp;if(u.b)u.b={};(G.box||(G.box=[])).push(u);}
 const SITED={temple:'Cổng chùa cổ phủ rêu, chuông đồng im bặt. Trong sân, bóng quỷ lởn vởn quanh bàn thờ tổ.',tamquan:'Ba lối tam quan đổ nát, gió rít qua như tiếng tụng kinh ngược. Oán khí tụ thành từng đợt.',dien:'Điện thờ ma mị, nến đỏ tự cháy không người thắp. Có thứ gì đó đang chờ trên bệ thờ.',moon:'Cổng nguyệt môn tròn như mắt quỷ. Bên kia cổng, âm binh xếp hàng lặng lẽ.',mieu:'Miếu hoang lạnh lẽo, bát hương nguội ngắt. Vong hồn quanh đây đã thành quỷ dữ.'};
 async function wildShrine(p,s){if(s.done&&G.steps<s.at+600)return say(p.n+' đã được thanh tẩy. Oán khí sẽ còn tụ lại, ít lâu nữa hãy quay lại.');
   const i=await pick(p.n,SITED[p.st]||SITED.mieu,[{t:'Bước vào trừ tà (3 đợt quỷ, đợt cuối có tinh anh)'},{t:'Để sau'}]);if(i!==0)return;
@@ -2131,6 +2131,7 @@ async function meritShop(p,s,tr){if(!s.stock||!s.stock.length)s.stock=[mkItem(tr
       {t:'Hồi Hồn Đan, hồi 40% HP (12 công đức) · có '+G.pill.hp,dis:no(12),f:()=>{G.merit-=12;G.pill.hp++;}},
       {t:'Tụ Linh Đan, hồi 50% linh lực (10 công đức) · có '+G.pill.mp,dis:no(10),f:()=>{G.merit-=10;G.pill.mp++;}},
       {t:'Bùa trấn yểm (15 công đức) · có '+G.charms,dis:no(15),f:()=>{G.merit-=15;G.charms++;}},
+      {t:'Linh Quả: đồng hành ăn +10 trung thành (20 công đức) · có '+itN('linhqua'),dis:no(20),f:()=>{G.merit-=20;itAdd('linhqua');}},
       ...[['loiphu',14],['thienthu',40],['coquyen',45]].map(([k,pr])=>({t:`${CONS[k].n}: ${CONS[k].d} (${pr} công đức) · có ${itN(k)}`,dis:no(pr),f:()=>{G.merit-=pr;itAdd(k);}})),
       {t:'Cam Lộ Thủy: cả đội hồi đầy HP, linh lực (25 công đức)',dis:no(25),f:()=>{G.merit-=25;for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}toast('Cả đội hồi phục hoàn toàn');}},
       ...s.stock.map((it,i)=>({t:`${it.n}: ${itemDesc(it)} (${price(it)} công đức) · ${cmpEq(it).t}`,dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{G.merit-=price(it);addItem(it);s.stock.splice(i,1);toast('Thỉnh được '+it.n);}})),
@@ -2408,24 +2409,27 @@ function drawSettingsP(t,b){const M=MENU,rs=setRows(),rh=30;win(2,t,W-4,b-t,'#2c
   rs.forEach((r,i)=>{const y=t+6+i*rh,sel=i===M.i;if(sel)rect(5,y-2,W-10,rh-2,'#4a64c0');txt(r.l,10,y+1,{size:10,color:'#e0e8ff'});
     win(W-62,y+1,54,16,'#2c2238','#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(r.v,W-35,y+4,{size:9,align:'center',color:r.v==='Tắt'?'#a8a0c0':'#fff8e0'});hit(4,y-2,W-8,rh-2,()=>{M.i=i;r.f();});});
   const r=rs[M.i]||rs[0],ls=wrap(r.d,W-20,8);ls.forEach((l,j)=>txt(l,10,Math.min(b-6-ls.length*10,t+10+rs.length*rh)+j*10,{size:8,color:'#b8c0e0'}));}
-function openMenu(){sfx('ok');MENU={tab:0,i:0,sub:null,si:0};scene='menu';for(const k of['bag','pty','nan','dex'])delete SCO[k];}
+function openMenu(){sfx('ok');loyTick();MENU={tab:0,i:0,sub:null,si:0};scene='menu';for(const k of['bag','pty','nan','dex'])delete SCO[k];}
 /* v5.6: danh sách trong menu cuộn bằng vuốt; đổi lựa chọn bằng phím thì tự cuộn tới */
 function listShow(key,i,rh,h){const M=MENU;if(M['l_'+key]===i)return;M['l_'+key]=i;scrollShow(key,i*rh,(i+1)*rh,h);}
 function closeMenu(){sfx('sel');const f=MENU&&MENU.done;MENU=null;scene='map';save();if(f)f();}
 /* Tháp Trấn Hồn (mở từ Trấn Ma Ti): màn riêng hai cột, xem drawTower */
-function openTower(){return new Promise(r=>{sfx('ok');MENU={tab:1,tower:true,col:0,i:0,j:0,sub:null,si:0,info:null,done:r};scene='menu';});}
+function openTower(){return new Promise(r=>{sfx('ok');loyTick();MENU={tab:1,tower:true,col:0,i:0,j:0,sub:null,si:0,info:null,done:r};scene='menu';});}
 /* v4.8 màn Tháp Trấn Hồn: trái là hồn trong tháp, phải là đồng đội; chạm một người để hiện mục chọn */
 function twList(col){return col?G.party:(G.box||(G.box=[]));}
 function twSel(){const M=MENU;return twList(M.col)[M.col?M.j:M.i];}
 function twFix(){const M=MENU;M.i=clamp(M.i,0,Math.max(0,G.box.length-1));M.j=clamp(M.j,0,Math.max(0,G.party.length-1));}
 function soulSub(){const M=MENU,box=G.box,u=box[M.i],o=[];if(!u)return[{l:'Đóng',f:()=>{}}];
-  const take=j=>{box.splice(box.indexOf(u),1);u.hp=u.mhp;u.mp=u.mmp;if(j>=0){const v=G.party[j];G.party[j]=u;toTower(v);toast(u.name+' vào đội · '+v.name+' vào tháp');}else{G.party.push(u);toast(u.name+' vào đội');}twFix();sfx('got');};
-  o.push({l:'Thêm vào đội'+(G.party.length>=6?' (đổi người)':''),f:()=>{if(G.party.length<6)take(-1);else{M.sub=()=>G.party.map((v,j)=>v.id==='diep'?null:{l:'Đổi với '+v.name,f:()=>take(j)}).filter(Boolean).concat([{l:'Thôi',f:()=>{}}]);M.si=0;}}});
+  loyTick();const lz=loyOf(u)<1;
+  const take=j=>{box.splice(box.indexOf(u),1);u.loyT=null;u.hp=u.mhp;u.mp=u.mmp;if(j>=0){const v=G.party[j];G.party[j]=u;toTower(v);toast(u.name+' vào đội · '+v.name+' vào tháp');}else{G.party.push(u);toast(u.name+' vào đội');}twFix();sfx('got');};
+  o.push({l:'Thêm vào đội'+(G.party.length>=6?' (đổi người)':''),dis:lz?'Hết trung thành, chưa chịu ra trận. Chờ hồi trong tháp hoặc cho ăn Linh Quả.':null,f:()=>{if(G.party.length<6)take(-1);else{M.sub=()=>G.party.map((v,j)=>v.id==='diep'?null:{l:'Đổi với '+v.name,f:()=>take(j)}).filter(Boolean).concat([{l:'Thôi',f:()=>{}}]);M.si=0;}}});
+  if(loyOf(u)<100)o.push({l:'Cho ăn Linh Quả, +10 trung thành (có '+itN('linhqua')+')',dis:itN('linhqua')?null:'Chưa có Linh Quả. Thỉnh ở Tháp Công Đức.',f:()=>useCons('linhqua',u)});
   o.push({l:'Xem thông tin',f:()=>{M.info=u;M.tsc=0;}});
   o.push({l:'Siêu độ, cho đi (+3 công đức)',f:()=>{box.splice(box.indexOf(u),1);G.merit+=3;twFix();sfx('pur');toast(u.name+' được siêu thoát');}});
   o.push({l:'Đóng',f:()=>{}});return o;}
 function mateSub(){const M=MENU,u=G.party[M.j],o=[];if(!u)return[{l:'Đóng',f:()=>{}}];const me=u.id==='diep';
   if(!me)o.push({l:'Lưu vào tháp',dis:G.box.length>=TOWER_MAX?'Tháp đã đầy':null,f:()=>{G.party.splice(G.party.indexOf(u),1);toTower(u);twFix();sfx('seal');toast(u.name+' vào Tháp Trấn Hồn');}});
+  if(!me&&loyOf(u)<100)o.push({l:'Cho ăn Linh Quả, +10 trung thành (có '+itN('linhqua')+')',dis:itN('linhqua')?null:'Chưa có Linh Quả. Thỉnh ở Tháp Công Đức.',f:()=>useCons('linhqua',u)});
   o.push({l:'Xem thông tin',f:()=>{M.info=u;M.tsc=0;}});
   if(!me)o.push({l:'Siêu độ, cho đi (+3 công đức)',f:()=>{G.party.splice(G.party.indexOf(u),1);G.merit+=3;twFix();sfx('pur');toast(u.name+' được siêu thoát');}});
   o.push({l:'Đóng',f:()=>{}});return o;}
@@ -2445,8 +2449,8 @@ function twScroll(col,v){const M=MENU;if(!M.sc)M.sc=[0,0];M.sc[col]=clamp(v,0,tw
 function twEnsure(col){const M=MENU,g=twGeom(col),cur=col?M.j:M.i,sc=(M.sc||[0,0])[col];if(cur*g.rh<sc)twScroll(col,cur*g.rh);else if((cur+1)*g.rh>sc+g.visH)twScroll(col,(cur+1)*g.rh-g.visH);}
 function twColAt(x,y){for(const col of[0,1]){const g=twGeom(col);if(x>=g.x&&x<g.x+g.w&&y>=g.y0&&y<g.y0+g.visH)return col;}return -1;}
 function twCard(u,x,y,w,h,sel,big){win(x,y,w,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');drawPic(u.id,x+3,y+Math.round((h-15)/2),14,15);
-  const nw=w-36;let nm=u.name;while(nm.length>3&&tw(nm,big?8:7)>nw)nm=nm.slice(0,-1);if(nm!==u.name)nm=nm.slice(0,-1)+'…';
-  txt(nm,x+17,y+1,{size:big?8:7,color:u.hp>0?'#fff':'#9a8a9a'});txt('Lv'+u.lv,x+w-3,y+1,{size:7,align:'right',color:'#f8e080'});
+  const ly=u.id==='diep'?100:Math.floor(loyOf(u)),lt=ly<100?'♥'+ly:'',lw=lt?tw(lt,7)+3:0;const nw=w-36-lw;let nm=u.name;while(nm.length>3&&tw(nm,big?8:7)>nw)nm=nm.slice(0,-1);if(nm!==u.name)nm=nm.slice(0,-1)+'…';
+  txt(nm,x+17,y+1,{size:big?8:7,color:u.hp>0?'#fff':'#9a8a9a'});txt('Lv'+u.lv,x+w-3-lw,y+1,{size:7,align:'right',color:'#f8e080'});if(lt)txt(lt,x+w-3,y+1,{size:7,align:'right',color:ly<1?'#ff6070':ly<30?'#ffb060':'#ff9ad0'});
   gbar(x+17,y+h-8,w-21,3,u.hp/u.mhp,u.hp>0?'hp':'dead');gbar(x+17,y+h-4,w-21,2,u.mp/u.mmp,'mp');}
 function twCol(col){const M=MENU,L=twList(col),cur=col?M.j:M.i,G0=twGeom(col),{x,y0,w,rh,visH,top}=G0;if(!M.sc)M.sc=[0,0];
   if(M.vel&&M.vel[col]&&!(TDRAG&&TDRAG.col===col)){twScroll(col,M.sc[col]+M.vel[col]);M.vel[col]*=.9;if(Math.abs(M.vel[col])<.2)M.vel[col]=0;}
@@ -2532,6 +2536,7 @@ const KINDD={'Pháp Sư':'người sống tu đạo trừ tà, dùng bùa chú v
 function infoLines(u,wd){const sp=SPECIES[u.id],sk=skillsOf(u),w=weapon(u),out=[],add=(t,col)=>wrap(t,wd,8).forEach(l=>out.push([l,col]));
   const gn={hp:'Máu',atk:'Lực',skl:'Kỹ',spd:'Tốc',def:'Thủ'},gk=Object.keys(gn).filter(k=>sp.grow&&sp.grow[k]!=null).sort((a,b)=>sp.grow[b]-sp.grow[a]);
   const pi=G.party.indexOf(u),pos=pi===0?'ra trận đầu':pi>0&&pi<3?'trợ chiến':pi>=3?'dự bị trong đội':(G.box||[]).includes(u)?'đang ở Tháp Trấn Hồn':'';
+  if(u.id!=='diep'&&!u.dexv){const l=Math.floor(loyOf(u));add('Trung thành: '+l+'/100'+(l<1?'. Hết trung thành nên không chịu ra trận; ở Tháp Trấn Hồn tự hồi dần, đầy sau 2 ngày, hoặc cho ăn Linh Quả.':'. Mỗi trận thua bị đưa về Trấn Ma Ti mất 2 điểm; về 0 sẽ không chịu ra trận.'),l<1?'#ff6070':l<30?'#ffb060':'#ff9ad0');}
   const rk=rankOf(u.id);if(rk)add('Hạng '+rk+': '+RKN[rk]+'; chỉ số và tư chất x'+RKM[rk]+'.',RKC[rk]);
   add('Hệ '+u.kind+': '+(KINDD[u.kind]||''),KINDC[u.kind]||'#fff');
   add('Tầm đánh: '+(sp.ranged?'đánh xa':'cận chiến')+(pos?' · Vị trí: '+pos:''),'#c8d8ff');
@@ -2747,6 +2752,15 @@ function drawDex(){win(2,18,236,130,'#2c3a78','#1a2250');dexChips(6,21,228,1);
 function drawDexP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');dexChips(5,t+3,W-10,2);
   txt(dexHead(),8,t+29,{size:9,color:'#ffe8a0'});const cols=4,gw=W-14,th=Math.floor(gw/cols)+2,gh=b-t-58;
   dexGrid(6,t+40,gw,gh,cols,th);dexFoot(8,b-14,W-8,9);}
+
+/* v14.0 trung thành của đồng hành (0-100, mặc định 100). Thua trận bị đưa về Trấn Ma Ti: -2. Về 0 thì vào Tháp Trấn Hồn, không chịu ra trận.
+   Trong tháp tự hồi theo giờ thật: 100 điểm mỗi 2 ngày (u.loyT = mốc giờ máy lần tính gần nhất). Linh Quả +10. */
+const LOYD=48*3600e3;
+function loyOf(u){return!u||u.id==='diep'?100:u.loy==null?100:u.loy;}
+function loyAdd(u,n){u.loy=clamp(loyOf(u)+n,0,100);if(u.loy>=100)u.loyT=null;}
+function loyTick(){if(!G)return;const now=Date.now();for(const u of G.box||[]){if(!u||u.id==='diep')continue;const l=loyOf(u);if(l>=100){u.loyT=null;continue;}
+  if(!u.loyT||now<u.loyT){u.loyT=now;continue;}u.loy=Math.min(100,l+(now-u.loyT)/LOYD*100);u.loyT=u.loy>=100?null:now;}}
+function loyLose(){const out=[];for(const u of G.party.slice()){if(u.id==='diep')continue;loyAdd(u,-2);if(u.loy<=0){u.loy=0;G.party.splice(G.party.indexOf(u),1);toTower(u);u.loyT=Date.now();out.push(u.name);}}return out;}
 
 /* v9.7: phải nhanh hơn đối phương từ 10 Tốc trở lên mới liên kích (×2); v10.9.2: người chơi nâng lên 20 */
 const X2SPD=20;
@@ -3021,8 +3035,8 @@ async function finish(res){B.phase='end';
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
   await fadeTo(1,400);scene='map';B=null;G.wc=4;
-  if(res==='lose'){G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
-    sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`],'Trấn Ma Ti');return res;}
+  if(res==='lose'){const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
+    sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 2 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 2 điểm trung thành.`]),'Trấn Ma Ti');return res;}
   await fadeTo(0,300);save();return res;}
 /* v13.5 hai bên cân nhau: mọi đấu thủ (ta và địch) vẽ cùng chiều cao thân BTH, trùm cao hơn một chút */
 const BTH=62;
@@ -3034,7 +3048,8 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-function bScale(i,h,id){const v=bVis(id);return Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
+const BSZ={zashiki:.88};/* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút */
+function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 function drawBattle(dt){const E=B.enemy,A=B.ally;
   const sh=B.shake>0&&SET.shk?(R()-.5)*B.shake:0;B.shake=Math.max(0,B.shake-dt*.02);
   const SY=PORT?18:0;if(SY){const bg=bgFor(B.bg);c.drawImage(bg,0,0,240,1,0,0,W,SY);}
@@ -4051,7 +4066,8 @@ const CONS={
   giay:{n:'Giấy Phù Vàng',k:'stack',d:'Nguyên liệu: 3 tờ vẽ được 1 bùa trấn yểm'},
   but:{n:'Bút Mực Chu Sa',k:'brush',d:'Dụng cụ vẽ bùa, dùng mãi không hết'},
   thanhanh:{n:'Thần Hành Phù',k:'tY2',d:'Dịch chuyển tới bất kỳ chỗ nào thầy đã đi qua trên bản đồ',m:1},
-  dinhvi:{n:'Định Vị Phù',k:'hang',d:'Dịch chuyển về chỗ cả đội vừa gục ngã',m:1}};
+  dinhvi:{n:'Định Vị Phù',k:'hang',d:'Dịch chuyển về chỗ cả đội vừa gục ngã',m:1},
+  linhqua:{n:'Linh Quả',k:'jade',d:'Đồng hành ăn: +10 trung thành'}};
 function itN(k){return(G&&G.it&&G.it[k])||0;}
 function itAdd(k,n=1){G.it=G.it||{};G.it[k]=Math.max(0,(G.it[k]||0)+n);}
 function consList(){return Object.keys(CONS).filter(k=>itN(k)>0);}
@@ -4063,11 +4079,13 @@ function useCons(k,u){const d=diep();
   if(k==='giay'){if(!itN('but')||itN('giay')<3)return false;itAdd('giay',-3);G.charms++;sfx('seal');toast('Vẽ xong 1 bùa trấn yểm');return true;}
   if(k==='thanhanh'){MENU.warp={sel:null};return true;}
   if(k==='dinhvi'){if(!G.dead){toast('Cả đội chưa gục ngã ở đâu cả');return false;}const q=warpSpot(G.dead.x,G.dead.y,0);if(!q)return false;itAdd(k,-1);closeMenu();doWarp(q.x,q.y,'Định Vị Phù dẫn cả đội về chỗ vừa gục ngã');return true;}
+  if(k==='linhqua'&&u){loyTick();if(loyOf(u)>=100)return false;itAdd(k,-1);loyAdd(u,10);sfx('heal');toast(u.name+' ăn Linh Quả: trung thành '+Math.floor(loyOf(u))+'/100');return true;}
   if(k==='thienthu'&&u){itAdd(k,-1);sfx('got');toast(u.name+' đọc Thiên Thư');run(()=>expTo(u,expNeed(u.lv),true));return true;}
   return false;}
 function consSub(k){const C=CONS[k],o=[];
   if(C.m)o.push({l:'Dùng '+C.n,f:()=>useCons(k)});
   if(C.u)for(const u of G.party)o.push({l:'Cho '+u.name+' đọc (Lv '+u.lv+')',dis:u.lv>=LVMAX,f:()=>useCons(k,u)});
+  if(k==='linhqua'){loyTick();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep')o.push({l:'Cho '+u.name+' ăn ('+Math.floor(loyOf(u))+'/100'+(G.party.includes(u)?'':', trong tháp')+')',dis:loyOf(u)>=100,f:()=>{if(!useCons(k,u))toast(u.name+' đã đủ trung thành');}});}
   if(k==='giay')o.push({l:'Vẽ bùa trấn yểm (3 tờ)',dis:!itN('but')||itN('giay')<3,f:()=>{if(!useCons('giay'))toast(itN('but')?'Cần 3 tờ giấy':'Cần Bút Mực Chu Sa');}});
   if(C.b&&!C.m)o.push({l:'Chỉ dùng được trong trận',f:()=>{}});
   o.push({l:'Đóng',f:()=>{}});return o;}
@@ -4777,7 +4795,7 @@ function onlHudHits(x,y,w,h){const w1=Math.floor(w/2);hit(x,y,w1,h,()=>{audio();
 /* ---------- thách đấu ---------- */
 function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
   if(ONL.duel){toast('Thầy đang có một lời thách đấu');return;}
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));if(!C.length){toast('Cần ít nhất 1 đồng hành còn trung thành mới đấu được');return;}
   if(r.bot)return onlBotChallenge(r);
   ONL.duel={n:Math.random().toString(36).slice(2,10),to:peer,nm:r.nm,rp:r.rp,st:'ask',t0:performance.now()};onlSend(true);toast('Đã gửi lời thách đấu tới '+r.nm);onlUI();}
 /* Đấu Trường: thách đấu người chơi online và bảng xếp hạng online (gộp từ bảng online vào menu đấu trường) */
@@ -4800,7 +4818,7 @@ function onlBotChallenge(r){const nm=r.hn||r.nm;if(r.sc==='pvp'){toast(nm+' đan
   setTimeout(()=>{if(ONL.duel!==D)return;const q=ONL.peers.get(D.to);if(!q||q.sc==='pvp'){ONL.duel=null;toast(nm+' từ chối thách đấu');onlUI();return;}
     D.st='go';toast(nm+' nhận lời! Ra bản đồ để vào trận');onlUI();},ri(1200,2600));}
 async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw&&ONL.room.raw(x);}catch(_){}};raw({t:'botduel',b:D.to});
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));let sel;
   if(C.length>=3){await say(['Trận thách đấu với '+D.nm+'. Chọn 3 đồng hành ra sân.'],'Đấu Trường');
     sel=await new Promise(res=>{ARS={C,sel:ARLAST.filter(u=>C.includes(u)).slice(0,3),col:0,i:0,sc:0,res,prev:scene};scene='arsel';});if(sel)ARLAST=sel.slice();}
   else{sel=C.slice(0,3);await say(['Thầy chưa đủ 3 đồng hành, '+sel.map(u=>u.name).join(', ')+' sẽ ra sân.'],'Đấu Trường');}
@@ -4832,7 +4850,7 @@ function onlDuelSignal(r,du){const me=ONL.me;if(!me)return;const ok=du&&typeof d
   if(ok&&du.st==='ask'){if(!ONL.inv||ONL.inv.n!==du.n){if(ONL.duel&&ONL.duel.st!=='ask')return;ONL.inv={from:r.peer,n:du.n,nm:r.nm,rp:r.rp,t0:performance.now()};sfx('enc');onlUI();}}
   else if(ONL.inv&&ONL.inv.from===r.peer&&!ONL.inv.no&&!(ok&&du.n===ONL.inv.n)){ONL.inv=null;onlUI();}}
 function onlAccept(){const I=ONL.inv;if(!I)return;if(!onlFree()){toast('Xong việc đang làm rồi hãy nhận');return;}
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));if(!C.length){toast('Cần ít nhất 1 đồng hành còn trung thành mới đấu được');return;}
   ONL.duel={n:I.n,to:I.from,nm:I.nm,rp:I.rp,st:'ok',role:'b',t0:performance.now()};ONL.inv=null;onlSend(true);ONL.duel.st2='ok';
   setTimeout(()=>{if(ONL.duel&&ONL.duel.n===I.n&&ONL.duel.st==='ok')ONL.duel.st='go';},250);onlClose();onlUI();}
 function onlDecline(){const I=ONL.inv;if(!I)return;I.no=1;onlSend(true);setTimeout(()=>{if(ONL.inv===I){ONL.inv=null;onlSend(true);onlUI();}},2500);onlUI();}
@@ -4845,7 +4863,7 @@ function onlFoe(D){if(!D.r)return null;return D.r.peers().find(p=>!p.sameTab&&p.
 async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBotDuel(D);
   try{D.r=await ONL.room.join('duel-'+D.n);}catch(e){toast('Không vào được phòng đấu');ONL.duel=null;onlSend(true);return;}
   onlSend(true);
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));let sel;
   if(C.length>=3){await say(['Trận thách đấu với '+D.nm+'. Chọn 3 đồng hành ra sân (đối thủ cũng đang chọn).'],'Đấu Trường');
     sel=await new Promise(res=>{ARS={C,sel:ARLAST.filter(u=>C.includes(u)).slice(0,3),col:0,i:0,sc:0,res,prev:scene};scene='arsel';});
     if(sel)ARLAST=sel.slice();}
@@ -5096,7 +5114,7 @@ layout.ready=1;layout();relayout();
 function imgsReady(){return Promise.all([FLA,BLA,RDA,TMTIMG,CDIMG,FXA,ITA,SMA,ARA].map(im=>im.complete?0:new Promise(r=>{im.addEventListener('load',r);im.addEventListener('error',r);})));}
 const go=()=>{if(go.d)return;go.d=1;requestAnimationFrame(frame);};
 Promise.all([(document.fonts&&document.fonts.load?document.fonts.load('10px VT323'):Promise.resolve()).catch(()=>{}),loadAnims(),imgsReady()]).then(go,go);setTimeout(go,6000);
-window.__dexi=id=>dexIds().indexOf(id);window.__dexi2=id=>dexList().indexOf(id);window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
+window.__loy={loyTick:()=>loyTick(),loyLose:()=>loyLose(),useCons:(k,u)=>useCons(k,u),openTower:()=>openTower(),itAdd:(k,n)=>itAdd(k,n)};window.__dexi=id=>dexIds().indexOf(id);window.__dexi2=id=>dexList().indexOf(id);window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
 })();
 </script>
 

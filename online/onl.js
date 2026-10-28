@@ -214,7 +214,7 @@ function onlHudHits(x,y,w,h){const w1=Math.floor(w/2);hit(x,y,w1,h,()=>{audio();
 /* ---------- thách đấu ---------- */
 function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
   if(ONL.duel){toast('Thầy đang có một lời thách đấu');return;}
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));if(!C.length){toast('Cần ít nhất 1 đồng hành còn trung thành mới đấu được');return;}
   if(r.bot)return onlBotChallenge(r);
   ONL.duel={n:Math.random().toString(36).slice(2,10),to:peer,nm:r.nm,rp:r.rp,st:'ask',t0:performance.now()};onlSend(true);toast('Đã gửi lời thách đấu tới '+r.nm);onlUI();}
 /* Đấu Trường: thách đấu người chơi online và bảng xếp hạng online (gộp từ bảng online vào menu đấu trường) */
@@ -237,7 +237,7 @@ function onlBotChallenge(r){const nm=r.hn||r.nm;if(r.sc==='pvp'){toast(nm+' đan
   setTimeout(()=>{if(ONL.duel!==D)return;const q=ONL.peers.get(D.to);if(!q||q.sc==='pvp'){ONL.duel=null;toast(nm+' từ chối thách đấu');onlUI();return;}
     D.st='go';toast(nm+' nhận lời! Ra bản đồ để vào trận');onlUI();},ri(1200,2600));}
 async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw&&ONL.room.raw(x);}catch(_){}};raw({t:'botduel',b:D.to});
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));let sel;
   if(C.length>=3){await say(['Trận thách đấu với '+D.nm+'. Chọn 3 đồng hành ra sân.'],'Đấu Trường');
     sel=await new Promise(res=>{ARS={C,sel:ARLAST.filter(u=>C.includes(u)).slice(0,3),col:0,i:0,sc:0,res,prev:scene};scene='arsel';});if(sel)ARLAST=sel.slice();}
   else{sel=C.slice(0,3);await say(['Thầy chưa đủ 3 đồng hành, '+sel.map(u=>u.name).join(', ')+' sẽ ra sân.'],'Đấu Trường');}
@@ -269,7 +269,7 @@ function onlDuelSignal(r,du){const me=ONL.me;if(!me)return;const ok=du&&typeof d
   if(ok&&du.st==='ask'){if(!ONL.inv||ONL.inv.n!==du.n){if(ONL.duel&&ONL.duel.st!=='ask')return;ONL.inv={from:r.peer,n:du.n,nm:r.nm,rp:r.rp,t0:performance.now()};sfx('enc');onlUI();}}
   else if(ONL.inv&&ONL.inv.from===r.peer&&!ONL.inv.no&&!(ok&&du.n===ONL.inv.n)){ONL.inv=null;onlUI();}}
 function onlAccept(){const I=ONL.inv;if(!I)return;if(!onlFree()){toast('Xong việc đang làm rồi hãy nhận');return;}
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');if(!C.length){toast('Cần ít nhất 1 đồng hành mới đấu được');return;}
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));if(!C.length){toast('Cần ít nhất 1 đồng hành còn trung thành mới đấu được');return;}
   ONL.duel={n:I.n,to:I.from,nm:I.nm,rp:I.rp,st:'ok',role:'b',t0:performance.now()};ONL.inv=null;onlSend(true);ONL.duel.st2='ok';
   setTimeout(()=>{if(ONL.duel&&ONL.duel.n===I.n&&ONL.duel.st==='ok')ONL.duel.st='go';},250);onlClose();onlUI();}
 function onlDecline(){const I=ONL.inv;if(!I)return;I.no=1;onlSend(true);setTimeout(()=>{if(ONL.inv===I){ONL.inv=null;onlSend(true);onlUI();}},2500);onlUI();}
@@ -282,7 +282,7 @@ function onlFoe(D){if(!D.r)return null;return D.r.peers().find(p=>!p.sameTab&&p.
 async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBotDuel(D);
   try{D.r=await ONL.room.join('duel-'+D.n);}catch(e){toast('Không vào được phòng đấu');ONL.duel=null;onlSend(true);return;}
   onlSend(true);
-  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep');let sel;
+  const C=G.party.concat(G.box||[]).filter(u=>u.id!=='diep'&&(typeof loyOf!=='function'||loyOf(u)>=1));let sel;
   if(C.length>=3){await say(['Trận thách đấu với '+D.nm+'. Chọn 3 đồng hành ra sân (đối thủ cũng đang chọn).'],'Đấu Trường');
     sel=await new Promise(res=>{ARS={C,sel:ARLAST.filter(u=>C.includes(u)).slice(0,3),col:0,i:0,sc:0,res,prev:scene};scene='arsel';});
     if(sel)ARLAST=sel.slice();}
