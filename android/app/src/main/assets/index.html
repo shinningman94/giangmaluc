@@ -277,7 +277,7 @@ function lskP(k){if(LSKC[k])return LSKC[k];const s=LSK[k];return LSKC[k]={n:s.n,
 function allSkillsOf(u){if(u.id==='diep')return[SK.diep0,SK.diep1].concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0}));
   const a=typeof AIC!=='undefined'&&AIC[u.id];
   const own=a?a.n.sk.filter(k=>!LSK[k].enr).map(lskP):u.id==='eliza'?[SK.eliza0,SK.eliza1]:u.id==='morphin'?[SK.morphin0,SK.morphin1]:SK[u.id]?[SK[u.id]]:[];
-  const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=-99;/* v14.1: người chơi muốn đồng hành giữ nguyên mọi kỹ năng lúc còn là quái, không khóa theo cấp nữa */
+  const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=u.cl==null?-99:u.cl;
   return all.map((s,i)=>({s,lv:i<2?0:b+(i<SKUNL.length?SKUNL[i]:18+4*(i-6))}));}
 function skillsOf(u){return allSkillsOf(u).filter(o=>u.lv>=o.lv).map(o=>o.s);}
 /* chiêu dùng được lúc này không: đủ linh lực, hết hồi chiêu, chưa dùng quá số lần */
@@ -2588,7 +2588,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Chỉ thu phục được khi quái còn từ 30% máu trở xuống; máu càng ít tỉ lệ càng cao (gần cạn máu +30%). Lúc đó mỗi lượt được chọn: Thu phục, Đánh cho phục (đánh nương tay, sát thương nhỏ, không giết, mỗi lần +5% tỉ lệ, tối đa +20%) hoặc đánh tiếp.',2],
   ['Trong Vật phẩm, Bùa trấn yểm thu phục được bất kể quái còn bao nhiêu máu (tỉ lệ vẫn tính như trên, máu càng thấp càng dễ).',2],
   ['Mỗi lần thử tốn bùa và mất lượt; thất bại thì quái đánh trả. Hết máu thì quái được siêu độ: nhận công đức, bạc, đồ rơi và kinh nghiệm.',2],
-  ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp; mọi chiêu dùng được ngay (xem ở Đội hình › Xem thông tin chi tiết).',1],
+  ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp. Mới thu phục chỉ mở 2 chiêu đầu; các chiêu sau mở khi lên thêm 3, 6, 10, 14, 18 cấp so với lúc thu phục (xem ở Đội hình › Xem thông tin chi tiết).',1],
   ['Lên cấp',0],
   ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600. Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
   ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 3 điểm cộng: HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
