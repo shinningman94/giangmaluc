@@ -3018,7 +3018,7 @@ async function tameHit(A,E){B.msg=A.name+' đánh nương tay cho '+E.name+' ch�
   if((E.tame||0)<4){E.tame=(E.tame||0)+1;popup(62,36,'+5% THU PHỤC','#a8f0b0');}await wait(450);return'turn';}
 async function capTry(E){const need=capNeed(E),cp=Math.round(capP(E)*100);if(capDis(E)){sfx('no');toast(capDis(E));return'noturn';}
   G.charms-=need;if(hasEq('save')&&R()<.25){G.charms++;popup(176,40,'GIỮ LẠI BÙA','#ffe080');}pose('e','halo',Infinity);B.msg='Phóng bùa phong ấn!';sfx('seal');B.tal={x:176,y:60,r:0};await tween(450,t=>{B.tal.x=lerp(176,58,t);B.tal.y=60-30*Math.sin(t*Math.PI)+lerp(0,20,t);B.tal.r=t*10;});
-  spark(62,80,'#f2d06a',14,1.4);fxG('cirP',62,96,1500,1.1);fxS('chain',62,66,1400,1.05,{grow:.05,fin:.15});await tween(380,t=>{B.eS=1-t;B.eA=1-t*.6;});B.eA=0;B.tal.r=0;const ok=R()*100<cp;for(let k=0;k<(ok?3:1+ri(0,2));k++){await wait(200);sfx('seal');await tween(220,t=>{B.tal.r=Math.sin(t*Math.PI*2)*.5;});}
+  spark(62,80,'#f2d06a',14,1.4);/* v14.8: người chơi bỏ vòng sáng tím khi thu phục */fxS('chain',62,66,1400,1.05,{grow:.05,fin:.15});await tween(380,t=>{B.eS=1-t;B.eA=1-t*.6;});B.eA=0;B.tal.r=0;const ok=R()*100<cp;for(let k=0;k<(ok?3:1+ri(0,2));k++){await wait(200);sfx('seal');await tween(220,t=>{B.tal.r=Math.sin(t*Math.PI*2)*.5;});}
   if(ok){E.capOK=1;E.hp=0;B.hp.e=0;return'turn';}
   sfx('fail');spark(62,70,'#ff6a4a',24,1.6);await tween(320,t=>{B.eS=t;B.eA=t;});B.eS=1;B.eA=1;B.tal=null;B.pose.e=null;B.msg='Bùa cháy rụi! '+E.name+' phá vỡ phong ấn.';await wait(700);return'turn';}
 async function subdue(E){B.phase='end';if(E.stolen){G.silver+=E.stolen;B.loot.push('lấy lại '+E.stolen+' bạc');E.stolen=0;}
