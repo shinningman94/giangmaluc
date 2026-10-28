@@ -395,47 +395,47 @@ function sprite(id){return SPR[id]||(SPR[id]=LOOK[id]());}
 const nativeLeft=(a,i)=>!!(a.fd&&a.fd[i]<0);
 /* frames: 0 đứng, 1 xoay người, 2 lao tới, 3 quay lưng, 4 phun lửa, 5 hào quang sen, 6 trúng đòn, 7 gục ngã */
 const ANIM={};
-const ANIM_SRC={den_long:{n:8,w:140,h:137,box:[14, 13, 107, 124],sc:.5,fd:[-1,1,1,0,1,0,1,1],pose:{idle:0,turn:1,dash:2,back:3,breath:4,halo:5,hit:6,down:7},
+const ANIM_SRC={den_long:{n:8,w:280,h:274,box:[28,26,214,248],sc:.5/2,fd:[-1,1,1,0,1,0,1,1],pose:{idle:0,turn:1,dash:2,back:3,breath:4,halo:5,hit:6,down:7},
   src:'img/den_long.png'}};
 /* Hồn Ma Võ Sĩ: 0 lơ lửng, 1 thủ thế rút đao, 2 lao chém, 3 giơ đao bổ, 4 chém ngang, 5 thủ kiếm vòng sáng, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.vo_si={n:8,w:128,h:142,box:[6,14,104,123],sc:.5,fd:[1,1,1,-1,1,0,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,raise:3,sweep:4,guard:5,halo:5,hit:6,down:7},
+ANIM_SRC.vo_si={n:8,w:256,h:284,box:[12,28,208,246],sc:.5/2,fd:[1,1,1,-1,1,0,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,raise:3,sweep:4,guard:5,halo:5,hit:6,down:7},
   src:'img/vo_si.png'};
 LOOK.vo_si=()=>LOOK.kiem_si();
 /* Quỷ Tướng Thanh Long: 0 cầm đao đứng, 1 thủ thế thấp, 2 quét đao thấp, 3 giơ đao bổ, 4 gác ngang đao, 5 xoáy đao, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.vo_tuong={n:8,w:148,h:144,box:[15,4,102,139],sc:.5,fd:[1,1,1,-1,-1,1,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,sweep:2,raise:3,guard:4,halo:5,spin:5,hit:6,down:7},
+ANIM_SRC.vo_tuong={n:8,w:296,h:288,box:[30,8,204,278],sc:.5/2,fd:[1,1,1,-1,-1,1,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,sweep:2,raise:3,guard:4,halo:5,spin:5,hit:6,down:7},
   src:'img/vo_tuong.png'};
 LOOK.vo_tuong=()=>LOOK.giap_sat();
 /* Amida, linh hồn hộ vệ cùng bạch cú: 0 cầm đao đứng, 1 thủ thế, 2 quét đao, 3 giơ đao bổ, 4 gác ngang đao, 5 vòng linh quang giơ tay, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.amida={n:8,w:142,h:139,box:[7,2,110,136],sc:.5,fd:[1,1,1,-1,-1,1,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,sweep:2,raise:3,guard:4,halo:5,hit:6,down:7},
+ANIM_SRC.amida={n:8,w:284,h:278,box:[14,4,220,272],sc:.5/2,fd:[1,1,1,-1,-1,1,1,1],pose:{idle:0,turn:1,ready:1,breath:1,back:1,dash:2,sweep:2,raise:3,guard:4,halo:5,hit:6,down:7},
   src:'img/amida.png'};
 LOOK.amida=()=>LOOK.kiem_si();
 /* Oán Linh Giáp Sắt: 0 đứng, 1 bước tới, 2 chém ngang, 3 giơ kiếm bổ, 4 giương khiên, 5 dậm đất bùng lửa oán, 6 trúng đòn, 7 gục ngã (đều quay phải) */
-ANIM_SRC.giap_sat={n:8,w:135,h:144,box:[9,12,106,131],sc:.5,fd:[1,1,1,1,1,0,1,1],pose:{idle:0,walk:1,turn:1,ready:1,back:1,breath:5,halo:5,spin:5,dash:2,sweep:2,raise:3,guard:4,hit:6,down:7},
+ANIM_SRC.giap_sat={n:8,w:270,h:288,box:[18,24,212,262],sc:.5/2,fd:[1,1,1,1,1,0,1,1],pose:{idle:0,walk:1,turn:1,ready:1,back:1,breath:5,halo:5,spin:5,dash:2,sweep:2,raise:3,guard:4,hit:6,down:7},
   src:'img/giap_sat.png'};
 /* Geroh: 0 xoay dao, 1 thủ thế song đao, 2 lao chém, 3 xoáy chéo, 4 phóng phi đao, 5 lướt chém thấp, 6 trúng đòn, 7 gục */
-ANIM_SRC.geroh={n:8,w:142,h:130,box:[10,4,105,125],sc:.5,fd:[-1,-1,-1,0,-1,-1,1,0],pose:{idle:0,walk:1,turn:1,ready:1,back:1,raise:1,breath:3,halo:3,spin:3,dash:2,throw:4,sweep:5,guard:1,hit:6,down:7},
+ANIM_SRC.geroh={n:8,w:284,h:260,box:[20,8,210,250],sc:.5/2,fd:[-1,-1,-1,0,-1,-1,1,0],pose:{idle:0,walk:1,turn:1,ready:1,back:1,raise:1,breath:3,halo:3,spin:3,dash:2,throw:4,sweep:5,guard:1,hit:6,down:7},
   src:'img/geroh.png'};
 /* Eliza Faust (sheet của người chơi): 0 chắp tay, 1 lướt bay, 2 giơ tay phát linh quang, 3 cầu nguyện trong vòng sáng, 4 phóng linh lực, 5 dang tay xoáy hào quang, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.eliza={n:8,w:128,h:144,box:[13,14,98,128],sc:.5,fd:[-1,-1,-1,0,-1,0,-1,-1],pose:{idle:0,walk:1,turn:1,ready:0,back:1,raise:2,breath:2,halo:3,spin:5,dash:4,throw:4,sweep:4,guard:5,hit:6,down:7},
+ANIM_SRC.eliza={n:8,w:256,h:288,box:[26,28,196,256],sc:.5/2,fd:[-1,-1,-1,0,-1,0,-1,-1],pose:{idle:0,walk:1,turn:1,ready:0,back:1,raise:2,breath:2,halo:3,spin:5,dash:4,throw:4,sweep:4,guard:5,hit:6,down:7},
   src:'img/eliza.png'};
 /* Lee Pyron: 0 thủ thế xòe chưởng, 1 hạc hình lao tới, 2 trực quyền, 3 phi cước, 4 song chưởng bùng sáng, 5 trượt cước hạ bàn, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.lee={n:8,w:139,h:135,box:[13,9,109,123],sc:.5,fd:[-1,1,1,-1,-1,-1,1,1],pose:{idle:0,walk:1,turn:0,ready:1,back:1,guard:1,dash:2,throw:2,raise:3,halo:4,breath:4,spin:4,sweep:5,hit:6,down:7},
+ANIM_SRC.lee={n:8,w:278,h:270,box:[26,18,218,246],sc:.5/2,fd:[-1,1,1,-1,-1,-1,1,1],pose:{idle:0,walk:1,turn:0,ready:1,back:1,guard:1,dash:2,throw:2,raise:3,halo:4,breath:4,spin:4,sweep:5,hit:6,down:7},
   src:'img/lee.png'};
 /* Morphin: 0 cầm cung, 1 bay lượn, 2 lắp tên, 3 giương cung, 4 buông tên (vẽ quay trái), 5 cầu nguyện trong bong bóng, 6 trúng đòn, 7 tan thành lá */
-ANIM_SRC.morphin={n:8,w:125,h:132,box:[16,19,99,113],sc:.5,fd:[-1,-1,-1,1,-1,0,-1,0],pose:{idle:0,walk:1,turn:1,ready:2,back:1,guard:5,raise:3,dash:4,throw:4,sweep:4,halo:5,breath:5,spin:5,hit:6,down:7},
+ANIM_SRC.morphin={n:8,w:250,h:264,box:[32,38,198,226],sc:.5/2,fd:[-1,-1,-1,1,-1,0,-1,0],pose:{idle:0,walk:1,turn:1,ready:2,back:1,guard:5,raise:3,dash:4,throw:4,sweep:4,halo:5,breath:5,spin:5,hit:6,down:7},
   src:'img/morphin.png'};
 /* Jaguar: 0 đứng, 1 rình mồi, 2 phóng tới, 3 vồ giơ vuốt, 4 vả vuốt, 5 gầm, 6 trúng đòn, 7 ngồi gục; cả 8 khung vẽ quay trái */
 /* Hàn Diệm Ma Nữ: 12 hình từ bảng của người chơi (v4.7) */
-ANIM_SRC.handiem={n:12,w:175,h:120,box:[35,9,106,111],sc:.5,fd:[1,1,1,0,1,0,1,1,0,1,1,1],pose:{idle:0,walk:1,ready:1,dash:2,back:3,sweep:4,raise:5,throw:6,spin:7,halo:8,breath:8,guard:8,hit:9,turn:10,down:11},
+ANIM_SRC.handiem={n:12,w:350,h:240,box:[70,18,212,222],sc:.5/2,fd:[1,1,1,0,1,0,1,1,0,1,1,1],pose:{idle:0,walk:1,ready:1,dash:2,back:3,sweep:4,raise:5,throw:6,spin:7,halo:8,breath:8,guard:8,hit:9,turn:10,down:11},
   src:'img/handiem.png'};
 /* v5.4 Hàn Mặc: 12 khung từ ảnh của người dùng (đứng x2, lướt, sau lưng, thủ, chém ngang, chém hất, xoay kiếm, đâm lửa xanh, vòng kiếm khí, trúng đòn, gục) */
-ANIM_SRC.hanmac={n:12,w:178,h:120,box:[23,8,112,112],sc:.5,fd:[1,1,1,0,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,turn:1,dash:2,back:3,guard:4,sweep:5,raise:6,spin:7,throw:8,halo:9,breath:9,hit:10,down:11},
+ANIM_SRC.hanmac={n:12,w:356,h:240,box:[46,16,224,224],sc:.5/2,fd:[1,1,1,0,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,turn:1,dash:2,back:3,guard:4,sweep:5,raise:6,spin:7,throw:8,halo:9,breath:9,hit:10,down:11},
   src:'img/hanmac.png'};
 /* v5.6: Hồn Ma Lang Thang đổi sang sheet 8 khung của người chơi */
-ANIM_SRC.hon_ma={n:8,w:154,h:172,box:[17,19,125,152],sc:.4,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,back:1,turn:0,ready:1,dash:2,throw:3,raise:3,sweep:3,spin:4,guard:4,halo:5,breath:5,hit:6,down:7},
+ANIM_SRC.hon_ma={n:8,w:308,h:344,box:[34,38,250,304],sc:.4/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,back:1,turn:0,ready:1,dash:2,throw:3,raise:3,sweep:3,spin:4,guard:4,halo:5,breath:5,hit:6,down:7},
   src:'img/hon_ma.png'};
 /* v5.6: Linh Hồn Thầy Đồ đổi sang sheet 12 khung của người chơi */
-ANIM_SRC.thay_do={n:12,w:162,h:104,box:[21,9,100,95],sc:.6,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,back:1,turn:0,ready:2,throw:3,sweep:4,dash:5,raise:6,halo:7,spin:7,breath:8,hit:9,guard:10,down:11},
+ANIM_SRC.thay_do={n:12,w:324,h:208,box:[42,18,200,190],sc:.6/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,back:1,turn:0,ready:2,throw:3,sweep:4,dash:5,raise:6,halo:7,spin:7,breath:8,hit:9,guard:10,down:11},
   src:'img/thay_do.png'};
 /* v5.6: thức thần Đào Hoa Yêu (Momo no Sei) từ sheet 12 khung của người chơi */
 /* v5.6.1 Yuki Onna – Tuyết Nữ: 12 khung từ ảnh của người dùng (đứng, lướt, giơ tay, vòng tuyết, băng thương, băng phiến, tường băng, lốc tuyết, tụ hàn khí, sóng tuyết, trúng đòn, tan thành tuyết) */
@@ -444,82 +444,89 @@ ANIM_SRC.thay_do={n:12,w:162,h:104,box:[21,9,100,95],sc:.6,fd:[-1,-1,-1,-1,-1,-1
 /* v5.6.1 Đăng Lung Quỷ (Chouchin Obake): 12 khung từ ảnh của người dùng (đứng, lao, xoay, liếm, phun hàn diễm, phun hỏa cầu, quất lưỡi, mắt sáng, bùng lửa, choáng, lấp lánh, tắt đèn) */
 /* v5.6.3 Tọa Phu Đồng Tử (Zashiki Warashi): 12 khung từ ảnh của người dùng (ngồi, vẫy tay, đi, chạy, cười, rải phúc, phát sáng, nấp bình phong, xoay, rung chuông, trúng đòn, co mình) */
 /* v5.8 Phong Đô Đại Đế, trùm cuối: 14 khung từ ảnh của người dùng (đứng, bước, lao, quay lưng, thủ kiếm, chém, ấn vạn hồn, xích câu hồn, cuộn phán quyết, minh long, thịnh nộ, trúng đòn, quỵ, gục) */
-ANIM_SRC.phongdo={n:14,w:199,h:123,box:[45,0,102,123],sc:.66,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:2,back:3,sweep:5,throw:6,spin:7,guard:7,raise:8,halo:9,breath:10,hit:11,down:13},
+ANIM_SRC.phongdo={n:14,w:398,h:246,box:[90,0,204,246],sc:.66/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:2,back:3,sweep:5,throw:6,spin:7,guard:7,raise:8,halo:9,breath:10,hit:11,down:13},
   src:'img/phongdo.png'};
 /* v5.9 Ma Da (hồn người chết đuối): 13 khung từ ảnh của người dùng (trồi lên, trôi, tóc bay, quay lưng, bơi, vươn tay, lặn, giơ tay, sóng vỗ, xoáy nước, tay ma dưới nước kéo chân, trúng đòn, tan thành nước) */
 /* v5.9 Ma Đói (Ngạ Quỷ): 12 khung từ ảnh của người dùng (chìa bát, lê bước, giật mình, quay lưng, xin ăn, cúi liếm bát, ngửi hương cúng, chộp bánh chưng, ôm bụng đói, lao theo bánh, vấp ngã, tan vào khói) */
 /* v6.2 Thiên Linh Cái: 14 khung từ ảnh của người dùng (nhắm mắt, mở mắt tím, lốc bùa, quay lưng, trừng mắt, vòng bùa vàng, phun hồn đầu lâu, lá chuối bao thân, trận rễ chuối, quỷ hỏa đầu lâu, hiện nguyên hình đầu lâu, trúng đòn, bị bùa phong ấn, tan thành khói) */
 /* v6.4 Ông Ba Bị: 14 khung từ ảnh của người dùng (đứng chống gậy, bước đi, sải bước, quay lưng, giơ nắm đấm cười, lắc chuông, mở bao đồ chơi, chỉ tay mắng, khói đen bám gót, quăng bao, giơ chuông vàng, trúng đòn, ngã sấp, ngồi thiền giữa hồn trẻ) */
-ANIM_SRC.ong_ba_bi={n:14,w:150,h:125,box:[19,16,107,109],sc:.5,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:2,back:3,sweep:9,throw:6,raise:10,halo:5,spin:8,breath:7,guard:13,hit:11,down:12},
+ANIM_SRC.ong_ba_bi={n:14,w:300,h:250,box:[38,32,214,218],sc:.5/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:2,back:3,sweep:9,throw:6,raise:10,halo:5,spin:8,breath:7,guard:13,hit:11,down:12},
   src:'img/ong_ba_bi.png'};
-ANIM_SRC.thien_linh={n:14,w:199,h:119,box:[22,11,117,108],sc:.55,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,turn:0,dash:4,back:3,sweep:10,throw:9,raise:8,halo:5,spin:2,breath:6,guard:7,hit:11,down:13},
+ANIM_SRC.thien_linh={n:14,w:398,h:238,box:[44,22,234,216],sc:.55/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,turn:0,dash:4,back:3,sweep:10,throw:9,raise:8,halo:5,spin:2,breath:6,guard:7,hit:11,down:13},
   src:'img/thien_linh.png'};
-ANIM_SRC.nga_quy={n:12,w:178,h:120,box:[26,0,95,120],sc:.5,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:9,back:3,sweep:9,throw:7,raise:7,halo:6,breath:6,spin:8,guard:5,hit:10,down:11},
+ANIM_SRC.nga_quy={n:12,w:356,h:240,box:[52,0,190,240],sc:.5/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,dash:9,back:3,sweep:9,throw:7,raise:7,halo:6,breath:6,spin:8,guard:5,hit:10,down:11},
   src:'img/nga_quy.png'};
-ANIM_SRC.ma_da={n:13,w:166,h:132,box:[18,20,141,112],sc:.5,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:4,ready:1,turn:0,dash:4,back:3,sweep:5,throw:5,raise:7,halo:2,spin:9,breath:10,guard:6,hit:11,down:12},
+ANIM_SRC.ma_da={n:13,w:332,h:264,box:[36,40,282,224],sc:.5/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:4,ready:1,turn:0,dash:4,back:3,sweep:5,throw:5,raise:7,halo:2,spin:9,breath:10,guard:6,hit:11,down:12},
   src:'img/ma_da.png'};
-ANIM_SRC.zashiki={n:12,w:115,h:96,box:[11,22,81,68],sc:.6,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:1,walk:2,ready:1,turn:0,dash:3,back:7,breath:4,throw:5,halo:6,guard:7,spin:8,raise:9,sweep:8,hit:10,down:11},
+ANIM_SRC.zashiki={n:12,w:230,h:192,box:[22,44,162,136],sc:.6/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:1,walk:2,ready:1,turn:0,dash:3,back:7,breath:4,throw:5,halo:6,guard:7,spin:8,raise:9,sweep:8,hit:10,down:11},
   src:'img/zashiki.png'};
-ANIM_SRC.dang_lung={n:12,w:151,h:120,box:[12,6,119,108],sc:.5,fd:[0,1,1,1,-1,1,1,0,1,0,1,0],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,spin:2,raise:8,sweep:6,throw:5,breath:4,guard:7,halo:10,hit:9,down:11},
+ANIM_SRC.dang_lung={n:12,w:302,h:240,box:[24,12,238,216],sc:.5/2,fd:[0,1,1,1,-1,1,1,0,1,0,1,0],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,spin:2,raise:8,sweep:6,throw:5,breath:4,guard:7,halo:10,hit:9,down:11},
   src:'img/dang_lung.png'};
-ANIM_SRC.shuten={n:12,w:168,h:120,box:[19,5,124,113],sc:.55,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:0,breath:2,raise:3,sweep:4,throw:5,spin:6,halo:7,guard:8,dash:9,hit:10,down:11},
+ANIM_SRC.shuten={n:12,w:336,h:240,box:[38,10,248,226],sc:.55/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:0,breath:2,raise:3,sweep:4,throw:5,spin:6,halo:7,guard:8,dash:9,hit:10,down:11},
   src:'img/shuten.png'};
-ANIM_SRC.ibaraki={n:12,w:180,h:120,box:[23,7,121,111],sc:.55,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:0,throw:3,raise:4,sweep:5,breath:6,guard:7,spin:8,halo:9,hit:10,down:11},
+ANIM_SRC.ibaraki={n:12,w:360,h:240,box:[46,14,242,222],sc:.55/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:0,throw:3,raise:4,sweep:5,breath:6,guard:7,spin:8,halo:9,hit:10,down:11},
   src:'img/ibaraki.png'};
 /* v10.4 thức thần mới từ sheet 4x3 của người dùng */
-ANIM_SRC.aoandon={n:12,w:175,h:120,box:[23,10,116,110],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:10,back:1,halo:3,sweep:4,breath:5,throw:6,spin:7,guard:7,raise:9,hit:8,down:11},
+ANIM_SRC.aoandon={n:12,w:350,h:240,box:[46,20,232,220],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:10,back:1,halo:3,sweep:4,breath:5,throw:6,spin:7,guard:7,raise:9,hit:8,down:11},
   src:'img/aoandon.png'};
-ANIM_SRC.ubume={n:12,w:169,h:120,box:[34,5,112,112],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:2,ready:1,turn:0,dash:4,back:2,raise:4,guard:3,sweep:5,throw:6,breath:8,halo:9,spin:11,hit:10,down:7},
+ANIM_SRC.ubume={n:12,w:338,h:240,box:[68,10,224,224],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:2,ready:1,turn:0,dash:4,back:2,raise:4,guard:3,sweep:5,throw:6,breath:8,halo:9,spin:11,hit:10,down:7},
   src:'img/ubume.png'};
-ANIM_SRC.ootengu={n:12,w:165,h:120,box:[20,8,118,109],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,dash:6,back:1,throw:2,sweep:3,halo:4,breath:5,spin:5,guard:7,raise:8,hit:10,down:11},
+ANIM_SRC.ootengu={n:12,w:330,h:240,box:[40,16,236,218],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,dash:6,back:1,throw:2,sweep:3,halo:4,breath:5,spin:5,guard:7,raise:8,hit:10,down:11},
   src:'img/ootengu.png'};
-ANIM_SRC.tamamo={n:12,w:154,h:120,box:[17,6,126,114],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:7,back:1,throw:2,halo:3,sweep:4,guard:5,raise:6,spin:8,breath:9,hit:10,down:11},
+ANIM_SRC.tamamo={n:12,w:308,h:240,box:[34,12,252,228],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:7,back:1,throw:2,halo:3,sweep:4,guard:5,raise:6,spin:8,breath:9,hit:10,down:11},
   src:'img/tamamo.png'};
-ANIM_SRC.taishaku={n:12,w:175,h:120,box:[35,2,118,118],sc:.55,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:9,back:1,halo:2,throw:3,sweep:4,guard:5,spin:6,breath:7,raise:8,hit:10,down:11},
+ANIM_SRC.taishaku={n:12,w:350,h:240,box:[70,4,236,236],sc:.55/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:9,back:1,halo:2,throw:3,sweep:4,guard:5,spin:6,breath:7,raise:8,hit:10,down:11},
   src:'img/taishaku.png'};
-ANIM_SRC.susanoo={n:12,w:176,h:120,box:[16,4,144,113],sc:.55,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,back:1,sweep:3,raise:4,throw:5,spin:6,breath:7,halo:7,dash:8,guard:9,hit:10,down:11},
+ANIM_SRC.susanoo={n:12,w:352,h:240,box:[32,8,288,226],sc:.55/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,back:1,sweep:3,raise:4,throw:5,spin:6,breath:7,halo:7,dash:8,guard:9,hit:10,down:11},
   src:'img/susanoo.png'};
-ANIM_SRC.kaguya={n:12,w:154,h:119,box:[19,5,114,114],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,dash:1,back:1,throw:2,turn:3,sweep:4,guard:5,spin:6,raise:7,breath:8,halo:9,hit:10,down:11},
+ANIM_SRC.kaguya={n:12,w:308,h:238,box:[38,10,228,228],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,dash:1,back:1,throw:2,turn:3,sweep:4,guard:5,spin:6,raise:7,breath:8,halo:9,hit:10,down:11},
   src:'img/kaguya.png'};
 /* v10.6: Ma Cây Đa thay bằng sheet 4x2 của người dùng (đứng, bước, quất rễ, rễ trồi, ổ rễ, lá xoáy hồn, trúng đòn, gốc cụt) */
-ANIM_SRC.la_da={n:8,w:190,h:174,box:[33,24,126,146],sc:.4,fd:[-1,-1,-1,1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:1,back:1,sweep:2,throw:2,raise:3,guard:4,halo:5,breath:5,spin:5,hit:6,down:7},
+ANIM_SRC.la_da={n:8,w:380,h:348,box:[66,48,252,292],sc:.4/2,fd:[-1,-1,-1,1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:0,dash:1,back:1,sweep:2,throw:2,raise:3,guard:4,halo:5,breath:5,spin:5,hit:6,down:7},
   src:'img/la_da.png'};
-ANIM_SRC.diemla={n:14,w:155,h:125,box:[12,4,102,121],sc:.55,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,dash:2,back:3,throw:4,sweep:5,breath:6,spin:7,halo:8,raise:9,guard:10,hit:11,down:13},src:'img/diemla.png'};
-ANIM_SRC.thich_khach={n:12,w:164,h:116,box:[15,23,123,93],sc:.5,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,dash:2,back:3,raise:3,throw:4,sweep:5,spin:6,turn:7,halo:7,breath:8,guard:9,hit:10,down:11},src:'img/thich_khach.png'};
-ANIM_SRC.karate={n:12,w:155,h:120,box:[16,7,94,111],sc:.5,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:0,ready:0,turn:0,back:0,throw:1,dash:2,sweep:3,raise:4,spin:7,guard:6,halo:8,breath:9,hit:10,down:11},src:'img/karate.png'};
-/* v10.8.1: người chơi thay hình Linh Hồn Kiếm Sĩ bằng tấm 20 tư thế */ANIM_SRC.kiem_si={n:20,w:158,h:90,box:[19,7,93,82],sc:.55,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:12,back:3,dash:14,throw:10,sweep:8,raise:5,spin:9,breath:13,halo:4,guard:11,hit:16,down:18},src:'img/kiem_si.png'};
-/* v10.8.2: người chơi thay hình Oán Linh Thủy Quỷ bằng tấm 20 tư thế */ANIM_SRC.thuy_quy={n:20,w:122,h:90,box:[12,4,83,86],sc:.63,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:3,turn:0,back:18,dash:10,throw:8,sweep:6,raise:7,spin:11,breath:15,halo:13,guard:9,hit:16,down:19},src:'img/thuy_quy.png'};
-/* v10.8.2: người chơi thay hình Cương Thi (trước vẽ bằng code) bằng tấm 20 tư thế */ANIM_SRC.cuong_thi={n:20,w:116,h:88,box:[16,3,74,85],sc:.63,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:3,dash:8,throw:12,sweep:6,raise:13,spin:7,breath:11,halo:17,guard:10,hit:15,down:19},src:'img/cuong_thi.png'};
-/* v10.9: người chơi thêm Hắc Phát Oán Nương, tấm 20 tư thế */ANIM_SRC.nu_oan={n:20,w:137,h:90,box:[18,5,91,84],sc:.63,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:12,turn:0,back:2,dash:10,throw:7,sweep:6,raise:17,spin:9,breath:13,halo:8,guard:11,hit:15,down:19},src:'img/nu_oan.png'};
-/* v10.9: người chơi thêm Quỷ Nước Kappa, tấm 20 tư thế */ANIM_SRC.kappa={n:20,w:82,h:58,box:[10,4,52,51],sc:.92,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:2,dash:13,throw:7,sweep:6,raise:14,spin:5,breath:12,halo:9,guard:11,hit:15,down:19},src:'img/kappa.png'};
-ANIM_SRC.tuyet_nu={n:12,w:162,h:120,box:[23,11,112,109],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:1,sweep:3,throw:4,breath:5,guard:6,halo:7,spin:8,raise:9,hit:10,down:11},
+ANIM_SRC.diemla={n:14,w:310,h:250,box:[24,8,204,242],sc:.55/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,dash:2,back:3,throw:4,sweep:5,breath:6,spin:7,halo:8,raise:9,guard:10,hit:11,down:13},src:'img/diemla.png'};
+ANIM_SRC.thich_khach={n:12,w:328,h:232,box:[30,46,246,186],sc:.5/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:1,dash:2,back:3,raise:3,throw:4,sweep:5,spin:6,turn:7,halo:7,breath:8,guard:9,hit:10,down:11},src:'img/thich_khach.png'};
+ANIM_SRC.karate={n:12,w:310,h:240,box:[32,14,188,222],sc:.5/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:0,ready:0,turn:0,back:0,throw:1,dash:2,sweep:3,raise:4,spin:7,guard:6,halo:8,breath:9,hit:10,down:11},src:'img/karate.png'};
+/* v10.8.1: người chơi thay hình Linh Hồn Kiếm Sĩ bằng tấm 20 tư thế */ANIM_SRC.kiem_si={n:20,w:316,h:180,box:[38,14,186,164],sc:.55/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:12,back:3,dash:14,throw:10,sweep:8,raise:5,spin:9,breath:13,halo:4,guard:11,hit:16,down:18},src:'img/kiem_si.png'};
+/* v10.8.2: người chơi thay hình Oán Linh Thủy Quỷ bằng tấm 20 tư thế */ANIM_SRC.thuy_quy={n:20,w:244,h:180,box:[24,8,166,172],sc:.63/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:3,turn:0,back:18,dash:10,throw:8,sweep:6,raise:7,spin:11,breath:15,halo:13,guard:9,hit:16,down:19},src:'img/thuy_quy.png'};
+/* v10.8.2: người chơi thay hình Cương Thi (trước vẽ bằng code) bằng tấm 20 tư thế */ANIM_SRC.cuong_thi={n:20,w:232,h:176,box:[32,6,148,170],sc:.63/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:3,dash:8,throw:12,sweep:6,raise:13,spin:7,breath:11,halo:17,guard:10,hit:15,down:19},src:'img/cuong_thi.png'};
+/* v10.9: người chơi thêm Hắc Phát Oán Nương, tấm 20 tư thế */ANIM_SRC.nu_oan={n:20,w:274,h:180,box:[36,10,182,168],sc:.63/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:12,turn:0,back:2,dash:10,throw:7,sweep:6,raise:17,spin:9,breath:13,halo:8,guard:11,hit:15,down:19},src:'img/nu_oan.png'};
+/* v10.9: người chơi thêm Quỷ Nước Kappa, tấm 20 tư thế */ANIM_SRC.kappa={n:20,w:164,h:116,box:[20,8,104,102],sc:.92/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:2,dash:13,throw:7,sweep:6,raise:14,spin:5,breath:12,halo:9,guard:11,hit:15,down:19},src:'img/kappa.png'};
+ANIM_SRC.tuyet_nu={n:12,w:324,h:240,box:[46,22,224,218],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:1,sweep:3,throw:4,breath:5,guard:6,halo:7,spin:8,raise:9,hit:10,down:11},
   src:'img/tuyet_nu.png'};
-ANIM_SRC.dao_hoa={n:12,w:173,h:120,box:[18,11,129,109],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,raise:2,sweep:3,spin:3,throw:4,guard:5,breath:6,halo:7,dash:8,back:9,hit:10,down:11},
+ANIM_SRC.dao_hoa={n:12,w:346,h:240,box:[36,22,258,218],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,raise:2,sweep:3,spin:3,throw:4,guard:5,breath:6,halo:7,dash:8,back:9,hit:10,down:11},
   src:'img/dao_hoa.png'};
 /* v5.6: Oán Linh Áo Trắng đổi sang sheet 8 khung của người chơi (đứng, lướt, vươn tay, chộp, quỷ hỏa, xoáy oán khí, trúng đòn, tan biến) */
-ANIM_SRC.ao_trang={n:8,w:167,h:180,box:[21,19,130,158],sc:.45,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:1,sweep:2,throw:2,raise:3,halo:4,breath:4,spin:5,guard:5,hit:6,down:7},
+ANIM_SRC.ao_trang={n:8,w:334,h:360,box:[42,38,260,316],sc:.45/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:1,sweep:2,throw:2,raise:3,halo:4,breath:4,spin:5,guard:5,hit:6,down:7},
   src:'img/ao_trang.png'};
 /* v5.6: Hồ Ly Tinh đổi sang sheet 8 khung của người chơi (cùng bố cục với Cửu Vĩ) */
-ANIM_SRC.ho_ly={n:8,w:151,h:142,box:[21,23,107,116],sc:.5,fd:[-1,-1,-1,-1,1,1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,raise:3,sweep:3,spin:4,throw:4,halo:5,breath:5,guard:7,curl:7,hit:6,down:7},
+ANIM_SRC.ho_ly={n:8,w:302,h:284,box:[42,46,214,232],sc:.5/2,fd:[-1,-1,-1,-1,1,1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,raise:3,sweep:3,spin:4,throw:4,halo:5,breath:5,guard:7,curl:7,hit:6,down:7},
   src:'img/ho_ly.png'};
 /* v5.6: Cửu Vĩ Hồ Ly từ sheet 8 khung của người chơi (đứng, rình, lao, vồ, xoáy đuôi, gọi hồ hỏa, rên, cuộn mình) */
-ANIM_SRC.cuu_vi={n:8,w:176,h:180,box:[16,16,141,147],sc:.5,fd:[-1,-1,-1,-1,1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,raise:3,sweep:3,spin:4,throw:4,halo:5,breath:5,guard:7,curl:7,hit:6,down:7},
+ANIM_SRC.cuu_vi={n:8,w:352,h:360,box:[32,32,282,294],sc:.5/2,fd:[-1,-1,-1,-1,1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,raise:3,sweep:3,spin:4,throw:4,halo:5,breath:5,guard:7,curl:7,hit:6,down:7},
   src:'img/cuu_vi.png'};
-ANIM_SRC.jaguar={n:8,w:131,h:128,box:[18,21,107,106],sc:.5,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,turn:1,ready:1,back:1,guard:1,dash:2,raise:3,throw:3,sweep:4,halo:5,breath:5,spin:5,hit:6,down:7},
+ANIM_SRC.jaguar={n:8,w:262,h:256,box:[36,42,214,212],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,turn:1,ready:1,back:1,guard:1,dash:2,raise:3,throw:3,sweep:4,halo:5,breath:5,spin:5,hit:6,down:7},
   src:'img/jaguar.png'};
 /* Cung Thủ Ainu: 0 đứng, 1 bước đi, 2 lắp tên, 3 giương cung, 4 buông tên (vẽ quay trái), 5 quỳ bắn, 6 trúng đòn, 7 quỳ gục */
-ANIM_SRC.cung_thu={n:8,w:125,h:136,box:[23,12,94,123],sc:.5,fd:[1,1,1,1,-1,1,1,1],pose:{idle:0,walk:1,back:1,turn:2,ready:2,raise:2,breath:3,halo:3,dash:4,sweep:5,hit:6,down:7},
+ANIM_SRC.cung_thu={n:8,w:250,h:272,box:[46,24,188,246],sc:.5/2,fd:[1,1,1,1,-1,1,1,1],pose:{idle:0,walk:1,back:1,turn:2,ready:2,raise:2,breath:3,halo:3,dash:4,sweep:5,hit:6,down:7},
   src:'img/cung_thu.png'};
 LOOK.cung_thu=()=>LOOK.kiem_si();
 /* Minh Dạ (nhân vật chính, id vẫn là diep) cùng hồ ly linh: 0 đứng, 1 thủ thế, 2 giơ kiếm, 3 chém, 4 thu kiếm, 5 giật mình, 6-7 nhăn đau, 8 gượng dậy, 9-11 bước đi (0,9,10,11 là vòng đi bộ) */
 ANIM_SRC.diep={n:12,w:480,h:444,box:[51,51,315,381],sc:.5/3,pose:{idle:1,ready:1,guard:1,turn:4,raise:2,breath:2,halo:2,dash:3,sweep:3,shock:5,hit:6,down:7,rec:8,back:0,w0:0,w1:9,w2:10,w3:11},
   src:'img/diep.png'};
 function loadAnims(){return Promise.all(Object.entries(ANIM_SRC).map(([id,a])=>new Promise(res=>{const im=new Image();
-  im.onload=()=>{const fr=[];for(let i=0;i<a.n;i++){const k=document.createElement('canvas');k.width=a.w;k.height=a.h;k.getContext('2d').drawImage(im,i*a.w,0,a.w,a.h,0,0,a.w,a.h);fr.push(k);}
+  im.onload=()=>{const fr=[];
+    /* v15.1: hình quái cắt lại 2x nên khung được tạo khi cần và chỉ giữ cho 16 loài dùng gần nhất (đỡ tốn bộ nhớ máy yếu) */
+    if(id==='diep')for(let i=0;i<a.n;i++)fr.push(animCut(im,a,i));else for(let i=0;i<a.n;i++)Object.defineProperty(fr,i,{get:()=>animFr(id,i),enumerable:true});
     // still image for the map, party screen and minis: frame 0 trimmed to its body, at game scale
     const[bx,by,bw,bh]=a.box,s=document.createElement('canvas');s.width=Math.round(bw*a.sc);s.height=Math.round(bh*a.sc);const x=s.getContext('2d');
-    x.imageSmoothingQuality='high';if(nativeLeft(a,0)){x.translate(s.width,0);x.scale(-1,1);}x.drawImage(fr[0],bx,by,bw,bh,0,0,s.width,s.height);try{const d=x.getImageData(0,0,s.width,s.height);for(let i=3;i<d.data.length;i+=4)d.data[i]=d.data[i]<110?0:255;x.putImageData(d,0,0);}catch(e){}
-    ANIM[id]={...a,fr};SPR[id]=s;for(const k in MINI)if(k===id)delete MINI[k];res();};im.onerror=()=>res();im.src=a.src;})));}
+    x.imageSmoothingQuality='high';if(nativeLeft(a,0)){x.translate(s.width,0);x.scale(-1,1);}x.drawImage(im,bx,by,bw,bh,0,0,s.width,s.height);try{const d=x.getImageData(0,0,s.width,s.height);for(let i=3;i<d.data.length;i+=4)d.data[i]=d.data[i]<110?0:255;x.putImageData(d,0,0);}catch(e){}
+    ANIM[id]={...a,fr,im,cut:null};SPR[id]=s;for(const k in MINI)if(k===id)delete MINI[k];res();};im.onerror=()=>res();im.src=a.src;})));}
+function animCut(im,a,i){const k=document.createElement('canvas');k.width=a.w;k.height=a.h;k.getContext('2d').drawImage(im,i*a.w,0,a.w,a.h,0,0,a.w,a.h);return k;}
+const ANIMLRU=[];
+function animFr(id,i){const A=ANIM[id];if(!A.cut){A.cut=[];for(let j=0;j<A.n;j++)A.cut.push(animCut(A.im,A,j));
+    if(ANIMLRU.length>=16){const old=ANIM[ANIMLRU.shift()];if(old&&old.cut){for(const k of old.cut){flipC.delete(k);whiteC.delete(k);}old.cut=null;}}}
+  const p=ANIMLRU.indexOf(id);if(p!==ANIMLRU.length-1){if(p>=0)ANIMLRU.splice(p,1);ANIMLRU.push(id);}return A.cut[i];}
 /* battle image for a unit: its pose frame (or plain sprite), the layout box it occupies, and where the image sits inside that box */
 function bSpr(u,side){const a=ANIM[u.id];let fl=side==='a';
   if(!a){const s=sprite(u.id),img=fl?flip(s):s;return{img,sc:1,w:img.width,h:img.height,dx:0,dy:0};}
@@ -1043,6 +1050,54 @@ function drawBlend(t,x,y,sx,sy,GO,v,wf){const P0=BPRI[t];
     if(M)for(const n in M)c.drawImage(blendTile(n,M[n],x&3,y&3,v%2,0),sx,sy,GO,GO);
     if(bits)c.drawImage(shoreTile(bits,'W','w',(v%2)*2+wf,WD.zone[y*MW+x]===2?0:1),sx,sy,GO,GO);}
   else if(t==='w'&&bits!==511){const kind=WD.zone[y*MW+x]===2?0:1;c.drawImage(shoreTile(bits,'L',land||ZONES[WD.zone[y*MW+x]].g,v%2,kind),sx,sy,GO,GO);}}
+/* v15.1 (người chơi muốn đồng bằng xanh có chỗ cao chỗ thấp): độ cao từ nhiễu gradient chia bậc thềm,
+   vẽ theo mảng 32x32 ô (8px mỗi ô) bằng chế độ overlay: sườn bắc sáng, vách nam tối có viền sáng mép trên,
+   bóng đổ xuống bậc thấp; chỉ trên ô cỏ đồng bằng '.', mờ dần ở mép */
+const RLF={w:null,c:new Map(),gm:null,G:null};
+function rlfInit(){if(RLF.w===WD)return;RLF.w=WD;RLF.c.clear();
+  const gm=new Float32Array(MW*MH),m0=new Uint8Array(MW*MH);for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)m0[y*MW+x]=WD.g[y][x]==='.'&&WD.ob[y][x]!=='B'?1:0;
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){if(!m0[y*MW+x])continue;let m=0,n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<MW&&Y<MH){m+=m0[Y*MW+X];n++;}}gm[y*MW+x]=m/n;}
+  RLF.gm=gm;const G=[];for(let i=0;i<16;i++)G.push([Math.cos(i*Math.PI/8),Math.sin(i*Math.PI/8)]);RLF.G=G;RLF.sd=((WD.seed||7)*13)%9973;}
+/* nhiễu mượt chưa chia bậc (tính thưa rồi nội suy) và hàm chia bậc thềm */
+function rlfN(x,y){const G=RLF.G,sd=RLF.sd;
+  const pn=(x,y,s)=>{const xi=Math.floor(x),yi=Math.floor(y),fx=x-xi,fy=y-yi,u=fx*fx*fx*(fx*(fx*6-15)+10),v=fy*fy*fy*(fy*(fy*6-15)+10);
+    const d=(i,j)=>{const g2=G[(hash(xi+i,yi+j,s)*16)|0];return g2[0]*(fx-i)+g2[1]*(fy-j);};const a=d(0,0),b=d(1,0),c2=d(0,1),e=d(1,1);
+    return .5+.75*(a+(b-a)*u+(c2-a)*v+(a-b-c2+e)*u*v);};
+  const wx=x+(pn(x/40,y/40,sd+5)-.5)*18,wy=y+(pn(x/40,y/40,sd+6)-.5)*18;
+  return pn(wx/30,wy/30,sd)*.7+pn(wx/12,wy/12,sd+1)*.3;}
+function rlfStep(n){const t=Math.max(0,n-.18)*8,f=t-Math.floor(t),e=Math.min(1,Math.max(0,(f-.86)/.14));return Math.floor(t)+e*e*(3-2*e);}
+function rlfChunk(cx,cy){const key=cx+','+cy;let k=RLF.c.get(key);if(k!==undefined)return k;
+  const CS=32,R=8,P=8,w=CS*R,X0=cx*CS,Y0=cy*CS;let any=0;
+  for(let y=Y0;y<Math.min(MH,Y0+CS)&&!any;y++)for(let x=X0;x<Math.min(MW,X0+CS);x++)if(RLF.gm[y*MW+x]>0){any=1;break;}
+  if(!any){RLF.c.set(key,null);return null;}
+  const W2=w+2*P,hg=new Float32Array(W2*W2);
+  const Q=4,NQ=W2/Q+1,nq=new Float32Array(NQ*NQ);for(let y=0;y<NQ;y++)for(let x=0;x<NQ;x++)nq[y*NQ+x]=rlfN(X0+(x*Q-P+.5)/R,Y0+(y*Q-P+.5)/R);
+  for(let y=0;y<W2;y++){const qy=Math.floor(y/Q),vy=y/Q-qy;for(let x=0;x<W2;x++){const qx=Math.floor(x/Q),vx=x/Q-qx,j=qy*NQ+qx;
+    hg[y*W2+x]=rlfStep((nq[j]*(1-vx)+nq[j+1]*vx)*(1-vy)+(nq[j+NQ]*(1-vx)+nq[j+NQ+1]*vx)*vy);}}
+  k=document.createElement('canvas');k.width=k.height=w;const g=k.getContext('2d'),im=g.createImageData(w,w),D=im.data,gm=RLF.gm;
+  const mt=(tx,ty)=>tx<0||ty<0||tx>=MW||ty>=MH?0:gm[ty*MW+tx];
+  for(let y=0;y<w;y++){const fy=(Y0*R+y+.5)/R-.5,ty=Math.floor(fy),vy=fy-ty;
+    for(let x=0;x<w;x++){const fx=(X0*R+x+.5)/R-.5,tx=Math.floor(fx),vx=fx-tx;
+      const m=(mt(tx,ty)*(1-vx)+mt(tx+1,ty)*vx)*(1-vy)+(mt(tx,ty+1)*(1-vx)+mt(tx+1,ty+1)*vx)*vy,o=(y*w+x)*4;if(m<=.01)continue;
+      const i=(y+P)*W2+x+P,h=hg[i];
+      /* ánh sáng từ phía bắc hơi chếch tây: dốc lên về nam = sáng, dốc xuống về nam (vách) = tối */
+      let s=((hg[i+W2]-hg[i-W2])+(hg[i+1]-hg[i-1])*.4)*2.2;if(s>0)s*=.3;s+=(h-2)*.09;
+      /* bóng đổ: bậc cao hơn ở ngay phía bắc che xuống */
+      let sh=0;for(let q=2;q<=P;q++){const dh=hg[i-q*W2]-h-.5;if(dh>0){sh=Math.max(sh,Math.min(1,dh*2)*(1-q/(P+1)));}}
+      s-=sh*.45;
+      /* viền sáng mép trên vách */
+      const dn=h-hg[i+2*W2];if(dn>.15&&hg[i-W2]-h<.05)s+=.55;
+      const v=Math.max(-1,Math.min(1,s));D[o]=D[o+1]=D[o+2]=v>0?255:0;D[o+3]=Math.round(Math.abs(v)*m*(v>0?120:165));}}
+  g.putImageData(im,0,0);RLF.c.set(key,k);
+  if(RLF.c.size>48){const pcx=Math.floor(PL.x/CS),pcy=Math.floor(PL.y/CS);let far=null,fd=-1;for(const kk of RLF.c.keys()){const[a,b]=kk.split(',').map(Number),d=Math.abs(a-pcx)+Math.abs(b-pcy);if(d>fd){fd=d;far=kk;}}RLF.c.delete(far);}
+  return k;}
+function drawRelief(camX,camY){if(!WD||!WD.g||window.__NR)return;rlfInit();const CS=32,PX=CS*TS;
+  const c0=Math.floor(camX/PX),c1=Math.floor((camX+W-1)/PX),r0=Math.floor(camY/PX),r1=Math.floor((camY+H-1)/PX);
+  c.save();c.globalCompositeOperation='overlay';c.imageSmoothingEnabled=true;
+  for(let cy=r0;cy<=r1;cy++)for(let cx=c0;cx<=c1;cx++){const k=rlfChunk(cx,cy);if(k)c.drawImage(k,cx*PX-camX,cy*PX-camY,PX,PX);}
+  c.restore();
+  /* làm sẵn một mảng kề khung nhìn mỗi khung hình để đi tới không bị khựng */
+  for(const[dx,dy]of[[c1+1,r0],[c0-1,r0],[c0,r1+1],[c0,r0-1],[c1+1,r1],[c0-1,r1],[c1,r1+1],[c1,r0-1]])if(dx>=0&&dy>=0&&dx*CS<MW&&dy*CS<MH&&!RLF.c.has(dx+','+dy)){rlfChunk(dx,dy);break;}}
 
 /* v10.1 (người chơi muốn tự thiết kế lại nhà cửa): nhà dân, Y quán, chợ vẽ bằng code.
    Nhìn chéo từ trên xuống: mái ngói âm dương cong vểnh hai đầu, mặt tiền cột gỗ vách vôi, cửa chính giữa nhìn ra đường.
@@ -2223,6 +2278,7 @@ function drawMap0(Z,W0,H0){
       /* v10.0: bờ đá rêu ven sông hồ (trừ đầm); v10.7 bờ tròn vẽ trong drawBlend nên chỉ còn cạnh giáp đường */if(t==='w'&&WD.zone[y*MW+x]!==2&&0)for(const[dx,dy,sd]of[[0,-1,'t'],[0,1,'b'],[-1,0,'l'],[1,0,'r']]){const n=tileG(x+dx,y+dy);if(n!=='w'&&n!=='='&&hash(x,y,331+dx*3+dy)<.8)c.drawImage(bankTile(sd,Math.floor(hash(x,y,332)*4)),sx,sy,16,16);}}
     if(!BR&&!RT)drawBlend(t,x,y,sx,sy,GO,v,wf);
     if(WD.dc[y][x]==='pier')c.drawImage(pierTile(v),sx,sy,16,16);}
+  drawRelief(camX,camY);
   // objects, decorations and characters in row order so tall trees overlap correctly
   for(let y=y0-1;y<=y0+VY+5;y++){if(y<0||y>=MH)continue;drawBldRow(y,camX,camY);
     for(let x=x0-3;x<=x0+VX+3;x++){if(x<0||x>=MW||!seen[y*MW+x])continue;const sx=x*TS-camX,sy=y*TS-camY;
