@@ -48,12 +48,12 @@ def build(server='', dual=False, src_path=None):
     # màn hình đầu ngang: 3 nút (Tiếp tục, Bắt đầu, Chơi online) thì dời lên cho khỏi đè dòng chữ cuối
     rep("const it=titleItems();it.forEach((o,i)=>{const y=108+i*16;", "const it=titleItems();it.forEach((o,i)=>{const y=(it.length>2?94:108)+i*16;")
     rep('drawRunner(y,camX,camY);', 'drawRunner(y,camX,camY);onlDrawRow(y,camX,camY);')
-    rep('updateMap(dt);\n', 'updateMap(dt);onlTick(dt);\n')
+    rep('updateMap(dt);', 'updateMap(dt);onlTick(dt);')
     rep("if(scene==='title')drawTitle();", "if(scene==='title'){drawTitle();onlTitle();}")
     # bản online: nút CHAT cạnh nút MENU trên màn hình di chuyển (thay ô số người online)
     a1="win(W-64,44,62,16,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',W-33,46,{size:11,align:'center',color:'#fff8e0'});"
     rep(a1, 'if(ONLM)onlHudBtns(W-64,44,62,16,46,11);else{'+a1+'}')
-    rep('hit(W-66,42,66,20,()=>openMenu());', 'if(ONLM)onlHudHits(W-66,42,66,20);else hit(W-66,42,66,20,()=>openMenu());')
+    rep('hit(W-66,42,66,18,()=>openMenu());', 'if(ONLM)onlHudHits(W-66,42,66,18);else hit(W-66,42,66,18,()=>openMenu());')
     a2="win(176,44,62,13,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',207,45,{size:10,align:'center',color:'#fff8e0'});"
     rep(a2, 'if(ONLM)onlHudBtns(176,44,62,13,45,10);else{'+a2+'}')
     rep('hit(176,44,62,13,()=>openMenu());', 'if(ONLM)onlHudHits(176,44,62,13);else hit(176,44,62,13,()=>openMenu());')
