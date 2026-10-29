@@ -2639,7 +2639,7 @@ function drawStats(){const d=diep();win(2,18,118,130,'#2c3a78','#1a2250');
   const y=88;txt('Kiếp nạn: '+G.nan+'/'+NAN.length,6,y,{size:9,color:'#ffe8a0'});txt('Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),6,y+10,{size:9,color:'#f0d0ff'});
   txt('Giáng Ma Lục: '+dexCount()+'/'+dexIds().length,6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
   txt('Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,6,y+40,{size:8,color:'#b8a8d0'});
-  win(122,18,116,130,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,126,20,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv),234,21,{size:8,align:'right',color:'#f8e080'});
+  win(122,18,116,130,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,126,20,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv,d),234,21,{size:8,align:'right',color:'#f8e080'});
   {const s=G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận 3 điểm cộng';txt(s,126,31,{size:fitS(s,8,108),color:G.pts?'#80ff90':'#a8a0c0'});}
   statRows().forEach((r,i)=>{const yy=43+i*12;const sel=i===MENU.i;if(r.act==='guide'){if(sel)rect(124,yy,110,10,'#7a2a22');txt('Hướng dẫn chỉ số',128,yy,{size:9,color:'#c8f0c8'});txt('chạm',234,yy,{size:8,align:'right',color:'#a8a0c0'});}
     else if(r.act){const w=30-(G.steps-G.med);if(sel)rect(124,yy,110,10,'#7a2a22');txt('Thiền định',128,yy,{size:9,color:'#ffe8a0'});txt(w>0?'còn '+w+' bước':'sẵn sàng',234,yy,{size:8,align:'right',color:w>0?'#a8a0c0':'#80ff90'});}
@@ -2681,7 +2681,7 @@ function infoText(L,x,y,b,lh,sz,xr){const M=MENU,h=b-y,tot=L.length*lh,max=Math.
 function infoOverlay(){const M=MENU,u=M.info;hits.length=0;SCR.length=0;rect(0,0,W,H,'rgba(8,6,14,.75)');hit(0,0,W,H,()=>{M.info=null;sfx('sel');});
   if(PORT){infoP(u,26,H-24);txt('Chạm ngoài khung chữ để đóng',W/2,H-18,{size:9,align:'center',color:'#ffe8a0'});return;}
   win(2,2,236,146,'#2c3a78','#1a2250');const sp=sprite(u.id),sc=Math.min(1,52/sp.height,62/sp.width);drawPic(u.id,5,4,sp.width*sc,sp.height*sc,u.id!=='diep','tl');
-  txt(u.name,70,5,{size:10,color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),70,17,{size:8,color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv),70,26,{size:8,color:'#f8e080'});
+  txt(u.name,70,5,{size:10,color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),70,17,{size:8,color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv,u),70,26,{size:8,color:'#f8e080'});
   [['HP',u.hp+'/'+u.mhp],['LL',u.mp+'/'+u.mmp],['Lực',u.atk],['Kỹ',u.skl],['Tốc',u.spd],['Thủ',u.def]].forEach(([l,v],i)=>{const x=i%2?194:148,yy=6+Math.floor(i/2)*10;txt(l,x,yy,{size:8,color:'#cfd8ff'});txt(String(v),x+40,yy,{size:8,align:'right',color:'#fff'});});
   rect(6,57,228,1,'#4a5a9a');infoText(infoLines(u,226),8,61,140,8,8,234);txt('Chạm ngoài khung chữ để đóng',120,149,{size:8,align:'center',color:'#ffe8a0'});}
 /* v5.0 bảng hướng dẫn chỉ số: cùng công thức với calc() trong h_battle.js và capP() */
@@ -2712,7 +2712,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Mỗi lần thử tốn bùa và mất lượt; thất bại thì quái đánh trả. Hết máu thì quái được siêu độ: nhận công đức, bạc, đồ rơi và kinh nghiệm.',2],
   ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp. Kỹ năng đi theo cấp: 2 chiêu đầu có sẵn, các chiêu sau mở ở cấp 3, 6, 10, 14, 18 (xem ở Đội hình › Xem thông tin chi tiết).',1],
   ['Lên cấp',0],
-  ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600. Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
+  ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600 (Minh Dạ cần gấp rưỡi). Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
   ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 3 điểm cộng: HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
   ['Làng và trấn',0],
   ['Trong làng là vùng an toàn: không gặp quỷ, quỷ tuần tra không vào được. Ra khỏi làng mới chạm trán quỷ dọc đường.',1],
@@ -2726,7 +2726,7 @@ function guideOverlay(){const M=MENU;hits.length=0;SCR.length=0;rect(0,0,W,H,'rg
 /* bảng thông tin chi tiết một linh hồn (ngang: khung 100..238) */
 function infoL(u){const w=weapon(u);win(100,18,138,130,'#2c3a78','#1a2250');
   const sp=sprite(u.id);const sc=Math.min(1,52/sp.height);drawPic(u.id,102,20,sp.width*sc,sp.height*sc,u.id!=='diep','tl');
-  txt(u.name,234,20,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+' · Lv '+u.lv,234,31,{size:8,align:'right',color:KINDC[u.kind]});txt('EXP '+u.exp+'/'+expNeed(u.lv),234,40,{size:8,align:'right',color:'#f8e080'});
+  txt(u.name,234,20,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+' · Lv '+u.lv,234,31,{size:8,align:'right',color:KINDC[u.kind]});txt('EXP '+u.exp+'/'+expNeed(u.lv,u),234,40,{size:8,align:'right',color:'#f8e080'});
   
   const st=[['HP',u.hp+'/'+u.mhp],['LL',u.mp+'/'+u.mmp],['Lực',u.atk],['Kỹ',u.skl],['Tốc',u.spd],['Thủ',u.def]];
   st.forEach(([l,v],i)=>{const x=i%2?172:104,yy=74+Math.floor(i/2)*9;txt(l,x,yy,{size:8,color:'#cfd8ff'});txt(String(v),x+60,yy,{size:8,align:'right',color:'#fff'});});
@@ -2796,7 +2796,7 @@ function drawMenuP(){const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)r
   if(M.sub){hits.length=0;SCR.length=0;const o=M.sub();const rh=20,h=o.length*rh+8,w=W-28,x=14,y=Math.round((H-h)/2);rect(0,0,W,H,'rgba(8,6,14,.55)');win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');
     o.forEach((op,i)=>{const yy=y+4+i*rh,sel=i===M.si;if(sel)rect(x+3,yy,w-6,rh-1,'#a83a2f');txt(op.l,x+10,yy+4,{size:10,color:sel?'#fff':'#f0d8c8'});hit(x,yy,w,rh,()=>{M.si=i;menuInput('a');});});}}
 function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Math.floor((b-t-128)/rows.length),12,16);const hA=27+rows.length*rh+3;
-  win(2,t,W-4,hA,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,7,t+2,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv),W-7,t+3,{size:8,align:'right',color:'#f8e080'});
+  win(2,t,W-4,hA,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,7,t+2,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv,d),W-7,t+3,{size:8,align:'right',color:'#f8e080'});
   txt(G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận 3 điểm cộng',7,t+14,{size:8,color:G.pts?'#80ff90':'#a8a0c0'});
   rows.forEach((r,i)=>{const yy=t+27+i*rh;const sel=i===MENU.i;const ty2=yy+Math.floor((rh-10)/2);
     if(r.act==='guide'){if(sel)rect(5,yy,W-10,rh-1,'#7a2a22');txt('Hướng dẫn chỉ số',9,ty2,{size:10,color:'#c8f0c8'});txt('chạm để xem',W-9,ty2+1,{size:8,align:'right',color:'#a8a0c0'});}
@@ -2817,7 +2817,7 @@ function drawPartyP(t,b){const cw=Math.floor((W-6)/2),ch=24,PLs=pList(),inT=MENU
   const u=PLs[MENU.i];if(u)infoP(u,y,b);}
 function infoP(u,y,b){const w=weapon(u);win(2,y,W-4,b-y,'#2c3a78','#1a2250');
   const sp=sprite(u.id);const sc=Math.min(1,50/sp.height,70/sp.width);drawPic(u.id,6,y+3,sp.width*sc,sp.height*sc,u.id!=='diep','tl');
-  txt(u.name,W-7,y+3,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),W-7,y+14,{size:8,align:'right',color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv),W-7,y+23,{size:8,align:'right',color:'#f8e080'});
+  txt(u.name,W-7,y+3,{size:u.name.length>14?9:10,align:'right',color:'#fff'});txt(u.kind+(u.dexv?' · cấp 1':' · Lv '+u.lv),W-7,y+14,{size:8,align:'right',color:KINDC[u.kind]});txt(u.dexv||'EXP '+u.exp+'/'+expNeed(u.lv,u),W-7,y+23,{size:8,align:'right',color:'#f8e080'});
   const st=[['HP',u.hp+'/'+u.mhp],['LL',u.mp+'/'+u.mmp],['Lực',u.atk],['Kỹ',u.skl],['Tốc',u.spd],['Thủ',u.def]];let yy=y+56;
   st.forEach(([l,v],i)=>{const x=i%2?W/2+3:8,ry=yy+Math.floor(i/2)*10;txt(l,x,ry,{size:9,color:'#cfd8ff'});txt(String(v),x+W/2-16,ry,{size:9,align:'right',color:'#fff'});});
   yy+=32;infoText(infoLines(u,W-16),8,yy,b-3,9,8,W-7);}
@@ -2893,7 +2893,9 @@ const X2SPD=20;
 /* v9.8: giới hạn cấp nâng từ 40 lên 100 */
 const LVMAX=100;
 /* v11.9: người chơi muốn exp lên cấp tăng dần theo cấp (trước là 100 cố định): Lv1 100, Lv10 ~226, Lv30 ~605, Lv50 ~1091, Lv99 ~2630 */
-function expNeed(lv){return Math.round(100*Math.pow(1+(lv-1)*.08,1.5));}
+/* v15.6: người chơi muốn Minh Dạ cần nhiều EXP hơn để lên cấp: gấp rưỡi, đồng hành giữ nguyên */
+const EXPMD=1.5;
+function expNeed(lv,u){return Math.round(100*Math.pow(1+(lv-1)*.08,1.5)*(u&&u.id==='diep'?EXPMD:1));}
 
 /* ---------- battle ---------- */
 const isP=u=>G.party.includes(u);
@@ -3151,8 +3153,8 @@ function levelUp(u){const g={};const half=u.id==='diep';for(const k of STATS){co
   if(!STATS.some(k=>g[k]))g.hp=1;u.lv++;u.mhp+=g.hp+(half?1:0);u.hp+=g.hp+(half?1:0);for(const k of['atk','skl','spd','def'])u[k]+=g[k];g.mp=(SPECIES[u.id].mpg||2);u.mmp+=g.mp;u.mp+=g.mp;if(half)G.pts+=3;return g;}
 async function expTo(u,n,quiet){if(!u||u.lv>=LVMAX||n<=0)return;const inB=scene==='battle'&&B&&!quiet;
   if(inB){B.msg=u.name+' nhận '+n+' EXP';B.expBar={u,v:u.exp};}
-  let left=n;while(left>0){const step=Math.min(left,Math.max(0,expNeed(u.lv)-u.exp));const s0=u.exp;if(inB)await tween(Math.min(1000,Math.max(220,step*10)),t=>{B.expBar.v=Math.round(s0+step*t);});u.exp+=step;left-=step;
-    if(u.exp>=expNeed(u.lv)){u.exp=0;const old={...u};const g=levelUp(u);sfx('lvl');const nu=allSkillsOf(u).filter(o=>o.lv>0&&o.lv===u.lv).map(o=>o.s.n);if(inB){fxG('cirG',176,96,1800,1.1);fxS('parts',176,56,1600,1.2,{rise:26});B.expBar=null;B.lvl={u,g,old};await waitPress();B.lvl=null;if(nu.length){B.msg=u.name+' lĩnh ngộ kỹ năng mới: '+nu.join(', ')+'!';sfx('got');await wait(1100);}B.expBar={u,v:0};}else toast(u.name+' lên cấp '+u.lv+'!'+(u.id==='diep'?' +3 điểm cộng':'')+(nu.length?' Mở chiêu '+nu.join(', '):''));if(u.lv>=LVMAX)break;}}
+  let left=n;while(left>0){const step=Math.min(left,Math.max(0,expNeed(u.lv,u)-u.exp));const s0=u.exp;if(inB)await tween(Math.min(1000,Math.max(220,step*10)),t=>{B.expBar.v=Math.round(s0+step*t);});u.exp+=step;left-=step;
+    if(u.exp>=expNeed(u.lv,u)){u.exp=0;const old={...u};const g=levelUp(u);sfx('lvl');const nu=allSkillsOf(u).filter(o=>o.lv>0&&o.lv===u.lv).map(o=>o.s.n);if(inB){fxG('cirG',176,96,1800,1.1);fxS('parts',176,56,1600,1.2,{rise:26});B.expBar=null;B.lvl={u,g,old};await waitPress();B.lvl=null;if(nu.length){B.msg=u.name+' lĩnh ngộ kỹ năng mới: '+nu.join(', ')+'!';sfx('got');await wait(1100);}B.expBar={u,v:0};}else toast(u.name+' lên cấp '+u.lv+'!'+(u.id==='diep'?' +3 điểm cộng':'')+(nu.length?' Mở chiêu '+nu.join(', '):''));if(u.lv>=LVMAX)break;}}
   if(inB){await wait(250);B.expBar=null;}}
 async function finish(res){B.phase='end';
   {const nm=[...new Set(B.foes.map(f=>f.name))].join(', '),lv=Math.max(...B.foes.map(f=>f.lv));
@@ -3235,7 +3237,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
       if(B.msgT<=0)B.msg=L[B.mi].h();}}
   drawBattlePop();}
 function drawBattlePop(){c.save();if(PORT)c.translate(W/2-120,Math.round(H*.42)-76);
-  if(B.expBar){const u=B.expBar.u;win(60,58,120,24,'#2c3a78','#1a2250');txt('EXP',66,61,{size:9,color:'#f8e080'});rect(88,64,74,5,'#24343c');rect(88,64,Math.round(74*Math.min(1,B.expBar.v/expNeed(u.lv))),5,'#f8d040');txt(String(B.expBar.v),174,61,{size:9,align:'right',color:'#fff'});txt(u.name,120,71,{size:8,align:'center',color:'#cfd8ff'});}
+  if(B.expBar){const u=B.expBar.u;win(60,58,120,24,'#2c3a78','#1a2250');txt('EXP',66,61,{size:9,color:'#f8e080'});rect(88,64,74,5,'#24343c');rect(88,64,Math.round(74*Math.min(1,B.expBar.v/expNeed(u.lv,u))),5,'#f8d040');txt(String(B.expBar.v),174,61,{size:9,align:'right',color:'#fff'});txt(u.name,120,71,{size:8,align:'center',color:'#cfd8ff'});}
   if(B.lvl){const L=B.lvl;win(56,30,128,92,'#7a2a22','#3a1410','#ffe8a0');txt('LÊN CẤP!',120,32,{size:12,align:'center',color:'#ffe060'});txt(L.u.name+'  Lv '+L.u.lv,120,44,{size:9,align:'center',color:'#fff'});
     [['hp','HP',L.u.mhp],['mp','Linh lực',L.u.mmp],['atk','Lực',L.u.atk],['skl','Kỹ',L.u.skl],['spd','Tốc',L.u.spd],['def','Thủ',L.u.def]].forEach(([k,n,v],i)=>{const y=55+i*9;txt(n,66,y,{size:9,color:'#f0d8c8'});txt(String(v),136,y,{size:9,align:'right',color:'#fff'});if(L.g[k])txt('+'+L.g[k],144,y,{size:9,color:'#80ff90'});});
     if(L.u.id==='diep')txt('+3 điểm cộng (Menu → Chỉ số)',120,110,{size:8,align:'center',color:'#ffd27a'});if(Math.floor(time/300)%2)txt('▼',176,112,{size:8,color:'#ffe8a0'});}
@@ -4210,7 +4212,7 @@ function useCons(k,u){const d=diep();
   if(k==='thanhanh'){MENU.warp={sel:null};return true;}
   if(k==='dinhvi'){if(!G.dead){toast('Cả đội chưa gục ngã ở đâu cả');return false;}const q=warpSpot(G.dead.x,G.dead.y,0);if(!q)return false;itAdd(k,-1);closeMenu();doWarp(q.x,q.y,'Định Vị Phù dẫn cả đội về chỗ vừa gục ngã');return true;}
   if(k==='linhqua'&&u){loyTick();if(loyOf(u)>=100)return false;itAdd(k,-1);loyAdd(u,10);sfx('heal');toast(u.name+' ăn Linh Quả: trung thành '+Math.floor(loyOf(u))+'/100');return true;}
-  if(k==='thienthu'&&u){itAdd(k,-1);sfx('got');toast(u.name+' đọc Thiên Thư');run(()=>expTo(u,expNeed(u.lv),true));return true;}
+  if(k==='thienthu'&&u){itAdd(k,-1);sfx('got');toast(u.name+' đọc Thiên Thư');run(()=>expTo(u,expNeed(u.lv,u),true));return true;}
   return false;}
 function consSub(k){const C=CONS[k],o=[];
   if(C.m)o.push({l:'Dùng '+C.n,f:()=>useCons(k)});
@@ -4610,11 +4612,11 @@ async function arenaFight(sel){const A=arenaData();
   const t1=arTier(A.rp),rk=`${win?'+':'-'}${d} điểm hạng → ${arRank(A.rp)} (${A.rp}), thứ ${arPos(A)}/${A.bots.length+1}.`;
   if(win){A.w++;A.st++;const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/3),sv=gainSilver(rv(15+avg*2+A.st*3+t1*6)),cd=rv(3+t1);G.merit+=cd;let ex='';
       if(A.st%3===0){const it=mkItem(tierAt(PL.x)+1);if(addItem(it))ex=' và '+it.n+' (thưởng chuỗi '+A.st+' trận thắng)';}
-      for(const u of sel){const e=rv(Math.round(expNeed(u.lv)*.25));await expTo(u,e,true);}blogAdd('Thắng '+bot.n+' ở đấu trường · +'+d+' điểm hạng, +'+sv+' bạc');sfx('got');
+      for(const u of sel){const e=rv(Math.round(expNeed(u.lv,u)*.25));await expTo(u,e,true);}blogAdd('Thắng '+bot.n+' ở đấu trường · +'+d+' điểm hạng, +'+sv+' bạc');sfx('got');
       await say([`Chiến thắng ${bot.n}! Nhận ${sv} bạc, +${cd} công đức${ex}. Ba đồng hành ra trận đều nhận kinh nghiệm.`,rk],'Quản Đấu Trường');
       if(t1>(A.best||0)){A.best=t1;const sv2=gainSilver(60*t1),it=mkItem(Math.min(5,tierAt(PL.x)+2));addItem(it);G.charms+=t1;sfx('lvl');
         blogAdd('Lên hạng '+ARTIER[t1][0]+' lần đầu');await say(`Lần đầu đạt hạng ${ARTIER[t1][0]}! Thưởng ${sv2} bạc, ${t1} bùa và ${it.n}.`,'Quản Đấu Trường');}}
-  else{A.l++;A.st=0;for(const u of sel){const e=rv(Math.round(expNeed(u.lv)*.06*(1+kills)));await expTo(u,e,true);}blogAdd('Thua '+bot.n+' ở đấu trường (hạ '+kills+'/3) · -'+d+' điểm hạng');
+  else{A.l++;A.st=0;for(const u of sel){const e=rv(Math.round(expNeed(u.lv,u)*.06*(1+kills)));await expTo(u,e,true);}blogAdd('Thua '+bot.n+' ở đấu trường (hạ '+kills+'/3) · -'+d+' điểm hạng');
     await say([`Thua ${bot.n}, hạ được ${kills}/3 đối thủ. Đồng hành vẫn học được chút kinh nghiệm. Chuỗi thắng quay về 0.`,rk+(t1<t0?' Bị tụt bậc hạng!':'')],'Quản Đấu Trường');}
   save();}
 window.__ar={arCast,arSk,SK,LSK,arAttack,arEl,skillsOf,get ARS(){return ARS},arenaPick,get ROT(){return ROT},houseArt,arenaTown,get AR(){return AR},AJ,arenaFight,arBoard,arLay,arenaData,makeUnit,get G(){return G},get scene(){return scene},get W(){return W},get H(){return H}};
@@ -4965,10 +4967,10 @@ async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
   raw({t:'botres',b:D.to,win:!!win});ONL.duel=null;
   const E=arElo(P.rp,D.rp),d=Math.max(6,Math.round(32*Math.abs((win?1:0)-E)));
-  if(win){P.w++;P.rp+=d;const sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.2)),true);
+  if(win){P.w++;P.rp+=d;const sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.2)),true);
     blogAdd('Thắng '+D.nm+' (người chơi) · +'+d+' điểm PvP');sfx('got');
     await say(['Thầy thắng '+D.nm+'! Nhận '+sv+' bạc, đồng hành ra sân nhận kinh nghiệm.','+'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
-  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.05*(1+kills))),true);
+  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.05*(1+kills))),true);
     blogAdd('Thua '+D.nm+' (người chơi) · -'+d+' điểm PvP');
     await say([(quit?'Thầy bỏ cuộc. ':'')+'Thua '+D.nm+', hạ được '+kills+'/'+te.length+' đồng hành của đối thủ.','-'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
   save();onlSend(true);onlUI();}
@@ -5016,10 +5018,10 @@ async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBo
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
   await onlDuelEnd(D);
   const E=arElo(P.rp,D.foeRp),d=Math.max(6,Math.round(32*Math.abs((win?1:0)-E)));
-  if(win){P.w++;P.rp+=d;const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.2)),true);
+  if(win){P.w++;P.rp+=d;const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.2)),true);
     blogAdd('Thắng '+D.nm+' (người chơi) · +'+d+' điểm PvP');sfx('got');
     await say([(left?D.nm+' rời trận. ':'')+'Thầy thắng '+D.nm+'! Nhận '+sv+' bạc, đồng hành ra sân nhận kinh nghiệm.','+'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
-  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.05*(1+kills))),true);
+  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.05*(1+kills))),true);
     blogAdd('Thua '+D.nm+' (người chơi) · -'+d+' điểm PvP');
     await say([(quit?'Thầy bỏ cuộc. ':'')+'Thua '+D.nm+', hạ được '+kills+'/'+te.length+' đồng hành của đối thủ.','-'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
   save();onlSend(true);}
