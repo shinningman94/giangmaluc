@@ -2454,7 +2454,7 @@ function autoPanel(){if(busy||DLG||CH)return;sfx('sel');run(async()=>{for(;;){co
     else if(k==='ap')SET.ap=cy(APS,SET.ap);else if(k==='auEv')SET.auEv=SET.auEv!==0?0:1;else if(k==='auC')SET.auC=SET.auC?0:1;
     saveSet();sfx('ok');}});}
 function drawAutoBtn(x,y,w,h){const on=AUTO.on,bl=on&&Math.floor(time/500)%2;win(x,y,w,h,on?'#1f6a3a':'#2c3a78',on?'#124a26':'#1a2250',on?(bl?'#b8ffc8':'#60e090'):'#a8b8ff');
-  txt(on?'AUTO ●':'AUTO',x+w/2,y+(h>14?2:1),{size:h>14?11:10,align:'center',color:on?'#e8ffe8':'#e0e8ff'});if(!busy&&!DLG&&!CH)hit(x,y,w,h,autoPanel);}
+  txt(on?'AUTO ●':'AUTO',x+w/2,y+(h>14?2:1),{size:h>14?11:10,align:'center',color:on?'#e8ffe8':'#e0e8ff'});if(on)hit(x,y,w,h,()=>{autoStop('Đã dừng tự động');sfx('sel');});else if(!busy&&!DLG&&!CH)hit(x,y,w,h,autoPanel);}
 
 
 /* ---------- menu (stats, party, tribulations, gear, map) ---------- */
@@ -2883,7 +2883,7 @@ function subItems(){const A=B.ally;
   return G.party.map((u,i)=>({l:u.name,h:()=>'Lv '+u.lv+' · HP '+u.hp+'/'+u.mhp+' · LL '+u.mp,a:'sw:'+i,dis:u.hp<=0?u.name+' đã kiệt sức':u===A?u.name+' đang chiến đấu':null}));}
 function menuChoice(sub){return new Promise(r=>{B.phase='menu';B.sub=sub||null;B.mi=0;B.si=sub==='sw'?Math.max(0,G.party.findIndex(u=>u.hp>0&&u!==B.ally)):0;B.choose=r;});}
 function battleInput(k){
-  if(B.auto&&(k==='a'||k==='b'||k==='menu')&&B.phase!=='intro'&&B.phase!=='end'){B.auto=false;G.auto=false;B.msg='Đã tắt tự động';B.msgT=900;sfx('sel');return;}
+  if(B.auto&&(k==='a'||k==='b'||k==='menu')&&B.phase!=='intro'&&B.phase!=='end'){B.auto=false;G.auto=false;autoStop();B.msg='Đã tắt tự động';B.msgT=900;sfx('sel');return;}
   if(B.phase!=='menu')return;
   if(B.sub){const L=subItems();if(k==='up'||k==='down'){B.si=(B.si+(k==='up'?-1:1)+L.length)%L.length;sfx('sel');}
     else if(k==='b'){if(!B.forced){B.sub=null;sfx('sel');}}

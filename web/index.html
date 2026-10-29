@@ -1680,7 +1680,7 @@ async function run(fn){busy++;PL.path=null;try{await fn();}catch(e){console.erro
 /* ---------- audio ---------- */
 /* v9.0: bảng Cài đặt trong menu, lưu riêng khỏi file save */
 /* v14.5: Cài đặt chia Hệ thống / Chiến đấu: vol âm lượng, lfx giảm hạt hiệu ứng, ap tự uống thuốc dưới ap% máu, av né quái hơn mình av cấp, (14.6: bỏ đánh nương tay theo yêu cầu), 14.7: tm bật/tắt lựa chọn Đánh cho phục trong bảng thu phục */
-const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0,tm:1};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
+const SET={snd:1,skn:1,wx:1,shk:1,vol:1,lfx:0,ap:0,av:0,tm:1,auB:1,auLv:5,auR:20,auEv:1,auC:0};try{Object.assign(SET,JSON.parse(localStorage.getItem('gms-set')||'{}'));}catch(e){}
 function saveSet(){try{localStorage.setItem('gms-set',JSON.stringify(SET));}catch(e){}}
 let AC=null,muted=!SET.snd,noiseBuf=null;
 function toggleSnd(){muted=!muted;SET.snd=muted?0:1;saveSet();sfx('sel');}
@@ -1949,7 +1949,7 @@ function updateMap(dt){
   updateLanterns(dt);npcTick(dt);updateRunner(dt);
   trackTrail();
   if(PL.moving){PL.t+=dt/140;if(PL.t>=1){PL.t=1;PL.moving=false;PL.px=PL.x*TS;PL.py=PL.y*TS;arrive();}else{PL.px=lerp(PL.fx,PL.x,PL.t)*TS;PL.py=lerp(PL.fy,PL.y,PL.t)*TS;PL.frame=PL.t<.5?1:0;}}
-  if(!PL.moving&&held.length&&!DLG&&!CH&&!busy){PL.path=null;tryMove(held[held.length-1]);}
+  if(!PL.moving&&held.length&&!DLG&&!CH&&!busy){autoStop('Đã dừng tự động');PL.path=null;tryMove(held[held.length-1]);}
   else if(!PL.moving&&PL.path&&PL.path.length&&!DLG&&!CH&&!busy){const d=PL.path.shift();const ox=PL.x,oy=PL.y;tryMove(d);if(PL.x===ox&&PL.y===oy)PL.path=null;}
   if(PL.path&&!PL.path.length&&!PL.moving)PL.path=null;
   const bi=bioAt(PL.x,PL.y),tr=BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
@@ -2293,8 +2293,9 @@ function drawHUDP(){const d=diep(),L=lead();
   icS('seal',5,44,9);txt(String(G.charms),16,43,{size:9,color:'#fff0c0'});icS('pill',58,44,9);txt(String(G.pill.hp),69,43,{size:9,color:'#ffd0d0'});
   drawMini(W-64,2);
   if(ONLM)onlHudBtns(W-64,44,62,16,46,11);else{win(W-64,44,62,16,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',W-33,46,{size:11,align:'center',color:'#fff8e0'});}
-  if(!busy&&!DLG&&!CH){hit(W-64,2,62,40,()=>{openMenu();MENU.tab=4;});if(ONLM)onlHudHits(W-66,42,66,20);else hit(W-66,42,66,20,()=>openMenu());}
-  drawQHud(2,62,W-4);
+  if(!busy&&!DLG&&!CH){hit(W-64,2,62,40,()=>{openMenu();MENU.tab=4;});if(ONLM)onlHudHits(W-66,42,66,18);else hit(W-66,42,66,18,()=>openMenu());}
+  drawAutoBtn(W-64,62,62,16);
+  drawQHud(2,62,W-70);
   drawBLog(H-22,22,2);
   if(bannerT>0){const a=clamp(Math.min(bannerT/400,(2200-bannerT)/300+.01),0,1);c.globalAlpha=a;const n=regName(curZone);const w=tw(n,12)+20;orn(Math.round(W/2-w/2),72,Math.round(w),20,'#5a2a52','#3a1a38');txt(n,W/2,76,{size:12,align:'center',color:'#ffe8a0'});c.globalAlpha=1;}}
 function drawHUD(){if(PORT)return drawHUDP();const d=diep(),L=lead();
@@ -2307,13 +2308,14 @@ function drawHUD(){if(PORT)return drawHUDP();const d=diep(),L=lead();
   drawMini(176,2);
   if(ONLM)onlHudBtns(176,44,62,13,45,10);else{win(176,44,62,13,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',207,45,{size:10,align:'center',color:'#fff8e0'});}
   if(!busy&&!DLG&&!CH){hit(176,2,62,40,()=>{openMenu();MENU.tab=4;});if(ONLM)onlHudHits(176,44,62,13);else hit(176,44,62,13,()=>openMenu());}
+  drawAutoBtn(176,59,62,13);
   drawQHud(2,30,120);
   drawBLog(H-11,11,1);
   if(bannerT>0){const a=clamp(Math.min(bannerT/400,(2200-bannerT)/300+.01),0,1);c.globalAlpha=a;const n=regName(curZone);const w=tw(n,12)+20;orn(Math.round(W/2-w/2),34,Math.round(w),20,'#5a2a52','#3a1a38');txt(n,W/2,38,{size:12,align:'center',color:'#ffe8a0'});c.globalAlpha=1;}}
 
 /* tap a tile to walk there along the shortest known path */
 const CAM={x:0,y:0};
-function walkTo(sx,sy){{const Z=mapZoom();sx*=Z;sy*=Z;}const tx=Math.floor((sx+CAM.x)/TS),ty=Math.floor((sy+CAM.y)/TS);
+function walkTo(sx,sy){if(AUTO.on){autoStop('Đã dừng tự động');}{const Z=mapZoom();sx*=Z;sy*=Z;}const tx=Math.floor((sx+CAM.x)/TS),ty=Math.floor((sy+CAM.y)/TS);
   if(tx<0||ty<0||tx>=MW||ty>=MH)return;if(tx===PL.x&&ty===PL.y){mapInput('a');return;}
   PL.npcGoal=null;if(G.qt){const p=npcPx(G.qt),wx=sx+CAM.x,wy=sy+CAM.y;if((tx===G.qt.x&&ty===G.qt.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc();}{const wx=sx+CAM.x,wy=sy+CAM.y;for(const v of vilNear()){if(!seen[v.y*MW+v.x])continue;const p=npcPx(v);if((tx===v.x&&ty===v.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc(false,v);}const b=bldTap(tx,ty);if(b)return walkToB(b);}
   if(blocked(tx,ty)||!seen[ty*MW+tx]){sfx('no');PL.mark={x:tx,y:ty,t:500,bad:true};return;}
@@ -2419,6 +2421,53 @@ function drawWeather(camX,camY){const now=time,dt=WX.lt?Math.min(60,now-WX.lt):1
   drawAmb(z,bi);
   if(WX.mode!=='leaf'){c.globalAlpha=WX.mode==='dust'?.7:.9;for(const f of WX.leaves)rect(Math.round(f.x),Math.round(f.y),f.s-1,WX.mode==='dust'?1:f.s-1,f.col);c.globalAlpha=1;return;}
   for(const f of WX.leaves){const fr=(Math.floor(f.p*1.3)%4+4)%4;c.drawImage(leafSpr(f.col,fr),Math.round(f.x),Math.round(f.y));}}
+
+/* v15.2 (người chơi muốn nút AUTO dưới MENU): tự đi tìm quái quanh chỗ bật, cả đội tự đánh, tự dùng thuốc,
+   tự chọn giúp khi gặp sự kiện, bật/tắt thu phục. Cài đặt lưu trong SET (au*), trạng thái chạy không lưu */
+const AULV=[2,3,5,10,0],AUR=[10,20,30,50];
+const AUTO={on:false,ax:0,ay:0,t:0,tg:null,idle:0,ct:0};
+function autoStart(){const d=diep();AUTO.on=true;AUTO.ax=PL.x;AUTO.ay=PL.y;AUTO.t=0;AUTO.tg=null;AUTO.idle=0;sfx('ok');toast('Bắt đầu tự động quanh '+PL.x+','+PL.y);}
+function autoStop(msg){if(!AUTO.on)return;AUTO.on=false;AUTO.tg=null;PL.path=null;PL.mark=null;if(msg)toast(msg);}
+function autoLvOk(lv){const d=diep(),r=SET.auLv??5;return(!r||Math.abs(lv-d.lv)<=r)&&!(SET.av&&lv>=d.lv+SET.av);}
+/* đường đi qua ô đã khám phá, không giẫm lên điểm đến (làng, chùa...) */
+function autoPath(tx,ty){const st=PL.y*MW+PL.x,goal=ty*MW+tx;if(st===goal)return[];const prev=new Int32Array(MW*MH).fill(-1),Q=[st];prev[st]=st;const R=(SET.auR||20)+6;
+  for(let h=0;h<Q.length&&prev[goal]<0;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;
+    if(nx<0||ny<0||nx>=MW||ny>=MH||prev[j]>=0||Math.abs(nx-AUTO.ax)>R||Math.abs(ny-AUTO.ay)>R||blocked(nx,ny)||(!seen[j]&&j!==goal)||(j!==goal&&poiIdx(j)))continue;prev[j]=i;Q.push(j);}}
+  if(prev[goal]<0)return null;const p=[];for(let j=goal;j!==st;j=prev[j]){const d=j-prev[j];p.unshift(d===1?'right':d===-1?'left':d===MW?'down':'up');}return p;}
+function autoTick(dt){if(!AUTO.on||!G)return;
+  /* tự qua các màn chờ và lời thoại; bảng lựa chọn chỉ chọn giúp khi bật */
+  if(waitPressRes||DLG||(CH&&SET.auEv!==0)){AUTO.ct+=dt;if(AUTO.ct>(CH?900:650)){AUTO.ct=0;if(CH){CH.i=Math.max(0,CH.i);press('a');}else{if(DLG)DLG.shown=1e9;press('a');}}return;}
+  AUTO.ct=0;if(scene!=='map'||busy||CH||PL.moving)return;
+  const d=diep();if(!d||d.hp<=0)return autoStop('Dừng tự động: Minh Dạ đã kiệt sức');
+  /* ngoài trận: máu dưới ngưỡng thì uống thuốc */
+  if(SET.ap&&d.hp<d.mhp*SET.ap/100&&G.pill.hp>0){G.pill.hp--;d.hp=Math.min(d.mhp,d.hp+Math.round(d.mhp*.5));sfx('heal');toast('Tự dùng Hồi Hồn Đan');}
+  AUTO.t-=dt;if(AUTO.t>0&&PL.path&&PL.path.length)return;AUTO.t=700;
+  const R=SET.auR||20;let best=null,bd=1e9;
+  for(const g of G.lg||[]){if(g.dead>=0||g.boss||time<g.ign)continue;if(Math.abs(g.x-AUTO.ax)>R||Math.abs(g.y-AUTO.ay)>R||!seen[g.y*MW+g.x])continue;
+    if(!autoLvOk(g.lv))continue;const dd=Math.abs(g.x-PL.x)+Math.abs(g.y-PL.y);if(dd<bd){bd=dd;best=g;}}
+  if(best){const p=autoPath(best.x,best.y);if(p&&p.length){PL.path=p;PL.mark={x:best.x,y:best.y,t:900,bad:false};AUTO.tg=best;AUTO.idle=0;return;}if(p)return;best.ign=time+4000;}
+  /* không có quái hợp: đi dạo quanh điểm bật để quái hồi sinh và lộ ra */
+  AUTO.idle+=700;if(AUTO.idle>6000&&time-(AUTO.msgT||0)>15000){AUTO.msgT=time;toast('Chưa thấy quái hợp cấp trong '+R+' ô, đang đi tìm…');}
+  for(let k=0;k<12;k++){const tx=AUTO.ax+ri(-R,R),ty=AUTO.ay+ri(-R,R);if(tx<1||ty<1||tx>=MW-1||ty>=MH-1||blocked(tx,ty)||!seen[ty*MW+tx])continue;const p=autoPath(tx,ty);if(p&&p.length){PL.path=p.slice(0,14);break;}}}
+function autoRows(){const lv=SET.auLv??5;return[
+  AUTO.on?{t:'■ Dừng tự động',k:'go'}:{t:'▶ Bắt đầu tự động',k:'go'},
+  {t:'Cả đội tự chiến đấu: '+(SET.auB!==0?'Bật':'Tắt'),k:'auB'},
+  {t:'Tìm quái cấp: '+(lv?'±'+lv+' cấp':'mọi cấp'),k:'auLv'},
+  {t:'Phạm vi di chuyển: '+(SET.auR||20)+' ô',k:'auR'},
+  {t:'Dùng thuốc: '+(SET.ap?'máu dưới '+SET.ap+'%':'Tắt'),k:'ap'},
+  {t:'Gặp sự kiện: '+(SET.auEv!==0?'Tự chọn giúp':'Hỏi tôi'),k:'auEv'},
+  {t:'Thu phục: '+(SET.auC?'Bật (tự thu khi quái yếu)':'Tắt (chỉ đánh)'),k:'auC'},
+  {t:'Đóng',k:'x',def:true}];}
+function autoPanel(){if(busy||DLG||CH)return;sfx('sel');run(async()=>{for(;;){const rows=autoRows(),d=diep(),lv=SET.auLv??5;
+    const i=await ask('Tự động',(AUTO.on?'Đang chạy quanh '+AUTO.ax+','+AUTO.ay+'. ':'')+'Minh Dạ cấp '+d.lv+(lv?', tìm quái cấp '+Math.max(1,d.lv-lv)+'-'+(d.lv+lv):', tìm mọi cấp')+' trong '+(SET.auR||20)+' ô quanh chỗ bật. Chạm bản đồ để dừng.',rows);
+    const k=(rows[i]||{}).k;if(!k||k==='x')return;
+    if(k==='go'){if(AUTO.on)autoStop('Đã dừng tự động');else autoStart();return;}
+    const cy=(L,v)=>L[(L.indexOf(v)+1)%L.length];
+    if(k==='auB')SET.auB=SET.auB!==0?0:1;else if(k==='auLv')SET.auLv=cy(AULV,lv);else if(k==='auR')SET.auR=cy(AUR,SET.auR||20);
+    else if(k==='ap')SET.ap=cy(APS,SET.ap);else if(k==='auEv')SET.auEv=SET.auEv!==0?0:1;else if(k==='auC')SET.auC=SET.auC?0:1;
+    saveSet();sfx('ok');}});}
+function drawAutoBtn(x,y,w,h){const on=AUTO.on,bl=on&&Math.floor(time/500)%2;win(x,y,w,h,on?'#1f6a3a':'#2c3a78',on?'#124a26':'#1a2250',on?(bl?'#b8ffc8':'#60e090'):'#a8b8ff');
+  txt(on?'AUTO ●':'AUTO',x+w/2,y+(h>14?2:1),{size:h>14?11:10,align:'center',color:on?'#e8ffe8':'#e0e8ff'});if(on)hit(x,y,w,h,()=>{autoStop('Đã dừng tự động');sfx('sel');});else if(!busy&&!DLG&&!CH)hit(x,y,w,h,autoPanel);}
 
 
 /* ---------- menu (stats, party, tribulations, gear, map) ---------- */
@@ -2847,7 +2896,7 @@ function subItems(){const A=B.ally;
   return G.party.map((u,i)=>({l:u.name,h:()=>'Lv '+u.lv+' · HP '+u.hp+'/'+u.mhp+' · LL '+u.mp,a:'sw:'+i,dis:u.hp<=0?u.name+' đã kiệt sức':u===A?u.name+' đang chiến đấu':null}));}
 function menuChoice(sub){return new Promise(r=>{B.phase='menu';B.sub=sub||null;B.mi=0;B.si=sub==='sw'?Math.max(0,G.party.findIndex(u=>u.hp>0&&u!==B.ally)):0;B.choose=r;});}
 function battleInput(k){
-  if(B.auto&&(k==='a'||k==='b'||k==='menu')&&B.phase!=='intro'&&B.phase!=='end'){B.auto=false;G.auto=false;B.msg='Đã tắt tự động';B.msgT=900;sfx('sel');return;}
+  if(B.auto&&(k==='a'||k==='b'||k==='menu')&&B.phase!=='intro'&&B.phase!=='end'){B.auto=false;G.auto=false;autoStop();B.msg='Đã tắt tự động';B.msgT=900;sfx('sel');return;}
   if(B.phase!=='menu')return;
   if(B.sub){const L=subItems();if(k==='up'||k==='down'){B.si=(B.si+(k==='up'?-1:1)+L.length)%L.length;sfx('sel');}
     else if(k==='b'){if(!B.forced){B.sub=null;sfx('sel');}}
@@ -2870,7 +2919,7 @@ function aiPick(u){const sk=skillsOf(u);const E=B.enemy;
 async function startBattle(foes,o={}){
   scene='trans';sfx('enc');held.length=0;await tween(520,t=>{stripes=t;});
   for(const f of foes){f.b={};foeBoost(f);}for(const u of G.party)u.b={};
-  B={pose:{e:null,a:null},foes,fi:0,enemy:foes[0],ally:lead(),o,bg:o.bg||((o.kind==='boss'||o.kind==='judge')?'boss':ZONES[zoneAt(PL.x)].bg),eo:{x:-90,y:0},ao:{x:90,y:0},eA:1,aA:1,eS:1,eF:0,aF:0,hp:{e:foes[0].hp,a:0},mi:0,sub:null,si:0,phase:'intro',msg:'',msgT:0,auto:!!G.auto,forced:false,shake:0,tal:null,pillar:0,ring:0,dark:0,lvl:null,expBar:null,flash:0,gain:[],loot:[],ast:null};
+  B={pose:{e:null,a:null},foes,fi:0,enemy:foes[0],ally:lead(),o,bg:o.bg||((o.kind==='boss'||o.kind==='judge')?'boss':ZONES[zoneAt(PL.x)].bg),eo:{x:-90,y:0},ao:{x:90,y:0},eA:1,aA:1,eS:1,eF:0,aF:0,hp:{e:foes[0].hp,a:0},mi:0,sub:null,si:0,phase:'intro',msg:'',msgT:0,auto:!!G.auto||(AUTO.on&&SET.auB!==0),forced:false,shake:0,tal:null,pillar:0,ring:0,dark:0,lvl:null,expBar:null,flash:0,gain:[],loot:[],ast:null};
   B.hp.a=B.ally.hp;scene='battle';
   await tween(420,t=>{stripes=1-t;B.ao.x=90*(1-ease(t));B.eo.x=-90*(1-ease(t));});
   B.msg=foes.length>1?`${foes.length} con quỷ chặn đường! Đầu tiên: ${foes[0].name}`:((o.kind==='boss'||o.kind==='judge')?foes[0].name+' giáng lâm!':foes[0].name+' xuất hiện!');B.msgT=1500;await wait(900);
@@ -2884,7 +2933,8 @@ async function startBattle(foes,o={}){
     else if(B.forced&&B.auto){/* tự động: đưa người còn nhiều máu nhất ra thay */let bi=-1;G.party.forEach((u,i)=>{if(u.hp>0&&u!==B.ally&&(bi<0||u.hp/u.mhp>G.party[bi].hp/G.party[bi].mhp))bi=i;});await wait(300);act='sw:'+bi;}
     else if(B.forced){B.msg='Chọn người ra trận thay '+B.ally.name;act=await menuChoice('sw');}
     else if(SET.ap&&B.ally.hp>0&&B.ally.hp*100<B.ally.mhp*SET.ap&&G.pill.hp>0){/* v14.5: cài đặt chiến đấu tự dùng thuốc */B.msg='Máu dưới '+SET.ap+'%: tự uống thuốc';await wait(300);act='pill:hp';}
-    else if(B.auto&&capOpen(B.enemy)&&!B.enemy.capSeen){/* v11.6.1: quái vào ngưỡng thu phục thì tạm tắt tự động trong trận này để chọn bằng tay (G.auto giữ nguyên cho trận sau) */B.enemy.capSeen=1;B.auto=false;B.msg='Tắt tự động: '+B.enemy.name+' đã yếu, có thể thu phục';B.msgT=1200;sfx('sel');await wait(500);const r=await capAsk(B.enemy);act=r||await menuChoice();}
+    else if(B.auto&&AUTO.on&&SET.auC&&capOpen(B.enemy)&&!capDis(B.enemy)){/* v15.2: tự động có bật thu phục thì tự ném bùa */act='cap';}
+    else if(B.auto&&!AUTO.on&&capOpen(B.enemy)&&!B.enemy.capSeen){/* v11.6.1: quái vào ngưỡng thu phục thì tạm tắt tự động trong trận này để chọn bằng tay (G.auto giữ nguyên cho trận sau) */B.enemy.capSeen=1;B.auto=false;B.msg='Tắt tự động: '+B.enemy.name+' đã yếu, có thể thu phục';B.msgT=1200;sfx('sel');await wait(500);const r=await capAsk(B.enemy);act=r||await menuChoice();}
     else if(B.auto){await wait(300);act=aiPick(B.ally);}
     else if(capOpen(B.enemy)){const r=await capAsk(B.enemy);act=r||await menuChoice();}
     else act=await menuChoice();
@@ -3620,7 +3670,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
     const res=await startBattle([u],{kind:'wild'});
     if(res==='win'){g.dead=G.steps;if(g.boss){g.nx=G.steps+(UB[g.id]||CVB).backSt;if(UB[g.id]&&UB[g.id].uniq&&ownSp(g.id)){(G.uniq=G.uniq||{})[g.id]=1;const i=G.lg.indexOf(g);if(i>=0)G.lg.splice(i,1);}}}
     else if(res==='run'){g.hp=clamp(u.hp/u.mhp,.05,1);g.ign=time+LMAP.ignoreMs;g.st=lFlee(g)?'flee':'ret';}
-    else{g.st='ret';g.ign=time+LMAP.ignoreMs;}
+    else{g.st='ret';g.ign=time+LMAP.ignoreMs;if(res!=='run')autoStop('Dừng tự động: đội đã thua trận');}
     G.wc=Math.max(G.wc,3);});}
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
@@ -5136,7 +5186,7 @@ function frame(now){requestAnimationFrame(frame);try{frame1(now);}catch(e){conso
 function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;time+=dt;
   for(let i=tweens.length-1;i>=0;i--){const t=tweens[i];t.t+=dt;const p=Math.min(1,t.t/t.ms);t.fn(p);if(p>=1){tweens.splice(i,1);t.res();}}
   if(bannerT>0)bannerT-=dt;
-  updateMap(dt);onlTick(dt);
+  updateMap(dt);onlTick(dt);autoTick(dt);
   hits=[];SCR.length=0;INFOH.length=0;
   c.setTransform(S,0,0,S,0,0);c.imageSmoothingEnabled=false;
   rect(0,0,W,H,'#000');
