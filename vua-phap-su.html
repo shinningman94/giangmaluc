@@ -2627,7 +2627,7 @@ function drawStats(){const d=diep();win(2,18,118,130,'#2c3a78','#1a2250');
   txt('Giáng Ma Lục: '+dexCount()+'/'+dexIds().length,6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
   txt('Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,6,y+40,{size:8,color:'#b8a8d0'});
   win(122,18,116,130,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,126,20,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv,d),234,21,{size:8,align:'right',color:'#f8e080'});
-  {const s=G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận 3 điểm cộng';txt(s,126,31,{size:fitS(s,8,108),color:G.pts?'#80ff90':'#a8a0c0'});}
+  {const s=G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận '+PTSLV+' điểm cộng';txt(s,126,31,{size:fitS(s,8,108),color:G.pts?'#80ff90':'#a8a0c0'});}
   statRows().forEach((r,i)=>{const yy=43+i*12;const sel=i===MENU.i;if(r.act==='guide'){if(sel)rect(124,yy,110,10,'#7a2a22');txt('Hướng dẫn chỉ số',128,yy,{size:9,color:'#c8f0c8'});txt('chạm',234,yy,{size:8,align:'right',color:'#a8a0c0'});}
     else if(r.act){const w=30-(G.steps-G.med);if(sel)rect(124,yy,110,10,'#7a2a22');txt('Thiền định',128,yy,{size:9,color:'#ffe8a0'});txt(w>0?'còn '+w+' bước':'sẵn sàng',234,yy,{size:8,align:'right',color:w>0?'#a8a0c0':'#80ff90'});}
     else row(128,yy,r.l+(G.pts?' +':''),r.v,sel);hit(122,yy,116,12,()=>{MENU.i=i;menuInput('a');});});}
@@ -2700,7 +2700,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp. Kỹ năng đi theo cấp: 2 chiêu đầu có sẵn, các chiêu sau mở ở cấp 3, 6, 10, 14, 18 (xem ở Đội hình › Xem thông tin chi tiết).',1],
   ['Lên cấp',0],
   ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600 (Minh Dạ cần gấp đôi). Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
-  ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 3 điểm cộng: HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
+  ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 1 điểm cộng (Cổ Quyển cho thêm 3): HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
   ['Làng và trấn',0],
   ['Trong làng là vùng an toàn: không gặp quỷ, quỷ tuần tra không vào được. Ra khỏi làng mới chạm trán quỷ dọc đường.',1],
   ['Bước vào cửa nhà (hoặc chạm vào nhà) để vào Chợ, Y Quán chữa thương, hay nhà dân uống trà. Chạm vào dân làng để trò chuyện.',1],
@@ -2784,7 +2784,7 @@ function drawMenuP(){const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)r
     o.forEach((op,i)=>{const yy=y+4+i*rh,sel=i===M.si;if(sel)rect(x+3,yy,w-6,rh-1,'#a83a2f');txt(op.l,x+10,yy+4,{size:10,color:sel?'#fff':'#f0d8c8'});hit(x,yy,w,rh,()=>{M.si=i;menuInput('a');});});}}
 function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Math.floor((b-t-128)/rows.length),12,16);const hA=27+rows.length*rh+3;
   win(2,t,W-4,hA,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,7,t+2,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv,d),W-7,t+3,{size:8,align:'right',color:'#f8e080'});
-  txt(G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận 3 điểm cộng',7,t+14,{size:8,color:G.pts?'#80ff90':'#a8a0c0'});
+  txt(G.pts?'Điểm cộng: '+G.pts+' (chạm chỉ số để cộng)':'Lên cấp nhận '+PTSLV+' điểm cộng',7,t+14,{size:8,color:G.pts?'#80ff90':'#a8a0c0'});
   rows.forEach((r,i)=>{const yy=t+27+i*rh;const sel=i===MENU.i;const ty2=yy+Math.floor((rh-10)/2);
     if(r.act==='guide'){if(sel)rect(5,yy,W-10,rh-1,'#7a2a22');txt('Hướng dẫn chỉ số',9,ty2,{size:10,color:'#c8f0c8'});txt('chạm để xem',W-9,ty2+1,{size:8,align:'right',color:'#a8a0c0'});}
     else if(r.act){const w=30-(G.steps-G.med);if(sel)rect(5,yy,W-10,rh-1,'#7a2a22');txt('Thiền định',9,ty2,{size:10,color:'#ffe8a0'});txt(w>0?'còn '+w+' bước':'sẵn sàng',W-9,ty2+1,{size:8,align:'right',color:w>0?'#a8a0c0':'#80ff90'});}
@@ -3136,8 +3136,10 @@ async function subdue(E){B.phase='end';if(E.stolen){G.silver+=E.stolen;B.loot.pu
   B.eS=1;}
 /* v10.4: huy hiệu hạng S..E ở góc bảng tên quái */
 function rkBadge(u,xr,y){const r=rankOf(u.id);if(!r)return;const w=r.length>1?24:21,x=xr-w-1;c.fillStyle='#1a0a10';c.fillRect(x-1,y,w+2,8);c.fillStyle=RKC[r];c.fillRect(x,y,w,7);txt('Hạng '+r,x+w/2,y,{size:6,align:'center',color:'#fff',outline:'#1a0a10',lw:1});}
+/* v15.7: người chơi thấy Minh Dạ khỏe hơn đồng hành và quái cùng cấp; điểm cộng mỗi cấp 3 -> 1 */
+const PTSLV=1;
 function levelUp(u){const g={};const half=u.id==='diep';for(const k of STATS){const gr=(u.gr&&u.gr[k]!=null?u.gr[k]:SPECIES[u.id].grow[k])*(half?.6:1);g[k]=Math.floor(gr/100)+(R()*100<gr%100?1:0);}
-  if(!STATS.some(k=>g[k]))g.hp=1;u.lv++;u.mhp+=g.hp+(half?1:0);u.hp+=g.hp+(half?1:0);for(const k of['atk','skl','spd','def'])u[k]+=g[k];g.mp=(SPECIES[u.id].mpg||2);u.mmp+=g.mp;u.mp+=g.mp;if(half)G.pts+=3;return g;}
+  if(!STATS.some(k=>g[k]))g.hp=1;u.lv++;u.mhp+=g.hp+(half?1:0);u.hp+=g.hp+(half?1:0);for(const k of['atk','skl','spd','def'])u[k]+=g[k];g.mp=(SPECIES[u.id].mpg||2);u.mmp+=g.mp;u.mp+=g.mp;if(half)G.pts+=PTSLV;return g;}
 async function expTo(u,n,quiet){if(!u||u.lv>=LVMAX||n<=0)return;const inB=scene==='battle'&&B&&!quiet;
   if(inB){B.msg=u.name+' nhận '+n+' EXP';B.expBar={u,v:u.exp};}
   let left=n;while(left>0){const step=Math.min(left,Math.max(0,expNeed(u.lv,u)-u.exp));const s0=u.exp;if(inB)await tween(Math.min(1000,Math.max(220,step*10)),t=>{B.expBar.v=Math.round(s0+step*t);});u.exp+=step;left-=step;
@@ -3227,7 +3229,7 @@ function drawBattlePop(){c.save();if(PORT)c.translate(W/2-120,Math.round(H*.42)-
   if(B.expBar){const u=B.expBar.u;win(60,58,120,24,'#2c3a78','#1a2250');txt('EXP',66,61,{size:9,color:'#f8e080'});rect(88,64,74,5,'#24343c');rect(88,64,Math.round(74*Math.min(1,B.expBar.v/expNeed(u.lv,u))),5,'#f8d040');txt(String(B.expBar.v),174,61,{size:9,align:'right',color:'#fff'});txt(u.name,120,71,{size:8,align:'center',color:'#cfd8ff'});}
   if(B.lvl){const L=B.lvl;win(56,30,128,92,'#7a2a22','#3a1410','#ffe8a0');txt('LÊN CẤP!',120,32,{size:12,align:'center',color:'#ffe060'});txt(L.u.name+'  Lv '+L.u.lv,120,44,{size:9,align:'center',color:'#fff'});
     [['hp','HP',L.u.mhp],['mp','Linh lực',L.u.mmp],['atk','Lực',L.u.atk],['skl','Kỹ',L.u.skl],['spd','Tốc',L.u.spd],['def','Thủ',L.u.def]].forEach(([k,n,v],i)=>{const y=55+i*9;txt(n,66,y,{size:9,color:'#f0d8c8'});txt(String(v),136,y,{size:9,align:'right',color:'#fff'});if(L.g[k])txt('+'+L.g[k],144,y,{size:9,color:'#80ff90'});});
-    if(L.u.id==='diep')txt('+3 điểm cộng (Menu → Chỉ số)',120,110,{size:8,align:'center',color:'#ffd27a'});if(Math.floor(time/300)%2)txt('▼',176,112,{size:8,color:'#ffe8a0'});}
+    if(L.u.id==='diep')txt('+'+PTSLV+' điểm cộng (Menu → Chỉ số)',120,110,{size:8,align:'center',color:'#ffd27a'});if(Math.floor(time/300)%2)txt('▼',176,112,{size:8,color:'#ffe8a0'});}
   c.restore();}
 /* portrait battle: scene + name banners on top, both stat panels side by side under it, a message line, then big command buttons in the bottom half */
 /* v7.2: loài quái đã từng thu phục hiện dấu bùa trấn yểm trên bảng tên */
