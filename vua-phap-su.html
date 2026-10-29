@@ -2118,38 +2118,60 @@ async function recruitSpot(p,s){const R0=RECRUIT[p.rid];if(s.done)return say(R0.
     const res=await startBattle([foe(R0.sp,Math.max(1,lvAt(p.x,p.y)-2),{name:R0.n})],{kind:'duel'});if(res!=='win')return;s.won=1;await say(R0.win,R0.n);}
   const i=await pick('Thu nhận '+R0.n+'?',R0.perk,[{t:'Thu nhận '+R0.n+(G.party.length>=6?' (vào Tháp Trấn Hồn)':''),dis:towerFree()?null:'Đội và tháp đều đã đầy'},{t:'Để sau'}]);
   if(i!==0)return;if(p.rid==='eliza'&&(G.sect==='thuoc'||G.sect==='necro'))await say('"Thầy cũng là người đi giữa sống và chết... Có thầy ở đây, phép của tôi sẽ vững hơn."',R0.n);const u=makeUnit(R0.sp,Math.max(R0.lv,lvAt(p.x,p.y)),{name:R0.n,perk:p.rid,full:true});u.cl=u.lv;const tw=G.party.length>=6;if(tw)toTower(u);else G.party.push(u);s.done=1;G.merit+=5;sfx('got');toast(R0.n+(tw?' được gửi vào Tháp Trấn Hồn':' gia nhập đội!'));}
-/* v7.0: bỏ thương nhân lữ hành; chợ bán cả món tốt hơn một bậc mà thương nhân từng bán, bán hết thì lần sau nhập hàng mới */
+/* v7.0: bỏ thương nhân lữ hành; chợ bán cả món tốt hơn một bậc mà thương nhân từng bán, bán hết thì lần sau nhập hàng mới.
+   v15.4: người chơi muốn chợ giống Hành trang: bên Trang bị, bên Vật phẩm, thêm bên Bán đồ */
 async function shop(p,s){const st=s||{},tr=tierAt(PL.x);if(!st.stock||!st.stock.length){st.stock=[mkItem(tr+1),mkItem(tr),mkItem(tr)];st.up=1;}if(!st.up){st.up=1;st.stock.unshift(mkItem(tr+1));}
-  for(;;){const price=it=>15+it.tier*12+it.v*2;
-    const opts=[
-      {t:'Hồi Hồn Đan, hồi 40% HP (10 bạc) · có '+G.pill.hp,dis:G.silver<10?'Không đủ bạc':null,f:()=>{G.silver-=10;G.pill.hp++;}},
-      {t:'Tụ Linh Đan, hồi 50% linh lực (8 bạc) · có '+G.pill.mp,dis:G.silver<8?'Không đủ bạc':null,f:()=>{G.silver-=8;G.pill.mp++;}},
-      {t:'Bùa trấn yểm (12 bạc) · có '+G.charms,dis:G.silver<12?'Không đủ bạc':null,f:()=>{G.silver-=12;G.charms++;}},
-      ...[['hoaphu',14],['anphu',15],['kcphu',12],['giay',4],['thanhanh',30],['dinhvi',20],['but',30]].filter(([k])=>k!=='but'||!itN('but')).map(([k,pr])=>({t:`${CONS[k].n}: ${CONS[k].d} (${pr} bạc) · có ${itN(k)}`,dis:G.silver<pr?'Không đủ bạc':null,f:()=>{G.silver-=pr;itAdd(k);}})),
-      ...st.stock.map((it,i)=>({t:`${it.n}: ${itemDesc(it)} (${price(it)} bạc)`,dis:G.silver<price(it)?'Không đủ bạc':G.inv.length>=12?'Túi đồ đã đầy':null,f:()=>{G.silver-=price(it);addItem(it);st.stock.splice(i,1);}})),
-      {t:`Bán vũ khí, trang bị, pháp bảo trong túi (${G.inv.length} món)`,dis:G.inv.length?null:'Túi đồ không có gì để bán',f:sellItems},
-      {t:'Rời chợ'}];
-    const i=await ask('Chợ '+p.n,'Ngân lượng: '+G.silver+'. Chọn món cần mua.',opts);
-    if(i===opts.length-1)return;sfx('coin');await opts[i].f();}}
+  const price=it=>15+it.tier*12+it.v*2,no=n=>G.silver<n?'Không đủ bạc':null,pay=n=>{G.silver-=n;};
+  const it1=(ic,n,d,pr,h,f)=>({ic,n,d,p:pr+' bạc',h:'Đang có '+h,dis:no(pr),f:()=>{pay(pr);f();toast('Mua được '+n);}});
+  await shopUI({t:'Chợ '+p.n,cur:()=>'Bạc: '+G.silver,g:['Trang bị','Vật phẩm','Bán đồ'],rows:g=>g===0?st.stock.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),c:cmpEq(it),p:price(it)+' bạc',dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{pay(price(it));addItem(it);st.stock.splice(i,1);toast('Mua được '+it.n);}}))
+    :g===1?[it1((x,y,z)=>icS('pill',x,y,z),'Hồi Hồn Đan','Hồi 40% HP',10,G.pill.hp,()=>G.pill.hp++),it1((x,y,z)=>icS('pillb',x,y,z),'Tụ Linh Đan','Hồi 50% linh lực',8,G.pill.mp,()=>G.pill.mp++),it1((x,y,z)=>icS('seal',x,y,z),'Bùa trấn yểm','Dùng để thu phục quỷ',12,G.charms,()=>G.charms++),
+      ...[['hoaphu',14],['anphu',15],['kcphu',12],['giay',4],['thanhanh',30],['dinhvi',20],['but',30]].filter(([k])=>k!=='but'||!itN('but')).map(([k,pr])=>it1((x,y,z)=>itArt(CONS[k].k,x,y,z),CONS[k].n,CONS[k].d,pr,itN(k),()=>itAdd(k)))]
+    :G.inv.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),p:'+'+sellPrice(it)+' bạc',act:'Bán',h:'Đồ đang mặc không bán ở đây',f:()=>{const pr=sellPrice(it);G.inv.splice(i,1);G.silver+=pr;toast(`Bán ${it.n}: +${pr} bạc`);}})),
+    empty:['Chợ đã bán hết pháp bảo. Lần sau ghé lại sẽ có hàng mới.','','Túi đồ không có gì để bán. Đồ đang mặc không bán được.']});}
 /* v11.4: người chơi muốn bán đồ không dùng ở chợ; đồ đang mặc không nằm trong G.inv nên không bán nhầm. Giá bán bằng nửa giá mua, pháp bảo đặc biệt (có k) x1.5 */
 function sellPrice(it){return Math.max(5,Math.round((15+it.tier*12+it.v*2)*.5*(it.k?1.5:1)));}
 async function sellItems(){for(;;){if(!G.inv.length)return;const opts=G.inv.map(it=>({t:`${it.n}: ${itemDesc(it)} (+${sellPrice(it)} bạc)`}));opts.push({t:'Xong'});
   const i=await ask('Bán đồ','Ngân lượng: '+G.silver+'. Chọn món muốn bán (đồ đang dùng không có trong danh sách).',opts);if(i>=G.inv.length)return;
   const it=G.inv[i],pr=sellPrice(it);G.inv.splice(i,1);G.silver+=pr;sfx('coin');toast(`Bán ${it.n}: +${pr} bạc`);}}
-/* v5.5: Tháp Công Đức, đổi công đức lấy pháp bảo và dược phẩm; hết hàng thì lần ghé sau tháp thỉnh thêm */
+/* v5.5: Tháp Công Đức, đổi công đức lấy pháp bảo và dược phẩm; hết hàng thì lần ghé sau tháp thỉnh thêm. v15.4: giao diện giống Hành trang */
 async function meritShop(p,s,tr){if(!s.stock||!s.stock.length)s.stock=[mkItem(tr+1),mkItem(tr)];
-  for(;;){const price=it=>30+it.tier*25+it.v*3,no=n=>G.merit<n?'Chưa đủ công đức':null;
-    const opts=[
-      {t:'Hồi Hồn Đan, hồi 40% HP (12 công đức) · có '+G.pill.hp,dis:no(12),f:()=>{G.merit-=12;G.pill.hp++;}},
-      {t:'Tụ Linh Đan, hồi 50% linh lực (10 công đức) · có '+G.pill.mp,dis:no(10),f:()=>{G.merit-=10;G.pill.mp++;}},
-      {t:'Bùa trấn yểm (15 công đức) · có '+G.charms,dis:no(15),f:()=>{G.merit-=15;G.charms++;}},
-      {t:'Linh Quả: đồng hành ăn +10 trung thành (20 công đức) · có '+itN('linhqua'),dis:no(20),f:()=>{G.merit-=20;itAdd('linhqua');}},
-      ...[['loiphu',14],['thienthu',40],['coquyen',45]].map(([k,pr])=>({t:`${CONS[k].n}: ${CONS[k].d} (${pr} công đức) · có ${itN(k)}`,dis:no(pr),f:()=>{G.merit-=pr;itAdd(k);}})),
-      {t:'Cam Lộ Thủy: cả đội hồi đầy HP, linh lực (25 công đức)',dis:no(25),f:()=>{G.merit-=25;for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}toast('Cả đội hồi phục hoàn toàn');}},
-      ...s.stock.map((it,i)=>({t:`${it.n}: ${itemDesc(it)} (${price(it)} công đức) · ${cmpEq(it).t}`,dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{G.merit-=price(it);addItem(it);s.stock.splice(i,1);toast('Thỉnh được '+it.n);}})),
-      {t:'Rời tháp',def:1}];
-    const i=await ask(p.n,'Công đức: '+G.merit+'. Chọn vật phẩm muốn thỉnh.',opts);
-    if(i===opts.length-1||i<0)return;sfx('coin');const m0=G.merit;await opts[i].f();G.mspent=(G.mspent||0)+m0-G.merit;save();}}
+  const price=it=>30+it.tier*25+it.v*3,no=n=>G.merit<n?'Chưa đủ công đức':null,pay=n=>{G.merit-=n;G.mspent=(G.mspent||0)+n;};
+  const it1=(ic,n,d,pr,h,f)=>({ic,n,d,p:pr+' công đức',h:h==null?'':'Đang có '+h,dis:no(pr),f:()=>{pay(pr);f();toast('Thỉnh được '+n);}});
+  await shopUI({t:p.n,cur:()=>'Công đức: '+G.merit,g:['Trang bị','Vật phẩm'],act:'Thỉnh',rows:g=>g===0?s.stock.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),c:cmpEq(it),p:price(it)+' công đức',dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{pay(price(it));addItem(it);s.stock.splice(i,1);toast('Thỉnh được '+it.n);}}))
+    :[it1((x,y,z)=>icS('pill',x,y,z),'Hồi Hồn Đan','Hồi 40% HP',12,G.pill.hp,()=>G.pill.hp++),it1((x,y,z)=>icS('pillb',x,y,z),'Tụ Linh Đan','Hồi 50% linh lực',10,G.pill.mp,()=>G.pill.mp++),it1((x,y,z)=>icS('seal',x,y,z),'Bùa trấn yểm','Dùng để thu phục quỷ',15,G.charms,()=>G.charms++),
+      it1((x,y,z)=>itArt('jade',x,y,z),'Linh Quả','Đồng hành ăn: +10 trung thành',20,itN('linhqua'),()=>itAdd('linhqua')),
+      ...[['loiphu',14],['thienthu',40],['coquyen',45]].map(([k,pr])=>it1((x,y,z)=>itArt(CONS[k].k,x,y,z),CONS[k].n,CONS[k].d,pr,itN(k),()=>itAdd(k))),
+      it1((x,y,z)=>icS('water',x,y,z),'Cam Lộ Thủy','Cả đội hồi đầy HP và linh lực ngay',25,null,()=>{for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}})],
+    empty:['Tháp đã hết pháp bảo. Lần sau ghé lại sư trụ trì sẽ thỉnh thêm.','']});}
+/* v15.4: màn hình mua bán dùng khung menu như Hành trang. o={t,cur,g:[bên],rows(g)=>[{ic,n,d,p,h|c,dis,f,act}],empty,act} */
+function shopUI(o){return new Promise(res=>{MENU={tab:3,i:0,sub:null,si:0,bg:0,shop:o,done:res};scene='menu';delete SCO.shp;});}
+function shopRows(){const M=MENU;return M.shop.rows(M.bg||0);}
+function shopGrp(g){const M=MENU;if((M.bg||0)===g)return;M.bg=g;M.i=0;M.l_shp=null;scrollReset('shp');sfx('sel');}
+function shopSub(){const r=shopRows()[MENU.i];if(!r)return[{l:'Đóng',f:()=>{}}];const a=r.act||MENU.shop.act||'Mua';
+  return[{l:a+' '+r.n+' ('+r.p+')',f:()=>{const why=r.dis;if(why){sfx('no');toast(why);return;}sfx('coin');r.f();const n=shopRows().length;if(MENU.i>=n)MENU.i=Math.max(0,n-1);}},{l:'Đóng',f:()=>{}}];}
+function shopInput(k){const M=MENU,G0=M.shop.g;if(k==='b'||k==='menu')return closeMenu();
+  if(k==='left'||k==='right'||k==='dg'){shopGrp(((M.bg||0)+(k==='left'?-1:1)+G0.length)%G0.length);return;}
+  const n=shopRows().length;if((k==='up'||k==='down')&&n){M.i=(M.i+(k==='up'?-1:1)+n)%n;sfx('sel');return;}
+  if(k==='a'&&n){M.sub=shopSub;M.si=0;sfx('ok');}}
+function shopChips(x,y,w,h){const M=MENU,L=M.shop.g,cw=w/L.length;L.forEach((k,i)=>{const cx=Math.round(x+i*cw),ww=Math.round(cw)-2,sel=(M.bg||0)===i,n=M.shop.rows(i).length;
+  win(cx,y,ww,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(k+' ('+n+')',cx+ww/2,y+(h-9)/2,{size:9,align:'center',color:sel?'#fff':'#c8bcd8'});hit(cx,y-1,ww,h+2,()=>{shopGrp(i);M.sub=null;});});}
+function shopRow(r,x,y,w,rh,sel,big){if(sel)rect(x,y,w,rh-1,'#4a64c0');const z=big?16:12;r.ic(x+1,y+3,z);const tx=x+z+4,dc=r.dis?'#ff9a8a':'#ffe8a0';
+  txt(r.n,tx,y,{size:9,color:'#fff'});txt(r.p,x+w-3,y,{size:9,align:'right',color:dc});
+  const d=wrap(r.d,w-z-8,8);txt(d[0]||'',tx,y+9,{size:8,color:r.c?'#c8f0c8':'#c8c0e0'});
+  if(big){const t3=r.c?'So đang mặc: '+r.c.t:(d[1]||r.h||'');txt(t3,tx,y+18,{size:8,color:r.c?r.c.col:'#a8a0c0'});}
+  else if(r.c)txt(r.c.t,x+w-3,y+9,{size:8,align:'right',color:r.c.col});else if(r.h)txt(r.h,x+w-3,y+9,{size:8,align:'right',color:'#a8a0c0'});}
+function drawShop(){const M=MENU,S=M.shop,rs=shopRows();if(M.i>=rs.length)M.i=Math.max(0,rs.length-1);rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)rect(0,y,W,1,'#1a1428');
+  let t,b,rh,x0=2,w0=W-4;
+  if(PORT){txt(S.t,6,4,{size:12,color:'#ffe8a0'});win(W-56,2,54,18,'#7a2a22','#5a1a18','#ffe8a0');txt('Đóng ✕',W-29,5,{size:9,align:'center',color:'#fff8e0'});hit(W-58,0,58,22,()=>closeMenu());
+    txt(S.cur(),6,18,{size:9,color:'#80ff90'});shopChips(2,30,W-4,18);t=51;b=H-4;rh=29;}
+  else{txt(S.t,6,3,{size:10,color:'#ffe8a0'});txt(S.cur(),180,4,{size:9,align:'right',color:'#80ff90'});win(186,2,51,13,'#7a2a22','#5a1a18','#ffe8a0');txt('Đóng ✕',211,3,{size:8,align:'center',color:'#fff8e0'});hit(186,1,51,15,()=>closeMenu());
+    shopChips(2,18,236,13);t=33;b=H-2;rh=19;}
+  win(x0,t,w0,b-t,'#2c3a78','#1a2250');const ly=t+3,lh=b-t-6,sc=scrollArea('shp',x0,ly,w0,lh,rs.length*rh);listShow('shp',M.i,rh,lh);clipOn(x0+1,ly,w0-2,lh);
+  rs.forEach((r,i)=>{const yy=ly+i*rh-sc;if(yy+rh<ly||yy>ly+lh)return;shopRow(r,x0+3,yy,w0-8,rh,i===M.i,PORT);hitC(x0,yy,w0,rh,()=>{M.i=i;M.sub=shopSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('shp',x0+w0-4,ly,lh);
+  if(!rs.length){const e=(S.empty||[])[M.bg||0]||'Không có gì.';wrap(e,w0-20,8).forEach((l,i)=>txt(l,W/2,ly+10+i*9,{size:8,align:'center',color:'#a8a0c0'}));}
+  if(M.sub){hits.length=0;SCR.length=0;const o=M.sub();rect(0,0,W,H,'rgba(8,6,14,.55)');
+    if(PORT){const rh2=20,h=o.length*rh2+8,w=W-28,x=14,y=Math.round((H-h)/2);win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');o.forEach((op,i)=>{const yy=y+4+i*rh2,sel=i===M.si;if(sel)rect(x+3,yy,w-6,rh2-1,'#a83a2f');txt(op.l,x+10,yy+4,{size:10,color:sel?'#fff':'#f0d8c8'});hit(x,yy,w,rh2,()=>{M.si=i;menuInput('a');});});}
+    else{const h=o.length*12+6,oy=Math.min(50,146-h);win(26,oy,188,h,'#7a2a22','#5a1a18','#ffe8a0');o.forEach((op,i)=>{txt((i===M.si?'▶ ':'  ')+op.l,32,oy+3+i*12,{size:9,color:i===M.si?'#fff':'#e0c8c0'});hit(26,oy+3+i*12,188,12,()=>{M.si=i;menuInput('a');});});}}}
 async function meet(r0){const r=r0??ri(0,2);
   if(r===0)return pick('Tiều phu đốn củi','Bên bìa rừng, một bác tiều phu già lom khom gom củi, gánh nặng làm bác thở dốc.',[{t:'Gánh củi giúp bác (bạc, công đức, Minh Dạ mệt mất ít máu)',f:()=>{evOut({s:5,m:3,hp:.1});}},{t:'Đi tiếp'}]);
   if(r===1)return pick('Thôn nữ đi lạc','Một cô thôn nữ ôm giỏ rau đứng khóc giữa ngã ba, sương âm phủ kín lối về.',[{t:'Dẫn cô về làng (-1 bùa, bạc, công đức)',dis:G.charms<1?'Cần 1 bùa để xua sương':null,f:()=>{G.charms--;evOut({s:6,m:2,luck:.3});}},{t:'Chỉ đường rồi đi (chút công đức)',f:()=>{evOut({m:1});}}]);
@@ -2577,6 +2599,7 @@ function menuLen(){return[statRows().length,pList().length,0,(MENU.bg?consList()
 function menuInput(k){const M=MENU;if(M.tower)return twInput(k);if(M.warp)return warpInput(k);
   if(M.info||M.guide){if(k==='up'||k==='down'){M.tsc=(M.tsc||0)+(k==='up'?-24:24);return;}if(k==='a'||k==='b'||k==='menu'){M.info=null;M.guide=0;sfx('sel');}return;}
   if(M.sub){const o=M.sub();if(k==='up'||k==='down'){M.si=(M.si+(k==='up'?-1:1)+o.length)%o.length;sfx('sel');}else if(k==='b'){M.sub=null;sfx('sel');}else if(k==='a'){const f=o[M.si].f;M.sub=null;f();save();}return;}
+  if(M.shop)return shopInput(k);
   if(k==='b'||k==='menu')return closeMenu();
   if(M.tab===5&&k==='dg'){dexKind(((M.dk||0)+1)%DEXK.length);return;}
   if(M.tab===3&&k==='dg'){bagGrp(M.bg?0:1);return;}
@@ -2591,7 +2614,7 @@ function menuInput(k){const M=MENU;if(M.tower)return twInput(k);if(M.warp)return
     else if(M.tab===6){const r=setRows()[M.i];if(r)r.f();}}}
 function meditate(){const w=30-(G.steps-G.med);if(w>0){sfx('no');toast('Tâm còn đang tĩnh. Đi thêm '+w+' bước nữa rồi hãy thiền.');return;}
   G.med=G.steps;healAll(.3);for(const u of G.party)u.mp=u.mmp;sfx('heal');toast('Ngồi thiền: cả đội hồi 30% HP, đầy linh lực');}
-function drawMenu(){MENU.trect=null;if(MENU.tower)return drawTower();if(MENU.warp)return drawWarp();if(PORT){drawMenuP();if(MENU.info)infoOverlay();else if(MENU.guide)guideOverlay();return;}const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)rect(0,y,W,1,'#1a1428');
+function drawMenu(){MENU.trect=null;if(MENU.tower)return drawTower();if(MENU.warp)return drawWarp();if(MENU.shop)return drawShop();if(PORT){drawMenuP();if(MENU.info)infoOverlay();else if(MENU.guide)guideOverlay();return;}const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)rect(0,y,W,1,'#1a1428');
   const tbw=236/TABS.length;TABS.forEach((t,i)=>{const x=2+i*tbw,sel=i===M.tab,L=tabLbl(t,tbw-4,9);win(Math.round(x),2,Math.round(tbw-1),14,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(L.t,Math.round(x+tbw/2),4+(9-L.sz)/2,{size:L.sz,align:'center',color:sel?'#fff':'#c8bcd8'});hit(Math.round(x),2,Math.round(tbw-1),14,()=>{M.tab=i;M.i=0;M.sub=null;sfx('sel');});});
   [drawStats,drawParty,drawNan,drawGear,drawWorld,drawDex,drawSettings][M.tab]();if(M.info)return infoOverlay();if(M.guide)return guideOverlay();
   if(M.sub){hits.length=0;SCR.length=0;const o=M.sub();const h=o.length*12+6;win(36,Math.min(50,146-h),168,h,'#7a2a22','#5a1a18','#ffe8a0');const oy=Math.min(50,146-h);o.forEach((op,i)=>{txt((i===M.si?'▶ ':'  ')+op.l,42,oy+3+i*12,{size:9,color:i===M.si?'#fff':'#e0c8c0'});hit(36,oy+3+i*12,168,12,()=>{M.si=i;menuInput('a');});});}
