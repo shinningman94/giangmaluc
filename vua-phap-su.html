@@ -1554,7 +1554,7 @@ const fx=[],toasts=[];
 let seen=null;
 function newGame(){const seed=ri(1,99999);WD=genRegion(seed);seen=new Uint8Array(MW*MH);
   const d=makeUnit('diep',1,{full:true});
-  G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false};
+  G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false,rs157:1};
   PL.x=RNODES[0].x;PL.y=RNODES[0].y;G.home=homeTMT(PL.x,PL.y);snapPL();reveal();placeMarker();spawnLanterns();}
 function snapPL(){PL.px=PL.x*TS;PL.py=PL.y*TS;PL.moving=false;}
 function seenStr(){let s='';for(let i=0;i<seen.length;i+=4){s+=((seen[i]|seen[i+1]<<1|seen[i+2]<<2|seen[i+3]<<3)).toString(16);}return s;}
@@ -1576,8 +1576,14 @@ function migrateV3(s,LY=LAY2){const OW=genRegion(G.seed,LY),ow=LY.MW,oh=LY.MH,K=
   const tx=s.x*K,ty=s.y*K;for(let k=0;k<L;k++){const j=WD.path[k],x=j%MW,y=(j-x)/MW,d=Math.hypot(x-tx,y-ty)+Math.abs(k/(L-1)-f)*200;if(d<bd&&!blocked(x,y)&&!poiAt(x,y)){bd=d;bi=j;}}
   if(bi<0)bi=WD.path[0];s.x=bi%MW;s.y=(bi-s.x)/MW;if(G.home)G.home={x:Math.round(G.home.x*K),y:Math.round(G.home.y*K)};G.lg=null;G.qt=null;G.npcOld=null;PL.x=s.x;PL.y=s.y;placeMarker();}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');return s&&s.G&&s.G.party?s:null;}catch(e){return null;}}
+/* v15.7: người chơi chọn tẩy điểm cộng cũ của Minh Dạ: chỉ số tính lại theo cấp (tăng trưởng trung bình), nghề và trang bị cộng lại như cũ, trả 1 điểm mỗi cấp (cộng Cổ Quyển đã đọc nếu có ghi) */
+function respec157(){if(G.rs157)return;G.rs157=1;const d=G.party.concat(G.box||[]).find(u=>u&&u.id==='diep');if(!d||d.lv<=1)return;
+  const sp=SPECIES.diep,hr=d.mhp?d.hp/d.mhp:1,mr=d.mmp?d.mp/d.mmp:1,L=d.lv-1,st=G.sect&&SECT[G.sect]?SECT[G.sect].st:{};
+  for(const k of STATS)d[k]=sp.base[k]+Math.round(sp.grow[k]*.6/100*L)+(k==='hp'?L:0);d.mhp=d.hp;d.mmp=sp.mp+(sp.mpg||2)*L;
+  for(const k in st)d[k]+=st[k];d.hp=d.mhp;d.mp=d.mmp;for(const s in G.eq)if(G.eq[s])applyEq(G.eq[s],1);
+  d.hp=Math.max(1,Math.round(d.mhp*hr));d.mp=Math.round(d.mmp*mr);G.pts=L*PTSLV+(G.cq||0)*3;setTimeout(()=>{try{toast('Minh Dạ đã được tẩy điểm: '+G.pts+' điểm cộng, vào Menu → Chỉ số để cộng lại');}catch(e){}},2500);}
 function applySave(s){G=s.G;rkFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
-  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
+  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
 /* v10.7: biên giới vùng đổi nên vài đền, hang, danh thắng dời chỗ: chuyển trạng thái đã ghé/đã dẹp theo tên điểm đến; nhân vật đứng phải ao mới thì dời ra ô trống gần nhất */
 function remapPoi(OW){const key=p=>p.k+'|'+p.n+'|'+(p.lt||'')+'|'+(p.li??'')+'|'+(p.rid||''),np={},nw=new Map(),used=new Set();
   for(const p of WD.pois){const k=key(p);if(!nw.has(k))nw.set(k,[]);nw.get(k).push(p);}
@@ -4195,7 +4201,7 @@ function consList(){return Object.keys(CONS).filter(k=>itN(k)>0);}
 /* dùng ngoài trận (Hành trang, bên Vật phẩm); trả về false nếu không dùng được */
 function useCons(k,u){const d=diep();
   if(k==='anphu'){itAdd(k,-1);for(const m of G.party){if(m.hp>0)m.hp=Math.min(m.mhp,m.hp+Math.ceil(m.mhp*.35));m.b={};}sfx('heal');toast('Cả đội hồi 35% HP');return true;}
-  if(k==='coquyen'){itAdd(k,-1);G.pts+=3;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
+  if(k==='coquyen'){itAdd(k,-1);G.pts+=3;G.cq=(G.cq||0)+1;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
   if(k==='thu'){itAdd(k,-1);G.merit+=6;sfx('pur');toast('Đốt cúng Thư Tịch Cổ: +6 công đức');return true;}
   if(k==='giay'){if(!itN('but')||itN('giay')<3)return false;itAdd('giay',-3);G.charms++;sfx('seal');toast('Vẽ xong 1 bùa trấn yểm');return true;}
   if(k==='thanhanh'){MENU.warp={sel:null};return true;}
