@@ -254,10 +254,10 @@ async function onlBotDuel(D){const P=onlPvp(),raw=x=>{try{ONL.room&&ONL.room.raw
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
   raw({t:'botres',b:D.to,win:!!win});ONL.duel=null;
   const E=arElo(P.rp,D.rp),d=Math.max(6,Math.round(32*Math.abs((win?1:0)-E)));
-  if(win){P.w++;P.rp+=d;const sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.2)),true);
+  if(win){P.w++;P.rp+=d;const sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.2)),true);
     blogAdd('Thắng '+D.nm+' (người chơi) · +'+d+' điểm PvP');sfx('got');
     await say(['Thầy thắng '+D.nm+'! Nhận '+sv+' bạc, đồng hành ra sân nhận kinh nghiệm.','+'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
-  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.05*(1+kills))),true);
+  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.05*(1+kills))),true);
     blogAdd('Thua '+D.nm+' (người chơi) · -'+d+' điểm PvP');
     await say([(quit?'Thầy bỏ cuộc. ':'')+'Thua '+D.nm+', hạ được '+kills+'/'+te.length+' đồng hành của đối thủ.','-'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
   save();onlSend(true);onlUI();}
@@ -305,10 +305,10 @@ async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBo
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
   await onlDuelEnd(D);
   const E=arElo(P.rp,D.foeRp),d=Math.max(6,Math.round(32*Math.abs((win?1:0)-E)));
-  if(win){P.w++;P.rp+=d;const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.2)),true);
+  if(win){P.w++;P.rp+=d;const avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),sv=gainSilver(rv(20+avg*2));for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.2)),true);
     blogAdd('Thắng '+D.nm+' (người chơi) · +'+d+' điểm PvP');sfx('got');
     await say([(left?D.nm+' rời trận. ':'')+'Thầy thắng '+D.nm+'! Nhận '+sv+' bạc, đồng hành ra sân nhận kinh nghiệm.','+'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
-  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv)*.05*(1+kills))),true);
+  else{P.l++;P.rp=Math.max(600,P.rp-d);for(const u of sel)await expTo(u,rv(Math.round(expNeed(u.lv,u)*.05*(1+kills))),true);
     blogAdd('Thua '+D.nm+' (người chơi) · -'+d+' điểm PvP');
     await say([(quit?'Thầy bỏ cuộc. ':'')+'Thua '+D.nm+', hạ được '+kills+'/'+te.length+' đồng hành của đối thủ.','-'+d+' điểm PvP → '+P.rp+' ('+arRank(P.rp)+') · '+P.w+' thắng / '+P.l+' thua.'],'Đấu Trường');}
   save();onlSend(true);}
