@@ -2458,7 +2458,7 @@ function drawAutoBtn(x,y,w,h){const on=AUTO.on,bl=on&&Math.floor(time/500)%2;win
 
 
 /* ---------- menu (stats, party, tribulations, gear, map) ---------- */
-const TABS=['Chỉ số','Đội hình','Kiếp nạn','Pháp bảo','Bản đồ','Giáng Ma Lục','Cài đặt'];
+const TABS=['Chỉ số','Đội hình','Kiếp nạn','Hành trang','Bản đồ','Giáng Ma Lục','Cài đặt'];
 const onOff=v=>v?'Bật':'Tắt',setTg=k=>()=>{SET[k]=SET[k]?0:1;saveSet();sfx('sel');};
 const SETG=['Cài đặt hệ thống','Cài đặt chiến đấu'],APS=[0,20,30,50,70],AVS=[0,3,5,10];
 const setCy=(k,L)=>()=>{SET[k]=L[(L.indexOf(SET[k])+1)%L.length];saveSet();sfx('sel');};
@@ -2477,6 +2477,13 @@ function setRows(){if(MENU&&MENU.sg)return[
 function setGrp(g){const M=MENU;if((M.sg||0)===g)return;M.sg=g;M.i=0;sfx('sel');}
 function setChips(x,y,w,h){const M=MENU,cw=w/2;SETG.forEach((k,i)=>{const cx=Math.round(x+i*cw),ww=Math.round(cw)-2,sel=(M.sg||0)===i;
   win(cx,y,ww,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(k,cx+ww/2,y+(h-9)/2,{size:9,align:'center',color:sel?'#fff':'#c8bcd8'});hit(cx,y-1,ww,h+2,()=>setGrp(i));});}
+/* v15.3: người chơi muốn mục Pháp bảo thành Hành trang, chia 2 bên: Trang bị (pháp bảo, đồ mặc) và Vật phẩm (đồ dùng) */
+const BAGG=['Trang bị','Vật phẩm'];
+function bagGrp(g){const M=MENU;if((M.bg||0)===g)return;M.bg=g;M.i=0;M.l_bag=null;scrollReset('bag');sfx('sel');}
+function bagChips(x,y,w,h){const M=MENU,cw=w/2,ns=[G.inv.length+'/12',consList().length];BAGG.forEach((k,i)=>{const cx=Math.round(x+i*cw),ww=Math.round(cw)-2,sel=(M.bg||0)===i;
+  win(cx,y,ww,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(k+' ('+ns[i]+')',cx+ww/2,y+(h-9)/2,{size:9,align:'center',color:sel?'#fff':'#c8bcd8'});hit(cx,y-1,ww,h+2,()=>{bagGrp(i);M.sub=null;});});}
+function bagFix(){const M=MENU,n=M.bg?consList().length:G.inv.length;if(M.i>=n)M.i=Math.max(0,n-1);}
+const BAGE=['Chưa có pháp bảo. Tìm ở hang quỷ, kiếp nạn hoặc mua ở chợ.','Chưa có vật phẩm. Mua ở chợ, đổi ở Tháp Công Đức hoặc nhặt khi hàng phục yêu ma.'];
 const setVc=v=>v==='Tắt'?'#a8a0c0':'#fff8e0';
 function drawSettings(){const M=MENU,rs=setRows(),rh=13;win(2,18,236,130,'#2c3a78','#1a2250');setChips(6,21,228,12);
   rs.forEach((r,i)=>{const y=37+i*rh,sel=i===M.i;if(sel)rect(5,y-1,230,rh,'#4a64c0');txt(r.l,10,y+1,{size:9,color:'#e0e8ff'});
@@ -2565,13 +2572,14 @@ function partySub(){const i=MENU.i,u=G.party[i],n=G.party.length,o=[];
   if(G.pill.mp>0&&u.mp<u.mmp)o.push({l:'Uống Tụ Linh Đan ('+G.pill.mp+')',f:()=>{G.pill.mp--;u.mp=Math.min(u.mmp,u.mp+Math.ceil(u.mmp*(G.sect==='thuoc'?.75:.5)));sfx('heal');}});
   if(u.id!=='diep')o.push({l:'Siêu độ, cho đi (+3 công đức)',f:()=>{G.party.splice(i,1);G.merit+=3;MENU.i=0;sfx('pur');toast(u.name+' được siêu thoát');}});
   o.push({l:'Đóng',f:()=>{}});return o;}
-function gearSub(){if(MENU.i>=G.inv.length){const k=consList()[MENU.i-G.inv.length];return k?consSub(k):[{l:'Đóng',f:()=>{}}];}const it=G.inv[MENU.i];return[{l:'Trang bị'+(it?' ('+cmpEq(it).t+')':''),f:()=>{equip(MENU.i);MENU.i=Math.min(MENU.i,Math.max(0,G.inv.length-1));sfx('ok');}},{l:'Bỏ đi',f:()=>{G.inv.splice(MENU.i,1);MENU.i=Math.max(0,Math.min(MENU.i,G.inv.length-1));}},{l:'Đóng',f:()=>{}}];}
-function menuLen(){return[statRows().length,pList().length,0,G.inv.length+consList().length,0,dexList().length,setRows().length][MENU.tab];}
+function gearSub(){if(MENU.bg){const k=consList()[MENU.i];return k?consSub(k):[{l:'Đóng',f:()=>{}}];}const it=G.inv[MENU.i];if(!it)return[{l:'Đóng',f:()=>{}}];return[{l:'Trang bị ('+cmpEq(it).t+')',f:()=>{equip(MENU.i);MENU.i=Math.min(MENU.i,Math.max(0,G.inv.length-1));sfx('ok');}},{l:'Bỏ đi',f:()=>{G.inv.splice(MENU.i,1);MENU.i=Math.max(0,Math.min(MENU.i,G.inv.length-1));}},{l:'Đóng',f:()=>{}}];}
+function menuLen(){return[statRows().length,pList().length,0,(MENU.bg?consList().length:G.inv.length),0,dexList().length,setRows().length][MENU.tab];}
 function menuInput(k){const M=MENU;if(M.tower)return twInput(k);if(M.warp)return warpInput(k);
   if(M.info||M.guide){if(k==='up'||k==='down'){M.tsc=(M.tsc||0)+(k==='up'?-24:24);return;}if(k==='a'||k==='b'||k==='menu'){M.info=null;M.guide=0;sfx('sel');}return;}
   if(M.sub){const o=M.sub();if(k==='up'||k==='down'){M.si=(M.si+(k==='up'?-1:1)+o.length)%o.length;sfx('sel');}else if(k==='b'){M.sub=null;sfx('sel');}else if(k==='a'){const f=o[M.si].f;M.sub=null;f();save();}return;}
   if(k==='b'||k==='menu')return closeMenu();
   if(M.tab===5&&k==='dg'){dexKind(((M.dk||0)+1)%DEXK.length);return;}
+  if(M.tab===3&&k==='dg'){bagGrp(M.bg?0:1);return;}
   if(M.tab===6&&k==='dg'){setGrp(M.sg?0:1);return;}
   if(k==='left'||k==='right'){M.tab=(M.tab+(k==='left'?-1:1)+TABS.length)%TABS.length;M.i=0;sfx('sel');return;}
   const n=menuLen();if((k==='up'||k==='down')&&n){M.i=(M.i+(k==='up'?-1:1)+n)%n;sfx('sel');return;}
@@ -2704,15 +2712,17 @@ function eqStats(s,it){const v=it?it.v:0;return s==='w'?[['Lực',v]]:s==='a'?[[
 function eqDesc(s){const it=G.eq[s];return it?itemDesc(it):'không cộng thêm';}
 function cmpEq(it){const a=eqStats(it.s,it),b=eqStats(it.s,G.eq[it.s]);let sum=0;const t=a.map(([n,v],i)=>{const d=v-b[i][1];sum+=d;return(d>0?'▲':d<0?'▼':'=')+(d?Math.abs(d):'')+' '+n;}).join(' ');
   return{t,col:sum>0?'#80ff90':sum<0?'#ff8a7a':'#a8a0c0'};}
-function drawGear(){win(2,18,236,130,'#2c3a78','#1a2250');
-  ['w','a','t','b'].forEach((s,i)=>{const it=G.eq[s];const x=5+i*58;win(x,21,56,33,'#3a2a20','#241810','#a88a5a');if(it)itIc(it,x+2,24,12);else icS(ITIC[s],x+3,25,10);txt(SLOTN[s],x+16,22,{size:8,color:'#d8c8a0'});const nm=it?it.n:(s==='w'?'Kiếm Gỗ Đào':'(trống)'),nl=wrap(nm,50,7);nl.slice(0,2).forEach((l,j)=>txt(l,x+(j?3:16),31+j*7,{size:7,color:'#fff'}));
-    if(nl.length<2)wrap(eqDesc(s),52,7).slice(0,1).forEach(l=>txt(l,x+3,43,{size:7,color:it?'#c8f0c8':'#8a80a0'}));});
-  txt('Túi đồ '+G.inv.length+'/12 · chạm món đồ để trang bị',8,56,{size:8,color:'#a8a0c0'});
-  const CL=consList(),sc=scrollArea('bag',4,66,232,70,(G.inv.length+CL.length)*10);listShow('bag',MENU.i,10,70);clipOn(4,66,232,70);
-  CL.forEach((k,j)=>{const i=G.inv.length+j,y=66+i*10-sc,sel=i===MENU.i;if(y<56||y>136)return;if(sel)rect(6,y,226,10,'#4a64c0');itArt(CONS[k].k,8,y,9);txt(CONS[k].n+' ×'+itN(k),20,y,{size:9,color:'#ffe8a0'});txt(CONS[k].d,230,y,{size:7,align:'right',color:'#c8c0e0'});hitC(6,y,226,10,()=>{MENU.i=i;MENU.sub=gearSub;MENU.si=0;sfx('ok');},66,70);});
-  G.inv.forEach((it,i)=>{const y=66+i*10-sc,sel=i===MENU.i;if(y<56||y>136)return;if(sel)rect(6,y,226,10,'#4a64c0');itIc(it,8,y,9);txt(it.n,20,y,{size:9,color:'#fff'});txt(itemDesc(it),230,y,{size:8,align:'right',color:'#c8f0c8'});hitC(6,y,226,10,()=>{MENU.i=i;MENU.sub=gearSub;MENU.si=0;sfx('ok');},66,70);});clipOff();scrollBar('bag',233,66,70);
-  const cur=G.inv[MENU.i];if(cur){const c2=cmpEq(cur);txt('So với đang mặc: ',8,137,{size:8,color:'#d8d0e8'});txt(c2.t,8+tw('So với đang mặc: ',8),137,{size:8,color:c2.col});}
-  if(!G.inv.length&&!consList().length)txt('Chưa có pháp bảo. Tìm ở hang quỷ, kiếp nạn hoặc mua ở chợ.',120,80,{size:8,align:'center',color:'#a8a0c0'});}
+function drawGear(){const M=MENU;bagFix();win(2,18,236,130,'#2c3a78','#1a2250');bagChips(6,21,228,12);
+  if(M.bg){const CL=consList(),rh=12,sc=scrollArea('bag',4,36,232,98,CL.length*rh);listShow('bag',M.i,rh,98);clipOn(4,36,232,98);
+    CL.forEach((k,i)=>{const y=36+i*rh-sc,sel=i===M.i;if(y<24||y>134)return;if(sel)rect(6,y,226,rh,'#4a64c0');itArt(CONS[k].k,8,y+1,10);txt(CONS[k].n,21,y+1,{size:9,color:'#ffe8a0'});txt('×'+itN(k),228,y+1,{size:9,align:'right',color:'#fff'});hitC(6,y,226,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},36,98);});clipOff();scrollBar('bag',233,36,98);
+    const k=CL[M.i];if(k)wrap(CONS[k].d,226,8).slice(0,1).forEach(l=>txt(l,8,137,{size:8,color:'#c8c0e0'}));else txt(BAGE[1],120,70,{size:8,align:'center',color:'#a8a0c0'});return;}
+  ['w','a','t','b'].forEach((s,i)=>{const it=G.eq[s];const x=5+i*58;win(x,35,56,33,'#3a2a20','#241810','#a88a5a');if(it)itIc(it,x+2,38,12);else icS(ITIC[s],x+3,39,10);txt(SLOTN[s],x+16,36,{size:8,color:'#d8c8a0'});const nm=it?it.n:(s==='w'?'Kiếm Gỗ Đào':'(trống)'),nl=wrap(nm,50,7);nl.slice(0,2).forEach((l,j)=>txt(l,x+(j?3:16),45+j*7,{size:7,color:'#fff'}));
+    if(nl.length<2)wrap(eqDesc(s),52,7).slice(0,1).forEach(l=>txt(l,x+3,57,{size:7,color:it?'#c8f0c8':'#8a80a0'}));});
+  txt('Túi đồ '+G.inv.length+'/12 · chạm món đồ để trang bị',8,69,{size:8,color:'#a8a0c0'});
+  const sc=scrollArea('bag',4,79,232,57,G.inv.length*10);listShow('bag',M.i,10,57);clipOn(4,79,232,57);
+  G.inv.forEach((it,i)=>{const y=79+i*10-sc,sel=i===M.i;if(y<69||y>136)return;if(sel)rect(6,y,226,10,'#4a64c0');itIc(it,8,y,9);txt(it.n,20,y,{size:9,color:'#fff'});txt(itemDesc(it),230,y,{size:8,align:'right',color:'#c8f0c8'});hitC(6,y,226,10,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},79,57);});clipOff();scrollBar('bag',233,79,57);
+  const cur=G.inv[M.i];if(cur){const c2=cmpEq(cur);txt('So với đang mặc: ',8,138,{size:8,color:'#d8d0e8'});txt(c2.t,8+tw('So với đang mặc: ',8),138,{size:8,color:c2.col});}
+  else txt(BAGE[0],120,96,{size:8,align:'center',color:'#a8a0c0'});}
 const MCOL={'s':'#dcb878','n':'#e6eef8','t':'#c9b48a','.':'#6fae4a','"':'#4a8434','m':'#5e7a44','g':'#66705a','k':'#a08e68','r':'#544868','=':'#d8b67e','w':'#3a8ec4','F':'#5e7a34','Y':'#c8a040','u':'#6e5e3e'};
 /* bản đồ vùng: ô đã khám phá, điểm đến, tên vùng đặt ở giữa các làng của vùng đó */
 /* v5.0: ảnh nền bản đồ vùng vẽ sẵn 1 điểm ảnh mỗi ô, chỉ vẽ lại khi sương mù mở thêm */
@@ -2785,15 +2795,17 @@ function drawNanP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');let y=t+3;
   const lh=b-y-3,ly=y,SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-Math.floor(lh/33))*11);const sc=scrollArea('nan',2,ly,W-4,lh,(NAN.length+ns)*11);clipOn(3,ly,W-6,lh);
   const QL=qList();SR.forEach((l,k)=>{const yy=ly+k*11-sc;if(yy+11>=ly&&yy<=ly+lh){txt(l,8,yy,{size:tw(l,9)>W-16?7:8,color:'#ffc890'});hitC(2,yy,W-4,11,()=>qNav(QL[k]),ly,lh);}});
   for(let i=0;i<NAN.length;i++){const yy=ly+(i+ns)*11-sc;if(yy+11<ly||yy>ly+lh)continue;const done=i<G.nan,cur=i===G.nan;const l=(done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':'');txt(l,10,yy,{size:tw(l,9)>W-20?8:9,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(2,yy,W-4,11,()=>qNav('main'),ly,lh);}clipOff();scrollBar('nan',W-6,ly,lh);}
-function drawGearP(t,b){let y=t;
+function drawGearP(t,b){const M=MENU;bagFix();bagChips(2,t,W-4,18);let y=t+21;const rh=29;
+  if(M.bg){const CL=consList();win(2,y,W-4,b-y,'#2c3a78','#1a2250');y+=3;const lh=b-y-3,sc=scrollArea('bag',2,y,W-4,lh,CL.length*rh);listShow('bag',M.i,rh,lh);clipOn(3,y,W-6,lh);const ly=y;
+    CL.forEach((k,i)=>{const yy=ly+i*rh-sc,sel=i===M.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');itArt(CONS[k].k,5,yy+3,16);txt(CONS[k].n+' ×'+itN(k),22,yy,{size:9,color:'#ffe8a0'});wrap(CONS[k].d,W-30,8).slice(0,2).forEach((l,q)=>txt(l,22,yy+9+q*9,{size:8,color:'#c8c0e0'}));hitC(2,yy,W-4,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
+    if(!CL.length)wrap(BAGE[1],W-20,8).forEach((l,i)=>txt(l,W/2,y+8+i*9,{size:8,align:'center',color:'#a8a0c0'}));return;}
   ['w','a','t','b'].forEach(s=>{const it=G.eq[s];win(2,y,W-4,27,'#3a2a20','#241810','#a88a5a');if(it)itIc(it,4,y+6,15);else icS(ITIC[s],6,y+8,10);txt(SLOTN[s],19,y+3,{size:8,color:'#d8c8a0'});txt(it?it.n:(s==='w'?'Kiếm Gỗ Đào':'(trống)'),W-7,y+3,{size:9,align:'right',color:'#fff'});
     txt('Đang cộng: '+eqDesc(s),W-7,y+14,{size:8,align:'right',color:it?'#c8f0c8':'#8a80a0'});y+=28;});
   y+=2;txt('Túi đồ '+G.inv.length+'/12 · chạm món đồ để trang bị',W/2,y,{size:8,align:'center',color:'#a8a0c0'});y+=11;
-  win(2,y,W-4,b-y,'#2c3a78','#1a2250');y+=3;const CL=consList(),rh=29,lh=b-y-3,sc=scrollArea('bag',2,y,W-4,lh,(G.inv.length+CL.length)*rh);listShow('bag',MENU.i,rh,lh);clipOn(3,y,W-6,lh);const ly=y;
-  G.inv.forEach((it,i)=>{const yy=ly+i*rh-sc,sel=i===MENU.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');
-    itIc(it,5,yy+3,16);txt(it.n,22,yy,{size:9,color:'#fff'});txt(itemDesc(it),22,yy+9,{size:8,color:'#c8f0c8'});const c2=cmpEq(it);txt('So đang mặc: '+c2.t,22,yy+18,{size:8,color:c2.col});hitC(2,yy,W-4,rh,()=>{MENU.i=i;MENU.sub=gearSub;MENU.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
-  clipOn(3,ly,W-6,lh);CL.forEach((k,j)=>{const i=G.inv.length+j,yy=ly+i*rh-sc,sel=i===MENU.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');itArt(CONS[k].k,5,yy+3,16);txt(CONS[k].n+' ×'+itN(k),22,yy,{size:9,color:'#ffe8a0'});wrap(CONS[k].d,W-30,8).slice(0,2).forEach((l,q)=>txt(l,22,yy+9+q*9,{size:8,color:'#c8c0e0'}));hitC(2,yy,W-4,rh,()=>{MENU.i=i;MENU.sub=gearSub;MENU.si=0;sfx('ok');},ly,lh);});clipOff();
-  if(!G.inv.length&&!CL.length)wrap('Chưa có pháp bảo. Tìm ở hang quỷ, kiếp nạn hoặc mua ở chợ.',W-20,8).forEach((l,i)=>txt(l,W/2,y+8+i*9,{size:8,align:'center',color:'#a8a0c0'}));}
+  win(2,y,W-4,b-y,'#2c3a78','#1a2250');y+=3;const lh=b-y-3,sc=scrollArea('bag',2,y,W-4,lh,G.inv.length*rh);listShow('bag',M.i,rh,lh);clipOn(3,y,W-6,lh);const ly=y;
+  G.inv.forEach((it,i)=>{const yy=ly+i*rh-sc,sel=i===M.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');
+    itIc(it,5,yy+3,16);txt(it.n,22,yy,{size:9,color:'#fff'});txt(itemDesc(it),22,yy+9,{size:8,color:'#c8f0c8'});const c2=cmpEq(it);txt('So đang mặc: '+c2.t,22,yy+18,{size:8,color:c2.col});hitC(2,yy,W-4,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
+  if(!G.inv.length)wrap(BAGE[0],W-20,8).forEach((l,i)=>txt(l,W/2,y+8+i*9,{size:8,align:'center',color:'#a8a0c0'}));}
 function drawWorldP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');const s=(W-12)/MW,ox=6,oy=t+16;
   txt('Bản đồ vùng',W/2,t+3,{size:9,align:'center',color:'#ffe8a0'});worldMap(ox,oy,s);
   const ly=oy+MH*s+6;const lg=[['#f8e070','Làng'],['#5af0c0','Trấn Ma Ti'],['#ff5a4a','Đền chùa'],['#b060ff','Hang quỷ'],['#ffb070','Danh thắng'],['#7ad0ff','Người chờ'],['#ff2a6a','Quỷ Môn'],['#fff8e0','NPC dấu ?']];
@@ -4153,7 +4165,7 @@ const CONS={
 function itN(k){return(G&&G.it&&G.it[k])||0;}
 function itAdd(k,n=1){G.it=G.it||{};G.it[k]=Math.max(0,(G.it[k]||0)+n);}
 function consList(){return Object.keys(CONS).filter(k=>itN(k)>0);}
-/* dùng ngoài trận (menu Pháp bảo); trả về false nếu không dùng được */
+/* dùng ngoài trận (Hành trang, bên Vật phẩm); trả về false nếu không dùng được */
 function useCons(k,u){const d=diep();
   if(k==='anphu'){itAdd(k,-1);for(const m of G.party){if(m.hp>0)m.hp=Math.min(m.mhp,m.hp+Math.ceil(m.mhp*.35));m.b={};}sfx('heal');toast('Cả đội hồi 35% HP');return true;}
   if(k==='coquyen'){itAdd(k,-1);G.pts+=3;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
