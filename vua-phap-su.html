@@ -2699,7 +2699,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Mỗi lần thử tốn bùa và mất lượt; thất bại thì quái đánh trả. Hết máu thì quái được siêu độ: nhận công đức, bạc, đồ rơi và kinh nghiệm.',2],
   ['Hồn thu phục giữ nguyên bộ chiêu lúc còn là quái. Cấp, chỉ số, máu và linh lực cũng giữ nguyên như lúc gặp. Kỹ năng đi theo cấp: 2 chiêu đầu có sẵn, các chiêu sau mở ở cấp 3, 6, 10, 14, 18 (xem ở Đội hình › Xem thông tin chi tiết).',1],
   ['Lên cấp',0],
-  ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600 (Minh Dạ cần gấp rưỡi). Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
+  ['EXP cần để lên cấp tăng dần: cấp 1 cần 100, cấp 10 cần khoảng 230, cấp 30 khoảng 600, cấp 50 khoảng 1100, cấp 99 khoảng 2600 (Minh Dạ cần gấp đôi). Tối đa cấp 100. Tư chất (xem ở Đội hình) là % cơ hội mỗi chỉ số tăng khi lên cấp.',1],
   ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 3 điểm cộng: HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
   ['Làng và trấn',0],
   ['Trong làng là vùng an toàn: không gặp quỷ, quỷ tuần tra không vào được. Ra khỏi làng mới chạm trán quỷ dọc đường.',1],
@@ -2880,8 +2880,8 @@ const X2SPD=20;
 /* v9.8: giới hạn cấp nâng từ 40 lên 100 */
 const LVMAX=100;
 /* v11.9: người chơi muốn exp lên cấp tăng dần theo cấp (trước là 100 cố định): Lv1 100, Lv10 ~226, Lv30 ~605, Lv50 ~1091, Lv99 ~2630 */
-/* v15.6: người chơi muốn Minh Dạ cần nhiều EXP hơn để lên cấp: gấp rưỡi, đồng hành giữ nguyên */
-const EXPMD=1.5;
+/* v15.6: người chơi muốn Minh Dạ cần nhiều EXP hơn để lên cấp: gấp đôi, đồng hành giữ nguyên */
+const EXPMD=2;
 function expNeed(lv,u){return Math.round(100*Math.pow(1+(lv-1)*.08,1.5)*(u&&u.id==='diep'?EXPMD:1));}
 
 /* ---------- battle ---------- */
