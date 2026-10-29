@@ -1954,7 +1954,7 @@ function updateMap(dt){
   if(PL.path&&!PL.path.length&&!PL.moving)PL.path=null;
   const bi=bioAt(PL.x,PL.y),tr=BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
 function arrive(){G.steps++;vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))for(const u of G.party)if(u.hp>0&&u.hp<u.mhp)u.hp++;const t=tileG(PL.x,PL.y);
-  for(const u of G.party)u.mp=Math.min(u.mmp,u.mp+1);
+  /* v15.5: người chơi muốn đi trên bản đồ không còn hồi linh lực */
   if(G.sect==='tusi'){const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+1);}
   reveal();townStep();const z=regKey(PL.x,PL.y);if(z!==curZone){curZone=z;bannerT=2200;}
   if(busy)return;/* a lantern ghost may have caught us this same frame */
@@ -2689,7 +2689,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['HP (Máu)',4],['Sức chịu đòn. Về 0 thì người đó gục và không đánh được nữa. Cả đội gục hết thì phù truyền tống đưa mọi người về Trấn Ma Ti gần nhất, mất một nửa ngân lượng.',1],
   ['Hồi HP: Trấn Ma Ti (miễn phí, cả người đã gục), đền chùa, quán nước, giếng cổ, Hồi Hồn Đan, ngồi thiền (+30%). Minh Dạ cộng điểm vào HP được +3.',2],
   ['LL (Linh lực)',4],['Năng lượng để thi triển kỹ năng; mỗi kỹ năng ghi rõ tốn bao nhiêu LL. Hết LL thì chỉ đánh thường hoặc phòng thủ được.',1],
-  ['Hồi LL: đánh thường +6, phòng thủ +10, mỗi bước đi trên bản đồ +1, ngồi thiền đầy LL, Tụ Linh Đan, cây đa cổ thụ.',2],
+  ['Hồi LL: đánh thường +6, phòng thủ +10, ngồi thiền đầy LL, Tụ Linh Đan, cây đa cổ thụ.',2],
   ['Lực',4],['Sức mạnh đòn đánh. Mỗi điểm Lực cộng thẳng 1 vào DMG (sát thương = Lực + uy lực vũ khí − Thủ địch). Kỹ năng tấn công nhân sát thương này lên.',1],
   ['Kỹ',4],['Độ khéo tay, nhắm chuẩn. Mỗi điểm +2% HIT (tỉ lệ trúng); mỗi 2 điểm +1% CRT (chí mạng). Kỹ cao còn làm chí mạng của địch giảm: mỗi 3 điểm −1% CRT của nó.',1],
   ['Tốc',4],['Độ nhanh nhẹn. Mỗi điểm làm đòn của địch kém trúng 2%. Nhanh hơn đối phương từ 20 Tốc trở lên thì đánh thêm một đòn liên kích (ô DMG hiện ×2); địch nhanh hơn mình 10 thì nó liên kích lại.',1],
