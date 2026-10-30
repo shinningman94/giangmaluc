@@ -251,18 +251,12 @@ const SLOTN={w:'Vũ khí',a:'Áo',t:'Pháp khí',b:'Bảo vật'};
 /* v8.6: thêm ô Bảo vật (chỉ có pháp bảo tên riêng); món tên riêng cùng bậc ra 30% (ô Bảo vật luôn) */
 function mkItem(tier,s){tier=clamp(tier,0,4);s=s||['w','a','t','b'][ri(0,3)];const rl=RELIC.filter(r=>r.s===s&&r.tier===tier);if(rl.length&&(s==='b'||R()<.3))return mkRelic(rl[ri(0,rl.length-1)]);if(s==='b')return mkRelic(RELIC.filter(r=>r.s==='b').sort((a,b)=>Math.abs(a.tier-tier)-Math.abs(b.tier-tier))[0]);return{s,n:ITN[s][tier],v:tier*2+2+ri(0,2),tier};}
 function itemDesc(it){return(it.s==='w'?'+'+it.v+' Lực':it.s==='a'?'+'+Math.ceil(it.v*.6)+' Thủ, +'+it.v*2+' HP':it.s==='b'?'+'+Math.ceil(it.v/2)+' Tốc, +'+it.v+' HP':'+'+it.v*3+' Linh lực, +'+Math.ceil(it.v/2)+' Kỹ')+exDesc(it);}
-const TCH=[{id:'cuong',n:'Cương Thể',d:'máu dày, lực yếu',m:{hp:1.4,atk:.75,skl:1,spd:.9,def:1.05}},
-  {id:'bao',n:'Bạo Lực',d:'lực mạnh, máu mỏng',m:{hp:.7,atk:1.45,skl:1.05,spd:1,def:.85}},
-  {id:'toan',n:'Toàn Diện',d:'công thủ cân bằng',m:{hp:.85,atk:1.1,skl:1.1,spd:1.1,def:1.1}},
-  {id:'thiet',n:'Thiết Bích',d:'thủ rất cao, đánh chậm',m:{hp:.95,atk:.8,skl:.9,spd:.8,def:1.6}},
-  {id:'phong',n:'Phong Tốc',d:'tốc rất cao, thân mỏng',m:{hp:.8,atk:1,skl:1.05,spd:1.6,def:.8}},
-  {id:'linh',n:'Linh Xảo',d:'kỹ cao, chí mạng và né tốt',m:{hp:.85,atk:.95,skl:1.6,spd:1.05,def:.9}}];
-const TCHM=Object.fromEntries(TCH.map(t=>[t.id,t]));
 function makeUnit(id,lv,o={}){const sp=SPECIES[id];const u={id,name:o.name||sp.name,kind:sp.kind,lv,exp:0};
   /* v14.4: mỗi con quái là một cá thể riêng: chỉ số gốc ±10%, tư chất (u.gr) ±15% so với loài; thu phục giữ nguyên cả hai */
   if(o.full||id==='diep'){for(const k of STATS)u[k]=sp.base[k]+Math.round(sp.grow[k]/100*(lv-1));u.mhp=u.hp;u.mmp=sp.mp+Math.round((sp.mpg||2)*(lv-1));}
-  /* v15.12: mỗi cá thể rút một kiểu tư chất (TCH) nhân lên tư chất loài, chỉ số gốc nhân nhẹ hơn (căn bậc hai) */
-  else{const ty=TCH[Math.floor(R()*TCH.length)],ga=(sp.grow.atk+sp.grow.skl+sp.grow.spd+sp.grow.def)/4;u.ty=ty.id;u.gr={};for(const k of STATS){const m=ty.m[k]||1,gb=k==='hp'?sp.grow.hp:sp.grow[k]*.6+ga*.4;u.gr[k]=Math.max(1,Math.round(gb*m*(0.9+R()*0.2)));u[k]=Math.max(1,Math.round(sp.base[k]*Math.sqrt(m)*(0.9+R()*0.2)))+Math.round(u.gr[k]/100*(lv-1));}
+  /* v15.12.1: các % tư chất của loài được xáo ngẫu nhiên giữa 5 chỉ số (rồi ±15%), nên con này có thể Lực cao nhất, con khác Tốc hay Thủ cao nhất */
+  else{u.gr={};const gp=STATS.map(k=>sp.grow[k]);for(let i=gp.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[gp[i],gp[j]]=[gp[j],gp[i]];}
+    STATS.forEach((k,i)=>{u.gr[k]=Math.max(1,Math.round(gp[i]*(0.85+R()*0.3)));});for(const k of STATS){u[k]=Math.max(1,Math.round(sp.base[k]*(0.9+R()*0.2)))+Math.round(u.gr[k]/100*(lv-1));}
     u.mhp=u.hp;u.mmp=Math.max(1,Math.round(sp.mp*(0.9+R()*0.2)+(sp.mpg||2)*(lv-1)*(0.9+R()*0.2)));}
   if(o.boss&&sp.rk&&RKM[sp.rk]!==1){const rm=1/RKM[sp.rk];for(const k of STATS)u[k]=Math.round(u[k]*rm);u.mhp=u.hp;}
   const m=o.boss?[1.8,1.2]:o.elite?[1.35,1.12]:null;
@@ -2679,14 +2673,14 @@ function drawParty(){const PLs=pList(),inT=MENU.tw,sc=scrollArea('pty',2,18,96,1
 const KINDD={'Pháp Sư':'người sống tu đạo trừ tà, dùng bùa chú và kiếm gỗ đào.','Vong Linh':'hồn người chết chưa siêu thoát, thân ảnh mờ ảo nên khó bị đánh trúng.','Thức Thần':'linh thể do phép thuật gọi ra, giỏi dùng hình nhân giấy chịu đòn thay.',
   'Tinh Linh':'hồn của cây cỏ núi rừng, giỏi chữa thương và giải độc.','Oán Linh':'hồn mang oán hận, càng bị thương càng đánh mạnh.','Cương Thi':'xác chết bật dậy, nhảy vồ làm đối thủ choáng.','Xác Chết':'xác thối rữa mang độc, đòn đánh làm trúng độc.'};
 function infoLines(u,wd){const sp=SPECIES[u.id],sk=skillsOf(u),w=weapon(u),out=[],add=(t,col)=>wrap(t,wd,8).forEach(l=>out.push([l,col]));
-  const gn={hp:'Máu',atk:'Lực',skl:'Kỹ',spd:'Tốc',def:'Thủ'},gw=u.gr||sp.grow,gk=Object.keys(gn).filter(k=>gw&&gw[k]!=null).sort((a,b)=>u.ty?0:gw[b]-gw[a]),tm=u.ty&&TCHM[u.ty]&&TCHM[u.ty].m,tk=tm?Object.keys(gn).sort((a,b)=>tm[b]-tm[a]):null;
+  const gn={hp:'Máu',atk:'Lực',skl:'Kỹ',spd:'Tốc',def:'Thủ'},gw=u.gr||sp.grow,gk=Object.keys(gn).filter(k=>gw&&gw[k]!=null).sort((a,b)=>gw[b]-gw[a]);
   const pi=G.party.indexOf(u),pos=pi===0?'ra trận đầu':pi>0&&pi<3?'trợ chiến':pi>=3?'dự bị trong đội':(G.box||[]).includes(u)?'đang ở Tháp Trấn Hồn':'';
   if(u.id!=='diep'&&!u.dexv){const l=Math.floor(loyOf(u));add('Trung thành: '+l+'/100'+(l<1?'. Hết trung thành nên không chịu ra trận; ở Tháp Trấn Hồn tự hồi dần, đầy sau 2 ngày, hoặc cho ăn Linh Quả.':'. Mỗi trận thua bị đưa về Trấn Ma Ti mất 2 điểm; về 0 sẽ không chịu ra trận.'),l<1?'#ff6070':l<30?'#ffb060':'#ff9ad0');}
   const rk=rankOf(u.id);if(rk)add('Hạng '+rk+': '+RKN[rk]+'; chỉ số và tư chất x'+RKM[rk]+'.',RKC[rk]);
   add('Hệ '+u.kind+': '+(KINDD[u.kind]||''),KINDC[u.kind]||'#fff');
   add('Tầm đánh: '+(sp.ranged?'đánh xa':'cận chiến')+(pos?' · Vị trí: '+pos:''),'#c8d8ff');
   add('Vũ khí: '+w.n+' (uy lực '+w.mt+', chính xác '+w.hit+'%, chí mạng '+w.crt+'%)','#ffe8c0');
-  if(gk.length)add('Tư chất'+(u.ty&&TCHM[u.ty]?' '+TCHM[u.ty].n+' ('+TCHM[u.ty].d+')':u.gr?' riêng':'')+': '+gk.map(k=>gn[k]+' '+gw[k]+'%').join(', ')+(tk&&u.ty==='toan'?'. So với đồng loại: Lực, Kỹ, Tốc, Thủ đều nhỉnh hơn, Máu hơi thấp.':tk?'. So với đồng loại: trội nhất '+gn[tk[0]]+', kém nhất '+gn[tk[tk.length-1]]+'.':'. Lên cấp tăng mạnh nhất '+gn[gk[0]]+', yếu nhất '+gn[gk[gk.length-1]]+'.'),'#c8d8ff');
+  if(gk.length)add('Tư chất'+(u.gr?' riêng':'')+': '+gk.map(k=>gn[k]+' '+gw[k]+'%').join(', ')+'. Lên cấp tăng mạnh nhất '+gn[gk[0]]+', yếu nhất '+gn[gk[gk.length-1]]+'.','#c8d8ff');
   out.push(['Kỹ năng:','#c8f0c8']);allSkillsOf(u).forEach(o=>{const x=o.s;if(u.lv>=o.lv)add('• '+x.n+' ('+x.c+' LL): '+x.d,'#e0d8f0');else add('• [Khóa, mở ở cấp '+o.lv+'] '+x.n+': '+x.d,'#8a8098');});
   if(u.perk&&RECRUIT[u.perk])add('Tài riêng: '+RECRUIT[u.perk].perk,'#ffd0a0');
   if(sp.desc){out.push(['Lai lịch:','#c8f0c8']);add(sp.desc,'#d8d0e8');}
