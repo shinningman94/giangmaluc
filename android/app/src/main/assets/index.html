@@ -2021,7 +2021,7 @@ function wildGroup(n,lvB=0){const z=zoneAt(PL.x),lv=lvAt(PL.x),wet=tileG(PL.x,PL
 /* v14.5: cài đặt chiến đấu né quái hoang cao hơn Minh Dạ từ SET.av cấp */
 let AVT=-9e9;
 function avoidLv(lv){if(!SET.av||lv<diep().lv+SET.av)return false;if(time-AVT>2500){AVT=time;toast('Né tránh quái cấp '+lv+' (mạnh hơn '+(lv-diep().lv)+' cấp)');}return true;}
-async function wild(){const n=G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild'});}
+async function wild(){/* v15.13: 22% trận đại chiến 2-3 quái khi có ít nhất 2 người còn sức */const grp=alive().length>1&&R()<.22,n=grp?(R()<.5?3:2):G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild',grp});}
 async function patrol(g){G.wc=4;await say('Tiếng xích sắt kéo lê... Một toán quỷ sai tuần đêm chặn đường!');g=g||wildGroup(R()<.5?2:1,1);g.forEach(u=>u.pat=true);await startBattle(g,{kind:'pat'});}
 function patrolRun(){const g=wildGroup(R()<.5?2:1,1);roadRunner(()=>patrol(g),{id:g[0].id});}
 function meetRun(){const r=ri(0,2);roadRunner(()=>meet(r),{k:['nong','ba','dong'][r]});}
@@ -2940,14 +2940,14 @@ function cmdItems(){const A=B.ally;return[
   {l:'Kỹ năng',h:()=>'Linh lực '+A.mp+'/'+A.mmp+' · '+skillsOf(A).map(s=>s.n+' ('+s.c+')').join(', '),a:'@sk',dis:skillsOf(A).length?null:'Chưa có kỹ năng'},
   {l:'Phòng thủ',h:()=>'Giảm 40% sát thương, hồi 10 linh lực',a:'def'},
   {l:'Vật phẩm',h:()=>'Đan dược và bùa chú: Hồi Hồn Đan '+G.pill.hp+' · Tụ Linh Đan '+G.pill.mp,a:'@pill'},
-  {l:'Đổi người',h:()=>'Đưa đồng hành khác ra trận',a:'@sw',dis:alive().filter(u=>u!==A).length?null:'Không còn đồng hành nào khác'},
+  {l:'Đổi người',h:()=>'Đưa đồng hành khác ra trận',a:'@sw',dis:alive().filter(u=>u!==A&&!(B.grp&&B.fa.includes(u))).length?null:'Không còn đồng hành nào khác'},
   {l:'Tự động',h:()=>'Cả đội tự đánh, các trận sau cũng tự đánh (chạm để dừng)',a:'auto'},
   {l:'Bỏ chạy',h:()=>B.o.noRun?'Không thể bỏ chạy trận này':'Thoát khỏi trận đấu',a:'run',dis:B.o.noRun?'Không thể bỏ chạy trận này!':null}];}
 function subItems(){const A=B.ally;
   if(B.sub==='sk')return skillsOf(A).map((s,i)=>({l:s.n+' ('+s.c+')',h:()=>s.d+' · Tốn '+s.c+' linh lực (đang có '+A.mp+')'+(skNo(A,s)?' · '+skNo(A,s):''),a:'sk:'+i,dis:skNo(A,s)}));
   if(B.sub==='pill')return[{l:'Hồi Hồn Đan ×'+G.pill.hp,h:()=>'Hồi 40% HP',a:'pill:hp',dis:G.pill.hp<=0?'Hết Hồi Hồn Đan':null},{l:'Tụ Linh Đan ×'+G.pill.mp,h:()=>'Hồi 50% linh lực',a:'pill:mp',dis:G.pill.mp<=0?'Hết Tụ Linh Đan':null},
     /* v11.7: người chơi muốn dùng bùa trấn yểm thu phục từ mục Vật phẩm, bất kể quái còn bao nhiêu máu (tỉ lệ vẫn theo capP, máu thấp thì cao hơn) */{l:'Bùa trấn yểm ×'+G.charms,h:()=>'Thu phục '+B.enemy.name+' ngay, dù còn bao nhiêu máu: tỉ lệ '+Math.round(capP(B.enemy)*100)+'%, tốn '+capNeed(B.enemy)+' bùa',a:'cap',dis:B.o.kind==='judge'||B.o.kind==='duel'?'Không thể thu phục trong trận này':capDis(B.enemy)},...consBattleRows()];
-  return G.party.map((u,i)=>({l:u.name,h:()=>'Lv '+u.lv+' · HP '+u.hp+'/'+u.mhp+' · LL '+u.mp,a:'sw:'+i,dis:u.hp<=0?u.name+' đã kiệt sức':u===A?u.name+' đang chiến đấu':null}));}
+  return G.party.map((u,i)=>({l:u.name,h:()=>'Lv '+u.lv+' · HP '+u.hp+'/'+u.mhp+' · LL '+u.mp,a:'sw:'+i,dis:u.hp<=0?u.name+' đã kiệt sức':u===A||B.grp&&B.fa.includes(u)?u.name+' đang chiến đấu':null}));}
 function menuChoice(sub){return new Promise(r=>{B.phase='menu';B.sub=sub||null;B.mi=0;B.si=sub==='sw'?Math.max(0,G.party.findIndex(u=>u.hp>0&&u!==B.ally)):0;B.choose=r;});}
 function battleInput(k){
   if(B.auto&&(k==='a'||k==='b'||k==='menu')&&B.phase!=='intro'&&B.phase!=='end'){B.auto=false;G.auto=false;autoStop();B.msg='Đã tắt tự động';B.msgT=900;sfx('sel');return;}
@@ -2974,13 +2974,14 @@ async function startBattle(foes,o={}){
   scene='trans';sfx('enc');held.length=0;await tween(520,t=>{stripes=t;});
   for(const f of foes){f.b={};foeBoost(f);}for(const u of G.party)u.b={};
   B={pose:{e:null,a:null},foes,fi:0,enemy:foes[0],ally:lead(),o,bg:o.bg||((o.kind==='boss'||o.kind==='judge')?'boss':ZONES[zoneAt(PL.x)].bg),eo:{x:-90,y:0},ao:{x:90,y:0},eA:1,aA:1,eS:1,eF:0,aF:0,hp:{e:foes[0].hp,a:0},mi:0,sub:null,si:0,phase:'intro',msg:'',msgT:0,auto:!!G.auto||(AUTO.on&&SET.auB!==0),forced:false,shake:0,tal:null,pillar:0,ring:0,dark:0,lvl:null,expBar:null,flash:0,gain:[],loot:[],ast:null};
-  B.hp.a=B.ally.hp;scene='battle';
+  if(o.grp){B.grp=1;B.fa=alive().slice(0,2);B.ally=B.fa[0];B.gq=[];}B.hp.a=B.ally.hp;scene='battle';
   await tween(420,t=>{stripes=1-t;B.ao.x=90*(1-ease(t));B.eo.x=-90*(1-ease(t));});
-  B.msg=foes.length>1?`${foes.length} con quỷ chặn đường! Đầu tiên: ${foes[0].name}`:((o.kind==='boss'||o.kind==='judge')?foes[0].name+' giáng lâm!':foes[0].name+' xuất hiện!');B.msgT=1500;await wait(900);
+  B.msg=B.grp?`Đại chiến! ${foes.length} con quỷ cùng xông tới!`:foes.length>1?`${foes.length} con quỷ chặn đường! Đầu tiên: ${foes[0].name}`:((o.kind==='boss'||o.kind==='judge')?foes[0].name+' giáng lâm!':foes[0].name+' xuất hiện!');B.msgT=1500;await wait(900);
   let res=null;
   while(!res){
-    if(B.enemy.hp<=0){await subdue(B.enemy);B.fi++;if(B.fi>=B.foes.length){res='win';break;}await nextFoe();continue;}
-    if(B.ally.hp<=0){if(!alive().length){res='lose';break;}B.forced=true;}
+    if(B.grp){if(B.enemy.hp<=0||B.enemy.gone){if(await gFoeDown()){res='win';break;}continue;}if(!await gActor()){res='lose';break;}}
+    else if(B.enemy.hp<=0){await subdue(B.enemy);B.fi++;if(B.fi>=B.foes.length){res='win';break;}await nextFoe();continue;}
+    if(!B.grp&&B.ally.hp<=0){if(!alive().length){res='lose';break;}B.forced=true;}
     if(!B.forced&&B.ally.b.burn>0){await burnTick(B.ally,'a');if(B.ally.hp<=0){B.msg=B.ally.name+' đã kiệt sức!';sfx('fail');await tween(500,t=>{B.aA=1-t;});await wait(300);B.ally.b.burn=0;continue;}}
     let act;
     if(!B.forced&&B.ally.b.stun){B.ally.b.stun=0;B.msg=B.ally.name+' bị khống chế, mất lượt!';popup(176,50,'MẤT LƯỢT','#ffe060');await wait(800);act='stunned';}
@@ -2997,6 +2998,7 @@ async function startBattle(foes,o={}){
     if(r==='run'){res='run';break;}
     if(r==='noturn')continue;
     if(B.sum){if(B.sum.fresh)B.sum.fresh=0;else if(B.enemy.hp>0)await summonStrike();}
+    if(B.grp){B.gq.shift();B.gq=B.gq.filter(u=>u.hp>0&&B.fa.includes(u));if(!B.gq.length)await gEnemyPhase();continue;}
     if(B.enemy.hp>0&&B.ally.hp>0)await enemyTurn();
     if(B.ally.hp<=0){sfx('fail');pose('a','down',Infinity);B.msg=B.ally.name+' đã kiệt sức!';await tween(500,t=>{B.aA=1-t;});await wait(300);}
     for(const u of[B.ally,B.enemy])for(const k of['weak','brk','guard','burn','conf','might','phase'])if(u.b[k]>0)u.b[k]--;
@@ -3004,6 +3006,33 @@ async function startBattle(foes,o={}){
   }
   return finish(res);}
 async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.hp;B.eA=1;B.eS=1;B.eo.x=-90;B.eo.y=0;B.msg='Tiếp theo: '+E.name+(E.elite?' (tinh anh)':'');await tween(380,t=>{B.eo.x=-90*(1-ease(t));});await wait(300);}
+/* v15.13: người chơi muốn thỉnh thoảng có trận đại chiến: 2 đồng đội đứng cùng đấu 2-3 quái một lúc.
+   B.fa: quân ta trên sân, B.gq: lượt quân ta còn trong vòng; người đang tới lượt / mục tiêu đứng hàng trước, những con khác đứng hàng sau */
+const GSLE=[[48,-13],[96,-15],[72,-27]],GSLA=[[146,-15]];
+async function gFront(side,u){if(side==='e'){if(B.enemy===u)return;await tween(140,t=>{B.eo.x=-50*t;});B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;B.eF=0;B.eo.y=0;await tween(170,t=>{B.eo.x=-50*(1-ease(t));});B.eo.x=0;}
+  else{if(B.ally===u)return;await tween(140,t=>{B.ao.x=50*t;});B.ally=u;u.b=u.b||{};B.pose.a=null;B.hp.a=u.hp;B.aA=1;B.aF=0;B.ao.y=0;await tween(170,t=>{B.ao.x=50*(1-ease(t));});B.ao.x=0;}}
+function gFill(){B.fa=B.fa.filter(u=>u.hp>0);for(const u of alive()){if(B.fa.length>=2)break;if(!B.fa.includes(u)){B.fa.push(u);u.b=u.b||{};B.msg=u.name+' vào trận tiếp sức!';}}}
+async function gActor(){gFill();if(!B.fa.length)return false;B.gq=B.gq.filter(u=>u.hp>0&&B.fa.includes(u));if(!B.gq.length)B.gq=B.fa.slice();if(B.ally!==B.gq[0])await gFront('a',B.gq[0]);return true;}
+async function gFoeDown(){const E=B.enemy;if(!E.gone){await subdue(E);E.gone=1;}const n=B.foes.find(f=>!f.gone&&f.hp<=0)||B.foes.find(f=>!f.gone);if(!n)return true;B.eo.x=-90;B.enemy=null;B.enemy=n;B.pose.e=null;B.hp.e=n.hp;B.eA=1;B.eS=1;B.eo.y=0;await tween(300,t=>{B.eo.x=-90*(1-ease(t));});return false;}
+async function gEnemyPhase(){const tg=B.enemy;
+  for(const F of B.foes.filter(f=>!f.gone&&f.hp>0)){const al=B.fa.filter(u=>u.hp>0);if(!al.length)break;
+    const low=al.slice().sort((a,b)=>a.hp/a.mhp-b.hp/b.mhp)[0],T=R()<.35?low:al[ri(0,al.length-1)];
+    await gFront('e',F);await gFront('a',T);B.phase='anim';await enemyTurn();
+    if(T.hp<=0){sfx('fail');pose('a','down',Infinity);B.msg=T.name+' đã kiệt sức!';await tween(500,t=>{B.aA=1-t;});await wait(300);gFill();const nx=B.fa.find(u=>u.hp>0);if(nx){B.ally=nx;B.pose.a=null;B.hp.a=nx.hp;B.ao.x=90;B.aA=1;await tween(260,t=>{B.ao.x=90*(1-ease(t));});}}
+    if(F.hp<=0)break;}
+  const al=B.fa.filter(u=>u.hp>0);
+  for(const u of al.concat(B.foes.filter(f=>!f.gone)))for(const k of['weak','brk','guard','burn','conf','might','phase'])if(u.b&&u.b[k]>0)u.b[k]--;
+  for(const u of G.party)if(u.b&&u.b.cd)for(const k in u.b.cd)if(u.b.cd[k]>0)u.b.cd[k]--;
+  const dead=B.foes.find(f=>!f.gone&&f.hp<=0);if(dead)await gFront('e',dead);else if(tg&&!tg.gone&&tg.hp>0)await gFront('e',tg);B.gq=[];}
+/* hàng sau: hình đứng yên nhỏ hơn, thanh máu ngắn; chạm quái hàng sau để chọn làm mục tiêu */
+function gBack(){if(!B.grp)return;const L=[];let i=0;for(const f of B.foes)if(!f.gone&&f!==B.enemy&&i<GSLE.length)L.push([f,'e',GSLE[i++]]);i=0;for(const u of B.fa)if(u!==B.ally&&u.hp>0&&i<GSLA.length)L.push([u,'a',GSLA[i++]]);
+  for(const[u,sd,[x,dy]]of L){const a=ANIM[u.id];let img,w,h,dx=0,dy2=0,sc=1;
+    if(a){const k=Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
+    else{const s0=sprite(u.id);img=sd==='a'?flip(s0):s0;w=img.width;h=img.height;}
+    const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8,bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
+    c.globalAlpha=u.hp>0?.9:.45;bSmo(img,img.width*sc*k);c.drawImage(img,bx-dx*k,by-dy2*k,img.width*sc*k,img.height*sc*k);c.imageSmoothingEnabled=false;c.globalAlpha=1;
+    const hw=26,hy=Math.max(PORT?2:30,by-5);rect(x-hw/2,hy,hw,3,'#1b1224');rect(x-hw/2+1,hy+1,Math.round((hw-2)*clamp(u.hp/u.mhp,0,1)),1,sd==='e'?'#ff6a5a':'#5ae07a');
+    if(sd==='e'&&u.hp>0){const sx=(PORT?-30:0)+240-x;hit(sx-bw/2,by+(PORT?18:0),bw,bh,()=>{if(B.phase!=='menu'||B.sub)return;B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;sfx('sel');B.msg='Nhắm vào '+u.name;B.msgT=900;});}}}
 async function doAct(act){const A=B.ally,E=B.enemy;if(act==='stunned')return;
   if(A.b.conf>0&&(act==='atk'||act.startsWith('sk:'))&&R()<.5){B.msg=A.name+' mê loạn, tự đánh vào mình!';pose('a','turn',450);await wait(350);await hurt('a',A,calc(A,A,.5).dmg);return'turn';}
   if(act==='atk'){await strike(A,E,'a');if(E.hp>0)await assists(E);if(E.hp>0&&A.spd>=E.spd+X2SPD){B.msg='Liên kích!';await wait(200);await strike(A,E,'a');}A.mp=Math.min(A.mmp,A.mp+6);return'turn';}
@@ -3017,7 +3046,7 @@ async function doAct(act){const A=B.ally,E=B.enemy;if(act==='stunned')return;
   if(act.startsWith('sw:')){const u=G.party[+act.slice(3)];const forced=B.forced;B.forced=false;await swapTo(u);return forced?'noturn':'turn';}
   if(act==='run'){const ch=clamp(.55+(A.spd-E.spd)*.05,.2,.95);B.msg='Bỏ chạy...';await wait(400);if(R()<ch){B.msg='Đã chạy thoát!';sfx('miss');await tween(400,t=>{B.ao.x=90*t;});return'run';}B.msg='Không thoát được!';sfx('no');await wait(600);return'turn';}
   return'turn';}
-async function swapTo(u){if(B.ally.hp>0){B.msg='Lùi lại, '+B.ally.name+'!';await tween(260,t=>{B.ao.x=90*t;});}else B.ao.x=90;B.ally=u;u.b=u.b||{};B.hp.a=u.hp;B.aA=1;B.pose.a=null;B.msg=u.name+', ra trận!';await tween(300,t=>{B.ao.x=90*(1-ease(t));});await wait(250);}
+async function swapTo(u){if(B.grp){const o=B.ally,i=B.fa.indexOf(o);if(i>=0)B.fa[i]=u;B.gq=B.gq.map(x=>x===o?u:x);}if(B.ally.hp>0){B.msg='Lùi lại, '+B.ally.name+'!';await tween(260,t=>{B.ao.x=90*t;});}else B.ao.x=90;B.ally=u;u.b=u.b||{};B.hp.a=u.hp;B.aA=1;B.pose.a=null;B.msg=u.name+', ra trận!';await tween(300,t=>{B.ao.x=90*(1-ease(t));});await wait(250);}
 /* an enemy sometimes reaches for its type's signature skill, when it would help */
 async function typeSkill(E,A){const t=SK[TSK[E.kind]];if(!t||E.mp<t.c||R()>=.3)return false;
   if(t.k==='heal'&&E.hp>E.mhp*.6||t.k==='phase'&&E.b.phase||t.k==='decoy'&&E.b.decoy||t.grudge&&E.hp>E.mhp*.6)return false;
@@ -3108,7 +3137,7 @@ async function castL(A,E,side,o){const k=o.L,s=LSK[k],cx=side==='a'?176:62,tx=si
   for(let i=0;i<(s.hits||1)&&E.hp>0;i++){if(i)await wait(220);
     const r=await strike(A,E,side,{mult:s.x*(foc?1.2:1),hitB:15+(s.hb||0),crB:(s.cr||0)+(foc?30:0),quiet:true,label:s.n,col:s.col});
     if(r.hit&&s.inf&&E.hp>0&&R()<s.p){E.b[s.inf]=s.tn+1;if(s.bleed)E.b.bld=1;const L={stun:['ĐÓNG BĂNG','#a8e8ff',' bị đóng băng, mất lượt!'],brk:['PHÁ GIÁP','#ff9a6a',' bị phá giáp!'],burn:['BỎNG','#ff8a3a',' bị bỏng!'],weak:['SUY YẾU','#c8a8ff',' bị suy yếu, sức đánh giảm!']}[s.inf];const L2=s.sx||L;popup(tx,40,s.bleed?'CHẢY MÁU':L2[0],L2[1]);B.msg=E.name+(s.im||L2[2]);await wait(300);}}
-  if(s.aoe&&A.hp>0&&side==='a'){const rest=B.foes.slice(B.fi+1).filter(u=>u.hp>1);if(rest.length){sfx('hit');spark(62,96,'#7af0ff',24,1.6);B.shake=4;for(const u of rest)u.hp=Math.max(1,u.hp-Math.max(1,Math.round(calc(A,u,s.x*s.aoe).dmg)));B.msg='Sóng chấn lan sang '+rest.length+' con quỷ phía sau!';await wait(600);}}}
+  if(s.aoe&&A.hp>0&&side==='a'){const rest=(B.grp?B.foes.filter(u=>u!==E&&!u.gone):B.foes.slice(B.fi+1)).filter(u=>u.hp>1);if(rest.length){sfx('hit');spark(62,96,'#7af0ff',24,1.6);B.shake=4;for(const u of rest)u.hp=Math.max(1,u.hp-Math.max(1,Math.round(calc(A,u,s.x*s.aoe).dmg)));B.msg='Sóng chấn lan sang '+rest.length+' con quỷ phía sau!';await wait(600);}}}
 const SUMN={shiki:'Thức thần giấy',thi:'Cương thi',cot:'Bộ xương'};
 async function summonStrike(){const S=B.sum,E=B.enemy,d=diep();if(!S)return;if(d.hp<=0){B.sum=null;return;}
   const dmg=Math.max(1,Math.round(calc(d,E).dmg*S.x));B.msg=S.name+' ra đòn!';const sa=S.art&&smImg(S.art);B.ast=sa?{img:sa,x:240,sc:.42,y:100-sa.height*.42}:{img:sumSpr(S.k),x:240,sc:1.5,y:52};B.ast.y0=B.ast.y;sfx(S.k==='cot'?'hit':'seal');
@@ -3118,7 +3147,7 @@ async function summonStrike(){const S=B.sum,E=B.enemy,d=diep();if(!S)return;if(d
   if(S.p&&E.hp>0&&R()<S.p){E.b.stun=1;popup(62,40,'CHOÁNG','#ffe060');await wait(250);}
   if(S.drain&&B.ally.hp>0)await healSide('a',Math.max(1,Math.round(dmg*S.drain)));
   if(--S.n<=0){B.sum=null;B.msg=S.name+' tan biến.';await wait(350);}}
-async function assists(E,all){const mem=G.party.slice(0,3).filter(u=>u!==B.ally&&u.hp>0);
+async function assists(E,all){const mem=G.party.slice(0,3).filter(u=>u!==B.ally&&u.hp>0&&!(B.grp&&B.fa.includes(u)));
   for(const u of mem){if(E.hp<=0)break;const ch=all?1:u.perk==='vo_danh'?.6:G.sect==='dong'?.55:.35;if(R()>=ch)continue;
     const d=Math.max(1,Math.round(calc(u,E).dmg*.5));B.msg=u.name+' trợ chiến!';B.ast={u,x:240};sfx('seal');
     await tween(260,t=>{B.ast.x=lerp(240,110,ease(t));});spark(62,72,ICOL[weapon(u).ic]||'#fff',10,1.2);sfx('hit');popup(62,52,String(d),'#9ad8ff');E.hp=Math.max(0,E.hp-d);pose('e',E.hp<=0?'down':'hit',E.hp<=0?Infinity:450);B.eF=1;
@@ -3206,7 +3235,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   const SY=PORT?18:0;if(SY){const bg=bgFor(B.bg);c.drawImage(bg,0,0,240,1,0,0,W,SY);}
   c.save();c.translate(Math.round(sh)+(PORT?-30:0)+240,SY);c.scale(-1,1);c.drawImage(bgFor(B.bg),0,0);
   if(B.dark>0){c.globalAlpha=B.dark*.5;rect(0,0,240,104,'#300818');c.globalAlpha=1;}
-  drawFxU(dt);
+  drawFxU(dt);gBack();
   const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.12:1),E.id);
   const ew=Math.round(ei.w*ek),eh=Math.round(ei.h*ek);const ex=Math.round(62-ew/2+B.eo.x),ey=Math.round(100-eh*(1-bVis(E.id).b)+B.eo.y+bob-4);
   const eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;
