@@ -5,7 +5,7 @@ import pathlib, re, shutil
 ROOT = pathlib.Path(__file__).resolve().parent
 WEB = ROOT / 'web'
 ASSETS = ROOT / 'android' / 'app' / 'src' / 'main' / 'assets'
-VERSION = 208
+VERSION = 209
 
 src = (ROOT / 'vua-phap-su.html').read_text(encoding='utf-8')
 # Chế độ online gộp vào app: thêm nút "Chơi online" ở màn hình đầu (chế độ một người giữ nguyên).

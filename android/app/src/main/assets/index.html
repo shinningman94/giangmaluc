@@ -144,7 +144,7 @@ const SPECIES={
   cuong_thi:{name:'Cương Thi',kind:'Cương Thi',mp:10,base:{hp:26,atk:9,skl:4,spd:4,def:6},grow:{hp:90,atk:55,skl:30,spd:25,def:45},w:{n:'Móng Vuốt Thi Độc',mt:7,hit:75,crt:5,ic:'dark'},desc:'Xác chết bị oán khí nhập, cứng đờ, nhảy lò cò đi tìm hơi người. Trên trán còn dán lá bùa rách.'},
   eliza:{name:'Eliza Faust',kind:'Vong Linh',mp:28,mpg:3,base:{hp:20,atk:4,skl:8,spd:7,def:5},grow:{hp:75,atk:30,skl:55,spd:50,def:40},w:{n:'Đèn Dầu Dẫn Hồn',mt:4,hit:85,crt:3,ic:'fire2'},desc:'Linh hồn người vợ quá cố của bác sĩ Faust VIII, một nữ y tá tận tụy. Nàng chữa thương và gọi hồn đồng đội trở về.'},
   hon_ma:{name:'Hồn Ma Lang Thang',kind:'Vong Linh',mp:14,base:{hp:14,atk:4,skl:4,spd:6,def:1},grow:{hp:75,atk:45,skl:40,spd:60,def:25},w:{n:'Gió Âm',mt:3,hit:75,crt:0,ic:'wind'},desc:'Linh hồn lạc lối, chỉ muốn được về nhà.'},
-  cung_thu:{name:'Cung Thủ Ainu',kind:'Tinh Linh',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
+  cung_thu:{name:'Cung Thủ Ainu',kind:'Vong Linh',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
   amida:{name:'Amida',kind:'Vong Linh',mp:22,base:{hp:26,atk:8,skl:8,spd:6,def:6},grow:{hp:90,atk:50,skl:50,spd:40,def:45},w:{n:'Nguyệt Đao',mt:8,hit:80,crt:6,ic:'sword2'},desc:'Linh hồn hộ vệ trấn giữ đèo Quỷ Khốc cùng con bạch cú, chỉ theo người đã thắng mình.'},
   vo_tuong:{name:'Quỷ Tướng Thanh Long',kind:'Oán Linh',mp:18,base:{hp:28,atk:10,skl:8,spd:6,def:7},grow:{hp:90,atk:60,skl:45,spd:35,def:50},w:{n:'Thanh Long Đao',mt:9,hit:72,crt:10,ic:'sword2'},desc:'Hồn một võ tướng Trung Hoa cổ đại tử trận nơi biên ải, vẫn vác Thanh Long đao đi tìm đạo quân đã tan.'},
   vo_si:{name:'Hồn Ma Samurai',kind:'Oán Linh',mp:14,base:{hp:22,atk:8,skl:7,spd:6,def:5},grow:{hp:85,atk:55,skl:45,spd:40,def:40},w:{n:'Đao Hồn Lạnh',mt:7,hit:75,crt:12,ic:'sword2'},desc:'Samurai chết trận không được chôn cất, ôm thanh đao lạnh lang thang tìm đối thủ.'},
@@ -211,6 +211,30 @@ const SK={
   necro:{n:'Cốt Binh Trỗi Dậy',c:13,k:'sum',sm:'cot',x:.9,drain:.5,pose:'halo',d:'Chiến Binh Xương hoặc Quỷ Khói đánh x0.9 trong 3 lượt, hút máu về cho thầy'},
   tusi:{n:'Thỉnh Thần Hộ Pháp',c:12,k:'buff',pose:'halo',d:'Thần linh giáng xuống: giảm nửa sát thương nhận, tăng 30% sức đánh trong 3 lượt'},
   thuoc:{n:'Linh Thảo Hồi Xuân',c:12,k:'pheal',x:.3,pose:'halo',d:'Hồi 30% HP cho cả đội, giải mọi hiệu ứng xấu'},
+  dong2:{n:'Âm Hồn Phụ Thể',c:10,k:'dmg',x:1.6,cr:15,pose:'throw',d:'Vong hồn nhập vào tay thầy, đánh x1.6, dễ chí mạng'},
+  dong3:{n:'Chiêu Hồn Lệnh',c:11,k:'weak',x:1.2,pose:'raise',d:'Rung chuông chiêu hồn x1.2, đối thủ yếu đi 3 lượt'},
+  dong4:{n:'Gọi Hồn Hồi Dương',c:16,k:'revive',x:.5,pose:'halo',d:'Gọi hồn một đồng hành đã gục về lại dương thế với 50% HP'},
+  dong5:{n:'Bách Quỷ Dạ Hành',c:20,k:'dmg',x:1.6,aoe:.5,pose:'halo',d:'Trăm vong hồn ùa qua trận địa: x1.6 vào mục tiêu, lan nửa sức sang các con quỷ khác'},
+  amduong2:{n:'Ngũ Hành Phù Chú',c:10,k:'dmg',x:1.6,burn:.35,pose:'throw',d:'Phóng bùa ngũ hành x1.6, 35% gây bỏng'},
+  amduong3:{n:'Kết Giới Bát Quái',c:13,k:'pguard',pose:'halo',d:'Dựng kết giới bát quái bọc cả đội, giảm nửa sát thương 3 lượt'},
+  amduong4:{n:'Thiên Văn Định Mệnh',c:14,k:'stun',x:1.3,p:.5,pose:'raise',d:'Gọi sao trời trấn mệnh x1.3, 50% làm choáng'},
+  amduong5:{n:'Thập Nhị Thần Tướng',c:20,k:'sum',sm:'shiki',x:1.4,pose:'halo',d:'Gọi thức thần cấp cao đánh x1.4 trong 3 lượt, chắn 20% sát thương cho thầy'},
+  daosi2:{n:'Đào Mộc Kiếm Pháp',c:10,k:'brk',x:1.5,pose:'sweep',d:'Múa kiếm gỗ đào x1.5, phá giáp 3 lượt'},
+  daosi3:{n:'Trấn Thi Phù',c:12,k:'stun',x:1.2,p:.55,pose:'throw',d:'Dán bùa trấn thi x1.2, 55% làm choáng'},
+  daosi4:{n:'Ngũ Lôi Chính Pháp',c:15,k:'dmg',x:2,cr:15,pose:'raise',d:'Gọi năm đạo sấm sét x2, dễ chí mạng'},
+  daosi5:{n:'Thiên Sư Phục Ma',c:20,k:'dmg',x:1.7,aoe:.5,pose:'halo',d:'Pháp ấn Thiên Sư trấn cả trận x1.7, lan nửa sức sang các con quỷ khác'},
+  necro2:{n:'Hút Hồn Đoạt Phách',c:10,k:'drain',x:1.5,pose:'throw',d:'Rút hồn đối thủ x1.5, hồi nửa sát thương'},
+  necro3:{n:'Lời Nguyền Mục Rữa',c:11,k:'dmg',x:1.2,poison:.8,pose:'raise',d:'Nguyền rủa x1.2, 80% gây trúng độc 3 lượt'},
+  necro4:{n:'Vong Binh Bất Tử',c:16,k:'revive',x:.45,pose:'halo',d:'Dựng một đồng hành đã gục đứng dậy với 45% HP (Hắc Pháp Sư +10%)'},
+  necro5:{n:'Xương Long Thức Tỉnh',c:20,k:'sum',sm:'cot',x:1.5,drain:.6,pose:'halo',d:'Gọi binh xương mạnh đánh x1.5 trong 3 lượt, hút máu về cho thầy'},
+  tusi2:{n:'La Hán Quyền',c:9,k:'dmg',x:1.7,cr:15,pose:'dash',d:'Tung quyền La Hán x1.7, dễ chí mạng'},
+  tusi3:{n:'Kim Cang Bất Hoại',c:13,k:'pguard',pose:'guard',d:'Kim cang hộ thể cho cả đội, giảm nửa sát thương 3 lượt'},
+  tusi4:{n:'Sư Tử Hống',c:14,k:'weak',x:1.3,aoe:.4,pose:'breath',d:'Tiếng gầm sư tử x1.3, đối thủ yếu đi 3 lượt, lan sang các con quỷ khác'},
+  tusi5:{n:'Phật Quang Hộ Thể',c:18,k:'heal',x:.5,clean:1,pose:'halo',d:'Phật quang chiếu thân: hồi 50% HP, giải mọi hiệu ứng xấu'},
+  thuoc2:{n:'Kim Châm Điểm Huyệt',c:10,k:'stun',x:1.1,p:.5,pose:'throw',d:'Phóng kim châm điểm huyệt x1.1, 50% làm choáng'},
+  thuoc3:{n:'Độc Thảo Phấn',c:11,k:'dmg',x:1.2,poison:.8,pose:'throw',d:'Rắc phấn độc thảo x1.2, 80% gây trúng độc 3 lượt'},
+  thuoc4:{n:'Hoàn Hồn Đan',c:16,k:'revive',x:.6,pose:'halo',d:'Cho đồng hành đã gục uống hoàn hồn đan, tỉnh lại với 60% HP (Thầy Thuốc +10%)'},
+  thuoc5:{n:'Bách Thảo Linh Tuyền',c:20,k:'pheal',x:.5,pose:'halo',d:'Suối linh dược: hồi 50% HP cho cả đội, giải mọi hiệu ứng xấu'},
   t_vong:{n:'Hồn Ẩn Hư Không',c:7,k:'phase',pose:'halo',d:'Hóa thành hư ảnh 2 lượt, đòn đánh vào rất dễ trượt'},
   t_thuc:{n:'Phân Thân Giấy',c:7,k:'decoy',pose:'halo',d:'Tạo hình nhân giấy đỡ trọn đòn kế tiếp'},
   t_tinh:{n:'Linh Khí Thiên Nhiên',c:8,k:'heal',x:.25,clean:1,pose:'halo',d:'Hút linh khí cây cỏ: hồi 25% HP, giải hiệu ứng xấu'},
@@ -282,6 +306,8 @@ function weapon(u){if(u.id==='diep'){const w=G&&G.eq&&G.eq.w;return{n:w?w.n:'Ki�
 /* v5.5: hồn thu phục dùng đúng bộ kỹ năng lúc còn là quái (LSK nếu có AI riêng, nếu không thì chiêu riêng + chiêu chủng loại).
    Mới thu phục chỉ mở 2 chiêu đầu; các chiêu sau mở khi lên đủ cấp, tính từ cấp lúc thu phục (u.cl). */
 const SKUNL=[0,0,3,6,10,14,18];
+/* v15.25: người chơi muốn mỗi nghề của Minh Dạ có thêm kỹ năng mở theo cấp */
+const SECTLV=[15,25,40,60];
 const LSKC={};
 const INFN={brk:'phá giáp',burn:'gây bỏng',weak:'làm suy yếu',stun:'làm choáng',conf:'gây mê loạn'};
 function lskDesc(s){const pc=v=>Math.round(v*100)+'%';let d;
@@ -297,7 +323,7 @@ function lskDesc(s){const pc=v=>Math.round(v*100)+'%';let d;
   else d=s.n;
   if(s.cd)d+=', hồi chiêu '+s.cd+' lượt';if(s.max&&s.k!=='steal')d+=', tối đa '+s.max+' lần mỗi trận';return d;}
 function lskP(k){if(LSKC[k])return LSKC[k];const s=LSK[k];return LSKC[k]={n:s.n,c:s.c,k:s.k,x:s.x,L:k,pose:s.pose,cd:s.cd||0,max:s.max||0,d:lskDesc(s)};}
-function allSkillsOf(u){if(u.id==='diep')return[SK.diep0,SK.diep1].concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0}));
+function allSkillsOf(u){if(u.id==='diep')return[SK.diep0,SK.diep1].concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0})).concat(G.sect?SECTLV.map((lv,i)=>({s:SK[G.sect+(i+2)],lv})).filter(o=>o.s):[]);
   const a=typeof AIC!=='undefined'&&AIC[u.id];
   const own=a?a.n.sk.filter(k=>!LSK[k].enr).map(lskP):u.id==='eliza'?[SK.eliza0,SK.eliza1]:u.id==='morphin'?[SK.morphin0,SK.morphin1]:SK[u.id]?[SK[u.id]]:[];
   const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=0;/* v14.3: kỹ năng mở theo cấp thật của đồng hành (cấp 3, 6, 10, 14, 18...), không tính từ cấp lúc thu phục; quái thu phục giữ cấp nên có đủ chiêu của cấp đó */
@@ -2317,7 +2343,7 @@ async function quest(){const i=G.nan,s=G.qs,q=NQ[i];const tag=`Nạn ${i+1}/${NA
   placeMarker();}
 async function pickSect(){await say(['Qua những kiếp nạn đầu, Tổ sư hiện ra trong giấc mộng: "Con là pháp sư: nhìn thấy, trò chuyện và hợp nhất được với linh hồn.','Nhưng mỗi pháp sư phải chọn một con đường riêng để đi sâu hơn. Hãy chọn nghề của con."'],'Tổ sư');
   const ks=Object.keys(SECT);for(;;){const i=await ask('Chọn nghề pháp sư','Lựa chọn này theo con đến hết hành trình.',ks.map(k=>({t:SECT[k].n+': '+SECT[k].tag})));const k=ks[i];
-    const j=await ask(SECT[k].n,SECT[k].d+' ('+SK[k].n+': '+SK[k].d+'.)',[{t:'Theo con đường này'},{t:'Xem nghề khác'}]);if(j!==0)continue;
+    const j=await ask(SECT[k].n,SECT[k].d+' ('+SK[k].n+': '+SK[k].d+'.) Mở thêm theo cấp: '+SECTLV.map((lv,i)=>'Lv'+lv+' '+SK[k+(i+2)].n).join(', ')+'.',[{t:'Theo con đường này'},{t:'Xem nghề khác'}]);if(j!==0)continue;
     setSect(k);sfx('got');toast('Minh Dạ trở thành '+SECT[k].n+'!');return;}}
 async function ending(){G.done=true;const n=G.party.length,m=G.merit+(G.mspent||0);/* công đức đã đổi ở Tháp Công Đức vẫn tính vào kết cục */
   const t=m>=900&&n>=4?'Giáng Ma Sư chân chính':m>=450?'Hàng ma thành công':'Đến nơi, lòng còn nặng';
@@ -3196,6 +3222,7 @@ async function cast(att,def,side,s){if(s.L)return castL(att,def,side,s);const cx
   if(s.poison&&def.hp>0&&R()<s.poison){def.b.burn=3;def.b.psn=1;popup(tx,40,'TRÚNG ĐỘC','#b8e070');}
   if(s.k==='brk'){def.b.brk=3;popup(tx,40,'PHÁ GIÁP','#ff9a6a');}
   if(s.k==='stun'&&R()<s.p&&def.hp>0){def.b.stun=1;popup(tx,40,'CHOÁNG','#ffe060');}
+  /* v15.25: chiêu nghề có aoe lan sang các con quỷ khác (như castL) */if(s.aoe&&att.hp>0&&side==='a'){const rest=(B.grp?B.foes.filter(u=>u!==def&&!u.gone):B.foes.slice(B.fi+1)).filter(u=>u.hp>1);if(rest.length){sfx('hit');spark(62,96,'#7af0ff',24,1.6);B.shake=4;for(const u of rest)u.hp=Math.max(1,u.hp-Math.max(1,Math.round(calc(att,u,s.x*s.aoe).dmg)));B.msg='Pháp lực lan sang '+rest.length+' con quỷ khác!';await wait(600);}}
   await wait(200);}
 /* v5.5: hồn đồng hành thi triển chiêu y như lúc còn là quái (bảng LSK) */
 async function castL(A,E,side,o){const k=o.L,s=LSK[k],cx=side==='a'?176:62,tx=side==='a'?62:176,ts=side==='a'?'e':'a';
@@ -3883,7 +3910,7 @@ function drawLanternsRow(row,camX,camY){if(!G.lg)return;for(const g of G.lg){if(
   else if(g.st==='flee')txt('~',sx+8,top-8,{size:9,align:'center',color:'#a8d8ff'});}}
 
 /* v15.15: đánh dấu kỹ năng ma pháp (dùng Ma); còn lại là cận chiến (dùng Lực). Bọc các hàm thi triển để calc biết loại đòn */
-const MAGS=new Set('tbque tbbat tbbua tblong tbmenh diep0 t_oan t_xac handiem den_long la_da ho_ly ao_trang thuy_quy vuong hon_ma breath confuse summon chandia quyhoa thetgao trieuhon gamthet pdan pdxich pdphan pdlong bbchuong bbkhoi bbdo bbvang tlphun tlhoa tlbua tlloc nqkeu mdxoay mdsong mdkhoc mdlanh zwchuong zwphuc zwcuoi zwxoay dlhoa dlbang dlxoay dlmat dlno stme ibchuong aodan aodien aonhan aoxoay aoanh aophien ubvu ubdap ubru ubxoay tgquat tgphong tgloc tgbao tmhoa tmlan tmmi tmxoay tmvi dtquang dtcanh dtvong dtan dtphat snbao snno dvan dvxich dvbo dvlong kpcau kpbot kpxoay kpsong gtmang gtgam nocau nogao notran noloc nobua cthan ctlua ctcau tqcau tqxoay tqsong tqgao kssong krchuong tkme kgnguyet kglua kgtruc kgmong ytphien ytloc ytbang ytlang dhvu dhday dhmi cvhoa cvmi cvxoay rain'.split(' '));
+const MAGS=new Set('dong2 dong3 dong5 amduong2 amduong4 amduong5 daosi3 daosi4 daosi5 necro2 necro3 necro5 thuoc2 thuoc3 tbque tbbat tbbua tblong tbmenh diep0 t_oan t_xac handiem den_long la_da ho_ly ao_trang thuy_quy vuong hon_ma breath confuse summon chandia quyhoa thetgao trieuhon gamthet pdan pdxich pdphan pdlong bbchuong bbkhoi bbdo bbvang tlphun tlhoa tlbua tlloc nqkeu mdxoay mdsong mdkhoc mdlanh zwchuong zwphuc zwcuoi zwxoay dlhoa dlbang dlxoay dlmat dlno stme ibchuong aodan aodien aonhan aoxoay aoanh aophien ubvu ubdap ubru ubxoay tgquat tgphong tgloc tgbao tmhoa tmlan tmmi tmxoay tmvi dtquang dtcanh dtvong dtan dtphat snbao snno dvan dvxich dvbo dvlong kpcau kpbot kpxoay kpsong gtmang gtgam nocau nogao notran noloc nobua cthan ctlua ctcau tqcau tqxoay tqsong tqgao kssong krchuong tkme kgnguyet kglua kgtruc kgmong ytphien ytloc ytbang ytlang dhvu dhday dhmi cvhoa cvmi cvxoay rain'.split(' '));
 for(const k of MAGS){if(SK[k])SK[k].mg=1;if(LSK[k])LSK[k].mg=1;}for(const k in SK)if(SK[k].k==='sum')SK[k].mg=1;
 function magWrap(fn,get){return async function(...a){const p=CMAG;CMAG=get(...a)?1:0;try{return await fn.apply(this,a);}finally{CMAG=p;}};}
 cast=magWrap(cast,(att,def,side,s)=>sMag(s));castL=magWrap(castL,(A,E,side,o)=>LSK[o.L]&&LSK[o.L].mg);lCast=magWrap(lCast,(E,A,k)=>LSK[k]&&LSK[k].mg);summonStrike=magWrap(summonStrike,()=>1);
