@@ -3087,7 +3087,7 @@ async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.h
    B.fa: quân ta trên sân, B.gq: lượt quân ta còn trong vòng; người đang tới lượt / mục tiêu đứng hàng trước, những con khác đứng hàng sau */
 const GSLE=[[48,-13],[96,-15],[72,-27]],GSLA=[[146,-15]];
 /* v15.20: đại chiến nhiều quái thì thu nhỏ cả hai bên cho thoáng */
-function gK(){return B&&B.grp?.72:1;}
+function gK(){return B&&B.grp?.85:1;}
 async function gFront(side,u){if(side==='e'){if(B.enemy===u)return;await tween(140,t=>{B.eo.x=-50*t;});B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;B.eF=0;B.eo.y=0;await tween(170,t=>{B.eo.x=-50*(1-ease(t));});B.eo.x=0;}
   else{if(B.ally===u)return;await tween(140,t=>{B.ao.x=50*t;});B.ally=u;u.b=u.b||{};B.pose.a=null;B.hp.a=u.hp;B.aA=1;B.aF=0;B.ao.y=0;await tween(170,t=>{B.ao.x=50*(1-ease(t));});B.ao.x=0;}}
 function gFill(){B.fa=B.fa.filter(u=>u.hp>0);for(const u of alive()){if(B.fa.length>=2)break;if(!B.fa.includes(u)){B.fa.push(u);u.b=u.b||{};B.msg=u.name+' vào trận tiếp sức!';}}}
