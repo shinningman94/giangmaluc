@@ -326,7 +326,7 @@ function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   if(typeof arCalc!=='function'){onlHurtOld(a,b,x,o,hit);return;}
   /* 13.1: bên đánh tính trúng/chí mạng/sát thương bằng công thức đánh theo lượt (arCalc) với chỉ số đối thủ gửi sang,
      rồi gửi kèm hiệu ứng (bỏng, độc, suy yếu, phá giáp, choáng, mê loạn...) để máy đối thủ tự áp lên đồng hành của họ */
-  const f=arCalc(a,b,x,o.hitB||0,o.crB||0);
+  const f=arCalc(a,b,x,o.hitB||0,o.crB||0,o.mg!==undefined?o.mg:a.cmag);
   if(!o.auto&&!((R()*100+R()*100)/2<f.hit)){arPop(b.x,b.y-21,'TRƯỢT','#d0d8ff');sfx('miss');hit({d:0,m:1});return;}
   if(b.decoy){b.decoy=0;sfx('seal');arPop(b.x,b.y-27,'HÌNH NHÂN GIẤY','#f0e0b0');hit({d:0,dc:1});return;}
   const cr=!o.auto&&R()*100<f.crt;let d=cr?f.dmg*2:f.dmg;const T=typeof ARTURN==='number'?ARTURN:1500,e={};
