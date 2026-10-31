@@ -3,6 +3,7 @@
 //   https://<tên>.workers.dev/   trạng thái (số người online)
 //   https://<tên>.workers.dev/top bảng xếp hạng PvP
 //   /auth/register, /auth/login, /auth/logout, /auth/me, /save   tài khoản và bản lưu theo tài khoản
+//   /auth/google, /auth/config   đăng nhập bằng Google (bật khi có biến GOOGLE_CLIENT_ID)
 import { Hub } from './hub.js';
 import { Accounts } from './accounts.js';
 
@@ -19,7 +20,7 @@ export class World {
   constructor(state, env) {
     this.state = state;
     const store = { get: k => state.storage.get(k), put: (k, v) => state.storage.put(k, v), delete: k => state.storage.delete(k) };
-    this.acc = new Accounts(store);
+    this.acc = new Accounts(store, { google: env.GOOGLE_CLIENT_ID });
     this.hub = new Hub({ send: (ws, s) => ws.send(s), close: (ws, code, why) => { try { ws.close(code || 1013, why || 'full'); } catch {} }, store, auth: this.acc });
     this.timer = null;
   }
