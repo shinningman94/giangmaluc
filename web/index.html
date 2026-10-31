@@ -3053,7 +3053,7 @@ async function startBattle(foes,o={}){
   scene='trans';sfx('enc');held.length=0;await tween(520,t=>{stripes=t;});
   for(const f of foes){f.b={};foeBoost(f);}for(const u of G.party)u.b={};
   B={pose:{e:null,a:null},foes,fi:0,enemy:foes[0],ally:lead(),o,bg:o.bg||((o.kind==='boss'||o.kind==='judge')?'boss':ZONES[zoneAt(PL.x)].bg),eo:{x:-90,y:0},ao:{x:90,y:0},eA:1,aA:1,eS:1,eF:0,aF:0,hp:{e:foes[0].hp,a:0},mi:0,sub:null,si:0,phase:'intro',msg:'',msgT:0,auto:!!G.auto||(AUTO.on&&SET.auB!==0),forced:false,shake:0,tal:null,pillar:0,ring:0,dark:0,lvl:null,expBar:null,flash:0,gain:[],loot:[],ast:null};
-  if(o.grp){B.grp=1;B.fa=alive().slice(0,2);B.ally=B.fa[0];B.gq=[];}B.hp.a=B.ally.hp;scene='battle';
+  if(o.grp){B.grp=1;B.fa=alive().slice(0,Math.max(2,foes.length))/* v15.24: 3 quái thì bên mình cũng ra 3 người */;B.ally=B.fa[0];B.gq=[];}B.hp.a=B.ally.hp;scene='battle';
   await tween(420,t=>{stripes=1-t;B.ao.x=90*(1-ease(t));B.eo.x=-90*(1-ease(t));});
   B.msg=B.grp?`Đại chiến! ${foes.length} con quỷ cùng xông tới!`:foes.length>1?`${foes.length} con quỷ chặn đường! Đầu tiên: ${foes[0].name}`:((o.kind==='boss'||o.kind==='judge')?foes[0].name+' giáng lâm!':foes[0].name+' xuất hiện!');B.msgT=1500;await wait(900);
   let res=null;
@@ -3087,7 +3087,7 @@ async function startBattle(foes,o={}){
 async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.hp;B.eA=1;B.eS=1;B.eo.x=-90;B.eo.y=0;B.msg='Tiếp theo: '+E.name+(E.elite?' (tinh anh)':'');await tween(380,t=>{B.eo.x=-90*(1-ease(t));});await wait(300);}
 /* v15.13: người chơi muốn thỉnh thoảng có trận đại chiến: 2 đồng đội đứng cùng đấu 2-3 quái một lúc.
    B.fa: quân ta trên sân, B.gq: lượt quân ta còn trong vòng; người đang tới lượt / mục tiêu đứng hàng trước, những con khác đứng hàng sau */
-const GSLE=[[48,-13],[96,-15],[72,-27]],GSLA=[[146,-15]];
+const GSLE=[[48,-13],[96,-15],[72,-27]],GSLA=[[146,-15],[190,-13]];
 /* v15.20: đại chiến nhiều quái thì thu nhỏ cả hai bên cho thoáng */
 function gK(){return B&&B.grp?.85:1;}
 async function gFront(side,u){if(side==='e'){if(B.enemy===u)return;await tween(140,t=>{B.eo.x=-50*t;});B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;B.eF=0;B.eo.y=0;await tween(170,t=>{B.eo.x=-50*(1-ease(t));});B.eo.x=0;}
@@ -3236,7 +3236,7 @@ async function assists(E,all){const mem=G.party.slice(0,3).filter(u=>u!==B.ally&
 function meritFor(E){return E.boss?15:E.kind==='Oán Linh'?4:E.kind==='Vong Linh'||E.kind==='Tinh Linh'?3:2;}
 function expFor(E,u){let n=clamp(20+(E.lv-u.lv)*6,5,90)*(E.elite?1.5:1)*(E.boss?3:1)*(RKX[rankOf(E.id)]||1);if(hasPerk('lao_do'))n*=1.2;if(hasEq('exp'))n*=1.2;return Math.round(n);}
 /* tỉ lệ thu phục: mỗi hồn có độ cứng đầu ngẫu nhiên riêng; cao cấp hơn Minh Dạ mỗi cấp -7%, thấp hơn mỗi cấp +2%; trùm x0.5, tinh anh x0.75 */
-function capP(E){if(E.capB==null)E.capB=.45+R()*.4;const d=E.lv-diep().lv;let p=E.capB-Math.max(0,d)*.07+Math.max(0,-d)*.02;if(E.boss)p*=.5;else if(E.elite)p*=.75;p*=RKCAP[rankOf(E.id)]||1;if(hasEq('cap'))p+=.1;p+=Math.min(.2,(E.tame||0)*.05);/* v11.5.1: máu càng ít càng dễ thu phục: ở ngưỡng 30% không cộng, gần cạn máu +30% */if(E.hp>0&&E.hp<=E.mhp*CAPHP)p+=(1-E.hp/(E.mhp*CAPHP))*.3;return clamp(p,.05,.95);}
+function capP(E){if(E.capB==null)E.capB=.45+R()*.4;const d=E.lv-diep().lv;let p=E.capB-Math.max(0,d)*.07+Math.max(0,-d)*.02;if(E.boss)p*=.5;else if(E.elite)p*=.75;p*=RKCAP[rankOf(E.id)]||1;if(hasEq('cap'))p+=.1;p+=Math.min(.2,(E.tame||0)*.05);/* v11.5.1: máu càng ít càng dễ thu phục: ở ngưỡng 30% không cộng, gần cạn máu +30% */p=clamp(p,.05,.95);/* v15.24: người chơi muốn máu quái càng thấp thì tỉ lệ càng cao, kể cả quái cấp cao hơn: phần thiếu tới 95% được lấp dần theo máu đã mất dưới ngưỡng, gần cạn máu lấp 90% */if(E.hp>0&&E.hp<=E.mhp*CAPHP)p+=(.95-p)*(1-E.hp/(E.mhp*CAPHP))*.9;return clamp(p,.05,.95);}
 /* v11.4: người chơi muốn chỉ thu phục được khi quái còn từ 10% máu trở xuống; hết máu thì chỉ còn siêu độ hoặc tiêu diệt.
    Dưới ngưỡng CAPHP (11.4.1: 20%), mỗi lượt được chọn: thu phục, đánh cho phục (đánh nương tay, sát thương nhỏ ngẫu nhiên, không giết, +5% tỉ lệ mỗi lần, tối đa +20%), hoặc đánh tiếp */
 const CAPHP=.3;
