@@ -3073,6 +3073,8 @@ async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.h
 /* v15.13: người chơi muốn thỉnh thoảng có trận đại chiến: 2 đồng đội đứng cùng đấu 2-3 quái một lúc.
    B.fa: quân ta trên sân, B.gq: lượt quân ta còn trong vòng; người đang tới lượt / mục tiêu đứng hàng trước, những con khác đứng hàng sau */
 const GSLE=[[48,-13],[96,-15],[72,-27]],GSLA=[[146,-15]];
+/* v15.20: đại chiến nhiều quái thì thu nhỏ cả hai bên cho thoáng */
+function gK(){return B&&B.grp?.72:1;}
 async function gFront(side,u){if(side==='e'){if(B.enemy===u)return;await tween(140,t=>{B.eo.x=-50*t;});B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;B.eF=0;B.eo.y=0;await tween(170,t=>{B.eo.x=-50*(1-ease(t));});B.eo.x=0;}
   else{if(B.ally===u)return;await tween(140,t=>{B.ao.x=50*t;});B.ally=u;u.b=u.b||{};B.pose.a=null;B.hp.a=u.hp;B.aA=1;B.aF=0;B.ao.y=0;await tween(170,t=>{B.ao.x=50*(1-ease(t));});B.ao.x=0;}}
 function gFill(){B.fa=B.fa.filter(u=>u.hp>0);for(const u of alive()){if(B.fa.length>=2)break;if(!B.fa.includes(u)){B.fa.push(u);u.b=u.b||{};B.msg=u.name+' vào trận tiếp sức!';}}}
@@ -3093,7 +3095,7 @@ function gBack(){if(!B.grp)return;const L=[];let i=0;for(const f of B.foes)if(!f
   for(const[u,sd,[x,dy]]of L){const a=ANIM[u.id];let img,w,h,dx=0,dy2=0,sc=1;
     if(a){const k=Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
     else{const s0=sprite(u.id);img=sd==='a'?flip(s0):s0;w=img.width;h=img.height;}
-    const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8,bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
+    const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8*gK(),bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
     c.globalAlpha=u.hp>0?.9:.45;bSmo(img,img.width*sc*k);c.drawImage(img,bx-dx*k,by-dy2*k,img.width*sc*k,img.height*sc*k);c.imageSmoothingEnabled=false;c.globalAlpha=1;
     const hw=26,hy=Math.max(PORT?2:30,by-5);rect(x-hw/2,hy,hw,3,'#1b1224');rect(x-hw/2+1,hy+1,Math.round((hw-2)*clamp(u.hp/u.mhp,0,1)),1,sd==='e'?'#ff6a5a':'#5ae07a');
     if(sd==='e'&&u.hp>0){const sx=(PORT?-30:0)+240-x;hit(sx-bw/2,by+(PORT?18:0),bw,bh,()=>{if(B.phase!=='menu'||B.sub)return;B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;sfx('sel');B.msg='Nhắm vào '+u.name;B.msgT=900;});}}}
@@ -3290,7 +3292,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={zashiki:.88,shuten:1.15};/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút */
+const BSZ={zashiki:.88,shuten:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
@@ -3300,7 +3302,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   c.save();c.translate(Math.round(sh)+(PORT?-30:0)+240,SY);c.scale(-1,1);c.drawImage(bgFor(B.bg),0,0);
   if(B.dark>0){c.globalAlpha=B.dark*.5;rect(0,0,240,104,'#300818');c.globalAlpha=1;}
   drawFxU(dt);gBack();
-  const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.12:1),E.id);
+  const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.12:1),E.id)*gK();
   const ew=Math.round(ei.w*ek),eh=Math.round(ei.h*ek);const ex=Math.round(62-ew/2+B.eo.x),ey=Math.round(100-eh*(1-bVis(E.id).b)+B.eo.y+bob-4);
   const eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;
   c.globalAlpha=.28;rect(46,99,32,3,'#000');c.globalAlpha=1;
@@ -3308,7 +3310,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   if(B.eA>0){c.globalAlpha=B.eA*(E.kind==='Vong Linh'?.92:1);bSmo(es,eW);c.drawImage(E.ai&&E.ai.enr?redT(es):es,eX,eY,eW,eH);c.imageSmoothingEnabled=false;if(B.eF>0){c.globalAlpha=B.eF*(ANIM[E.id]?.45:1);c.drawImage(white(es),eX,eY,eW,eH);}c.globalAlpha=1;}
   if((E.kind==='Oán Linh'||E.boss)&&B.eA>0&&Math.random()<.25)fx.push({k:'p',x:ex+R()*ew,y:ey+eh*.6+R()*eh*.4,vx:0,vy:-.5,life:700,max:700,col:E.boss?'#b060ff':'#ff4060',sz:1});
   if(B.eA>.5)drawWisps(E,ex+ew/2,ey+eh*.55,ew/2+8);
-  const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH,A.id);/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
+  const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH,A.id)*gK();/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
   const ax=Math.round(176-aw/2+B.ao.x),ay=Math.round(100-ah*(1-bVis(A.id).b)+B.ao.y+(A.id!=='diep'?Math.round(Math.sin(time/420+1)*2)-4:0));
   const aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;
   c.globalAlpha=.28;rect(160,99,32,3,'#000');c.globalAlpha=1;
