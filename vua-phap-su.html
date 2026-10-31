@@ -2638,7 +2638,7 @@ function drawMenu(){MENU.trect=null;if(MENU.tower)return drawTower();if(MENU.war
   win(186,148,51,11,'#7a2a22','#5a1a18','#ffe8a0');txt('Đóng ✕',211,148,{size:8,align:'center',color:'#fff8e0'});hit(186,147,51,13,()=>closeMenu());}
 function row(x,y,l,v,sel,col='#fff'){if(sel)rect(x-2,y,110,10,'#4a64c0');txt(l,x,y,{size:9,color:'#cfd8ff'});txt(String(v),x+105,y,{size:9,align:'right',color:col});}
 function drawStats(){const d=diep();win(2,18,118,130,'#2c3a78','#1a2250');
-  const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit],['seal','Bùa trấn yểm',G.charms],['pill','Hồi Hồn Đan',G.pill.hp],['pillb','Tụ Linh Đan',G.pill.mp]];
+  const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit]];/* v15.14: bùa và đan dược chuyển sang Hành trang */
   res.forEach(([i,l,v],k)=>{icS(i,6,21+k*11,9);txt(l,17,20+k*11,{size:9,color:'#cfd8ff'});txt(String(v),114,20+k*11,{size:9,align:'right',color:'#fff'});});
   const y=88;txt('Kiếp nạn: '+G.nan+'/'+NAN.length,6,y,{size:9,color:'#ffe8a0'});txt('Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),6,y+10,{size:9,color:'#f0d0ff'});
   txt('Giáng Ma Lục: '+dexCount()+'/'+dexIds().length,6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
@@ -2754,7 +2754,7 @@ function cmpEq(it){const a=eqStats(it.s,it),b=eqStats(it.s,G.eq[it.s]);let sum=0
   return{t,col:sum>0?'#80ff90':sum<0?'#ff8a7a':'#a8a0c0'};}
 function drawGear(){const M=MENU;bagFix();win(2,18,236,130,'#2c3a78','#1a2250');bagChips(6,21,228,12);
   if(M.bg){const CL=consList(),rh=12,sc=scrollArea('bag',4,36,232,98,CL.length*rh);listShow('bag',M.i,rh,98);clipOn(4,36,232,98);
-    CL.forEach((k,i)=>{const y=36+i*rh-sc,sel=i===M.i;if(y<24||y>134)return;if(sel)rect(6,y,226,rh,'#4a64c0');itArt(CONS[k].k,8,y+1,10);txt(CONS[k].n,21,y+1,{size:9,color:'#ffe8a0'});txt('×'+itN(k),228,y+1,{size:9,align:'right',color:'#fff'});hitC(6,y,226,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},36,98);});clipOff();scrollBar('bag',233,36,98);
+    CL.forEach((k,i)=>{const y=36+i*rh-sc,sel=i===M.i;if(y<24||y>134)return;if(sel)rect(6,y,226,rh,'#4a64c0');cArt(k,8,y+1,10);txt(CONS[k].n,21,y+1,{size:9,color:'#ffe8a0'});txt('×'+itN(k),228,y+1,{size:9,align:'right',color:'#fff'});hitC(6,y,226,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},36,98);});clipOff();scrollBar('bag',233,36,98);
     const k=CL[M.i];if(k)wrap(CONS[k].d,226,8).slice(0,1).forEach(l=>txt(l,8,137,{size:8,color:'#c8c0e0'}));else txt(BAGE[1],120,70,{size:8,align:'center',color:'#a8a0c0'});return;}
   ['w','a','t','b'].forEach((s,i)=>{const it=G.eq[s];const x=5+i*58;win(x,35,56,33,'#3a2a20','#241810','#a88a5a');if(it)itIc(it,x+2,38,12);else icS(ITIC[s],x+3,39,10);txt(SLOTN[s],x+16,36,{size:8,color:'#d8c8a0'});const nm=it?it.n:(s==='w'?'Kiếm Gỗ Đào':'(trống)'),nl=wrap(nm,50,7);nl.slice(0,2).forEach((l,j)=>txt(l,x+(j?3:16),45+j*7,{size:7,color:'#fff'}));
     if(nl.length<2)wrap(eqDesc(s),52,7).slice(0,1).forEach(l=>txt(l,x+3,57,{size:7,color:it?'#c8f0c8':'#8a80a0'}));});
@@ -2808,7 +2808,7 @@ function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Mat
     else{if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');txt(r.l+(G.pts?'  +':''),9,ty2,{size:10,color:'#cfd8ff'});txt(String(r.v),W-9,ty2,{size:10,align:'right',color:'#fff'});}
     hit(2,yy,W-4,rh,()=>{MENU.i=i;menuInput('a');});});
   const y=t+hA+3;win(2,y,W-4,Math.min(b-y,94),'#2c3a78','#1a2250');
-  const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit],['seal','Bùa trấn yểm',G.charms],['pill','Hồi Hồn Đan',G.pill.hp],['pillb','Tụ Linh Đan',G.pill.mp]];
+  const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit]];/* v15.14: bùa và đan dược chuyển sang Hành trang */
   const cw=(W-12)/2;res.forEach(([ic0,l,v],k)=>{const x=Math.round(6+(k%2)*cw),yy=y+4+Math.floor(k/2)*11;icS(ic0,x,yy+1,9);txt(l,x+11,yy,{size:8,color:'#cfd8ff'});txt(String(v),Math.round(x+cw-4),yy,{size:9,align:'right',color:'#fff'});});
   const y2=y+39;[['Kiếp nạn: '+G.nan+'/'+NAN.length,'#ffe8a0'],['Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),'#f0d0ff'],['Giáng Ma Lục: '+dexCount()+'/'+dexIds().length+' · Bước: '+G.steps,'#cfe'],['Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,'#b8a8d0']]
     .forEach(([l,col],i)=>{if(y2+i*10+10<=b)txt(l,7,y2+i*10,{size:9,color:col});});}
@@ -2837,7 +2837,7 @@ function drawNanP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');let y=t+3;
   for(let i=0;i<NAN.length;i++){const yy=ly+(i+ns)*11-sc;if(yy+11<ly||yy>ly+lh)continue;const done=i<G.nan,cur=i===G.nan;const l=(done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':'');txt(l,10,yy,{size:tw(l,9)>W-20?8:9,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(2,yy,W-4,11,()=>qNav('main'),ly,lh);}clipOff();scrollBar('nan',W-6,ly,lh);}
 function drawGearP(t,b){const M=MENU;bagFix();bagChips(2,t,W-4,18);let y=t+21;const rh=29;
   if(M.bg){const CL=consList();win(2,y,W-4,b-y,'#2c3a78','#1a2250');y+=3;const lh=b-y-3,sc=scrollArea('bag',2,y,W-4,lh,CL.length*rh);listShow('bag',M.i,rh,lh);clipOn(3,y,W-6,lh);const ly=y;
-    CL.forEach((k,i)=>{const yy=ly+i*rh-sc,sel=i===M.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');itArt(CONS[k].k,5,yy+3,16);txt(CONS[k].n+' ×'+itN(k),22,yy,{size:9,color:'#ffe8a0'});wrap(CONS[k].d,W-30,8).slice(0,2).forEach((l,q)=>txt(l,22,yy+9+q*9,{size:8,color:'#c8c0e0'}));hitC(2,yy,W-4,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
+    CL.forEach((k,i)=>{const yy=ly+i*rh-sc,sel=i===M.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');cArt(k,5,yy+3,16);txt(CONS[k].n+' ×'+itN(k),22,yy,{size:9,color:'#ffe8a0'});wrap(CONS[k].d,W-30,8).slice(0,2).forEach((l,q)=>txt(l,22,yy+9+q*9,{size:8,color:'#c8c0e0'}));hitC(2,yy,W-4,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
     if(!CL.length)wrap(BAGE[1],W-20,8).forEach((l,i)=>txt(l,W/2,y+8+i*9,{size:8,align:'center',color:'#a8a0c0'}));return;}
   ['w','a','t','b'].forEach(s=>{const it=G.eq[s];win(2,y,W-4,27,'#3a2a20','#241810','#a88a5a');if(it)itIc(it,4,y+6,15);else icS(ITIC[s],6,y+8,10);txt(SLOTN[s],19,y+3,{size:8,color:'#d8c8a0'});txt(it?it.n:(s==='w'?'Kiếm Gỗ Đào':'(trống)'),W-7,y+3,{size:9,align:'right',color:'#fff'});
     txt('Đang cộng: '+eqDesc(s),W-7,y+14,{size:8,align:'right',color:it?'#c8f0c8':'#8a80a0'});y+=28;});
@@ -4237,7 +4237,14 @@ function mkRelic(r){return{s:r.s,n:r.n,k:r.k,v:r.tier*2+2+ri(0,2),tier:r.tier,ex
 function hasEq(p){return!!G&&!!G.eq&&Object.values(G.eq).some(it=>it&&it.p===p);}
 function exDesc(it){const N={skl:'Kỹ',spd:'Tốc',def:'Thủ',mhp:'HP',mmp:'Linh lực',atk:'Lực'};let t='';if(it.ex)for(const k in it.ex)t+=', +'+it.ex[k]+' '+N[k];if(it.p)t+=', '+PERKD[it.p];return t;}
 /* v8.6: vật phẩm dùng được (bùa, sách, nguyên liệu) đếm theo số lượng trong G.it */
+/* v15.14: người chơi muốn bùa trấn yểm, Hồi Hồn Đan, Tụ Linh Đan thành vật phẩm trong Hành trang; số lượng vẫn giữ ở G.charms, G.pill (CPS) */
+const CPS={bua:()=>G.charms,hoihon:()=>G.pill.hp,tulinh:()=>G.pill.mp};
+function cpsAdd(k,n){if(k==='bua')G.charms=Math.max(0,G.charms+n);else G.pill[k==='hoihon'?'hp':'mp']=Math.max(0,G.pill[k==='hoihon'?'hp':'mp']+n);}
+function cArt(k,x,y,s){const C=CONS[k];if(!(C.k&&itArt(C.k,x,y,s)))icS(C.ic||'bell',x,y,s);}
 const CONS={
+  bua:{n:'Bùa Trấn Yểm',ic:'seal',d:'Ném vào quỷ còn ít máu trong trận để thu phục làm đồng đội'},
+  hoihon:{n:'Hồi Hồn Đan',ic:'pill',d:'Uống hồi 40% máu tối đa (Thầy Thuốc 60%), cứu được người đã kiệt sức'},
+  tulinh:{n:'Tụ Linh Đan',ic:'pillb',d:'Uống hồi 50% linh lực tối đa (Thầy Thuốc 75%)'},
   hoaphu:{n:'Hỏa Phù',k:'fire3',d:'Ném vào quỷ: sát thương lửa, gây bỏng',b:1},
   loiphu:{n:'Lôi Kích Phù',k:'tR2',d:'Gọi sét đánh quỷ, 60% choáng',b:1},
   anphu:{n:'Bình An Phù',k:'tR1',d:'Cả đội hồi 35% HP, giải hiệu ứng xấu',b:1,m:1},
@@ -4250,11 +4257,13 @@ const CONS={
   thanhanh:{n:'Thần Hành Phù',k:'tY2',d:'Dịch chuyển tới bất kỳ chỗ nào thầy đã đi qua trên bản đồ',m:1},
   dinhvi:{n:'Định Vị Phù',k:'hang',d:'Dịch chuyển về chỗ cả đội vừa gục ngã',m:1},
   linhqua:{n:'Linh Quả',k:'jade',d:'Đồng hành ăn: +10 trung thành'}};
-function itN(k){return(G&&G.it&&G.it[k])||0;}
-function itAdd(k,n=1){G.it=G.it||{};G.it[k]=Math.max(0,(G.it[k]||0)+n);}
+function itN(k){if(CPS[k])return G?CPS[k]()||0:0;return(G&&G.it&&G.it[k])||0;}
+function itAdd(k,n=1){if(CPS[k])return cpsAdd(k,n);G.it=G.it||{};G.it[k]=Math.max(0,(G.it[k]||0)+n);}
 function consList(){return Object.keys(CONS).filter(k=>itN(k)>0);}
 /* dùng ngoài trận (Hành trang, bên Vật phẩm); trả về false nếu không dùng được */
 function useCons(k,u){const d=diep();
+  if((k==='hoihon'||k==='tulinh')&&u){const th=G.sect==='thuoc';if(k==='hoihon'){if(u.hp>=u.mhp)return false;itAdd(k,-1);u.hp=Math.min(u.mhp,Math.max(1,u.hp)+Math.ceil(u.mhp*(th?.6:.4)));toast(u.name+' uống Hồi Hồn Đan: máu '+u.hp+'/'+u.mhp);}
+    else{if(u.mp>=u.mmp)return false;itAdd(k,-1);u.mp=Math.min(u.mmp,u.mp+Math.ceil(u.mmp*(th?.75:.5)));toast(u.name+' uống Tụ Linh Đan: linh lực '+u.mp+'/'+u.mmp);}sfx('heal');return true;}
   if(k==='anphu'){itAdd(k,-1);for(const m of G.party){if(m.hp>0)m.hp=Math.min(m.mhp,m.hp+Math.ceil(m.mhp*.35));m.b={};}sfx('heal');toast('Cả đội hồi 35% HP');return true;}
   if(k==='coquyen'){itAdd(k,-1);G.pts+=3;G.cq=(G.cq||0)+1;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
   if(k==='thu'){itAdd(k,-1);G.merit+=6;sfx('pur');toast('Đốt cúng Thư Tịch Cổ: +6 công đức');return true;}
@@ -4269,6 +4278,8 @@ function consSub(k){const C=CONS[k],o=[];
   if(C.u)for(const u of G.party)o.push({l:'Cho '+u.name+' đọc (Lv '+u.lv+')',dis:u.lv>=LVMAX,f:()=>useCons(k,u)});
   if(k==='linhqua'){loyTick();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep')o.push({l:'Cho '+u.name+' ăn ('+Math.floor(loyOf(u))+'/100'+(G.party.includes(u)?'':', trong tháp')+')',dis:loyOf(u)>=100,f:()=>{if(!useCons(k,u))toast(u.name+' đã đủ trung thành');}});}
   if(k==='giay')o.push({l:'Vẽ bùa trấn yểm (3 tờ)',dis:!itN('but')||itN('giay')<3,f:()=>{if(!useCons('giay'))toast(itN('but')?'Cần 3 tờ giấy':'Cần Bút Mực Chu Sa');}});
+  if(k==='hoihon'||k==='tulinh'){const hp=k==='hoihon';for(const u of G.party)o.push({l:'Cho '+u.name+' uống ('+(hp?'máu '+u.hp+'/'+u.mhp:'LL '+u.mp+'/'+u.mmp)+')',dis:hp?u.hp>=u.mhp:u.mp>=u.mmp,f:()=>{if(!useCons(k,u))toast(u.name+(hp?' đang đầy máu':' đang đầy linh lực'));}});}
+  if(k==='bua')o.push({l:'Dùng trong trận: Vật phẩm → Bùa trấn yểm',f:()=>{}});
   if(C.b&&!C.m)o.push({l:'Chỉ dùng được trong trận',f:()=>{}});
   o.push({l:'Đóng',f:()=>{}});return o;}
 /* v9.9: người chơi muốn Thần Hành Phù (tới chỗ đã đi qua) và Định Vị Phù (về chỗ vừa gục ngã).
