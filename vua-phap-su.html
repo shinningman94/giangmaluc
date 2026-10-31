@@ -2007,7 +2007,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
   let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
-  const th=id==='hon_ma'?26:23,sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='hon_ma'?27:25,sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
@@ -3842,7 +3842,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={nu_oan:30,cuong_thi:30,zashiki:24}/* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
+const LMH={nu_oan:25,cuong_thi:25,zashiki:20}/* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
@@ -3850,7 +3850,7 @@ function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),ke
   if(LOUT[id]){const o=document.createElement('canvas');o.width=n.width;o.height=n.height;const ox=o.getContext('2d');ox.drawImage(n,0,0);ox.globalCompositeOperation='source-in';ox.fillStyle=LOUT[id];ox.fillRect(0,0,n.width,n.height);x.globalCompositeOperation='destination-over';for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]])x.drawImage(o,a*Math.ceil(hr/2),b*Math.ceil(hr/2));x.globalCompositeOperation='source-over';}
   const r={img:n,hr,ox:Math.round((fl?a.w-bx-bw/2:bx+bw/2)*sc/hr),oy:Math.round((by+bh)*sc/hr),top:Math.round(by*sc/hr)};LFR.set(key,r);return r;}
 function drawLanternsRow(row,camX,camY){if(!G.lg)return;for(const g of G.lg){if(g.dead>=0||Math.round(g.py/TS)!==row||!seen[g.y*MW+g.x])continue;
-  const sam=!!(ANIM[g.id]&&ANIM[g.id].pose.raise!==undefined),JC=!g.boss&&LMAPS[g.id],k=JC&&g.st!=='enc'?(g.st==='atk'?'sweep':g.mv>0?'walk':'idle'):g.st==='alert'?'turn':g.st==='lunge'?'dash':g.st==='enc'?(sam?'raise':'breath'):g.st==='flee'||g.up&&g.mv>0?'back':g.mv>0&&ANIM[g.id]&&ANIM[g.id].pose.walk!==undefined&&Math.floor(time/180)%2?'walk':'idle';const F=lFrame(g.id||'den_long',k,g.face<0,g.boss?43:LMH[g.id]||30)/* v15.18: quái trên bản đồ to hơn Minh Dạ một chút */,f=F.img;
+  const sam=!!(ANIM[g.id]&&ANIM[g.id].pose.raise!==undefined),JC=!g.boss&&LMAPS[g.id],k=JC&&g.st!=='enc'?(g.st==='atk'?'sweep':g.mv>0?'walk':'idle'):g.st==='alert'?'turn':g.st==='lunge'?'dash':g.st==='enc'?(sam?'raise':'breath'):g.st==='flee'||g.up&&g.mv>0?'back':g.mv>0&&ANIM[g.id]&&ANIM[g.id].pose.walk!==undefined&&Math.floor(time/180)%2?'walk':'idle';const F=lFrame(g.id||'den_long',k,g.face<0,g.boss?36:LMH[g.id]||25)/* v15.21: quái trên bản đồ thấp hơn Minh Dạ một chút, bằng đồng đội */,f=F.img;
   const sx=Math.round(g.px-camX),sy=Math.round(g.py-camY),bob=Math.round(Math.sin(time/380+g.hx)*1.5);
   c.globalAlpha=.25;rect(sx+3,sy+13,10,2,'#000');c.globalAlpha=1;
   c.globalAlpha=.25+.1*Math.sin(time/200+g.hx);rect(sx+8-6,sy-4+bob,12,10,'#7ad0ff');c.globalAlpha=1;
