@@ -3294,7 +3294,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={zashiki:.7,shuten:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
+const BSZ={zashiki:.7,shuten:1.15,vo_tuong:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
@@ -3851,7 +3851,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={nu_oan:25,cuong_thi:25,zashiki:20}/* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
+const LMH={nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
