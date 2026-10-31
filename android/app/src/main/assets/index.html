@@ -3307,7 +3307,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={zashiki:.88,shuten:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút */
+const BSZ={zashiki:.7,shuten:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
