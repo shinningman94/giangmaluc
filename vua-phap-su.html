@@ -2009,7 +2009,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
   let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
-  const th=id==='hon_ma'?27:id==='vo_tuong'?30:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='hon_ma'?27:id==='vo_tuong'?30:id==='giap_sat'?27:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
@@ -3146,7 +3146,7 @@ async function strike(att,def,side,o={}){const f=calc(att,def,o.mult||1,o.hitB||
   if(!o.quiet)B.msg=att.name+': '+(o.label||w.n);
   const ds=side==='a'?'e':'a';if(!o.quiet){const an=ANIM[att.id];if(an&&an.pose.raise!==undefined){pose(side,'raise',220);await wait(170);}pose(side,'dash',420);}
   const tx=side==='a'?62:176,ty=72,rng=SPECIES[att.id].ranged,L=rng?0:34;
-  if(rng){const x0=side==='a'?176:62;sfx('sel');await tween(200,t=>{B.arrow={x:lerp(x0+dir*14,tx-dir*8,t),y:66-6*Math.sin(t*Math.PI),d:dir};});B.arrow=null;}
+  if(rng){const x0=side==='a'?176:62;sfx('sel');const mg=SPECIES[att.id].rmag,ic=(SPECIES[att.id].w||{}).ic,col=mg?(ic==='brush'?'#ffe890':ICOL[ic]||'#c8a0ff'):0;await tween(mg?260:200,t=>{B.arrow={x:lerp(x0+dir*14,tx-dir*8,t),y:66-(mg?3:6)*Math.sin(t*Math.PI),d:dir,m:mg,c:col};});B.arrow=null;}
   else await tween(170,t=>{off.x=dir*L*ease(t);off.y=-6*Math.sin(t*Math.PI);});
   if(!((R()*100+R()*100)/2<f.hit)){sfx('miss');popup(tx,ty-20,'TRƯỢT','#c8e0ff');const doff=side==='a'?B.eo:B.ao;await Promise.all([tween(150,t=>{doff.x=-dir*12*t;}),tween(150,t=>{off.x=dir*L*(1-t);})]);await tween(150,t=>{doff.x=-dir*12*(1-t);});return{hit:false,dmg:0};}
   if(def.b&&def.b.decoy){def.b.decoy=0;sfx('seal');popup(tx,ty-20,'HÌNH NHÂN GIẤY','#f0e0b0');spark(tx,ty,'#fff8e0',16,1.2);B.msg='Hình nhân giấy đỡ trọn đòn thay '+def.name+'!';await tween(220,t=>{off.x=dir*L*(1-ease(t));off.y=0;});await wait(250);return{hit:false,dmg:0};}
@@ -3294,7 +3294,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={zashiki:.7,shuten:1.15,vo_tuong:1.15,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
+const BSZ={zashiki:.7,shuten:1.15,vo_tuong:1.15,giap_sat:1.08,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
@@ -3320,7 +3320,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   if(A.b&&A.b.guard){c.globalAlpha=.3+.15*Math.sin(time/150);c.strokeStyle='#ffe080';c.lineWidth=1;c.beginPath();c.ellipse(176,74,26,30,0,0,Math.PI*2);c.stroke();c.globalAlpha=1;}
   drawSpirit();
   if(B.ast){const m=B.ast.img||flip(sprite(B.ast.u.id));const s2=B.ast.sc||.55;c.globalAlpha=.85;c.drawImage(m,Math.round(B.ast.x),Math.round(B.ast.y||40),Math.round(m.width*s2),Math.round(m.height*s2));c.globalAlpha=1;}
-  if(B.arrow){const a=B.arrow,x=Math.round(a.x),y=Math.round(a.y),d=a.d;rect(d>0?x-12:x,y,12,1,'#d8c8a0');rect(d>0?x:x-2,y-1,2,3,'#f0f0f0');rect(d>0?x-13:x+12,y-1,1,3,'#e04040');}
+  if(B.arrow){const a=B.arrow,x=Math.round(a.x),y=Math.round(a.y),d=a.d;if(a.m){const o=(xx,r,al,cl)=>{c.globalAlpha=al;c.fillStyle=cl;c.beginPath();c.arc(xx,a.y,r,0,7);c.fill();};o(a.x-d*8,2,.25,a.c);o(a.x-d*4,2.6,.45,a.c);o(a.x,3.2,1,a.c);o(a.x,1.5,1,'#ffffff');c.globalAlpha=1;}else{rect(d>0?x-12:x,y,12,1,'#d8c8a0');rect(d>0?x:x-2,y-1,2,3,'#f0f0f0');rect(d>0?x-13:x+12,y-1,1,3,'#e04040');}}
   if(B.castFx){const f=B.castFx;c.globalAlpha=.8*(1-f.t*.5);for(let a=0;a<40;a++){const t=a/40*Math.PI*2+time/200;const r=8+f.t*22;rect(Math.round(f.x+Math.cos(t)*r),Math.round(92+Math.sin(t)*r*.3),1,1,f.col);}c.globalAlpha=1;}
   if(B.pillar>0){c.globalAlpha=B.pillar*.55;rect(42,0,40,104,'#fff4c0');c.globalAlpha=B.pillar*.8;rect(52,0,20,104,'#ffffff');c.globalAlpha=1;}
   if(B.tal){c.save();c.translate(Math.round(B.tal.x)+8,Math.round(B.tal.y)+8);c.rotate(B.tal.r);if(fxOk()){c.scale(-1,1);fxDraw('tali',0,0,1.2);}else c.drawImage(icon('seal'),-10,-10,20,20);c.restore();}
@@ -3851,7 +3851,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
+const LMH={nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29,giap_sat:27}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
@@ -3874,6 +3874,10 @@ const MAGS=new Set('tbque tbbat tbbua tblong tbmenh diep0 t_oan t_xac handiem de
 for(const k of MAGS){if(SK[k])SK[k].mg=1;if(LSK[k])LSK[k].mg=1;}for(const k in SK)if(SK[k].k==='sum')SK[k].mg=1;
 function magWrap(fn,get){return async function(...a){const p=CMAG;CMAG=get(...a)?1:0;try{return await fn.apply(this,a);}finally{CMAG=p;}};}
 cast=magWrap(cast,(att,def,side,s)=>sMag(s));castL=magWrap(castL,(A,E,side,o)=>LSK[o.L]&&LSK[o.L].mg);lCast=magWrap(lCast,(E,A,k)=>LSK[k]&&LSK[k].mg);summonStrike=magWrap(summonStrike,()=>1);
+/* v15.23: người chơi muốn quái nhiều kỹ năng ma pháp thì đánh xa, nhiều kỹ năng cận chiến thì đánh gần. Tính theo tỉ lệ đòn sát thương là ma pháp (>50% thì đánh xa); cung thủ có sẵn ranged giữ nguyên. rmag: đánh xa bằng cầu phép thay vì mũi tên */
+const RDMG=new Set(['dmg','conf','summon','weak','stun','drain','brk','rally','sum']);
+function magShare(id){const lk=AIC[id]&&AIC[id].n&&AIC[id].n.sk,L=lk?lk.map(k=>LSK[k]):[SK[id],SK[id+'0'],SK[id+'1']];let t=0,m=0;for(const s of L){if(!s||!RDMG.has(s.k))continue;t++;if(s.mg)m++;}return t?m/t:0;}
+for(const id in SPECIES){if(id==='diep')continue;const sp=SPECIES[id];if(sp.ranged)continue;if(magShare(id)>.5){sp.ranged=true;sp.rmag=1;}}
 
 /* ---------- v5.7: làng, trấn thế giới mở ----------
    Người chơi yêu cầu (2026-10-15): nhà to hơn hẳn so với nhân vật, kiến trúc nằm trong làng/trấn, trong làng là vùng an toàn
