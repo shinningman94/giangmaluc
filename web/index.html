@@ -603,18 +603,10 @@ const ANIMLRU=[];
 function animFr(id,i){const A=ANIM[id];if(!A.cut){A.cut=[];for(let j=0;j<A.n;j++)A.cut.push(animCut(A.im,A,j));
     if(ANIMLRU.length>=16){const old=ANIM[ANIMLRU.shift()];if(old&&old.cut){for(const k of old.cut){flipC.delete(k);whiteC.delete(k);}old.cut=null;}}}
   const p=ANIMLRU.indexOf(id);if(p!==ANIMLRU.length-1){if(p>=0)ANIMLRU.splice(p,1);ANIMLRU.push(id);}return A.cut[i];}
-/* v15.35: đồng đội chờ lượt không đứng đơ: xen kẽ tư thế đứng / thủ thế / ngoảnh (mỗi con lệch nhịp), kèm nhịp thở */
-function idleSeq(a){if(a.iseq)return a.iseq;const P=a.pose,seen=new Set([P.idle]),alt=[];
-  for(const k of(a===ANIM.diep?['turn']:['ready','turn']))if(P[k]!==undefined&&!seen.has(P[k])){seen.add(P[k]);alt.push(k);}
-  if(!alt.length&&P.walk!==undefined&&P.walk!==P.idle)alt.push('walk');
-  const A=alt[0]||'idle',C=alt[1]||A;return a.iseq=['idle','idle','idle',A,A,'idle','idle',C];}
-function uPh(u){if(u.ph===undefined)u.ph=Math.floor(Math.random()*5200);return u.ph;}
-function idleK(a,u){const s=idleSeq(a);return s[Math.floor((time+uPh(u))/650)%s.length];}
-function breathK(u){return Math.sin((time+uPh(u))/520)*.022;}
 /* battle image for a unit: its pose frame (or plain sprite), the layout box it occupies, and where the image sits inside that box */
 function bSpr(u,side){const a=ANIM[u.id];let fl=side==='a';
   if(!a){const s=sprite(u.id),img=fl?flip(s):s;return{img,sc:1,w:img.width,h:img.height,dx:0,dy:0};}
-  const p=B.pose&&B.pose[side];let k=p&&time<p.until?p.k:side==='a'?idleK(a,u):(Math.floor(time/700)%6===5?'turn':'idle');
+  const p=B.pose&&B.pose[side];let k=p&&time<p.until?p.k:(Math.floor(time/700)%6===5?'turn':'idle');
   const i=a.pose[k];if(nativeLeft(a,i))fl=!fl;const f=a.fr[i],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;
   return{img,sc:a.sc,w:bw*a.sc,h:bh*a.sc,dx:(fl?a.w-bx-bw:bx)*a.sc,dy:by*a.sc};}
 function pose(side,k,ms){if(B&&B.pose)B.pose[side]={k,until:ms===Infinity?Infinity:time+ms};}
@@ -3164,7 +3156,7 @@ async function gEnemyPhase(){const tg=B.enemy;
 /* hàng sau: hình đứng yên nhỏ hơn, thanh máu ngắn; chạm quái hàng sau để chọn làm mục tiêu */
 function gBack(){if(!B.grp)return;const L=[];let i=0;for(const f of B.foes)if(!f.gone&&f!==B.enemy&&i<GSLE.length)L.push([f,'e',GSLE[i++]]);i=0;for(const u of B.fa)if(u!==B.ally&&u.hp>0&&i<GSLA.length)L.push([u,'a',GSLA[i++]]);
   for(const[u,sd,[x,dy]]of L){const a=ANIM[u.id];let img,w,h,dx=0,dy2=0,sc=1;
-    if(a){const k=sd==='a'?idleK(a,u):Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
+    if(a){const k=Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
     else{const s0=sprite(u.id);img=sd==='a'?flip(s0):s0;w=img.width;h=img.height;}
     const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8*gK(),bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
     c.globalAlpha=u.hp>0?.9:.45;bSmo(img,img.width*sc*k);c.drawImage(img,bx-dx*k,by-dy2*k,img.width*sc*k,img.height*sc*k);c.imageSmoothingEnabled=false;c.globalAlpha=1;
@@ -3384,7 +3376,7 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   if(B.eA>.5)drawWisps(E,ex+ew/2,ey+eh*.55,ew/2+8);
   const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH,A.id)*gK();/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
   const ax=Math.round(176-aw/2+B.ao.x),ay=Math.round(100-ah*(1-bVis(A.id).b)+B.ao.y+(A.id!=='diep'?Math.round(Math.sin(time/420+1)*2)-4:0));
-  const aX=ax-ai.dx*sc,aW=as.width*ai.sc*sc,aH0=as.height*ai.sc*sc,abr=B.pose.a&&time<B.pose.a.until?0:breathK(A),aH=aH0*(1+abr),aY=ay-ai.dy*sc+aH0-aH;/* v15.35 nhịp thở khi chờ */
+  const aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;
   c.globalAlpha=.28;rect(160,99,32,3,'#000');c.globalAlpha=1;
   if(B.aA>0){c.globalAlpha=B.aA;bSmo(as,aW);c.drawImage(as,aX,aY,aW,aH);c.imageSmoothingEnabled=false;if(B.aF>0){c.globalAlpha=B.aF*(ANIM[A.id]?.45:1);c.drawImage(white(as),aX,aY,aW,aH);}c.globalAlpha=1;}
   if(A.b&&A.b.guard){c.globalAlpha=.3+.15*Math.sin(time/150);c.strokeStyle='#ffe080';c.lineWidth=1;c.beginPath();c.ellipse(176,74,26,30,0,0,Math.PI*2);c.stroke();c.globalAlpha=1;}
