@@ -162,7 +162,7 @@ const RKW={SS:.05,S:.12,A:.3,B:.65,C:1,D:1.3,E:1.6};
 const RKCAP={SS:.4,S:.5,A:.7,B:.85,C:1,D:1.1,E:1.2};
 const RKX={SS:2.5,S:1.6,A:1.3,B:1.15,C:1,D:.9,E:.8};
 const RANK={thay_boi:'C',kappa:'C',gautruc:'B',nu_oan:'C',karate:'C',diemla:'SS',thich_khach:'D',taishaku:'SS',susanoo:'SS',kaguya:'A',phongdo:'S',cuu_vi:'S',vuong:'S',ootengu:'S',tamamo:'S',
-  aoandon:'A',shuten:'A',ibaraki:'A',vo_tuong:'A',lee:'A',thien_linh:'A',tuyet_nu:'A',
+  aoandon:'A',shuten:'S',ibaraki:'S',vo_tuong:'A',lee:'A',thien_linh:'A',tuyet_nu:'A',
   ubume:'B',hanmac:'B',handiem:'B',dao_hoa:'B',amida:'B',cung_thu:'B',giap_sat:'B',ong_ba_bi:'B',jaguar:'B',morphin:'B',eliza:'B',
   geroh:'C',ma_da:'C',ao_trang:'C',cuong_thi:'C',vo_si:'C',kiem_si:'C',thuy_quy:'C',ho_ly:'C',zashiki:'C',
   thay_do:'D',la_da:'D',dang_lung:'D',nga_quy:'D',hon_ma:'E',den_long:'E'};
@@ -186,6 +186,8 @@ function rkW(id){return RKW[rankOf(id)]||1;}
 /* v15.11: người chơi muốn quái thu phục về làm đồng đội có thêm máu và linh lực: máu, linh lực tối đa x1.5 một lần (u.ab), lên cấp cũng được thêm x1.5 */
 const ALLYM=1.5;
 function allyFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.ab||u.id==='diep')continue;u.ab=1;const fh=u.mhp?u.hp/u.mhp:1,fm=u.mmp?u.mp/u.mmp:1;u.mhp=Math.round(u.mhp*ALLYM);u.mmp=Math.round(u.mmp*ALLYM);u.hp=Math.round(u.mhp*fh);u.mp=Math.round(u.mmp*fm);}}
+/* v15.26: Tửu Thôn và Ibaraki lên hạng S: đồng hành đã có (đã nhân hệ số hạng A) nhân thêm 1.35/1.2 một lần */
+function rk26(){if(G.rk26)return;G.rk26=1;for(const u of(G.party||[]).concat(G.box||[])){if(!u||!u.rkv||(u.id!=='shuten'&&u.id!=='ibaraki'))continue;const m=1.35/1.2,f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
 function rkFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.rkv||u.id==='diep')continue;u.rkv=1;const m=RKM[rankOf(u.id)];if(!m||m===1)continue;
   const f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
 /* skills: k = dmg | drain | weak | brk | stun | heal | guard */
@@ -510,8 +512,7 @@ ANIM_SRC.zashiki={n:12,w:230,h:192,box:[22,44,162,136],sc:.6/2,fd:[-1,-1,-1,-1,-
 ANIM_SRC.dang_lung={n:12,w:302,h:240,box:[24,12,238,216],sc:.5/2,fd:[0,1,1,1,-1,1,1,0,1,0,1,0],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,spin:2,raise:8,sweep:6,throw:5,breath:4,guard:7,halo:10,hit:9,down:11},
   src:'img/dang_lung.png',lo:'img/dang_lung_lo.png'};
 /* v15.10: người chơi thay hình Tửu Thôn Đồng Tử bằng tấm 20 tư thế mới, quay mặt sang phải *//* v15.15: người chơi muốn Tửu Thôn nét hơn: cắt lại ở độ phân giải gốc (F=1, 256 màu), sc 1/4 */ANIM_SRC.shuten={n:20,w:433,h:268,box:[106,18,281,250],sc:1/4,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:3,turn:0,back:2,dash:4,raise:5,sweep:7,throw:12,spin:13,breath:11,halo:9,guard:15,hit:17,down:19},src:'img/shuten.png',lo:'img/shuten_lo.png'};
-ANIM_SRC.ibaraki={n:12,w:360,h:240,box:[46,14,242,222],sc:.55/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:0,throw:3,raise:4,sweep:5,breath:6,guard:7,spin:8,halo:9,hit:10,down:11},
-  src:'img/ibaraki.png',lo:'img/ibaraki_lo.png'};
+/* v15.26: người chơi thay hình Ibaraki Đồng Tử bằng tấm 20 tư thế */ANIM_SRC.ibaraki={n:20,w:272,h:180,box:[47,10,134,165],sc:.66/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:4,turn:0,back:1,dash:7,throw:12,sweep:5,raise:6,spin:14,breath:8,halo:13,guard:9,hit:15,down:16},src:'img/ibaraki.png',lo:'img/ibaraki_lo.png'};
 /* v10.4 thức thần mới từ sheet 4x3 của người dùng */
 ANIM_SRC.aoandon={n:12,w:350,h:240,box:[46,20,232,220],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:10,back:1,halo:3,sweep:4,breath:5,throw:6,spin:7,guard:7,raise:9,hit:8,down:11},
   src:'img/aoandon.png',lo:'img/aoandon_lo.png'};
@@ -1663,7 +1664,7 @@ const fx=[],toasts=[];
 let seen=null;
 function newGame(){const seed=ri(1,99999);WD=genRegion(seed);seen=new Uint8Array(MW*MH);
   const d=makeUnit('diep',1,{full:true});
-  G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false,rs157:1};
+  G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false,rs157:1,rk26:1};
   PL.x=RNODES[0].x;PL.y=RNODES[0].y;G.home=homeTMT(PL.x,PL.y);snapPL();reveal();placeMarker();spawnLanterns();}
 function snapPL(){PL.px=PL.x*TS;PL.py=PL.y*TS;PL.moving=false;}
 function seenStr(){let s='';for(let i=0;i<seen.length;i+=4){s+=((seen[i]|seen[i+1]<<1|seen[i+2]<<2|seen[i+3]<<3)).toString(16);}return s;}
@@ -1691,7 +1692,7 @@ function respec157(){if(G.rs157)return;G.rs157=1;const d=G.party.concat(G.box||[
   for(const k of STATS)d[k]=sp.base[k]+Math.round(sp.grow[k]*.6/100*L)+(k==='hp'?L:0);d.mhp=d.hp;d.mmp=sp.mp+(sp.mpg||2)*L;
   for(const k in st)d[k]+=st[k];d.hp=d.mhp;d.mp=d.mmp;for(const s in G.eq)if(G.eq[s])applyEq(G.eq[s],1);
   d.hp=Math.max(1,Math.round(d.mhp*hr));d.mp=Math.round(d.mmp*mr);G.pts=L*PTSLV+(G.cq||0)*3;setTimeout(()=>{try{toast('Minh Dạ đã được tẩy điểm: '+G.pts+' điểm cộng, vào Menu → Chỉ số để cộng lại');}catch(e){}},2500);}
-function applySave(s){G=s.G;rkFix();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
+function applySave(s){G=s.G;rkFix();rk26();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
   if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
 /* v10.7: biên giới vùng đổi nên vài đền, hang, danh thắng dời chỗ: chuyển trạng thái đã ghé/đã dẹp theo tên điểm đến; nhân vật đứng phải ao mới thì dời ra ô trống gần nhất */
 function remapPoi(OW){const key=p=>p.k+'|'+p.n+'|'+(p.lt||'')+'|'+(p.li??'')+'|'+(p.rid||''),np={},nw=new Map(),used=new Set();
@@ -2113,7 +2114,7 @@ let AVT=-9e9;
 function avoidLv(lv){if(!SET.av||lv<diep().lv+SET.av)return false;if(time-AVT>2500){AVT=time;toast('Né tránh quái cấp '+lv+' (mạnh hơn '+(lv-diep().lv)+' cấp)');}return true;}
 async function wild(){/* v15.13: 22% trận đại chiến 2-3 quái khi có ít nhất 2 người còn sức */const grp=alive().length>1&&R()<.22,n=grp?(R()<.5?3:2):G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild',grp});}
 async function patrol(g){G.wc=4;await say('Tiếng xích sắt kéo lê... Một toán quỷ sai tuần đêm chặn đường!');g=g||wildGroup(R()<.5?2:1,1);g.forEach(u=>u.pat=true);await startBattle(g,{kind:'pat'});}
-function patrolRun(){const g=wildGroup(R()<.5?2:1,1);roadRunner(()=>patrol(g),{id:g[0].id});}
+function patrolRun(){const g=wildGroup(R()<.5?2:1,1);if(g.some(u=>hidR(u.id)))return patrol(g);/* v15.26: quái hạng A/S không chạy trên bản đồ, gặp thẳng */roadRunner(()=>patrol(g),{id:g[0].id});}
 function meetRun(){const r=ri(0,2);roadRunner(()=>meet(r),{k:['nong','ba','dong'][r]});}
 
 /* v12.0: người chơi muốn sự kiện thưởng phạt ngẫu nhiên, không cố định: mỗi khoản dao động 50%..150%, việc thiện có thể gặp thêm may mắn, việc xấu dễ gặp xui
@@ -3787,20 +3788,22 @@ function addGhosts(id,want,z0){want.forEach((n,i)=>{const z=z0+i;n*=MW>300?8:4;f
     if(blocked(x,y)||inTown(x,y)||poiAt(x,y)||Math.abs(x-PL.x)+Math.abs(y-PL.y)<10||G.lg.some(g=>Math.abs(g.hx-x)+Math.abs(g.hy-y)<6))continue;
     G.lg.push({id,x,y,hx:x,hy:y,lv:lvAt(x,y),hp:1,dead:-1});k++;}});}
 /* v8.1: người chơi muốn quái rải đều, tránh chỗ dày chỗ thưa: chia bản đồ thành ô lưới, mỗi ô một con (đi tới được, ngoài làng), loài theo vùng */
+/* v15.26: người chơi muốn quái hạng A, S (và SS) không đi lại trên bản đồ, chỉ gặp ngẫu nhiên khi di chuyển (trùm bản đồ giữ nguyên) */
+function hidR(id){return['A','S','SS'].includes(rankOf(id));}
 const GZ=[[['den_long',2],['zashiki',1],['nga_quy',2],['ong_ba_bi',1],['thay_boi',1]],
   [['den_long',2],['geroh',2],['jaguar',2],['dao_hoa',1],['dang_lung',1],['kaguya',1],['thich_khach',1]],
   [['den_long',2],['geroh',1],['handiem',2],['dao_hoa',1],['ma_da',2],['aoandon',1],['ubume',2],['nu_oan',2],['kappa',2]],
   [['vo_si',2],['hanmac',2],['handiem',2],['thien_linh',1],['aoandon',1],['ubume',1],['thich_khach',1],['karate',2],['cuong_thi',3],['nu_oan',1],['thay_boi',2]],
   [['vo_si',2],['vo_tuong',1],['cung_thu',2],['giap_sat',1],['lee',1],['hanmac',1],['tuyet_nu',1],['ootengu',1],['tamamo',1],['karate',2]],
-  [['vo_tuong',2],['giap_sat',2],['lee',2],['ibaraki',1],['shuten',1],['ootengu',1],['tamamo',1],['cuong_thi',1]]].map(L=>L.filter(o=>o[1]>0).map(o=>[o[0],o[1]*rkW(o[0])]));
-function spawnLanterns(){G.lg=[];G.lgv=15;const N=MW*MH,rc=new Uint8Array(N),s0=WD.path[0];rc[s0]=1;const Q=[s0];
+  [['vo_tuong',2],['giap_sat',2],['lee',2],['ibaraki',1],['shuten',1],['ootengu',1],['tamamo',1],['cuong_thi',1]]].map(L=>L.filter(o=>o[1]>0&&!hidR(o[0])).map(o=>[o[0],o[1]*rkW(o[0])]));
+function spawnLanterns(){G.lg=[];G.lgv=16;const N=MW*MH,rc=new Uint8Array(N),s0=WD.path[0];rc[s0]=1;const Q=[s0];
   for(let h=0;h<Q.length;h++){const i=Q[h],x=i%MW;for(const d of[1,-1,MW,-MW]){const j=i+d;if(j<0||j>=N||rc[j]||(d===1&&x===MW-1)||(d===-1&&x===0))continue;const jx=j%MW,jy=(j-jx)/MW;if(blocked(jx,jy))continue;rc[j]=1;Q.push(j);}}
   const C=MW>600?18:MW>300?11:8,/* v10.7.3: người chơi muốn nhiều quái hơn trên bản đồ (ô lưới 26 -> 18, khoảng gấp đôi) */pz=WD.pois.map(p=>[p.x,p.y]);
   for(let cy=2;cy<MH-2;cy+=C)for(let cx=2;cx<MW-2;cx+=C)for(let t=0;t<14;t++){const x=clamp(cx+ri(1,C-2),2,MW-3),y=clamp(cy+ri(1,C-2),2,MH-3),i=y*MW+x;
     if(!rc[i]||inTown(x,y)||WD.road&&WD.road[i]||Math.abs(x-PL.x)+Math.abs(y-PL.y)<10||pz.some(p=>Math.abs(p[0]-x)<=3&&Math.abs(p[1]-y)<=3))continue;
     const z=zoneAt(x,y),L=GZ[z];if(!L||!L.length)break;G.lg.push({id:pickW(L,R()),x,y,hx:x,hy:y,lv:lvAt(x,y),hp:1,dead:-1});break;}
   btPanda();addCvBoss();lReset();}
-function ghostsLoaded(){if(!G.lg||!(G.lgv>=11))return spawnLanterns();if(G.lgv===8){for(const g of G.lg)if(g.id==='cuu_vi')g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());addCvBoss();G.lgv=9;}if(G.lgv===9){for(const g of G.lg)if(!g.boss&&GZ[zoneAt(g.hx,g.hy)])g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());G.lgv=10;}if(G.lgv===11){/* v10.8.3: Cương Thi đi tuần ở Nghĩa Địa Cổ và Phế Tích */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<(z===3?.2:.14))g.id='cuong_thi';}G.lgv=12;}if(G.lgv===12){/* v10.9: Hắc Phát Oán Nương ở Đầm Oan Hồn và Nghĩa Địa Cổ */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===2||z===3)&&R()<(z===2?.12:.06))g.id='nu_oan';else if(!g.boss&&z===2&&R()<.12)g.id='kappa';}G.lgv=13;}if(G.lgv===13){btPanda();G.lgv=14;}/* v15.22: thêm Thầy Bói vào bản đồ cũ: đổi ít quái thường ở Làng Hương Khói và Nghĩa Địa Cổ */if(G.lgv===14){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&g.id!=='gautruc'&&(z===0&&R()<.08||z===3&&R()<.12))g.id='thay_boi';}G.lgv=15;}G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));G.lg=G.lg.filter(g=>!(g.boss&&bossGone(g.id)));addCvBoss();lReset();}
+function ghostsLoaded(){if(!G.lg||!(G.lgv>=11))return spawnLanterns();if(G.lgv===8){for(const g of G.lg)if(g.id==='cuu_vi')g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());addCvBoss();G.lgv=9;}if(G.lgv===9){for(const g of G.lg)if(!g.boss&&GZ[zoneAt(g.hx,g.hy)])g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());G.lgv=10;}if(G.lgv===11){/* v10.8.3: Cương Thi đi tuần ở Nghĩa Địa Cổ và Phế Tích */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<(z===3?.2:.14))g.id='cuong_thi';}G.lgv=12;}if(G.lgv===12){/* v10.9: Hắc Phát Oán Nương ở Đầm Oan Hồn và Nghĩa Địa Cổ */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===2||z===3)&&R()<(z===2?.12:.06))g.id='nu_oan';else if(!g.boss&&z===2&&R()<.12)g.id='kappa';}G.lgv=13;}if(G.lgv===13){btPanda();G.lgv=14;}/* v15.22: thêm Thầy Bói vào bản đồ cũ: đổi ít quái thường ở Làng Hương Khói và Nghĩa Địa Cổ */if(G.lgv===14){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&g.id!=='gautruc'&&(z===0&&R()<.08||z===3&&R()<.12))g.id='thay_boi';}G.lgv=15;}if(G.lgv===15){for(const g of G.lg)if(!g.boss&&hidR(g.id)){const L=GZ[zoneAt(g.hx,g.hy)];g.id=L&&L.length?pickW(L,R()):'den_long';}G.lgv=16;}G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));G.lg=G.lg.filter(g=>!(g.boss&&bossGone(g.id)));addCvBoss();lReset();}
 /* v15.8: Tinh Linh Gấu Trúc thường quanh quẩn ở Xóm Bờ Tre: đổi gần nửa quái trong bán kính 30 ô thành gấu trúc, thiếu thì thả thêm cho đủ 8 con */
 const BTN='Xóm Bờ Tre',BTR=30;
 function btPoi(){return WD.pois.find(p=>p.n===BTN);}
