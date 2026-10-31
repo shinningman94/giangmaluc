@@ -2022,7 +2022,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
   let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
-  const th=id==='hon_ma'?27:25,sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='hon_ma'?27:id==='vo_tuong'?30:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
