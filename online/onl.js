@@ -108,25 +108,56 @@ function onlAuthErr(m){ONL.dead=1;if(m==='dup'){ONL.kick=1;ONL.conn=false;ONL.er
   onlForget();ONL.err='Phiên đăng nhập hết hạn. Tải lại trang để đăng nhập lại.';toast('Phiên đăng nhập hết hạn, đăng nhập lại');onlUI();}
 async function onlLogout(){try{save();}catch(_){}await onlUpload(true);try{await onlApi('/auth/logout','POST',{});}catch(_){}
   onlForget();onlLS(ONL_KEY,null);onlLS('gms-onl-owner',null);onlLS('gms-onl-uph',null);onlLS('gms-onl-upat',null);location.reload();}
+/* ---------- đăng nhập bằng Google (Google Identity Services); chỉ hiện khi server có GOOGLE_CLIENT_ID và trang chạy trên https ---------- */
+async function onlGcfg(){if(ONL.gcid!==undefined)return ONL.gcid;try{const r=await onlApi('/auth/config');ONL.gcid=r.st===200&&r.d.g||'';}catch(_){ONL.gcid='';}return ONL.gcid;}
+function onlGok(){const h=location.hostname;return(location.protocol==='https:'||h==='localhost'||h==='127.0.0.1')&&!/; wv\)/.test(navigator.userAgent);}
+function onlGsi(){return onlGsi.p||(onlGsi.p=new Promise((ok,no)=>{if(window.google&&google.accounts&&google.accounts.id)return ok();
+  const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=ok;sc.onerror=()=>{onlGsi.p=null;no(new Error('gsi'));};document.head.appendChild(sc);}));}
+async function onlGButton(box,cb){if(!onlGok())return;const id=await onlGcfg();if(!id||!box.isConnected)return;
+  try{await onlGsi();}catch(_){return;}if(!box.isConnected||!window.google||!google.accounts)return;
+  if(onlGButton.id!==id){google.accounts.id.initialize({client_id:id,callback:r=>{if(ONL.gcb&&r&&r.credential)ONL.gcb(r.credential);},ux_mode:'popup',auto_select:false,cancel_on_tap_outside:true});onlGButton.id=id;}
+  ONL.gcb=cb;box.hidden=false;const el=box.querySelector('.gbtn');
+  google.accounts.id.renderButton(el,{type:'standard',theme:'filled_black',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'left',locale:'vi',width:Math.max(200,Math.min(320,el.clientWidth||300))});}
 function onlAuthAsk(){onlBuildUI();held.length=0;return new Promise(done=>{
-  const d=document.createElement('div');d.id='onlAuth';d.innerHTML=`<form autocomplete="on"><h3>Giáng Ma Sư Online</h3><nav><button type="button" data-m="0">Đăng nhập</button><button type="button" data-m="1">Đăng ký</button></nav>
+  const d=document.createElement('div');d.id='onlAuth';d.innerHTML=`<form autocomplete="on" class="f1"><h3>Giáng Ma Sư Online</h3><div class="gbox" hidden><div class="gbtn"></div><p class="or">hoặc dùng tên đăng nhập</p></div><nav><button type="button" data-m="0">Đăng nhập</button><button type="button" data-m="1">Đăng ký</button></nav>
 <label>Tên đăng nhập<input name="username" autocomplete="username" maxlength="16" autocapitalize="off" spellcheck="false"></label>
 <label>Mật khẩu<input name="password" type="password" maxlength="64"></label><label class="r2">Nhập lại mật khẩu<input name="password2" type="password" maxlength="64" autocomplete="new-password"></label>
 <p class="err"></p><button class="go" type="submit">Đăng nhập</button><button class="back" type="button">${ONL_DUAL?'Quay lại':'Để sau'}</button>
-<p class="note"></p></form>`;document.body.appendChild(d);
-  const f=d.querySelector('form'),$=q=>d.querySelector(q),[iu,ip,ip2]=f.querySelectorAll('input');let mode=0,busyA=false;
+<p class="note"></p></form>
+<form autocomplete="off" class="f2" hidden><h3>Tài khoản Google mới</h3><p class="note">Chọn tên đăng nhập cho tài khoản game (cũng là tên hiện trong game). Lần sau chỉ cần bấm nút Google.</p>
+<label class="gn">Tên đăng nhập<input name="gname" maxlength="16" autocapitalize="off" spellcheck="false"></label>
+<label class="gl">Tên đăng nhập đã có<input name="glu" autocomplete="username" maxlength="16" autocapitalize="off" spellcheck="false"></label><label class="gl">Mật khẩu<input name="glp" type="password" maxlength="64" autocomplete="current-password"></label>
+<p class="err"></p><button class="go" type="submit">Tạo tài khoản</button><button class="back sw" type="button">Đã có tài khoản? Liên kết với Google</button><button class="back b2" type="button">Quay lại</button></form>`;document.body.appendChild(d);
+  const f=d.querySelector('.f1'),f2=d.querySelector('.f2'),$=q=>d.querySelector(q),[iu,ip,ip2]=f.querySelectorAll('input');let mode=0,busyA=false;
   for(const ev of['keydown','keyup','pointerdown','touchstart','wheel'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
   const setMode=m=>{mode=m;d.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));$('.r2').style.display=m?'':'none';$('.go').textContent=m?'Tạo tài khoản':'Đăng nhập';
     ip.autocomplete=m?'new-password':'current-password';$('.err').textContent='';$('.note').textContent=m?'Tên đăng nhập 3-16 ký tự (chữ không dấu, số, _), cũng là tên hiện trong game. Mật khẩu ít nhất 6 ký tự. Nhớ kỹ mật khẩu: hiện chưa có cách lấy lại.':'Tiến trình online lưu theo tài khoản: đăng nhập ở máy nào cũng chơi tiếp được.';};
   d.querySelectorAll('nav button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));setMode(onlLS('gms-onl-last')?0:1);if(onlLS('gms-onl-last'))iu.value=onlLS('gms-onl-last');
-  const close=v=>{d.remove();try{cv.focus();}catch(_){}done(v);};
+  const close=v=>{ONL.gcb=null;d.remove();try{cv.focus();}catch(_){}done(v);};
+  const okAcc=r=>{ONL.acc={u:r.d.u,tok:r.d.tok};onlLS('gms-onl-acc',JSON.stringify(ONL.acc));onlLS('gms-onl-last',r.d.u);sfx('ok');close(true);};
   $('.back').onclick=()=>close(false);
+  /* Google: lần đầu server hỏi tên (f2), hoặc cho liên kết với tài khoản cũ bằng mật khẩu */
+  let gcred='',glink=0;const $2=q=>f2.querySelector(q),[gn,glu,glp]=f2.querySelectorAll('input');
+  const gMode=m=>{glink=m;f2.querySelectorAll('.gn').forEach(x=>x.style.display=m?'none':'');f2.querySelectorAll('.gl').forEach(x=>x.style.display=m?'':'none');
+    $2('.go').textContent=m?'Liên kết và vào game':'Tạo tài khoản';$2('.sw').textContent=m?'Tạo tài khoản mới thay vì liên kết':'Đã có tài khoản? Liên kết với Google';
+    $2('h3').textContent=m?'Liên kết tài khoản cũ':'Tài khoản Google mới';$2('.note').textContent=m?'Nhập tài khoản game đã có một lần. Sau đó bấm nút Google là vào được tài khoản này, mật khẩu cũ vẫn dùng được.':'Chọn tên đăng nhập cho tài khoản game (cũng là tên hiện trong game). Lần sau chỉ cần bấm nút Google.';$2('.err').textContent='';};
+  $2('.sw').onclick=()=>gMode(glink?0:1);$2('.b2').onclick=()=>{f2.hidden=true;f.hidden=false;gcred='';};
+  const gSend=async(body,errEl)=>{if(busyA)return;busyA=true;errEl.textContent='Đang gửi...';
+    try{ONL.acc=null;const r=await onlApi('/auth/google','POST',body);
+      if(r.st===200&&r.d.tok){okAcc(r);return;}
+      if(r.st===200&&r.d.need){gcred=body.c;f.hidden=true;f2.hidden=false;gMode(0);gn.value=r.d.sug||'';errEl.textContent='';busyA=false;setTimeout(()=>gn.focus(),50);return;}
+      errEl.textContent=r.d.err||('Lỗi server ('+r.st+')');if(r.st===400&&/hết hạn|không hợp lệ/.test(r.d.err||'')&&!f2.hidden){f2.hidden=true;f.hidden=false;$('.err').textContent=r.d.err;}}
+    catch(_){errEl.textContent='Không nối được server. Kiểm tra mạng rồi thử lại.';}busyA=false;};
+  f2.onsubmit=e=>{e.preventDefault();if(!gcred)return;
+    if(glink){const u=glu.value.trim(),p=glp.value;if(!/^[a-zA-Z0-9_]{3,16}$/.test(u)||p.length<6){$2('.err').textContent='Nhập đúng tên đăng nhập và mật khẩu của tài khoản cũ';return;}gSend({c:gcred,u,p},$2('.err'));}
+    else{const n=gn.value.trim();if(!/^[a-zA-Z0-9_]{3,16}$/.test(n)){$2('.err').textContent='Tên đăng nhập 3-16 ký tự, chỉ chữ không dấu, số và _';return;}gSend({c:gcred,n},$2('.err'));}};
+  onlGButton(d.querySelector('.gbox'),c=>gSend({c},$('.err')));
   f.onsubmit=async e=>{e.preventDefault();if(busyA)return;const u=iu.value.trim(),p=ip.value;
     if(!/^[a-zA-Z0-9_]{3,16}$/.test(u)){$('.err').textContent='Tên đăng nhập 3-16 ký tự, chỉ chữ không dấu, số và _';return;}
     if(p.length<6){$('.err').textContent='Mật khẩu ít nhất 6 ký tự';return;}if(mode&&p!==ip2.value){$('.err').textContent='Hai lần nhập mật khẩu không giống nhau';return;}
     busyA=true;$('.go').disabled=true;$('.err').textContent='Đang gửi...';
     try{ONL.acc=null;const r=await onlApi(mode?'/auth/register':'/auth/login','POST',{u,p});
-      if(r.st===200&&r.d.tok){ONL.acc={u:r.d.u,tok:r.d.tok};onlLS('gms-onl-acc',JSON.stringify(ONL.acc));onlLS('gms-onl-last',r.d.u);sfx('ok');close(true);return;}
+      if(r.st===200&&r.d.tok){okAcc(r);return;}
       $('.err').textContent=r.d.err||('Lỗi server ('+r.st+')');}catch(_){$('.err').textContent='Không nối được server. Kiểm tra mạng rồi thử lại.';}
     busyA=false;$('.go').disabled=false;};
   setTimeout(()=>{(iu.value?ip:iu).focus();},50);});}
@@ -431,6 +462,8 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
 #onlAuth input{font:20px var(--font);color:#fff;background:#0c0a18;border:1px solid #5a4a6a;border-radius:4px;padding:4px 6px;margin-top:2px}
 #onlAuth .go{font:20px var(--font);background:#c0602a;color:#fff;border:1px solid #f0d890;border-radius:4px;padding:4px;cursor:pointer}#onlAuth .go:disabled{opacity:.6}
 #onlAuth .back{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;padding:2px;cursor:pointer}
+#onlAuth .gbox{display:flex;flex-direction:column;align-items:center;gap:4px}#onlAuth .gbox[hidden],#onlAuth form[hidden]{display:none}#onlAuth .gbtn{width:100%;display:flex;justify-content:center;min-height:44px}
+#onlAuth .or{margin:0;color:#a397b6;font-size:15px}
 #onlAuth .err{margin:0;min-height:1.1em;color:#ff9a8a;font-size:16px}#onlAuth .note{margin:0;color:#a397b6;font-size:15px}
 #onlWait button{font:17px var(--font);background:#2c2440;color:#f1e6c8;border:1px solid #5a4a6a;border-radius:4px;cursor:pointer}`;
   document.head.appendChild(st);const d=document.createElement('div');d.innerHTML=`<button id="onlBtn" type="button">🌐 <span>…</span></button><div id="onlFeed"></div>

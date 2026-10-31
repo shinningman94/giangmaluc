@@ -13,7 +13,7 @@ const store = {
   put: async (k, v) => { let o = {}; try { o = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch {} o[k] = v; fs.writeFileSync(FILE, JSON.stringify(o)); },
   delete: async k => { let o = {}; try { o = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch {} delete o[k]; fs.writeFileSync(FILE, JSON.stringify(o)); },
 };
-const acc = new Accounts(store);
+const acc = new Accounts(store, { google: process.env.GOOGLE_CLIENT_ID });
 const hub = new Hub({ send: (ws, s) => ws.send(s), close: (ws, code, why) => ws.close(code || 1013, why || 'full'), store, auth: acc });
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, PUT, OPTIONS', 'content-type': 'application/json; charset=utf-8' };
 const srv = http.createServer(async (req, res) => {

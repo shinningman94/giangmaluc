@@ -7,6 +7,7 @@ Một địa chỉ phục vụ cả trang game và kết nối chơi:
 - `wss://game.giangmaluc.workers.dev/ws` : kết nối của game (app Android dùng địa chỉ này)
 - `/top` : bảng xếp hạng PvP (JSON), `/` : số người đang online
 - `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me`, `/save` : tài khoản và bản lưu theo tài khoản
+- `/auth/google`, `/auth/config` : đăng nhập bằng tài khoản Google (bật khi Worker có biến `GOOGLE_CLIENT_ID`). Lần đầu người chơi chọn tên tài khoản hoặc liên kết với tài khoản cũ bằng mật khẩu; server kiểm chữ ký ID token bằng khóa công khai của Google.
 
 ## Tài khoản người chơi
 Muốn vào chơi online thì phải đăng ký (tên đăng nhập 3-16 ký tự + mật khẩu từ 6 ký tự) hoặc đăng nhập.

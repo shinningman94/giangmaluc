@@ -9,6 +9,11 @@ compatibility_date = "2025-09-01"
 [build]
 command = "python3 online/build_online.py server/public --server same && cp -r img server/public/ && (cp web/vt323-*.woff2 server/public/ 2>/dev/null || true)"
 
+# Đăng nhập bằng Google: điền Client ID (loại "Web application") tạo ở Google Cloud Console,
+# origin được phép: https://game.giangmaluc.workers.dev . Để trống hoặc xóa dòng thì nút Google tự ẩn.
+# [vars]
+# GOOGLE_CLIENT_ID = "xxxx.apps.googleusercontent.com"
+
 [[durable_objects.bindings]]
 name = "WORLD"
 class_name = "World"
