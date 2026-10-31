@@ -1685,7 +1685,7 @@ let DLG=null,CH=null,B=null,MENU=null;
 let titleIdx=0,hits=[];
 const fx=[],toasts=[];
 let seen=null;
-function newGame(){const seed=ri(1,99999);WD=genRegion(seed);seen=new Uint8Array(MW*MH);
+function newGame(){const seed=ri(1,99999);WD=genRegion(seed);addGates();for(const k in RW)delete RW[k];seen=new Uint8Array(MW*MH);
   const d=makeUnit('diep',1,{full:true});
   G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false,rs157:1,rk26:1};
   PL.x=RNODES[0].x;PL.y=RNODES[0].y;G.home=homeTMT(PL.x,PL.y);snapPL();reveal();placeMarker();spawnLanterns();}
@@ -1715,8 +1715,8 @@ function respec157(){if(G.rs157)return;G.rs157=1;const d=G.party.concat(G.box||[
   for(const k of STATS)d[k]=sp.base[k]+Math.round(sp.grow[k]*.6/100*L)+(k==='hp'?L:0);d.mhp=d.hp;d.mmp=sp.mp+(sp.mpg||2)*L;
   for(const k in st)d[k]+=st[k];d.hp=d.mhp;d.mp=d.mmp;for(const s in G.eq)if(G.eq[s])applyEq(G.eq[s],1);
   d.hp=Math.max(1,Math.round(d.mhp*hr));d.mp=Math.round(d.mmp*mr);G.pts=L*PTSLV+(G.cq||0)*3;setTimeout(()=>{try{toast('Minh Dạ đã được tẩy điểm: '+G.pts+' điểm cộng, vào Menu → Chỉ số để cộng lại');}catch(e){}},2500);}
-function applySave(s){G=s.G;rkFix();rk26();kindFix();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
-  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
+function applySave(s){G=s.G;for(const k in RW)delete RW[k];const RS=G.realm|0,RP={x:s.x,y:s.y};if(RS){/* v15.41: lưu khi đang ở giới khác: dựng Nhân Giới trước rồi mới chuyển sang */G.lgR=G.lgR||{};G.lgR[RS]=G.lg;G.lg=G.lgH||null;delete G.lgH;G.realm=0;if(G.rret){s.x=G.rret.x;s.y=G.rret.y;}}rkFix();rk26();kindFix();magFix();WD=genRegion(G.seed);addGates();seen=new Uint8Array(MW*MH);
+  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}if(RS)realmSwap(RS,RP);}
 /* v10.7: biên giới vùng đổi nên vài đền, hang, danh thắng dời chỗ: chuyển trạng thái đã ghé/đã dẹp theo tên điểm đến; nhân vật đứng phải ao mới thì dời ra ô trống gần nhất */
 function remapPoi(OW){const key=p=>p.k+'|'+p.n+'|'+(p.lt||'')+'|'+(p.li??'')+'|'+(p.rid||''),np={},nw=new Map(),used=new Set();
   for(const p of WD.pois){const k=key(p);if(!nw.has(k))nw.set(k,[]);nw.get(k).push(p);}
@@ -1761,7 +1761,7 @@ function migrateNan(){if(G.nv===200)return;
   if(G.nv!==99){const k=Math.min(72,G.nan*3+G.qs),nk=Math.min(296,Math.round(k*99/24));G.nan=G.nan>=24?99:Math.floor(nk/3);G.qs=G.nan>=99?0:nk%3;}
   if(G.nan>=99){G.nan=NAN.length;G.qs=0;}else if(G.nan>=98){G.nan=195;G.qs=0;}else G.nan*=2;
   G.nv=200;G.chs=chapOf(G.nan)-(G.qs===0&&NCH[chapOf(G.nan)][0]===G.nan?1:0);G.qt=null;G.npcOld=null;}
-function placeMarker(){placeMarker0();if(G.qt){G.qt.hx=G.qt.x;G.qt.hy=G.qt.y;npcKind(G.qt);}}
+function placeMarker(){if(G&&G.realm)return;placeMarker0();if(G.qt){G.qt.hx=G.qt.x;G.qt.hy=G.qt.y;npcKind(G.qt);}}
 function placeMarker0(){if(G.nan>=NAN.length){G.qt=null;return;}
   if(G.nan===NAN.length-1&&G.qs===2){G.qt={x:WD.goal.x,y:WD.goal.y+2};return;}
   /* chặng thứ k nằm ở phần k/72 của hành trình; tìm ô đi tới được gần đó, sát đường cái, không trùng điểm đến */
@@ -2015,7 +2015,7 @@ function fadeTo(v,ms=350){const s=fade;return tween(ms,t=>{fade=lerp(s,v,t);});}
 const BIOT=[null,[40,60,100,.1],[60,30,0,.04],[50,15,100,.32]],BION=[null,null,'Sa Mạc Hoang Vực','Thần Ma Giới'];
 function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;}
 function regKey(x,y){return zoneAt(x,y)+bioAt(x,y)*10;}
-function regName(k){return BION[Math.floor(k/10)]||ZONES[k%10].n;}
+function regName(k){if(G&&G.realm)return RLM[G.realm].n;return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
   run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
 async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
@@ -2042,8 +2042,8 @@ const DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function mapInput(k){if(PL.moving||busy)return;
   if(k==='menu'){openMenu();return;}
   if(DIRS.includes(k)){tryMove(k);return;}
-  if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
-function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
+  if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.realm){toast('Đang ở '+RLM[G.realm].n+'. Kiếp nạn kế tiếp chờ ở Nhân Giới');return;}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
+function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&!G.realm&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
 /* Minh Dạ on the map: the battle sheet itself at a quarter size, so one source pixel lands on one screen pixel (canvas is 4x) and he keeps all the detail he has in battle */
 const HMK=40/ANIM_SRC.diep.w/* v14.9: khung Minh Dạ nét gấp 3, giữ cỡ trên bản đồ */;
 /* followers walk in Minh Dạ's footsteps: a trail of his recent positions, each companion a fixed distance back along it */
@@ -2078,13 +2078,13 @@ function updateMap(dt){
   if(!PL.moving&&held.length&&!DLG&&!CH&&!busy){autoStop('Đã dừng tự động');PL.path=null;tryMove(held[held.length-1]);}
   else if(!PL.moving&&PL.path&&PL.path.length&&!DLG&&!CH&&!busy){const d=PL.path.shift();const ox=PL.x,oy=PL.y;tryMove(d);if(PL.x===ox&&PL.y===oy)PL.path=null;}
   if(PL.path&&!PL.path.length&&!PL.moving)PL.path=null;
-  const bi=bioAt(PL.x,PL.y),tr=BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
-function arrive(){G.steps++;vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))for(const u of G.party)if(u.hp>0&&u.hp<u.mhp)u.hp++;const t=tileG(PL.x,PL.y);
+  const bi=bioAt(PL.x,PL.y),tr=G.realm?RLM[G.realm].tint:BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
+function arrive(){G.steps++;if(!G.realm)vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))for(const u of G.party)if(u.hp>0&&u.hp<u.mhp)u.hp++;const t=tileG(PL.x,PL.y);
   /* v15.5: người chơi muốn đi trên bản đồ không còn hồi linh lực */
   if(G.sect==='tusi'){const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+1);}
   reveal();townStep();const z=regKey(PL.x,PL.y);if(z!==curZone){curZone=z;bannerT=2200;}
   if(busy)return;/* a lantern ghost may have caught us this same frame */
-  if(G.qt&&PL.x===G.qt.x&&PL.y===G.qt.y)return run(quest);
+  if(G.qt&&!G.realm&&PL.x===G.qt.x&&PL.y===G.qt.y)return run(quest);
   const p=poiAt(PL.x,PL.y);if(p)return run(()=>poiEv(p));
   if(G.steps%5===0)save();
   if(G.wc>0){G.wc--;return;}
@@ -2093,7 +2093,7 @@ function arrive(){G.steps++;vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))f
   const wet=t==='w';if(wet&&!arrive.wet)toast('Lội xuống nước đầm, dễ gặp quỷ nước hơn!');arrive.wet=wet;
   const r=R();const enc=(ENC[t]||.03)*.5*(hasPerk('tieu_mai')?.75:1)*(hasEq('ward')?.7:1);
   if(r<enc)return run(wild);
-  const r2=R();
+  if(G.realm)return;/* v15.41: giới khác không có sự kiện dọc đường */const r2=R();
   /* v10.3: người chơi muốn gặp sự kiện trên đường ít hơn (gặp người 1% -> .5%, thư sinh .7% -> .3%); v10.3.1: quỷ sai tuần đêm giữ .6% như cũ */
   if(r2<.006&&z>0)return patrolRun();
   if(r2<.011)return meetRun();
@@ -2128,7 +2128,7 @@ function drawRunner(y,camX,camY){const r=RUNR;if(!r)return;const row=r.mv>0?Math
   else{const sp=npcSpr(r.k),by=mov?-Math.abs(Math.sin(r.mt/r.mv*Math.PI))*2:0;
     if(r.face<0){c.save();c.translate(sx+17,0);c.scale(-1,1);c.drawImage(sp,0,sy-14+by,18,30);c.restore();}else c.drawImage(sp,sx-1,sy-14+by,18,30);top=sy-14+by;}
   if(!r.go)txt('!',sx+8,top-11,{size:13,align:'center',color:'#ffe060'});}
-function poolPick(z){const L=ZONES[z].pool.slice();if(bioAt(PL.x,PL.y)===2)L.push(['han_bat',3]);/* v15.40: Hạn Bạt chỉ gặp ở Sa Mạc Hoang Vực */return pickW(L.map(o=>[o[0],o[1]*rkW(o[0])]),R());}
+function poolPick(z){if(G.realm)return pickW(rlmLists(G.realm).enc,R());const L=ZONES[z].pool.slice();if(bioAt(PL.x,PL.y)===2)L.push(['han_bat',3]);/* v15.40: Hạn Bạt chỉ gặp ở Sa Mạc Hoang Vực */return pickW(L.map(o=>[o[0],o[1]*rkW(o[0])]),R());}
 function foe(id,lv,o){const u=makeUnit(id,Math.max(1,lv),o);G.dex[id]=G.dex[id]||1;return u;}
 const WATERF=[['thuy_quy',3],['ma_da',2],['kappa',2]];/* v9.2: đang lội nước đầm thì 75% gặp quỷ nước */
 function wildGroup(n,lvB=0){const z=zoneAt(PL.x),lv=lvAt(PL.x),wet=tileG(PL.x,PL.y)==='w',bt=nearBT(PL.x,PL.y);return kyPair(Array.from({length:n},()=>foe(wet&&R()<.75?pickW(WATERF,R()):bt&&R()<.4?'gautruc':poolPick(z),lv+ri(-1,1)+lvB)));}
@@ -2161,6 +2161,7 @@ function evOut(o){const L=[],d=diep();
   if(L.length){toast(L.join(' · '));sfx(o.mm||o.hp?'sel':'coin');}return L;}
 /* ---------- places ---------- */
 async function poiEv(p){const s=pst(p);
+  if(p.k==='RG')return gateEv(p,s);
   if(p.k==='V')return village(p,s);
   if(p.k==='S')return temple(p,s);
   if(p.k==='T')return tranMaTi(p,s);
@@ -2403,6 +2404,7 @@ function drawMap0(Z,W0,H0){
       const p=poiAt(x,y);if(p&&p.k==='T'&&TMTIMG.complete&&TMTIMG.naturalWidth){c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(sx+8,sy+15,38,7,0,0,7);c.fill();c.globalAlpha=1;const A=tmtArt(p);if(A){const dw=100,dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+22-dh,dw,dh);}else c.drawImage(TMTIMG,sx+8-40,sy+18-82,80,82);}
       else if(p&&p.k==='L'&&p.lt==='cd'&&CDIMG.complete&&CDIMG.naturalWidth){c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(sx+8,sy+15,26,6,0,0,7);c.fill();c.globalAlpha=1;const A=cdArt(p);if(A){const dw=84,dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+22-dh,dw,dh);}else c.drawImage(CDIMG,sx+8-28,sy+18-109,56,109);}
       else if(p&&(p.k==='S'||p.k==='L'&&LTAR[p.lt])&&ARA.complete&&ARA.naturalWidth){const A=arPart(p.k==='S'?'qgateM':LTAR[p.lt]),dw=p.k==='S'?64:Math.round(A.lw*(PSCALE[LTAR[p.lt]]||1)),dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+18-dh,dw,dh);if(pst(p).done&&p.k!=='S'){c.globalAlpha=.5;rect(sx+6,sy+18-dh-5,4,4,'#7ac46a');c.globalAlpha=1;}}
+      else if(p&&p.k==='RG')drawGate(p,sx,sy);
       else if(p&&p.k==='W'){const st=pst(p);if(!(st.done&&G.steps<st.at+600)){const k=.5+.5*Math.sin(time/260+x);c.globalAlpha=.25+.25*k;c.fillStyle='#b060ff';c.beginPath();c.ellipse(sx+8,sy+12,9,4,0,0,7);c.fill();c.globalAlpha=1;txt('!',sx+8,sy-6-Math.round(k*2),{size:12,align:'center',color:'#ffd0ff',outline:'#3a0a4a'});}else{c.globalAlpha=.5;rect(sx+6,sy+4,4,4,'#7ac46a');c.globalAlpha=1;}}
       else if(p){const s=obj((p.k==='L'?LTOBJ[p.lt]:POIOBJ[p.k])+':x:'+WD.g[y][x]);const m=p.k==='Q'?1.7:1,sw=Math.round(s.width*m),sh=Math.round(s.height*m);if(m>1)c.imageSmoothingEnabled=false;c.drawImage(s,sx+Math.round(8-sw/2),sy+17-sh,sw,sh);if(m>1)c.imageSmoothingEnabled=true;if(pst(p).done&&p.k!=='S'&&p.k!=='V'&&p.k!=='T'){c.globalAlpha=.5;rect(sx+6,sy+16-sh-5,4,4,'#7ac46a');c.globalAlpha=1;}}
       }
@@ -2429,7 +2431,7 @@ function drawMap0(Z,W0,H0){
   drawWeather(camX,camY);
   W=W0;H=H0;c.setTransform(S,0,0,S,0,0);
   // quest marker + guide arrow
-  if(G.qt){const np=npcPx(G.qt),mx=Math.round((np.x-camX)/Z),my=Math.round((np.y-camY)/Z);const m=bubble();
+  if(G.qt&&!G.realm){const np=npcPx(G.qt),mx=Math.round((np.x-camX)/Z),my=Math.round((np.y-camY)/Z);const m=bubble();
     const top=PORT?64:30,bot=PORT?24:10;if(mx>-8&&mx<W&&my>top&&my<H-bot)c.drawImage(m,mx+Math.round(8/Z)-3,my-Math.round(12/Z)-15+Math.round(Math.sin(time/250)*1.5));
     else{const cx=W/2,cy=H/2,dx=mx+8-cx,dy=my+8-cy,sc=Math.min((W/2-14)/Math.abs(dx||1),(H/2-(PORT?70:34))/Math.abs(dy||1));const ax=cx+dx*sc,ay=cy+dy*sc+6;c.drawImage(m,Math.round(ax-5),Math.round(ay-7));const n=Math.abs(G.qt.x-PL.x)+Math.abs(G.qt.y-PL.y);txt(String(n),Math.round(ax),Math.round(ay+6),{size:8,align:'center',color:'#ffe8a0'});}}
   drawHUD();}
@@ -2466,7 +2468,7 @@ function drawHUD(){if(PORT)return drawHUDP();const d=diep(),L=lead();
 const CAM={x:0,y:0};
 function walkTo(sx,sy){if(AUTO.on){autoStop('Đã dừng tự động');}{const Z=mapZoom();sx*=Z;sy*=Z;}const tx=Math.floor((sx+CAM.x)/TS),ty=Math.floor((sy+CAM.y)/TS);
   if(tx<0||ty<0||tx>=MW||ty>=MH)return;if(tx===PL.x&&ty===PL.y){mapInput('a');return;}
-  PL.npcGoal=null;if(G.qt){const p=npcPx(G.qt),wx=sx+CAM.x,wy=sy+CAM.y;if((tx===G.qt.x&&ty===G.qt.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc();}{const wx=sx+CAM.x,wy=sy+CAM.y;for(const v of vilNear()){if(!seen[v.y*MW+v.x])continue;const p=npcPx(v);if((tx===v.x&&ty===v.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc(false,v);}const b=bldTap(tx,ty);if(b)return walkToB(b);}
+  PL.npcGoal=null;if(G.qt&&!G.realm){const p=npcPx(G.qt),wx=sx+CAM.x,wy=sy+CAM.y;if((tx===G.qt.x&&ty===G.qt.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc();}{const wx=sx+CAM.x,wy=sy+CAM.y;for(const v of vilNear()){if(!seen[v.y*MW+v.x])continue;const p=npcPx(v);if((tx===v.x&&ty===v.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc(false,v);}const b=bldTap(tx,ty);if(b)return walkToB(b);}
   if(blocked(tx,ty)||!seen[ty*MW+tx]){sfx('no');PL.mark={x:tx,y:ty,t:500,bad:true};return;}
   const st=PL.y*MW+PL.x,goal=ty*MW+tx;
   /* v6.6.1: rào bao làng nên lối vào có thể nằm trong vùng chưa khám phá; tìm đường qua ô đã thấy trước, không được thì cho đi qua cả ô chưa thấy */
@@ -2497,7 +2499,7 @@ function drawMini(x0,y0){const w=62,h=40,s=1.5,cw=38,ch=24;win(x0,y0,w,h,'#2c3a7
   /* v15.9: người chơi muốn thấy tên xóm trên mini map: tên làng/xóm đã khám phá ghi ngay dưới chấm vàng (xóm đang đứng gần thì đã ghi ở góc trên) */
   const vn=nearVil();for(const p of WD.pois){if(p.k!=='V'||p===vn)continue;const x=p.x-ox,y=p.y-oy;if(x<0||y<0||x>=cw||y>=ch||!seen[p.y*MW+p.x])continue;const fs=fitS(p.n,6,w-6,5),tx=clamp(ix+x*s,x0+3+tw(p.n,fs)/2,x0+w-3-tw(p.n,fs)/2),ty=clamp(iy+y*s+2,y0+9,y0+h-fs-2);
     txt(p.n,tx,ty,{size:fs,align:'center',color:'#fff4c0',outline:'#1a1226',lw:1});}
-  if(G.qt&&Math.floor(time/300)%2){const x=G.qt.x-ox,y=G.qt.y-oy;if(x>=0&&y>=0&&x<cw&&y<ch){c.fillStyle='#fff8e0';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}}
+  if(G.qt&&!G.realm&&Math.floor(time/300)%2){const x=G.qt.x-ox,y=G.qt.y-oy;if(x>=0&&y>=0&&x<cw&&y<ch){c.fillStyle='#fff8e0';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}}
   for(const g of G.lg||[]){const x=g.x-ox,y=g.y-oy;if(g.dead>=0||x<0||y<0||x>=cw||y>=ch||!seen[g.y*MW+g.x])continue;c.fillStyle=g.st==='chase'||g.st==='lunge'||g.st==='alert'?'#ff8a5a':'#7ad0ff';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}
   c.fillStyle=Math.floor(time/200)%2?'#ffffff':'#ff3a3a';c.fillRect(ix+(PL.x-ox)*s-.5,iy+(PL.y-oy)*s-.5,2.5,2.5);}
 
@@ -2508,7 +2510,7 @@ function drawMini(x0,y0){const w=62,h=40,s=1.5,cw=38,ch=24;win(x0,y0,w,h,'#2c3a7
 const NPCR={rx:3,ry:2,wait:4,stepMs:420};
 const NM=new WeakMap();
 function nst(q){let s=NM.get(q);if(!s){if(q.hx==null){q.hx=q.x;q.hy=q.y;}npcKind(q);s={fx:q.x,fy:q.y,t:1,cool:600+R()*1500,face:1};NM.set(q,s);}return s;}
-function npcList(){return(G.npcOld||[]).concat(G.qt?[G.qt]:[],vilNear());}
+function npcList(){if(G.realm)return[];return(G.npcOld||[]).concat(G.qt?[G.qt]:[],vilNear());}
 function npcPx(q){const s=nst(q);const t=s.t>=1?1:s.t;return{x:lerp(s.fx,q.x,t)*TS,y:lerp(s.fy,q.y,t)*TS};}
 function npcRow(q){const s=nst(q);return s.t<1?Math.max(q.y,s.fy):q.y;}
 function npcOldAt(x,y){return(G.npcOld||[]).some(q=>q.x===x&&q.y===y);}
@@ -2538,7 +2540,7 @@ function drawNpc(q,camX,camY){const p=npcPx(q),s=nst(q),k=npcKind(q),sp=npcSpr(k
   const by=k==='hon'?Math.sin(time/400)*1.5-1.5:walk?-Math.abs(Math.sin(s.t*Math.PI))*1.5:(Math.floor(time/600)%2)*.5;
   if(s.face<0){c.save();c.translate(sx+17,0);c.scale(-1,1);c.drawImage(sp,0,sy-14+by,18,30);c.restore();}else c.drawImage(sp,sx-1,sy-14+by,18,30);
   c.globalAlpha=1;if(q.vil)vilDeco(q,sx,sy+by);}
-function walkToNpc(quiet,q){q=q||G.qt;if(!q)return;PL.npcGoal={x:q.x,y:q.y};PL.npcQ=q;
+function walkToNpc(quiet,q){if(G.realm){if(!quiet)toast('Kiếp nạn kế tiếp chờ ở Nhân Giới. Quay lại cổng để về');return;}q=q||G.qt;if(!q)return;PL.npcGoal={x:q.x,y:q.y};PL.npcQ=q;
   const prev=new Int32Array(MW*MH).fill(-1),st=PL.y*MW+PL.x,goal=q.y*MW+q.x,Q=[st];prev[st]=st;
   for(let h=0;h<Q.length&&prev[goal]<0;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;if(nx<0||ny<0||nx>=MW||ny>=MH||prev[j]>=0||(j!==goal&&blocked(nx,ny)))continue;prev[j]=i;Q.push(j);}}
   if(prev[goal]<0){PL.npcGoal=null;if(!quiet){sfx('no');}return;}
@@ -2873,7 +2875,7 @@ function drawNan(){win(2,18,236,130,'#2c3a78','#1a2250');
   if(G.nan>=NAN.length){txt('Đã vượt đủ '+NAN.length+' kiếp nạn. Quỷ Môn Quan đã đóng!',120,24,{size:10,align:'center',color:'#ffe8a0'});}
   else{const[t,d]=NAN[G.nan];txt(`Nạn ${G.nan+1}/${NAN.length}: ${t}`,8,21,{size:10,color:'#ffe8a0'});txt('Hồi '+(chapOf(G.nan)+1)+' · Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),8,32,{size:8,color:'#ffb0b0'});
     wrap(nanNote(),224,8).slice(0,3).forEach((l,i)=>txt(l,8,41+i*8,{size:8,color:'#e0d8f0'}));
-    if(G.qt){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;txt('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),8,66,{size:8,color:'#c8f0c8'});}}
+    if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;txt('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),8,66,{size:8,color:'#c8f0c8'});}}
   bar(8,77,224,4,G.nan/NAN.length,'#d9b45a','#3a2e44');
   const SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-2)*8.5);const sc=scrollArea('nan',4,84,232,59,(NAN.length+ns)*8.5);clipOn(4,84,230,59);const QL=qList();SR.forEach((l,k)=>{const y=85+k*8.5-sc;if(y>=76&&y<=146){txt(l,10,y,{size:8,color:'#ffc890'});hitC(4,y,228,8.5,()=>qNav(QL[k]),84,59);}});for(let i=0;i<NAN.length;i++){const y=85+(i+ns)*8.5-sc;if(y<76||y>146)continue;const done=i<G.nan,cur=i===G.nan;txt((done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':''),10,y,{size:8,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(4,y,228,8.5,()=>qNav('main'),84,59);}clipOff();scrollBar('nan',234,84,59);}
 /* v5.3: chỉ số cộng thêm của món đang mặc, và so sánh món trong túi với món cùng ô đang mặc */
@@ -2913,7 +2915,7 @@ function worldMap(ox,oy,s){rect(Math.floor(ox)-1,Math.floor(oy)-1,Math.ceil(MW*s
   for(const p of vs){const px=ox+p.x*s,py=oy+p.y*s,w=Math.ceil(tw(p.n,6))+2,W0=ox+MW*s,H0=oy+MH*s;
     for(const[dx,dy]of[[-w/2,3],[-w/2,-9],[4,-3],[-w-4,-3]]){const x=Math.round(clamp(px+dx,ox,W0-w)),y=Math.round(clamp(py+dy,oy,H0-7));if(hitB(x,y,w,7))continue;box.push([x,y,w,7]);
       c.globalAlpha=.55;rect(x,y+1,w,6,'#0c0a18');c.globalAlpha=1;txt(p.n,x+1,y,{size:6,color:'#fff4c0',outline:'#1b1224',lw:1});break;}}
-  if(G.qt){const qx=Math.round(ox+G.qt.x*s),qy=Math.round(oy+G.qt.y*s);c.drawImage(bubble(),qx-5,qy-12+Math.round(Math.sin(time/250)));}
+  if(G.qt&&!G.realm){const qx=Math.round(ox+G.qt.x*s),qy=Math.round(oy+G.qt.y*s);c.drawImage(bubble(),qx-5,qy-12+Math.round(Math.sin(time/250)));}
   rect(Math.round(ox+PL.x*s-1.5),Math.round(oy+PL.y*s-1.5),3,3,Math.floor(time/200)%2?'#fff':'#ffe8a0');}
 function drawWorld(){win(2,18,236,130,'#2c3a78','#1a2250');const s=Math.min(228/MW,96/MH),ox=6+(228-MW*s)/2,oy=24;worldMap(ox,oy,s);
   const lg=[['#f8e070','Làng'],['#5af0c0','Trấn Ma Ti'],['#ff5a4a','Đền chùa'],['#b060ff','Hang quỷ'],['#ffb070','Danh thắng'],['#7ad0ff','Người chờ'],['#ff2a6a','Quỷ Môn'],['#fff8e0','NPC ?']];lg.forEach(([cc,l],i)=>{const x=10+(i%4)*57,y=123+Math.floor(i/4)*10;rect(x,y+3,4,4,cc);txt(l,x+6,y,{size:7,color:'#d8d0e8'});});}
@@ -2959,7 +2961,7 @@ function drawNanP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');let y=t+3;
   else{const[tt,d]=NAN[G.nan];txt(NCH[chapOf(G.nan)][1],8,y,{size:9,color:'#c8b0ff'});y+=11;wrap(`Nạn ${G.nan+1}/${NAN.length}: ${tt}`,W-16,10).forEach(l=>{txt(l,8,y,{size:10,color:'#ffe8a0'});y+=11;});
     wrap('Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#ffb0b0'});y+=9;});
     wrap(nanNote(),W-16,8).slice(0,9).forEach(l=>{txt(l,8,y,{size:8,color:'#e0d8f0'});y+=9;});
-    if(G.qt){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;y+=2;wrap('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#c8f0c8'});y+=9;});}}
+    if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;y+=2;wrap('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#c8f0c8'});y+=9;});}}
   y+=3;bar(8,y,W-16,4,G.nan/NAN.length,'#d9b45a','#3a2e44');y+=8;
   const lh=b-y-3,ly=y,SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-Math.floor(lh/33))*11);const sc=scrollArea('nan',2,ly,W-4,lh,(NAN.length+ns)*11);clipOn(3,ly,W-6,lh);
   const QL=qList();SR.forEach((l,k)=>{const yy=ly+k*11-sc;if(yy+11>=ly&&yy<=ly+lh){txt(l,8,yy,{size:tw(l,9)>W-16?7:8,color:'#ffc890'});hitC(2,yy,W-4,11,()=>qNav(QL[k]),ly,lh);}});
@@ -3342,7 +3344,7 @@ async function finish(res){B.phase='end';
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
   await fadeTo(1,400);scene='map';B=null;G.wc=4;
-  if(res==='lose'){const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
+  if(res==='lose'){if(G.realm)realmSwap(0);/* v15.41: gục ở giới khác thì về Nhân Giới */const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
     sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 2 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 2 điểm trung thành.`]),'Trấn Ma Ti');return res;}
   await fadeTo(0,300);save();return res;}
 /* v13.5 hai bên cân nhau: mọi đấu thủ (ta và địch) vẽ cùng chiều cao thân BTH, trùm cao hơn một chút */
@@ -4513,6 +4515,7 @@ function useCons(k,u){const d=diep();
   if(k==='coquyen'){itAdd(k,-1);G.pts+=3;G.cq=(G.cq||0)+1;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
   if(k==='thu'){itAdd(k,-1);G.merit+=6;sfx('pur');toast('Đốt cúng Thư Tịch Cổ: +6 công đức');return true;}
   if(k==='giay'){if(!itN('but')||itN('giay')<3)return false;itAdd('giay',-3);G.charms++;sfx('seal');toast('Vẽ xong 1 bùa trấn yểm');return true;}
+  if((k==='thanhanh'||k==='dinhvi')&&G.realm){toast('Phù truyền tống chỉ dùng được ở Nhân Giới');return false;}
   if(k==='thanhanh'){MENU.warp={sel:null};return true;}
   if(k==='dinhvi'){if(!G.dead){toast('Cả đội chưa gục ngã ở đâu cả');return false;}const q=warpSpot(G.dead.x,G.dead.y,0);if(!q)return false;itAdd(k,-1);closeMenu();doWarp(q.x,q.y,'Định Vị Phù dẫn cả đội về chỗ vừa gục ngã');return true;}
   if(k==='linhqua'&&u){loyTick();if(loyOf(u)>=100)return false;itAdd(k,-1);loyAdd(u,10);sfx('heal');toast(u.name+' ăn Linh Quả: trung thành '+Math.floor(loyOf(u))+'/100');return true;}
@@ -5021,6 +5024,121 @@ function arDrawProj(p){const P=ARPAL[p.el]||ARPAL.spirit,r=p.r,ang=Math.atan2(p.
 function arDrawStun(f,h){for(let i=0;i<3;i++){const a=time*.006+i*2.09,x=f.x+Math.cos(a)*7,y=f.y-h-5+Math.sin(a)*2;c.fillStyle=Math.sin(a)>0?'#ffe060':'#c8a030';c.beginPath();for(let k=0;k<4;k++){const b=k*1.571;c.lineTo(x+Math.cos(b)*1.8,y+Math.sin(b)*1.8);c.lineTo(x+Math.cos(b+.785)*.6,y+Math.sin(b+.785)*.6);}c.closePath();c.fill();}}
 function arDrawShield(f,h){const m=FXM.shield;if(!m||!fxOk())return;const w=m[4]*.24,hh=m[5]*.24;c.globalAlpha=.5+.2*Math.sin(time/120);c.drawImage(FXA,m[0],m[1],m[2],m[3],f.x-w/2,f.y-h/2-hh/2-1,w,hh);c.globalAlpha=1;}
 
+/* v15.41: giới diện phụ. Bản đồ đang dùng là Nhân Giới (G.realm 0). Ba cổng ở Rừng Âm U, Nghĩa Địa Cổ và Thần Ma Giới dẫn tới Linh Giới, Quỷ Giới, Ma Giới;
+   mỗi cổng có một quái hạng S canh, thắng mới qua được. Mỗi giới rộng bằng nửa Nhân Giới (vùng đi được hình bầu dục giữa bản đồ, ngoài là biển âm khí),
+   chỉ có quái thuộc hai chủng riêng. Qua cổng có màn tải tài nguyên. */
+const RLM=[{n:'Nhân Giới'},
+  {n:'Linh Giới',gn:'Cổng Linh Giới',k:['Tinh Linh','Thức Thần'],z:1,bio:0,boss:'tamamo',tint:[40,140,110,.16],col:'#7af0b0',col2:'#d8fff0',lv:[6,22],
+    say:'Linh khí trong lành tràn qua khe cổng. Ngọc Tảo Tiền chín đuôi phe phẩy, chặn lối: "Phàm nhân muốn qua Linh Giới, trước hết thắng được ta."',
+    intro:'Linh Giới: cõi của tinh linh và thức thần. Cây cỏ ở đây đều có hồn.'},
+  {n:'Quỷ Giới',gn:'Cổng Quỷ Giới',k:['Xác Chết','Cương Thi'],z:3,bio:0,boss:'han_bat',tint:[70,20,40,.3],col:'#ff7060',col2:'#ffd0a0',lv:[16,34],
+    say:'Gió nóng hầm hập thổi ra từ cổng đá. Hạn Bạt đứng chắn giữa lối, đất dưới chân nứt toác: "Người sống không được bước qua Quỷ Giới!"',
+    intro:'Quỷ Giới: nơi xác chết và cương thi lang thang không bao giờ yên nghỉ.'},
+  {n:'Ma Giới',gn:'Cổng Ma Giới',k:['Vong Linh','Oán Linh'],z:5,bio:3,boss:'vuong',tint:[60,10,90,.34],col:'#c080ff',col2:'#f0d8ff',lv:[28,48],
+    say:'Oán khí tím đặc quánh cuộn quanh cổng. Oán Linh Vương rút kiếm: "Muốn vào Ma Giới, hãy để lại linh hồn ở đây!"',
+    intro:'Ma Giới: cõi của vong linh và oán linh, oán khí dày đến nghẹt thở.'}];
+const RW={};let RLD=null;
+function rlmKind(r,id){const s=SPECIES[id];return !!s&&RLM[r].k.includes(s.kind);}
+/* quái gặp ngẫu nhiên: mọi loài trong các vùng của Nhân Giới thuộc hai chủng của giới; quái đi trên bản đồ: loài trong GZ (không có hạng A, S, SS) */
+function rlmLists(r){const R0=RLM[r];if(R0.enc)return R0;const P=new Map(),M=new Map();
+  for(const Z of ZONES)for(const[id,w]of Z.pool)if(rlmKind(r,id))P.set(id,(P.get(id)||0)+w);
+  if(r===2)P.set('han_bat',1);
+  for(const L of GZ)for(const[id]of L)if(rlmKind(r,id))M.set(id,(M.get(id)||0)+1);
+  for(const id of P.keys())if(!M.has(id)&&!hidR(id)&&ANIM_SRC[id])M.set(id,1);
+  R0.enc=[...P].map(([id,w])=>[id,w*rkW(id)]);R0.walk=[...M].map(([id,w])=>[id,w*rkW(id)]);return R0;}
+/* cổng ở Nhân Giới: ô trống 3x3 gần đường, ngoài làng, xa các điểm đến khác; chọn cố định theo hạt giống bản đồ */
+function addGates(){if(!WD||WD.pois.some(p=>p.k==='RG'))return;
+  for(let r=1;r<=3;r++){const R0=RLM[r];let best=null,bs=-1;
+    for(let y=6;y<MH-6;y+=2)for(let x=6;x<MW-6;x+=2){const i=y*MW+x;if(WD.zone[i]!==R0.z||(r===3&&WD.bio[i]!==3)||(r!==3&&WD.bio[i]))continue;
+      let ok=true;for(let dy=-2;dy<=1&&ok;dy++)for(let dx=-2;dx<=2&&ok;dx++){const X=x+dx,Y=y+dy;if(blocked(X,Y)||WD.road[Y*MW+X]||WD.g[Y][X]==='w'||inTown(X,Y))ok=false;}if(!ok)continue;
+      let rd=0;for(let d=2;d<=6&&!rd;d++)for(const[dx,dy]of[[d,0],[-d,0],[0,d],[0,-d]])if(WD.road[(y+dy)*MW+x+dx])rd=1;if(!rd)continue;
+      if(WD.pois.some(p=>Math.abs(p.x-x)<10&&Math.abs(p.y-y)<10))continue;
+      const s=hash(x,y,WD.seed+r*13);if(s>bs){bs=s;best={x,y};}}
+    if(!best)continue;const{x,y}=best;
+    for(let dy=-3;dy<=2;dy++)for(let dx=-3;dx<=3;dx++){const X=x+dx,Y=y+dy;if(X>0&&Y>0&&X<MW&&Y<MH&&WD.ob[Y][X]&&WD.ob[Y][X]!=='B'){WD.ob[Y][X]=null;WD.dc[Y][X]=null;}}
+    WD.pois.push({k:'RG',r,n:R0.gn,x,y});}}
+/* dựng một giới: lấy địa hình từ bộ tạo bản đồ với hạt giống riêng, giữ vùng bầu dục giữa (nửa diện tích), bỏ làng và điểm đến, đổi nền và cây theo giới */
+function realmGen(r){const R0=rlmLists(r),sd=((G.seed*31+r*7919)%99991)+1,W=genRegion(sd),Z=ZONES[R0.z],N=MW*MH;
+  const cx=MW/2,cy=MH/2,ax=MW*.4,ay=MH*.4,keep=new Uint8Array(N),tz=W.tz;
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const dx=(x-cx)/ax,dy=(y-cy)/ay,d=dx*dx+dy*dy,n=(noise(x,y,46,sd+5)-.5)*.5+(noise(x,y,14,sd+6)-.5)*.16;if(d<1+n&&x>3&&y>3&&x<MW-4&&y<MH-4)keep[y*MW+x]=1;}
+  const OBS=Z.obs.filter(o=>o[0]!=='W'),obT=OBS.reduce((a,o)=>a+o[1],0);
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=y*MW+x,t=W.g[y][x];
+    if(!keep[i]){W.g[y][x]='w';W.ob[y][x]=null;W.dc[y][x]=null;W.road[i]=0;if(W.bridge)W.bridge[i]=0;continue;}
+    const town=tz&&tz[i];
+    if(town||(t!=='w'&&t!=='='))W.g[y][x]=(town&&t==='=')?'=':Z.g;
+    if(town&&t!=='='){W.ob[y][x]=null;W.dc[y][x]=null;}
+    else if(W.ob[y][x]){let h=hash(x,y,sd)*obT,o=OBS[0][0];for(const[k,w]of OBS){if(h<w){o=k;break;}h-=w;}W.ob[y][x]=o;}
+    if(W.dc[y][x]==='pier')W.dc[y][x]=null;
+    W.zone[i]=R0.z;W.bio[i]=R0.bio;}
+  W.towns=[];W.tz=null;W.bAt=null;W.blds=[];W.bRow=null;W.fq=null;W.pm=null;W.pset=null;W.rlm=r;
+  /* điểm đến: chọn ô đi được gần tâm, rộng rãi */
+  let a=-1,ad=1e9;for(let y=4;y<MH-4;y+=1)for(let x=4;x<MW-4;x+=1){if(!keep[y*MW+x])continue;const d=Math.hypot(x-cx,(y-cy)*1.4);if(d>=ad)continue;
+    let ok=true;for(let dy=-2;dy<=2&&ok;dy++)for(let dx=-2;dx<=2&&ok;dx++){const X=x+dx,Y=y+dy;if(W.g[Y][X]==='w'||W.ob[Y][X])ok=false;}if(ok){ad=d;a=y*MW+x;}}
+  const axx=a%MW,ayy=(a-axx)/MW;
+  for(let dy=-3;dy<=3;dy++)for(let dx=-4;dx<=4;dx++){const X=axx+dx,Y=ayy+dy;W.ob[Y][X]=null;if(W.g[Y][X]!=='w')W.dc[Y][X]=null;}
+  W.pois=[{k:'RG',r:0,n:'Cổng về Nhân Giới',x:axx,y:ayy}];W.path=[a];W.rx=axx;W.ry=ayy+2;
+  /* cấp quái tăng dần khi đi xa cổng */
+  const D=new Int32Array(N).fill(-1),Q=[a];D[a]=0;let mx=1;
+  for(let h=0;h<Q.length;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,j=Y*MW+X;if(X<0||Y<0||X>=MW||Y>=MH||D[j]>=0)continue;const g=W.g[Y][X];if(g==='w'||W.ob[Y][X])continue;D[j]=D[i]+1;if(D[j]>mx)mx=D[j];Q.push(j);}}
+  W.reach=D;const[l0,l1]=R0.lv;for(let i=0;i<N;i++){const f=D[i]>=0?D[i]/mx:.5;W.prog[i]=(l0+(l1-l0)*Math.sqrt(f)-1)/36.5;}
+  return W;}
+function spawnRealm(){const R0=rlmLists(G.realm),C=18,D=WD.reach;G.lg=[];
+  for(let cy=2;cy<MH-2;cy+=C)for(let cx=2;cx<MW-2;cx+=C)for(let t=0;t<14;t++){const x=clamp(cx+ri(1,C-2),2,MW-3),y=clamp(cy+ri(1,C-2),2,MH-3),i=y*MW+x;
+    if(!D||D[i]<0||blocked(x,y)||WD.road[i]||Math.abs(x-PL.x)+Math.abs(y-PL.y)<10)continue;
+    G.lg.push({id:pickW(R0.walk,R()),x,y,hx:x,hy:y,lv:lvAt(x,y),hp:1,dead:-1});break;}
+  lReset();}
+/* đổi giới tức thì (không hoạt cảnh): cất bản đồ và quái của giới đang ở, lấy của giới mới */
+function realmSwap(r,pos){const cur=G.realm|0;if(r===cur)return;
+  if(cur===0){RW[0]=WD;G.rret={x:PL.x,y:PL.y};G.lgH=G.lg;}else{G.lgR=G.lgR||{};G.lgR[cur]=G.lg;delete RW[cur];}
+  G.realm=r;
+  if(r===0){WD=RW[0]||genRegion(G.seed);addGates();G.lg=G.lgH||null;delete G.lgH;const q=G.rret||{x:RNODES[0].x,y:RNODES[0].y};PL.x=q.x;PL.y=q.y;if(poiAt(PL.x,PL.y))PL.y++;}
+  else{WD=RW[r]||(RW[r]=realmGen(r));G.lg=G.lgR&&G.lgR[r]||null;const q=pos||{x:WD.rx,y:WD.ry};PL.x=q.x;PL.y=q.y;}
+  seen=new Uint8Array(MW*MH);freeSpot();PL.dir='down';PL.path=null;PL.npcGoal=null;snapPL();reveal();
+  if(!G.lg||!G.lg.length){if(r)spawnRealm();else ghostsLoaded();}else{G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));lReset();}
+  curZone=regKey(PL.x,PL.y);bannerT=2600;G.wc=6;}
+const nextFrame=()=>new Promise(res=>requestAnimationFrame(()=>res()));
+/* qua cổng: màn tải tài nguyên (dựng địa hình, thả quái, dựng sẵn khung hình quái của giới) rồi mới hiện bản đồ */
+async function realmTravel(r,pos){const from=G.realm|0,to=r;sfx('seal');await fadeTo(1,450);
+  RLD={r:to,p:0,t:'Mở cổng giới diện...',st:time};scene='rload';await fadeTo(0,250);
+  RLD.p=.12;RLD.t=to?'Dựng địa hình '+RLM[to].n+'...':'Dựng lại Nhân Giới...';await nextFrame();await nextFrame();
+  try{realmSwap(to,pos);}catch(e){console.error(e);}
+  RLD.p=.6;RLD.t='Triệu hồi quái vật...';await nextFrame();
+  const ids=[...new Set((G.lg||[]).map(g=>g.id))];let k=0;
+  for(const id of ids){try{const h=LMH[id]||25;lFrame(id,'idle',false,h);lFrame(id,'idle',true,h);lFrame(id,'walk',false,h);lFrame(id,'walk',true,h);}catch(e){}
+    k++;RLD.p=.6+.35*k/Math.max(1,ids.length);if(k%3===0){RLD.t='Tải hình quái '+k+'/'+ids.length+'...';await nextFrame();}}
+  RLD.p=1;RLD.t='Hoàn tất';const left=700-(time-RLD.st);if(left>0)await tween(left,()=>{});
+  await fadeTo(1,250);scene='map';RLD=null;save();await fadeTo(0,450);
+  if(to&&!(G.rvis||{})[to]){G.rvis=G.rvis||{};G.rvis[to]=1;await say([RLM[to].intro,'Ở đây chỉ gặp quái chủng '+RLM[to].k.join(' và ')+'. Muốn về Nhân Giới thì quay lại cổng nơi vừa bước ra.']);}}
+function drawRLoad(){rect(0,0,W,H,'#08060e');const L=RLD;if(!L)return;const R0=RLM[L.r],col=R0.col||'#ffe8a0';
+  const cx=W/2,cy=H/2-(PORT?20:10),t=time/1000;
+  for(let i=0;i<40;i++){const a=i*2.39+t*.6,rr=(i*7%60)+20+Math.sin(t*2+i)*4;c.globalAlpha=.25+.25*Math.sin(t*3+i);rect(Math.round(cx+Math.cos(a)*rr*1.3),Math.round(cy+Math.sin(a)*rr*.7),1,1,col);}c.globalAlpha=1;
+  txt(L.r?R0.n:'Nhân Giới',cx,cy-14,{size:18,align:'center',color:col});
+  txt('Đang tải tài nguyên',cx,cy+8,{size:9,align:'center',color:'#cfc8e0'});
+  const bw=Math.min(160,W-40),bx=Math.round(cx-bw/2),by=Math.round(cy+24);rect(bx-1,by-1,bw+2,7,'#3a3050');rect(bx,by,bw,5,'#120e1c');rect(bx,by,Math.round(bw*L.p),5,col);
+  txt(L.t+'  '+Math.round(L.p*100)+'%',cx,by+9,{size:8,align:'center',color:'#a8a0c0'});}
+/* cổng: vòm đá hai cột, lòng cổng xoáy màu của giới; chưa thắng quái canh thì nó đứng chắn bên cạnh */
+function drawGate(p,sx,sy){const r=p.r,R0=RLM[r||G.realm||1],col=r?R0.col:'#ffe8a0',col2=r?R0.col2:'#fffbe0',t=time/1000,cx=sx+8,by=sy+16;
+  c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(cx,by,26,6,0,0,7);c.fill();c.globalAlpha=1;
+  const gw=34,gh=44;
+  c.save();c.beginPath();c.ellipse(cx,by-gh/2,gw/2-4,gh/2-3,0,0,7);c.clip();
+  const gr=c.createRadialGradient(cx,by-gh/2,2,cx,by-gh/2,gh/2);gr.addColorStop(0,col2);gr.addColorStop(.45,col);gr.addColorStop(1,'#120a20');c.fillStyle=gr;c.fillRect(cx-gw/2,by-gh,gw,gh);
+  c.globalAlpha=.55;c.strokeStyle=col2;c.lineWidth=1;for(let i=0;i<3;i++){c.beginPath();c.ellipse(cx,by-gh/2,4+i*5+((t*6)%5),7+i*7+((t*9)%7),0,t*1.5+i,t*1.5+i+4);c.stroke();}c.globalAlpha=1;c.restore();
+  rect(cx-gw/2-3,by-gh+2,6,gh-2,'#4a4250');rect(cx+gw/2-3,by-gh+2,6,gh-2,'#4a4250');rect(cx-gw/2-2,by-gh+3,2,gh-4,'#6a6274');rect(cx+gw/2-2,by-gh+3,2,gh-4,'#6a6274');
+  rect(cx-gw/2-7,by-gh-3,gw+14,5,'#3a3240');rect(cx-gw/2-5,by-gh+3,gw+10,3,'#3a3240');rect(cx-gw/2-7,by-gh-3,gw+14,1,'#7a7084');
+  rect(cx-5,by-gh-1,10,6,'#c8a050');rect(cx-4,by-gh,8,4,'#5a1a18');
+  for(let i=0;i<6;i++){const a=t*1.3+i*1.05,px=cx+Math.cos(a)*(gw/2+4),py=by-gh/2+Math.sin(a)*gh/2*.9-((t*14+i*9)%10);c.globalAlpha=.6;rect(Math.round(px),Math.round(py),1,1,col2);}c.globalAlpha=1;
+  if(r&&!(G.gk||{})[r]){const id=R0.boss,F=lFrame(id,'idle',true,32);if(F){const bob=Math.round(Math.sin(time/380)*1.5);c.globalAlpha=.3;c.fillStyle='#000';c.beginPath();c.ellipse(cx+30,by-1,9,3,0,0,7);c.fill();c.globalAlpha=1;
+    const hr=F.hr||1;c.drawImage(F.img,cx+30-F.ox,by-F.oy+bob,F.img.width/hr,F.img.height/hr);}}}
+async function gateEv(p){const r=p.r;
+  if(r===0){const i=await pick('Cổng về Nhân Giới','Ánh sáng ấm áp của Nhân Giới hắt qua lòng cổng.',[{t:'Trở về Nhân Giới'},{t:'Ở lại '+RLM[G.realm].n,def:1}]);if(i!==0)return;return realmTravel(0);}
+  const R0=RLM[r];G.gk=G.gk||{};
+  if(!G.gk[r]){const lv=Math.max(R0.lv[0]+4,lvAt(p.x,p.y)+6);
+    const i=await pick(R0.gn,R0.say,[{t:'Giao chiến với '+SPECIES[R0.boss].name+' (hạng S, Lv '+lv+')'},{t:'Để sau',def:1}]);if(i!==0)return;
+    const res=await startBattle([foe(R0.boss,lv,{elite:true})],{kind:'boss',noRun:true});if(res!=='win')return;
+    G.gk[r]=1;sfx('got');await say(SPECIES[R0.boss].name+' đã bị khuất phục. '+R0.gn+' mở ra, có thể đi qua bất cứ lúc nào.');save();}
+  const i=await pick(R0.gn,'Lòng cổng xoáy cuộn dẫn tới '+R0.n+'. Quái ở đó chỉ thuộc chủng '+R0.k.join(' và ')+', cấp khoảng '+R0.lv[0]+' đến '+R0.lv[1]+'.',[{t:'Bước vào '+R0.n},{t:'Để sau',def:1}]);
+  if(i!==0)return;return realmTravel(r);}
+
 
 /* ---------- main loop ---------- */
 let last=performance.now();
@@ -5032,7 +5150,8 @@ function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;t
   hits=[];SCR.length=0;INFOH.length=0;
   c.setTransform(S,0,0,S,0,0);c.imageSmoothingEnabled=false;
   rect(0,0,W,H,'#000');
-  if(scene==='title')drawTitle();
+  if(scene==='rload')drawRLoad();
+  else if(scene==='title')drawTitle();
   else if((scene==='map'||scene==='trans'||scene==='intro')&&G)drawMap();
   else if(scene==='battle'&&B){drawBattle(dt);drawTip();}
   else if(scene==='arena'&&AR)drawArena(dt);

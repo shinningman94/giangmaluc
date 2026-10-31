@@ -190,7 +190,7 @@ function onlPeers(ch){
     let r=ONL.peers.get(p.peer);const fresh=!r;
     if(!r){r={peer:p.peer,x:+s.x||0,y:+s.y||0,sayI:0,sayT:'',sayAt:0};ONL.peers.set(p.peer,r);}
     r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.lvp=s.lvp|0;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;if(r.lvp&&G){const d=diep();r.lv=(d?d.lv:1)+r.lvp;}r.sc=String(s.sc||'');
-    r.rp=s.rp|0||1000;r.w=s.w|0;r.l=s.l|0;r.on=s.sc&&s.sc!=='title';
+    r.rl=s.rl|0;r.rp=s.rp|0||1000;r.w=s.w|0;r.l=s.l|0;r.on=s.sc&&s.sc!=='title';
     if(fresh||Math.abs(r.tx-r.x)>96||Math.abs(r.ty-r.y)>96){r.x=r.tx;r.y=r.ty;}
     const sy=s.say&&typeof s.say==='object'?s.say:null;
     if(fresh)r.sayI=0;
@@ -209,14 +209,15 @@ function onlSay(t){t=onlClean(t).slice(0,120);if(!t)return;const now=performance
 function onlSend(force){if(!ONL.room)return;const now=performance.now();if(!force&&now-ONL.lastSend<125)return;
   const P=onlPvp(),d=G?diep():null;
   const o={v:1,nm:onlNick(),sc:!G||scene==='title'?'title':AR&&AR.pvp?'pvp':scene==='arena'?'arena':scene==='battle'?'battle':scene==='map'?'map':'menu'};
-  if(G&&o.sc!=='title'){o.x=Math.round(PL.px);o.y=Math.round(PL.py);o.f=PL.face<0?-1:1;o.m=PL.moving?1:0;o.lv=d?d.lv:1;if(G.hn)o.hn=G.hn;o.rp=P.rp;o.w=P.w;o.l=P.l;}
+  if(G&&o.sc!=='title'){o.x=Math.round(PL.px);o.y=Math.round(PL.py);o.f=PL.face<0?-1:1;o.m=PL.moving?1:0;o.lv=d?d.lv:1;if(G.hn)o.hn=G.hn;o.rp=P.rp;o.w=P.w;o.l=P.l;if(G.realm)o.rl=G.realm|0;}
   if(ONL.sayI)o.say={i:ONL.sayI,t:ONL.sayT,at:Date.now()-Math.round(now-ONL.sayAt)};
   const D=ONL.duel;o.du=D&&D.st==='ask'?{to:D.to,n:D.n,st:'ask'}:D&&D.role==='b'?{to:D.to,n:D.n,st:'ok'}:ONL.inv&&ONL.inv.no?{to:ONL.inv.from,n:ONL.inv.n,st:'no'}:null;
   const j=JSON.stringify(o);if(j===ONL.lastJ&&!force)return;ONL.lastJ=j;ONL.lastSend=now;ONL.room.presence(o).catch(()=>{});}
 
 /* ---------- vẽ người chơi khác trên bản đồ ---------- */
 function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
-  for(const r of ONL.peers.values()){if(!r.on||r.sc==='title')continue;if(Math.floor((r.y+8)/TS)!==y)continue;
+  const myRl=G&&G.realm|0;
+  for(const r of ONL.peers.values()){if(!r.on||r.sc==='title')continue;if((r.rl|0)!==myRl)continue; /* 15.41: người ở cõi khác (Linh/Quỷ/Ma) dùng tọa độ khác, không vẽ */if(Math.floor((r.y+8)/TS)!==y)continue;
     const hx=Math.round(r.x-camX),hy=Math.round(r.y-camY);if(hx<-40||hy<-60||hx>W+40||hy>H+40)continue;
     const tx=clamp(Math.round((r.x+8)/TS),0,MW-1),ty=clamp(Math.round((r.y+8)/TS),0,MH-1);if(!seen[ty*MW+tx])continue;
     c.globalAlpha=.3;rect(hx+4,hy+14,8,2,'#000');c.globalAlpha=1;
