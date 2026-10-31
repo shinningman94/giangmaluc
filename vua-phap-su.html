@@ -135,8 +135,8 @@ const SPECIES={
   cuong_thi:{name:'Cương Thi',kind:'Cương Thi',mp:10,base:{hp:26,atk:9,skl:4,spd:4,def:6},grow:{hp:90,atk:55,skl:30,spd:25,def:45},w:{n:'Móng Vuốt Thi Độc',mt:7,hit:75,crt:5,ic:'dark'},desc:'Xác chết bị oán khí nhập, cứng đờ, nhảy lò cò đi tìm hơi người. Trên trán còn dán lá bùa rách.'},
   eliza:{name:'Eliza Faust',kind:'Vong Linh',mp:28,mpg:3,base:{hp:20,atk:4,skl:8,spd:7,def:5},grow:{hp:75,atk:30,skl:55,spd:50,def:40},w:{n:'Đèn Dầu Dẫn Hồn',mt:4,hit:85,crt:3,ic:'fire2'},desc:'Linh hồn người vợ quá cố của bác sĩ Faust VIII, một nữ y tá tận tụy. Nàng chữa thương và gọi hồn đồng đội trở về.'},
   hon_ma:{name:'Hồn Ma Lang Thang',kind:'Vong Linh',mp:14,base:{hp:14,atk:4,skl:4,spd:6,def:1},grow:{hp:75,atk:45,skl:40,spd:60,def:25},w:{n:'Gió Âm',mt:3,hit:75,crt:0,ic:'wind'},desc:'Linh hồn lạc lối, chỉ muốn được về nhà.'},
-  cung_thu:{name:'Cung Thủ Ainu',kind:'Vong Linh',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
-  amida:{name:'Amida',kind:'Vong Linh',mp:22,base:{hp:26,atk:8,skl:8,spd:6,def:6},grow:{hp:90,atk:50,skl:50,spd:40,def:45},w:{n:'Nguyệt Đao',mt:8,hit:80,crt:6,ic:'sword2'},desc:'Linh hồn hộ vệ trấn giữ đèo Quỷ Khốc cùng con bạch cú, chỉ theo người đã thắng mình.'},
+  cung_thu:{name:'Cung Thủ Ainu',kind:'Xác Chết',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
+  amida:{name:'Amida',kind:'Xác Chết',mp:22,base:{hp:26,atk:8,skl:8,spd:6,def:6},grow:{hp:90,atk:50,skl:50,spd:40,def:45},w:{n:'Nguyệt Đao',mt:8,hit:80,crt:6,ic:'sword2'},desc:'Linh hồn hộ vệ trấn giữ đèo Quỷ Khốc cùng con bạch cú, chỉ theo người đã thắng mình.'},
   vo_tuong:{name:'Quỷ Tướng Thanh Long',kind:'Oán Linh',mp:18,base:{hp:28,atk:10,skl:8,spd:6,def:7},grow:{hp:90,atk:60,skl:45,spd:35,def:50},w:{n:'Thanh Long Đao',mt:9,hit:72,crt:10,ic:'sword2'},desc:'Hồn một võ tướng Trung Hoa cổ đại tử trận nơi biên ải, vẫn vác Thanh Long đao đi tìm đạo quân đã tan.'},
   vo_si:{name:'Hồn Ma Samurai',kind:'Oán Linh',mp:14,base:{hp:22,atk:8,skl:7,spd:6,def:5},grow:{hp:85,atk:55,skl:45,spd:40,def:40},w:{n:'Đao Hồn Lạnh',mt:7,hit:75,crt:12,ic:'sword2'},desc:'Samurai chết trận không được chôn cất, ôm thanh đao lạnh lang thang tìm đối thủ.'},
   den_long:{name:'Ma Đèn Lồng',kind:'Vong Linh',mp:12,base:{hp:16,atk:5,skl:3,spd:4,def:2},grow:{hp:80,atk:50,skl:35,spd:35,def:30},w:{n:'Lửa Ma Trơi',mt:4,hit:70,crt:5,ic:'fire'},desc:'Chiếc đèn lồng cũ hóa thành yêu, thích dọa người.'},
@@ -191,6 +191,7 @@ function rkW(id){return RKW[rankOf(id)]||1;}
 const ALLYM=1.5;
 function allyFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.ab||u.id==='diep')continue;u.ab=1;const fh=u.mhp?u.hp/u.mhp:1,fm=u.mmp?u.mp/u.mmp:1;u.mhp=Math.round(u.mhp*ALLYM);u.mmp=Math.round(u.mmp*ALLYM);u.hp=Math.round(u.mhp*fh);u.mp=Math.round(u.mmp*fm);}}
 /* v15.26: Tửu Thôn và Ibaraki lên hạng S: đồng hành đã có (đã nhân hệ số hạng A) nhân thêm 1.35/1.2 một lần */
+/* v15.31: chủng lấy theo loài (người chơi chuyển Amida, Cung Thủ Ainu sang Xác Chết) */function kindFix(){for(const u of(G.party||[]).concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id])u.kind=SPECIES[u.id].kind;}
 function rk26(){if(G.rk26)return;G.rk26=1;for(const u of(G.party||[]).concat(G.box||[])){if(!u||!u.rkv||(u.id!=='shuten'&&u.id!=='ibaraki'))continue;const m=1.35/1.2,f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
 function rkFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.rkv||u.id==='diep')continue;u.rkv=1;const m=RKM[rankOf(u.id)];if(!m||m===1)continue;
   const f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
@@ -1700,7 +1701,7 @@ function respec157(){if(G.rs157)return;G.rs157=1;const d=G.party.concat(G.box||[
   for(const k of STATS)d[k]=sp.base[k]+Math.round(sp.grow[k]*.6/100*L)+(k==='hp'?L:0);d.mhp=d.hp;d.mmp=sp.mp+(sp.mpg||2)*L;
   for(const k in st)d[k]+=st[k];d.hp=d.mhp;d.mp=d.mmp;for(const s in G.eq)if(G.eq[s])applyEq(G.eq[s],1);
   d.hp=Math.max(1,Math.round(d.mhp*hr));d.mp=Math.round(d.mmp*mr);G.pts=L*PTSLV+(G.cq||0)*3;setTimeout(()=>{try{toast('Minh Dạ đã được tẩy điểm: '+G.pts+' điểm cộng, vào Menu → Chỉ số để cộng lại');}catch(e){}},2500);}
-function applySave(s){G=s.G;rkFix();rk26();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
+function applySave(s){G=s.G;rkFix();rk26();kindFix();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
   if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
 /* v10.7: biên giới vùng đổi nên vài đền, hang, danh thắng dời chỗ: chuyển trạng thái đã ghé/đã dẹp theo tên điểm đến; nhân vật đứng phải ao mới thì dời ra ô trống gần nhất */
 function remapPoi(OW){const key=p=>p.k+'|'+p.n+'|'+(p.lt||'')+'|'+(p.li??'')+'|'+(p.rid||''),np={},nw=new Map(),used=new Set();
@@ -2044,7 +2045,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
   let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
-  const th=id==='thuong_si'?34:id==='hon_ma'?27:id==='vo_tuong'?30:id==='giap_sat'?27:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='thuong_si'?38:id==='hon_ma'?27:id==='vo_tuong'?30:id==='giap_sat'?27:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
@@ -2108,7 +2109,7 @@ function runnerPx(r){const p=r.mv>0?Math.min(1,r.mt/r.mv):1;return{x:lerp(r.fx,r
 function drawRunner(y,camX,camY){const r=RUNR;if(!r)return;const row=r.mv>0?Math.max(r.y,r.fy):r.y;if(row!==y)return;
   const p=runnerPx(r),sx=Math.round(p.x-camX),sy=Math.round(p.y-camY),mov=r.mv>0;let top;
   c.globalAlpha=.3;rect(sx+4,sy+14,8,2,'#000');c.globalAlpha=1;
-  if(r.id){const A=ANIM[r.id],pk=k=>!A||A.pose[k]!==undefined?k:'idle',F=lFrame(r.id,pk(mov?(r.up?'back':Math.floor(time/150)%2?'walk':'idle'):'turn'),r.face<0),bob=Math.round(Math.sin(time/300)*1.5);
+  if(r.id){const A=ANIM[r.id],pk=k=>!A||A.pose[k]!==undefined?k:'idle',F=lFrame(r.id,pk(mov?(r.up?'back':Math.floor(time/150)%2?'walk':'idle'):'turn'),r.face<0,LMH[r.id]||25)/* v15.31: quỷ tuần đêm dùng cỡ bản đồ riêng (Thương Sĩ to hơn) */,bob=Math.round(Math.sin(time/300)*1.5);
     const fx0=sx+8-F.ox,fy0=sy+13-F.oy+bob;if(F.hr>1)c.drawImage(F.img,fx0,fy0,F.img.width/F.hr,F.img.height/F.hr);else c.drawImage(F.img,fx0,fy0);top=fy0+(F.top||0);}
   else{const sp=npcSpr(r.k),by=mov?-Math.abs(Math.sin(r.mt/r.mv*Math.PI))*2:0;
     if(r.face<0){c.save();c.translate(sx+17,0);c.scale(-1,1);c.drawImage(sp,0,sy-14+by,18,30);c.restore();}else c.drawImage(sp,sx-1,sy-14+by,18,30);top=sy-14+by;}
@@ -3340,7 +3341,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={thuong_si:1.12,zashiki:.7,shuten:1.15,vo_tuong:1.15,giap_sat:1.08,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
+const BSZ={thuong_si:1.25,zashiki:.7,shuten:1.15,vo_tuong:1.15,giap_sat:1.08,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
@@ -3927,7 +3928,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={thuong_si:34,nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29,giap_sat:27}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
+const LMH={thuong_si:38,nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29,giap_sat:27}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
