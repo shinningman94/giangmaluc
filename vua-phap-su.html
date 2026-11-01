@@ -115,6 +115,16 @@ const SPECIES={
   susanoo:{name:'Lôi Thần Giáng Thế',kind:'Thức Thần',mp:34,base:{hp:32,atk:14,skl:11,spd:12,def:8},grow:{hp:88,atk:72,skl:55,spd:60,def:48},w:{n:'Thập Quyền Lôi Kiếm',mt:11,hit:90,crt:15,ic:'sword2'},desc:'Susanoo, thần bão tố tóc dài bờm xờm, áo giáp xanh thẫm, tay cầm thanh kiếm lớn tóe sét. Bị đuổi khỏi trời cao, thần ngự trên đỉnh Núi Quỷ Khốc, gọi mây đen sấm chớp. Chỉ có một Susanoo; thu phục được thần thì thần theo thầy mãi mãi, không xuất hiện ở đâu nữa.'},
   diemla:{name:'Diêm La Vương',kind:'Thức Thần',mp:40,base:{hp:34,atk:13,skl:13,spd:10,def:9},grow:{hp:90,atk:66,skl:66,spd:50,def:52},w:{n:'Phán Quan Kiếm',mt:11,hit:90,crt:12,ic:'sword2'},desc:'Diêm La Vương, vị vua xét xử người chết dưới âm ty. Mũ miện đen viền vàng, áo bào đỏ thẫm, một tay cầm kiếm phán quan, tay kia nâng ấn ngọc xanh. Ngài gọi xích câu hồn, mở sổ sinh tử đỏ rực và thả quỷ long ra nuốt hồn kẻ có tội. Chỉ có một Diêm La Vương, ngự giữa Nghĩa Địa Cổ; thu phục được ngài thì ngài theo thầy mãi mãi, không xuất hiện ở đâu nữa.'},
   kappa:{name:'Quỷ Nước Kappa',kind:'Thức Thần',mp:18,base:{hp:24,atk:8,skl:7,spd:7,def:7},grow:{hp:88,atk:52,skl:42,spd:42,def:50},w:{n:'Vuốt Màng Kéo Nước',mt:6,hit:85,crt:8,ic:'water'},desc:'Quỷ Nước Kappa, yêu quái sông ngòi lưng mang mai rùa, tay chân có màng, tóc rong rêu xõa dài. Trên đỉnh đầu là chiếc đĩa đựng nước, nguồn sức mạnh của nó: đĩa còn nước thì nó khỏe như trâu, đổ hết là yếu rũ. Nó ngồi xổm rình ở mép đầm, vẩy nước thành lưỡi cắt, phun bong bóng, cuốn xoáy nước kéo người xuống đáy. Hay gặp ở Đầm Oan Hồn, nhất là khi lội nước.'},
+  han_bat:{name:'Hạn Bạt',kind:'Cương Thi',mp:30,base:{hp:30,atk:12,skl:10,spd:9,def:8},grow:{hp:98,atk:70,skl:60,spd:50,def:52},w:{n:'Hạn Hỏa Thi Trảo',mt:12,hit:86,crt:12,ic:'fire'},desc:'Hạn Bạt, thi vương của hạn hán. Nơi nó đi qua, sông cạn, ruộng nứt, trời ba năm không mưa. Thân xác khô như gỗ mục, áo bào hóa cát vàng bay theo gió, hai bàn tay lúc nào cũng âm ỉ lửa. Người xưa phải đào mộ thiêu xác nó mới cầu được mưa.'},
+  phi_cuong:{name:'Phi Cương Thi',kind:'Cương Thi',mp:22,ev:12,base:{hp:28,atk:11,skl:9,spd:10,def:7},grow:{hp:90,atk:64,skl:52,spd:58,def:45},w:{n:'Phi Thi Âm Trảo',mt:10,hit:85,crt:10,ic:'wind'},desc:'Phi Cương Thi, cương thi đã luyện thành thi khí đến mức thoát khỏi mặt đất. Nó không còn nhảy mà lướt bay giữa trời, áo bào rách bay phần phật trong làn hồn hỏa xanh lam. Lá bùa trên trán sáng rực khi nó tụ âm khí thành cầu lửa ném xuống.'},
+  mao_cuong:{name:'Mao Cương Thi',kind:'Cương Thi',mp:20,base:{hp:32,atk:12,skl:7,spd:7,def:9},grow:{hp:100,atk:68,skl:45,spd:40,def:55},w:{n:'Mao Thi Cuồng Trảo',mt:11,hit:82,crt:10,ic:'dark'},desc:'Mao Cương Thi, cương thi đã hút đủ âm khí nghìn năm nên mọc lông dài phủ kín thân như dã thú. Lá bùa trên trán không còn trấn nổi, chỉ khiến lửa lục cháy rực hơn. Sức nó xé toạc cửa mộ đá, nhảy một bước vượt cả bức tường thành.'},
+  luc_cuong:{name:'Lục Cương Thi',kind:'Cương Thi',mp:14,base:{hp:27,atk:10,skl:6,spd:7,def:6},grow:{hp:90,atk:62,skl:40,spd:42,def:46},w:{n:'Lục Độc Thi Trảo',mt:9,hit:80,crt:8,ic:'root'},desc:'Lục Cương Thi, xác chết chôn dưới đầm lầy rêu độc, da thịt đã xanh rêu, mắt cháy ánh lục. Thi độc ngấm vào móng vuốt, cào trúng là vết thương thối rữa. Khi lá bùa trên trán lóe sáng, lửa độc xanh bốc lên từ hai bàn tay.'},
+  bach_cuong:{name:'Bạch Cương Thi',kind:'Cương Thi',mp:16,base:{hp:28,atk:10,skl:7,spd:6,def:7},grow:{hp:92,atk:62,skl:45,spd:38,def:50},w:{n:'Bạch Cốt Hàn Trảo',mt:9,hit:80,crt:8,ic:'water'},desc:'Bạch Cương Thi, xác chết nằm trăm năm trong huyệt lạnh nên tóc và áo đều bạc trắng. Lá bùa trên trán chỉ còn giữ được nửa phần thi khí, phần còn lại hóa thành lửa hồn xanh lạnh buốt. Nó di chuyển nhẹ như khói, vồ tới rồi biến mất trong làn hàn khí.'},
+  tu_cuong:{name:'Tử Cương Thi',kind:'Cương Thi',mp:12,base:{hp:25,atk:9,skl:5,spd:5,def:6},grow:{hp:88,atk:58,skl:35,spd:32,def:45},w:{n:'Hắc Thi Trảo',mt:8,hit:78,crt:7,ic:'dark'},desc:'Tử Cương Thi, xác một vị quan triều cũ chết oan, chôn vội không quan tài. Tóc dài xõa rối, lá bùa trấn trên trán đã bạc màu nên oán khí tràn ra thành lửa đỏ trong lòng bàn tay. Nó nhảy vồ, cào xé, và khi nổi cơn thì hắc khí cuộn quanh thân như khói.'},
+  chuy_thu:{name:'Hồn Ma Chùy Thủ',kind:'Oán Linh',mp:12,base:{hp:23,atk:9,skl:5,spd:6,def:6},grow:{hp:85,atk:60,skl:38,spd:40,def:45},w:{n:'Chùy Gai Sắt',mt:8,hit:78,crt:8,ic:'dark'},desc:'Hồn Ma Chùy Thủ, người lính vác chùy gai ngã xuống cùng đồng đội nơi biên ải. Bộ giáp vảy đã mục, nửa thân dưới tan thành khói xanh, nhưng cây chùy sắt vẫn nặng trĩu trong tay. Mỗi nhát nện xuống làm đất nứt, oán khí xanh bắn tung.'},
+  thuong_si:{name:'Hồn Ma Thương Sĩ',kind:'Oán Linh',mp:12,base:{hp:20,atk:8,skl:7,spd:8,def:5},grow:{hp:78,atk:55,skl:45,spd:50,def:38},w:{n:'Thương Gỉ Sét',mt:7,hit:84,crt:8,ic:'sword'},desc:'Hồn Ma Thương Sĩ, người lính cầm thương tử trận nơi biên ải, không ai nhặt xác. Hồn hắn vẫn mặc bộ giáp vảy cũ, nắm chặt cây trường thương, nửa thân dưới tan thành khói xanh. Đêm đêm hắn còn tuần tra như thể trận chiến chưa tàn.'},
+  tu_than:{name:'Oán Linh Kỵ Sĩ Tử Thần',kind:'Oán Linh',mp:24,base:{hp:32,atk:13,skl:8,spd:9,def:8},grow:{hp:100,atk:78,skl:50,spd:55,def:55},w:{n:'Tử Thần Hắc Kiếm',mt:11,hit:86,crt:14,ic:'sword2'},desc:'Oán Linh Kỵ Sĩ Tử Thần. Khi Kỵ Sĩ hay Ngựa Ma bị dồn đến đường cùng, oán khí của cả hai bùng lên cuồng nộ, người và ngựa nhập làm một. Kỵ sĩ ngồi trên lưng chiến mã lửa xanh, phi tới đâu thì tử khí phủ tới đó.'},
+  ngua_ma:{name:'Oán Linh Ngựa Ma',kind:'Oán Linh',mp:14,base:{hp:24,atk:10,skl:7,spd:11,def:5},grow:{hp:85,atk:62,skl:45,spd:65,def:40},w:{n:'Vó Sắt U Hỏa',mt:8,hit:86,crt:10,ic:'wind'},desc:'Oán Linh Ngựa Ma, chiến mã đã cùng chủ ngã xuống nơi đất khách. Bờm và đuôi nó cháy thành lửa oán xanh, bốn vó bốc u hỏa. Nó không bao giờ rời Oán Linh Kỵ Sĩ, chủ đi đâu ngựa theo đó.'},
   ky_si:{name:'Oán Linh Kỵ Sĩ',kind:'Oán Linh',mp:16,base:{hp:30,atk:12,skl:7,spd:6,def:8},grow:{hp:95,atk:72,skl:45,spd:40,def:55},w:{n:'Hắc Kiếm Oán Hồn',mt:10,hit:82,crt:12,ic:'sword2'},desc:'Oán Linh Kỵ Sĩ, viên kỵ sĩ phương Tây bỏ mạng nơi đất khách. Bộ giáp đen sừng trâu vẫn đứng dậy sau trăm năm, tấm áo choàng đỏ rách tả tơi, lửa oán xanh cháy trong khe mũ trụ. Thanh hắc kiếm của hắn chém đến đâu, oán hỏa bùng lên đến đó.'},
   thay_boi:{name:'Linh Hồn Thầy Bói',kind:'Vong Linh',mp:24,base:{hp:18,atk:6,skl:10,spd:7,def:4},grow:{hp:72,atk:40,skl:62,spd:45,def:35},w:{n:'Ống Thẻ Quẻ',mt:5,hit:90,crt:6,ic:'brush'},desc:'Linh Hồn Thầy Bói, ông thầy bói già chết giữa lúc gieo quẻ cho người khác, hồn còn ôm ống thẻ và chiếc la bàn bát quái. Ông đọc được vận số của kẻ đối diện, gieo đồng xu, phóng bùa, gọi rồng xanh trong quẻ ra trợ chiến.'},
   gautruc:{name:'Tinh Linh Gấu Trúc',kind:'Tinh Linh',mp:18,base:{hp:28,atk:8,skl:6,spd:5,def:8},grow:{hp:95,atk:50,skl:40,spd:35,def:55},w:{n:'Trúc Trượng',mt:6,hit:85,crt:6,ic:'root'},desc:'Tinh Linh Gấu Trúc, linh hồn gấu trúc tu hành trong rặng tre già, đầu buộc khăn đỏ, cổ đeo tràng hạt, tay cầm cây trúc trượng. Thân tròn như cục bông nhưng sức nặng như núi: quét trượng, gọi măng trúc đâm lên từ đất, đánh chưởng Phật Thủ và gầm ra hồn gấu vàng. Thường quanh quẩn ở Xóm Bờ Tre.'},
@@ -129,11 +139,11 @@ const SPECIES={
   handiem:{name:'Hàn Diệm Ma Nữ',kind:'Vong Linh',mp:22,mpg:3,ranged:true,ev:9,base:{hp:19,atk:7,skl:11,spd:11,def:4},grow:{hp:65,atk:55,skl:65,spd:60,def:30},w:{n:'Hàn Diệm Quỷ Hỏa',mt:6,hit:90,crt:10,ic:'fire2'},desc:'Hồn một nữ pháp sư đội mão bạc, chết oan trong đêm tế lửa. Lửa lạnh xanh biếc bám quanh vạt áo rách, chuỗi hạt đầu lâu trên cổ gọi oan hồn về theo.'},
   jaguar:{name:'Jaguar',kind:'Tinh Linh',mp:16,ev:12,base:{hp:20,atk:8,skl:9,spd:13,def:4},grow:{hp:70,atk:60,skl:55,spd:75,def:30},w:{n:'Vuốt Báo Đốm',mt:6,hit:90,crt:14,ic:'wind'},desc:'Linh hồn báo đốm chúa tể rừng sâu, lông vằn cháy lửa xanh. Nhanh nhất rừng, vồ một phát là xé toạc.'},
   geroh:{name:'Geroh',kind:'Oán Linh',mp:16,ev:15,base:{hp:18,atk:7,skl:9,spd:11,def:3},grow:{hp:70,atk:55,skl:60,spd:70,def:25},w:{n:'Song Đoản Đao',mt:5,hit:90,crt:15,ic:'sword2'},desc:'Linh hồn tên đạo tặc khét tiếng, chết rồi vẫn quen tay cướp đường. Nhanh như gió, khó đánh trúng.'},
-  cuong_thi:{name:'Cương Thi',kind:'Cương Thi',mp:10,base:{hp:26,atk:9,skl:4,spd:4,def:6},grow:{hp:90,atk:55,skl:30,spd:25,def:45},w:{n:'Móng Vuốt Thi Độc',mt:7,hit:75,crt:5,ic:'dark'},desc:'Xác chết bị oán khí nhập, cứng đờ, nhảy lò cò đi tìm hơi người. Trên trán còn dán lá bùa rách.'},
+  cuong_thi:{name:'Tiểu Cương Thi',kind:'Cương Thi',mp:10,base:{hp:26,atk:9,skl:4,spd:4,def:6},grow:{hp:90,atk:55,skl:30,spd:25,def:45},w:{n:'Móng Vuốt Thi Độc',mt:7,hit:75,crt:5,ic:'dark'},desc:'Xác chết bị oán khí nhập, cứng đờ, nhảy lò cò đi tìm hơi người. Trên trán còn dán lá bùa rách.'},
   eliza:{name:'Eliza Faust',kind:'Vong Linh',mp:28,mpg:3,base:{hp:20,atk:4,skl:8,spd:7,def:5},grow:{hp:75,atk:30,skl:55,spd:50,def:40},w:{n:'Đèn Dầu Dẫn Hồn',mt:4,hit:85,crt:3,ic:'fire2'},desc:'Linh hồn người vợ quá cố của bác sĩ Faust VIII, một nữ y tá tận tụy. Nàng chữa thương và gọi hồn đồng đội trở về.'},
   hon_ma:{name:'Hồn Ma Lang Thang',kind:'Vong Linh',mp:14,base:{hp:14,atk:4,skl:4,spd:6,def:1},grow:{hp:75,atk:45,skl:40,spd:60,def:25},w:{n:'Gió Âm',mt:3,hit:75,crt:0,ic:'wind'},desc:'Linh hồn lạc lối, chỉ muốn được về nhà.'},
-  cung_thu:{name:'Cung Thủ Ainu',kind:'Vong Linh',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
-  amida:{name:'Amida',kind:'Vong Linh',mp:22,base:{hp:26,atk:8,skl:8,spd:6,def:6},grow:{hp:90,atk:50,skl:50,spd:40,def:45},w:{n:'Nguyệt Đao',mt:8,hit:80,crt:6,ic:'sword2'},desc:'Linh hồn hộ vệ trấn giữ đèo Quỷ Khốc cùng con bạch cú, chỉ theo người đã thắng mình.'},
+  cung_thu:{name:'Cung Thủ Ainu',kind:'Xác Chết',mp:16,ranged:true,base:{hp:20,atk:9,skl:10,spd:8,def:4},grow:{hp:75,atk:55,skl:60,spd:55,def:30},w:{n:'Cung Gỗ Tần Bì',mt:7,hit:85,crt:12,ic:'wind'},desc:'Linh hồn thợ săn người Ainu từ phương Bắc lạnh giá, mũi tên chưa từng trượt con mồi.'},
+  amida:{name:'Amida',kind:'Xác Chết',mp:22,base:{hp:26,atk:8,skl:8,spd:6,def:6},grow:{hp:90,atk:50,skl:50,spd:40,def:45},w:{n:'Nguyệt Đao',mt:8,hit:80,crt:6,ic:'sword2'},desc:'Linh hồn hộ vệ trấn giữ đèo Quỷ Khốc cùng con bạch cú, chỉ theo người đã thắng mình.'},
   vo_tuong:{name:'Quỷ Tướng Thanh Long',kind:'Oán Linh',mp:18,base:{hp:28,atk:10,skl:8,spd:6,def:7},grow:{hp:90,atk:60,skl:45,spd:35,def:50},w:{n:'Thanh Long Đao',mt:9,hit:72,crt:10,ic:'sword2'},desc:'Hồn một võ tướng Trung Hoa cổ đại tử trận nơi biên ải, vẫn vác Thanh Long đao đi tìm đạo quân đã tan.'},
   vo_si:{name:'Hồn Ma Samurai',kind:'Oán Linh',mp:14,base:{hp:22,atk:8,skl:7,spd:6,def:5},grow:{hp:85,atk:55,skl:45,spd:40,def:40},w:{n:'Đao Hồn Lạnh',mt:7,hit:75,crt:12,ic:'sword2'},desc:'Samurai chết trận không được chôn cất, ôm thanh đao lạnh lang thang tìm đối thủ.'},
   den_long:{name:'Ma Đèn Lồng',kind:'Vong Linh',mp:12,base:{hp:16,atk:5,skl:3,spd:4,def:2},grow:{hp:80,atk:50,skl:35,spd:35,def:30},w:{n:'Lửa Ma Trơi',mt:4,hit:70,crt:5,ic:'fire'},desc:'Chiếc đèn lồng cũ hóa thành yêu, thích dọa người.'},
@@ -162,14 +172,14 @@ const RKM={SS:1.5,S:1.35,A:1.2,B:1.1,C:1,D:.92,E:.85};
 const RKW={SS:.05,S:.12,A:.3,B:.65,C:1,D:1.3,E:1.6};
 const RKCAP={SS:.4,S:.5,A:.7,B:.85,C:1,D:1.1,E:1.2};
 const RKX={SS:2.5,S:1.6,A:1.3,B:1.15,C:1,D:.9,E:.8};
-const RANK={ky_si:'A',thay_boi:'C',kappa:'C',gautruc:'B',nu_oan:'C',karate:'C',diemla:'SS',thich_khach:'D',taishaku:'SS',susanoo:'SS',kaguya:'A',phongdo:'S',cuu_vi:'S',vuong:'S',ootengu:'S',tamamo:'S',
+const RANK={han_bat:'S',phi_cuong:'A',mao_cuong:'A',luc_cuong:'B',bach_cuong:'B',tu_cuong:'C',chuy_thu:'C',thuong_si:'C',tu_than:'S',ngua_ma:'B',ky_si:'A',thay_boi:'C',kappa:'C',gautruc:'B',nu_oan:'C',karate:'C',diemla:'SS',thich_khach:'D',taishaku:'SS',susanoo:'SS',kaguya:'A',phongdo:'S',cuu_vi:'S',vuong:'S',ootengu:'S',tamamo:'S',
   aoandon:'A',shuten:'S',ibaraki:'S',vo_tuong:'A',lee:'A',thien_linh:'A',tuyet_nu:'A',
   ubume:'B',hanmac:'B',handiem:'B',dao_hoa:'B',amida:'B',cung_thu:'B',giap_sat:'B',ong_ba_bi:'B',jaguar:'B',morphin:'B',eliza:'B',
   geroh:'C',ma_da:'C',ao_trang:'C',cuong_thi:'C',vo_si:'C',kiem_si:'C',thuy_quy:'C',ho_ly:'C',zashiki:'C',
   thay_do:'D',la_da:'D',dang_lung:'D',nga_quy:'D',hon_ma:'E',den_long:'E'};
 /* v15.15: người chơi thêm chỉ số Ma: kỹ năng ma pháp (tầm xa, phép) tính theo Ma, đòn cận chiến tính theo Lực.
    MAGT[id]=[Ma gốc, tư chất Ma, uy lực phép của vũ khí, hệ số nhân Lực]; loài thiên ma pháp có Ma cao, Lực hơi thấp */
-const MAGT={ky_si:[6,44,5,1.06],thay_boi:[10,64,8,0.82],diep:[6,54,5,1],lee:[4,27,3,1.1],morphin:[4,28,4,1.04],phongdo:[16,70,12,0.86],ong_ba_bi:[8,53,6,0.9],thien_linh:[12,74,9,0.8],nga_quy:[5,30,3,1],ma_da:[9,59,7,0.86],zashiki:[8,54,7,0.8],dang_lung:[7,54,6,0.85],shuten:[8,45,6,1.04],ibaraki:[7,47,5,1.03],tamamo:[11,66,10,0.85],ootengu:[13,76,9,0.86],aoandon:[11,70,8,0.8],ubume:[8,54,7,0.8],taishaku:[14,74,12,0.8],susanoo:[11,54,8,1],diemla:[14,69,12,0.9],kappa:[8,55,6,0.9],gautruc:[6,41,5,0.98],nu_oan:[8,54,7,0.85],karate:[6,39,4,1.04],thich_khach:[5,35,3,1.04],kaguya:[8,56,7,0.86],tuyet_nu:[9,59,7,0.86],dao_hoa:[8,51,7,0.88],cuu_vi:[9,54,7,0.92],hanmac:[4,27,3,1.1],handiem:[8,64,7,0.86],jaguar:[5,41,4,1.03],geroh:[3,25,2,1.1],cuong_thi:[8,50,6,0.95],eliza:[3,22,3,1.01],hon_ma:[5,61,4,0.8],cung_thu:[6,35,4,1.04],amida:[4,23,4,1.1],vo_tuong:[5,27,4,1.1],vo_si:[4,25,3,1.1],den_long:[6,56,5,0.88],la_da:[5,54,5,0.8],ho_ly:[8,68,7,0.8],kiem_si:[4,33,4,1.05],thay_do:[5,43,4,1.01],ao_trang:[12,81,9,0.8],thuy_quy:[8,58,7,0.9],giap_sat:[7,41,6,1.03],vuong:[16,74,11,0.8]};
+const MAGT={han_bat:[14,72,11,.86],phi_cuong:[12,68,9,.9],mao_cuong:[10,62,8,.95],luc_cuong:[8,54,6,.95],bach_cuong:[9,58,7,.92],tu_cuong:[6,44,5,1],chuy_thu:[4,34,3,1.04],thuong_si:[5,38,4,1.02],tu_than:[8,52,6,1.05],ngua_ma:[5,40,4,1.04],ky_si:[6,44,5,1.06],thay_boi:[10,64,8,0.82],diep:[6,54,5,1],lee:[4,27,3,1.1],morphin:[4,28,4,1.04],phongdo:[16,70,12,0.86],ong_ba_bi:[8,53,6,0.9],thien_linh:[12,74,9,0.8],nga_quy:[5,30,3,1],ma_da:[9,59,7,0.86],zashiki:[8,54,7,0.8],dang_lung:[7,54,6,0.85],shuten:[8,45,6,1.04],ibaraki:[7,47,5,1.03],tamamo:[11,66,10,0.85],ootengu:[13,76,9,0.86],aoandon:[11,70,8,0.8],ubume:[8,54,7,0.8],taishaku:[14,74,12,0.8],susanoo:[11,54,8,1],diemla:[14,69,12,0.9],kappa:[8,55,6,0.9],gautruc:[6,41,5,0.98],nu_oan:[8,54,7,0.85],karate:[6,39,4,1.04],thich_khach:[5,35,3,1.04],kaguya:[8,56,7,0.86],tuyet_nu:[9,59,7,0.86],dao_hoa:[8,51,7,0.88],cuu_vi:[9,54,7,0.92],hanmac:[4,27,3,1.1],handiem:[8,64,7,0.86],jaguar:[5,41,4,1.03],geroh:[3,25,2,1.1],cuong_thi:[8,50,6,0.95],eliza:[3,22,3,1.01],hon_ma:[5,61,4,0.8],cung_thu:[6,35,4,1.04],amida:[4,23,4,1.1],vo_tuong:[5,27,4,1.1],vo_si:[4,25,3,1.1],den_long:[6,56,5,0.88],la_da:[5,54,5,0.8],ho_ly:[8,68,7,0.8],kiem_si:[4,33,4,1.05],thay_do:[5,43,4,1.01],ao_trang:[12,81,9,0.8],thuy_quy:[8,58,7,0.9],giap_sat:[7,41,6,1.03],vuong:[16,74,11,0.8]};
 for(const id in SPECIES){const sp=SPECIES[id],t=MAGT[id]||[Math.max(1,Math.round(sp.base.atk*.7)),Math.round(sp.grow.atk*.7),Math.max(1,Math.round(sp.w.mt*.7)),1];
   sp.base.mag=t[0];sp.grow.mag=t[1];sp.w={...sp.w,mm:t[2]};if(t[3]!==1){sp.base.atk=Math.max(1,Math.round(sp.base.atk*t[3]));sp.grow.atk=Math.round(sp.grow.atk*t[3]);sp.w.mt=Math.max(1,Math.round(sp.w.mt*t[3]));}}
 /* CMAG: đang tính đòn ma pháp (cast/castL/lCast/summonStrike bật lên, xem cuối j_lantern) */
@@ -188,6 +198,7 @@ function rkW(id){return RKW[rankOf(id)]||1;}
 const ALLYM=1.5;
 function allyFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.ab||u.id==='diep')continue;u.ab=1;const fh=u.mhp?u.hp/u.mhp:1,fm=u.mmp?u.mp/u.mmp:1;u.mhp=Math.round(u.mhp*ALLYM);u.mmp=Math.round(u.mmp*ALLYM);u.hp=Math.round(u.mhp*fh);u.mp=Math.round(u.mmp*fm);}}
 /* v15.26: Tửu Thôn và Ibaraki lên hạng S: đồng hành đã có (đã nhân hệ số hạng A) nhân thêm 1.35/1.2 một lần */
+/* v15.31: chủng lấy theo loài (người chơi chuyển Amida, Cung Thủ Ainu sang Xác Chết) */function kindFix(){for(const u of(G.party||[]).concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='cuong_thi'&&u.name==='Cương Thi')u.name=SPECIES.cuong_thi.name;}}/* v15.36 đổi tên Tiểu Cương Thi */
 function rk26(){if(G.rk26)return;G.rk26=1;for(const u of(G.party||[]).concat(G.box||[])){if(!u||!u.rkv||(u.id!=='shuten'&&u.id!=='ibaraki'))continue;const m=1.35/1.2,f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
 function rkFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.rkv||u.id==='diep')continue;u.rkv=1;const m=RKM[rankOf(u.id)];if(!m||m===1)continue;
   const f=u.mhp?u.hp/u.mhp:1;u.mhp=Math.max(1,Math.round(u.mhp*m));u.hp=Math.max(u.hp>0?1:0,Math.round(u.mhp*f));for(const k of['atk','skl','spd','def','mag'])if(u[k]!=null)u[k]=Math.max(1,Math.round(u[k]*m));}}
@@ -513,7 +524,7 @@ ANIM_SRC.zashiki={n:12,w:230,h:192,box:[22,44,162,136],sc:.6/2,fd:[-1,-1,-1,-1,-
 ANIM_SRC.dang_lung={n:12,w:302,h:240,box:[24,12,238,216],sc:.5/2,fd:[0,1,1,1,-1,1,1,0,1,0,1,0],pose:{idle:0,walk:1,ready:1,turn:0,back:1,dash:2,spin:2,raise:8,sweep:6,throw:5,breath:4,guard:7,halo:10,hit:9,down:11},
   src:'img/dang_lung.png',lo:'img/dang_lung_lo.png'};
 /* v15.10: người chơi thay hình Tửu Thôn Đồng Tử bằng tấm 20 tư thế mới, quay mặt sang phải *//* v15.15: người chơi muốn Tửu Thôn nét hơn: cắt lại ở độ phân giải gốc (F=1, 256 màu), sc 1/4 */ANIM_SRC.shuten={n:20,w:433,h:268,box:[106,18,281,250],sc:1/4,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:3,turn:0,back:2,dash:4,raise:5,sweep:7,throw:12,spin:13,breath:11,halo:9,guard:15,hit:17,down:19},src:'img/shuten.png',lo:'img/shuten_lo.png'};
-/* v15.26: người chơi thay hình Ibaraki Đồng Tử bằng tấm 20 tư thế */ANIM_SRC.ibaraki={n:20,w:272,h:180,box:[47,10,134,165],sc:.66/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,back:1,dash:7,throw:12,sweep:5,raise:6,spin:14,breath:8,halo:13,guard:9,hit:15,down:16},src:'img/ibaraki.png',lo:'img/ibaraki_lo.png'};
+/* v15.26: người chơi thay hình Ibaraki Đồng Tử bằng tấm 20 tư thế *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.ibaraki={n:20,w:408,h:270,box:[71,15,200,247],sc:0.22045,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,back:1,dash:7,throw:12,sweep:5,raise:6,spin:14,breath:8,halo:13,guard:9,hit:15,down:16},src:'img/ibaraki.png',lo:'img/ibaraki_lo.png'};
 /* v10.4 thức thần mới từ sheet 4x3 của người dùng */
 ANIM_SRC.aoandon={n:12,w:350,h:240,box:[46,20,232,220],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:10,back:1,halo:3,sweep:4,breath:5,throw:6,spin:7,guard:7,raise:9,hit:8,down:11},
   src:'img/aoandon.png',lo:'img/aoandon_lo.png'};
@@ -540,9 +551,19 @@ ANIM_SRC.karate={n:12,w:310,h:240,box:[32,14,188,222],sc:.5/2,fd:[1,1,1,1,1,1,1,
 /* v10.8.2: người chơi thay hình Cương Thi (trước vẽ bằng code) bằng tấm 20 tư thế */ANIM_SRC.cuong_thi={n:20,w:232,h:176,box:[32,6,148,170],sc:.63/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:3,dash:8,throw:12,sweep:6,raise:13,spin:7,breath:11,halo:17,guard:10,hit:15,down:19},src:'img/cuong_thi.png',lo:'img/cuong_thi_lo.png'};
 /* v10.9: người chơi thêm Hắc Phát Oán Nương, tấm 20 tư thế */ANIM_SRC.nu_oan={n:20,w:274,h:180,box:[36,10,182,168],sc:.63/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:12,turn:0,back:2,dash:10,throw:7,sweep:6,raise:17,spin:9,breath:13,halo:8,guard:11,hit:15,down:19},src:'img/nu_oan.png',lo:'img/nu_oan_lo.png'};
 /* v10.9: người chơi thêm Quỷ Nước Kappa, tấm 20 tư thế */ANIM_SRC.kappa={n:20,w:164,h:116,box:[20,8,104,102],sc:.92/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:2,dash:13,throw:7,sweep:6,raise:14,spin:5,breath:12,halo:9,guard:11,hit:15,down:19},src:'img/kappa.png',lo:'img/kappa_lo.png'};
-/* v15.8: người chơi thêm Tinh Linh Gấu Trúc hạng C, tấm 20 tư thế */ANIM_SRC.gautruc={n:20,w:219,h:134,box:[43,13,147,114],sc:.88/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:3,dash:4,throw:12,sweep:7,raise:5,spin:9,breath:13,halo:11,guard:8,hit:17,down:19},src:'img/gautruc.png',lo:'img/gautruc_lo.png'};
-/* v15.22: người chơi thêm Linh Hồn Thầy Bói (Vong Linh hạng C), tấm 20 tư thế */ANIM_SRC.thay_boi={n:20,w:270,h:180,box:[38,11,206,169],sc:.66/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:4,turn:2,back:3,dash:15,throw:5,sweep:7,raise:16,spin:17,breath:10,halo:14,guard:6,hit:11,down:12},src:'img/thay_boi.png',lo:'img/thay_boi_lo.png'};
-/* v15.27: Oán Linh Kỵ Sĩ (Oán Linh hạng A), tấm 20 tư thế người chơi gửi */ANIM_SRC.ky_si={n:20,w:307,h:172,box:[74,9,115,158],sc:.66/2,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,back:17,dash:2,throw:7,sweep:5,raise:6,spin:14,breath:16,halo:12,guard:8,hit:10,down:11},src:'img/ky_si.png',lo:'img/ky_si_lo.png'};
+/* v15.8: người chơi thêm Tinh Linh Gấu Trúc hạng C, tấm 20 tư thế *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.gautruc={n:20,w:336,h:204,box:[69,19,220,171],sc:0.29333,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:2,ready:1,turn:0,back:3,dash:4,throw:12,sweep:7,raise:5,spin:9,breath:13,halo:11,guard:8,hit:17,down:19},src:'img/gautruc.png',lo:'img/gautruc_lo.png'};
+/* v15.22: người chơi thêm Linh Hồn Thầy Bói (Vong Linh hạng C), tấm 20 tư thế *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.thay_boi={n:20,w:414,h:270,box:[61,16,309,254],sc:0.21957,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:4,turn:2,back:3,dash:15,throw:5,sweep:7,raise:16,spin:17,breath:10,halo:14,guard:6,hit:11,down:12},src:'img/thay_boi.png',lo:'img/thay_boi_lo.png'};
+/* v15.27: Oán Linh Kỵ Sĩ (Oán Linh hạng A), tấm 20 tư thế người chơi gửi *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.ky_si={n:20,w:468,h:258,box:[115,13,173,237],sc:0.22,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:0,back:17,dash:2,throw:7,sweep:5,raise:6,spin:14,breath:16,halo:12,guard:8,hit:10,down:11},src:'img/ky_si.png',lo:'img/ky_si_lo.png'};
+/* v15.28: Oán Linh Ngựa Ma (Oán Linh hạng B), luôn đi cùng Oán Linh Kỵ Sĩ *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.ngua_ma={n:20,w:456,h:270,box:[120,20,245,243],sc:0.22,fd:[-1,-1,-1,-1,-1,-1,-1,1,-1,-1,1,-1,-1,-1,1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:0,turn:14,back:10,dash:12,throw:7,sweep:8,raise:4,spin:13,breath:11,halo:18,guard:6,hit:15,down:16},src:'img/ngua_ma.png',lo:'img/ngua_ma_lo.png'};
+/* v15.28: Oán Linh Kỵ Sĩ Tử Thần (hạng S), Kỵ Sĩ và Ngựa Ma hợp thể khi một con dưới 30% máu *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.tu_than={n:20,w:480,h:270,box:[79,14,221,239],sc:0.22092,fd:[1,1,1,1,1,-1,1,1,1,1,1,-1,-1,1,1,1,-1,1,-1,1],pose:{idle:0,walk:2,ready:0,turn:19,back:12,dash:14,throw:10,sweep:8,raise:4,spin:15,breath:13,halo:18,guard:11,hit:7,down:5},src:'img/tu_than.png',lo:'img/tu_than_lo.png'};
+/* v15.29: Hồn Ma Thương Sĩ (Oán Linh hạng C), tấm 20 tư thế người chơi gửi *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.thuong_si={n:20,w:438,h:270,box:[141,9,140,261],sc:0.22,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:3,turn:0,back:4,dash:10,throw:5,sweep:6,raise:7,spin:8,breath:14,halo:19,guard:9,hit:11,down:18},src:'img/thuong_si.png',lo:'img/thuong_si_lo.png'};
+/* v15.32: Hồn Ma Chùy Thủ (Oán Linh hạng C), tấm 24 tư thế (hàng cuối lệch, không dùng khung 20-22) *//* v15.33 cắt lại độ phân giải cao như bản 15.1 */ANIM_SRC.chuy_thu={n:24,w:414,h:270,box:[109,9,190,251],sc:0.21956,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:0,turn:3,back:4,dash:12,throw:2,sweep:8,raise:15,spin:16,breath:18,halo:19,guard:11,hit:13,down:13},src:'img/chuy_thu.png',lo:'img/chuy_thu_lo.png'};
+/* v15.37: Tử Cương Thi (Cương Thi hạng C), tấm 5x4 cắt nét cao cut7 */ANIM_SRC.tu_cuong={n:20,w:372,h:270,box:[118,13,140,254],sc:0.217,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:5,walk:1,ready:5,turn:3,back:4,dash:18,throw:14,sweep:6,raise:17,spin:10,breath:13,halo:12,guard:9,hit:11,down:16},src:'img/tu_cuong.png',lo:'img/tu_cuong_lo.png'};
+/* v15.37: Bạch Cương Thi (Cương Thi hạng B), tấm 5x4 cắt nét cao cut7 */ANIM_SRC.bach_cuong={n:20,w:438,h:270,box:[151,13,147,245],sc:0.225,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:5,walk:1,ready:5,turn:3,back:4,dash:18,throw:14,sweep:6,raise:17,spin:15,breath:13,halo:19,guard:9,hit:11,down:16},src:'img/bach_cuong.png',lo:'img/bach_cuong_lo.png'};
+/* v15.37: Lục Cương Thi (Cương Thi hạng B), tấm 5x4 cắt nét cao cut7 */ANIM_SRC.luc_cuong={n:20,w:372,h:264,box:[121,17,168,246],sc:0.224,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:0,walk:1,ready:5,turn:3,back:10,dash:18,throw:14,sweep:6,raise:17,spin:15,breath:12,halo:13,guard:9,hit:11,down:16},src:'img/luc_cuong.png',lo:'img/luc_cuong_lo.png'};
+/* v15.37: Mao Cương Thi (Cương Thi hạng A), tấm 5x4 cắt nét cao cut7 */ANIM_SRC.mao_cuong={n:20,w:402,h:270,box:[129,9,165,255],sc:0.23,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:5,walk:1,ready:5,turn:3,back:10,dash:18,throw:14,sweep:7,raise:17,spin:15,breath:12,halo:13,guard:9,hit:11,down:16},src:'img/mao_cuong.png',lo:'img/mao_cuong_lo.png'};
+/* v15.37: Phi Cương Thi (Cương Thi hạng A, bay), tấm 5x4 cắt nét cao cut7; khung 5 quay trái, không dùng */ANIM_SRC.phi_cuong={n:20,w:426,h:270,box:[111,17,174,253],sc:0.225,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:3,walk:1,ready:3,turn:3,back:11,dash:2,throw:15,sweep:8,raise:10,spin:9,breath:12,halo:19,guard:13,hit:16,down:4},src:'img/phi_cuong.png',lo:'img/phi_cuong_lo.png'};
+/* v15.39: Hạn Bạt (Cương Thi hạng S), tấm 5x4 cắt nét cao cut7 */ANIM_SRC.han_bat={n:20,w:414,h:270,box:[81,7,230,261],sc:0.215,fd:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],pose:{idle:1,walk:1,ready:8,turn:3,back:10,dash:2,throw:14,sweep:6,raise:17,spin:15,breath:12,halo:19,guard:9,hit:11,down:16},src:'img/han_bat.png',lo:'img/han_bat_lo.png'};
 ANIM_SRC.tuyet_nu={n:12,w:324,h:240,box:[46,22,224,218],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:2,turn:0,dash:1,back:1,sweep:3,throw:4,breath:5,guard:6,halo:7,spin:8,raise:9,hit:10,down:11},
   src:'img/tuyet_nu.png',lo:'img/tuyet_nu_lo.png'};
 ANIM_SRC.dao_hoa={n:12,w:346,h:240,box:[36,22,258,218],sc:.5/2,fd:[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],pose:{idle:0,walk:1,ready:1,turn:0,raise:2,sweep:3,spin:3,throw:4,guard:5,breath:6,halo:7,dash:8,back:9,hit:10,down:11},
@@ -1351,9 +1372,9 @@ const ZONES=[
   {n:'Làng Hương Khói',g:'.',obs:[['round:green',3],['lime:lime',2],['bush:green',2],['rock',1]],th:.62,tint:[0,0,0,0],pool:[['hon_ma',3],['den_long',2],['dang_lung',1],['zashiki',1],['nga_quy',2],['ong_ba_bi',1],['thay_boi',1]],bg:'meadow',deco:['flower','tuft','mush:red']},
   {n:'Rừng Âm U',g:'"',obs:[['pine:pine',5],['round:green',2],['cliff',2],['stump',1],['log',1],['bush:green',1]],th:.55,tint:[10,40,30,.14],pool:[['hon_ma',3],['den_long',2],['la_da',3],['ho_ly',1],['dao_hoa',1],['dang_lung',2],['geroh',2],['jaguar',2],['thich_khach',2]],bg:'forest',deco:['mush:red','mush:brown','tuft']},
   {n:'Đầm Oan Hồn',g:'m',obs:[['W',16],['lime:lime',3],['moss',1]],th:.54,tint:[20,40,50,.2],pool:[['thuy_quy',3],['la_da',2],['hon_ma',2],['ao_trang',1],['geroh',1],['handiem',1],['dao_hoa',1],['ma_da',2],['aoandon',1],['ubume',2],['nu_oan',2],['kappa',2]],bg:'swamp',deco:['reed','tuft','mush:brown']},
-  {n:'Nghĩa Địa Cổ',g:'g',obs:[['grave',4],['dead:ghost',2],['pine:ghost',2]],th:.58,tint:[40,20,80,.3],pool:[['ky_si',1],['kiem_si',3],['thay_do',3],['thay_boi',2],['hon_ma',1],['ao_trang',2],['vo_si',2],['cuong_thi',3],['handiem',2],['hanmac',2],['thien_linh',1],['aoandon',1],['ubume',1],['kaguya',1],['thich_khach',2],['karate',2],['nu_oan',2]],bg:'grave',deco:['tuft','mush:brown']},
-  {n:'Núi Quỷ Khốc',g:'k',obs:[['cliff',4],['rock',2],['moss',1],['pine:pine',2]],th:.56,tint:[30,20,40,.22],pool:[['ky_si',1],['giap_sat',3],['kiem_si',2],['ho_ly',2],['ao_trang',2],['vo_si',2],['vo_tuong',1],['cung_thu',2],['lee',1],['hanmac',2],['tuyet_nu',2],['ootengu',1],['tamamo',1],['karate',2]],bg:'mount',deco:['peb','tuft']},
-  {n:'Phế Tích Quỷ Môn',g:'r',obs:[['pillar',4],['dead:dusk',2],['rock',1]],th:.58,tint:[80,10,30,.28],pool:[['ky_si',1],['giap_sat',3],['thuy_quy',2],['ao_trang',3],['kiem_si',1],['vo_tuong',2],['cuong_thi',2],['lee',2],['ibaraki',1],['ootengu',1],['tamamo',1],['shuten',1]],bg:'ruins',deco:['peb']}
+  {n:'Nghĩa Địa Cổ',g:'g',obs:[['grave',4],['dead:ghost',2],['pine:ghost',2]],th:.58,tint:[40,20,80,.3],pool:[['tu_cuong',2],['bach_cuong',1],['luc_cuong',1],['mao_cuong',1],['phi_cuong',1],['chuy_thu',2],['thuong_si',2],['ky_si',1],['kiem_si',3],['thay_do',3],['thay_boi',2],['hon_ma',1],['ao_trang',2],['vo_si',2],['cuong_thi',3],['handiem',2],['hanmac',2],['thien_linh',1],['aoandon',1],['ubume',1],['kaguya',1],['thich_khach',2],['karate',2],['nu_oan',2]],bg:'grave',deco:['tuft','mush:brown']},
+  {n:'Núi Quỷ Khốc',g:'k',obs:[['cliff',4],['rock',2],['moss',1],['pine:pine',2]],th:.56,tint:[30,20,40,.22],pool:[['thuong_si',2],['ky_si',1],['giap_sat',3],['kiem_si',2],['ho_ly',2],['ao_trang',2],['vo_si',2],['vo_tuong',1],['cung_thu',2],['lee',1],['hanmac',2],['tuyet_nu',2],['ootengu',1],['tamamo',1],['karate',2]],bg:'mount',deco:['peb','tuft']},
+  {n:'Phế Tích Quỷ Môn',g:'r',obs:[['pillar',4],['dead:dusk',2],['rock',1]],th:.58,tint:[80,10,30,.28],pool:[['tu_cuong',2],['bach_cuong',1],['luc_cuong',1],['mao_cuong',1],['phi_cuong',1],['chuy_thu',2],['ky_si',1],['giap_sat',3],['thuy_quy',2],['ao_trang',3],['kiem_si',1],['vo_tuong',2],['cuong_thi',2],['lee',2],['ibaraki',1],['ootengu',1],['tamamo',1],['shuten',1]],bg:'ruins',deco:['peb']}
 ];
 /* vùng, cấp quái và độ hiếm đồ theo ô (x,y); thiếu y thì lấy hàng của người chơi */
 const zoneAt=(x,y)=>WD&&WD.zone?WD.zone[clamp(y==null?PL.y:y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;
@@ -1664,7 +1685,7 @@ let DLG=null,CH=null,B=null,MENU=null;
 let titleIdx=0,hits=[];
 const fx=[],toasts=[];
 let seen=null;
-function newGame(){const seed=ri(1,99999);WD=genRegion(seed);seen=new Uint8Array(MW*MH);
+function newGame(){const seed=ri(1,99999);WD=genRegion(seed);addGates();for(const k in RW)delete RW[k];seen=new Uint8Array(MW*MH);
   const d=makeUnit('diep',1,{full:true});
   G={nv:200,chs:-1,seed,party:[d],silver:20,merit:0,charms:3,pill:{hp:2,mp:1},eq:{},inv:[],pts:0,sect:null,nan:0,qs:0,qt:null,steps:0,med:-99,wc:4,home:null,dex:{},stats:{kill:0,purify:0,capture:0},poi:{},done:false,rs157:1,rk26:1};
   PL.x=RNODES[0].x;PL.y=RNODES[0].y;G.home=homeTMT(PL.x,PL.y);snapPL();reveal();placeMarker();spawnLanterns();}
@@ -1694,8 +1715,8 @@ function respec157(){if(G.rs157)return;G.rs157=1;const d=G.party.concat(G.box||[
   for(const k of STATS)d[k]=sp.base[k]+Math.round(sp.grow[k]*.6/100*L)+(k==='hp'?L:0);d.mhp=d.hp;d.mmp=sp.mp+(sp.mpg||2)*L;
   for(const k in st)d[k]+=st[k];d.hp=d.mhp;d.mp=d.mmp;for(const s in G.eq)if(G.eq[s])applyEq(G.eq[s],1);
   d.hp=Math.max(1,Math.round(d.mhp*hr));d.mp=Math.round(d.mmp*mr);G.pts=L*PTSLV+(G.cq||0)*3;setTimeout(()=>{try{toast('Minh Dạ đã được tẩy điểm: '+G.pts+' điểm cộng, vào Menu → Chỉ số để cộng lại');}catch(e){}},2500);}
-function applySave(s){G=s.G;rkFix();rk26();magFix();WD=genRegion(G.seed);seen=new Uint8Array(MW*MH);
-  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}}
+function applySave(s){G=s.G;for(const k in RW)delete RW[k];const RS=G.realm|0,RP={x:s.x,y:s.y};if(RS){/* v15.41: lưu khi đang ở giới khác: dựng Nhân Giới trước rồi mới chuyển sang */G.lgR=G.lgR||{};G.lgR[RS]=G.lg;G.lg=G.lgH||null;delete G.lgH;G.realm=0;if(G.rret){s.x=G.rret.x;s.y=G.rret.y;}}rkFix();rk26();kindFix();magFix();WD=genRegion(G.seed);addGates();seen=new Uint8Array(MW*MH);
+  if(s.mv===5||s.mv===6){for(let i=0;i<s.seen.length;i++){const v=parseInt(s.seen[i],16);for(let b=0;b<4;b++)if(i*4+b<seen.length)seen[i*4+b]=(v>>b)&1;}}else if(s.mv===4)migrateV3(s,LAY4);else if(s.mv===3)migrateV3(s,LAY3);else if(s.mv===2)migrateV3(s);else migrateRegion(s);if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(G.home?G.home.x:s.x,G.home?G.home.y:s.y);delete G.food;if(SECT_OLD[G.sect])G.sect=SECT_OLD[G.sect];if(s.mv===5)remapPoi(genRegion(G.seed,LAY5,1));PL.x=s.x;PL.y=s.y;freeSpot();PL.dir='down';snapPL();reveal();vtLoad(s.vt);if(G.nv!==200){migrateNan();placeMarker();}ghostsLoaded();townsLoaded();respec157();allyFix();for(const u of G.party.concat(G.box||[]))if(u&&u.id!=='diep'&&SPECIES[u.id]){u.kind=SPECIES[u.id].kind;if(u.id==='vo_si'&&u.name==='Hồn Ma Võ Sĩ')u.name=SPECIES.vo_si.name;if(u.cl==null)u.cl=u.lv;}for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep'){u.name=SPECIES.diep.name;u.kind=G.sect&&SECT[G.sect]?SECT[G.sect].s:SPECIES.diep.kind;}if(RS)realmSwap(RS,RP);}
 /* v10.7: biên giới vùng đổi nên vài đền, hang, danh thắng dời chỗ: chuyển trạng thái đã ghé/đã dẹp theo tên điểm đến; nhân vật đứng phải ao mới thì dời ra ô trống gần nhất */
 function remapPoi(OW){const key=p=>p.k+'|'+p.n+'|'+(p.lt||'')+'|'+(p.li??'')+'|'+(p.rid||''),np={},nw=new Map(),used=new Set();
   for(const p of WD.pois){const k=key(p);if(!nw.has(k))nw.set(k,[]);nw.get(k).push(p);}
@@ -1740,7 +1761,7 @@ function migrateNan(){if(G.nv===200)return;
   if(G.nv!==99){const k=Math.min(72,G.nan*3+G.qs),nk=Math.min(296,Math.round(k*99/24));G.nan=G.nan>=24?99:Math.floor(nk/3);G.qs=G.nan>=99?0:nk%3;}
   if(G.nan>=99){G.nan=NAN.length;G.qs=0;}else if(G.nan>=98){G.nan=195;G.qs=0;}else G.nan*=2;
   G.nv=200;G.chs=chapOf(G.nan)-(G.qs===0&&NCH[chapOf(G.nan)][0]===G.nan?1:0);G.qt=null;G.npcOld=null;}
-function placeMarker(){placeMarker0();if(G.qt){G.qt.hx=G.qt.x;G.qt.hy=G.qt.y;npcKind(G.qt);}}
+function placeMarker(){if(G&&G.realm)return;placeMarker0();if(G.qt){G.qt.hx=G.qt.x;G.qt.hy=G.qt.y;npcKind(G.qt);}}
 function placeMarker0(){if(G.nan>=NAN.length){G.qt=null;return;}
   if(G.nan===NAN.length-1&&G.qs===2){G.qt={x:WD.goal.x,y:WD.goal.y+2};return;}
   /* chặng thứ k nằm ở phần k/72 của hành trình; tìm ô đi tới được gần đó, sát đường cái, không trùng điểm đến */
@@ -1993,8 +2014,8 @@ function fadeTo(v,ms=350){const s=fade;return tween(ms,t=>{fade=lerp(s,v,t);});}
 /* v8.1: tiểu vùng theo ảnh mẫu: tuyết, sa mạc, Thần Ma Giới; có màu trời và tên riêng */
 const BIOT=[null,[40,60,100,.1],[60,30,0,.04],[50,15,100,.32]],BION=[null,null,'Sa Mạc Hoang Vực','Thần Ma Giới'];
 function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;}
-function regKey(x,y){return zoneAt(x,y)+bioAt(x,y)*10;}
-function regName(k){return BION[Math.floor(k/10)]||ZONES[k%10].n;}
+function regKey(x,y){if(G&&G.realm&&WD.rz)return 100+WD.rz[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)];return zoneAt(x,y)+bioAt(x,y)*10;}
+function regName(k){if(G&&G.realm){const R0=RLM[G.realm];return k>=100&&R0.rn?R0.rn[k-100]:R0.n;}/* v15.42: tên vùng riêng của từng giới */return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
   run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
 async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
@@ -2021,8 +2042,8 @@ const DV={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function mapInput(k){if(PL.moving||busy)return;
   if(k==='menu'){openMenu();return;}
   if(DIRS.includes(k)){tryMove(k);return;}
-  if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
-function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
+  if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.realm){toast('Đang ở '+RLM[G.realm].n+'. Kiếp nạn kế tiếp chờ ở Nhân Giới');return;}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
+function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&!G.realm&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
 /* Minh Dạ on the map: the battle sheet itself at a quarter size, so one source pixel lands on one screen pixel (canvas is 4x) and he keeps all the detail he has in battle */
 const HMK=40/ANIM_SRC.diep.w/* v14.9: khung Minh Dạ nét gấp 3, giữ cỡ trên bản đồ */;
 /* followers walk in Minh Dạ's footsteps: a trail of his recent positions, each companion a fixed distance back along it */
@@ -2038,7 +2059,7 @@ function folFrame(id,k,fl){const key=id+'|'+k+(fl?'f':'');if(FOLC.has(key))retur
   /* v14.9: cắt theo phần hình thật của từng khung (box chung cắt mất đầu Tọa Phu Đồng Tử), cỡ lấy theo khung đứng yên */
   let rh=0;if(a){fi=a.pose[k]!==undefined?a.pose[k]:a.pose.idle||0;src=a.fr[fi];[bx,by,bw,bh]=folBB(src,60);rh=folBB(a.fr[a.pose.idle||0],60)[3];if(nativeLeft(a,fi))fl=!fl;}
   else{src=sprite(id);[bx,by,bw,bh]=folBB(src,0);}
-  const th=id==='hon_ma'?27:id==='vo_tuong'?30:id==='giap_sat'?27:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
+  const th=id==='thay_boi'?22:id==='cuong_thi'?20:id==='thuong_si'?38:id==='chuy_thu'?32:id==='hon_ma'?27:id==='vo_tuong'?30:id==='giap_sat'?27:25,/* v15.22.3 Quỷ Tướng đi theo to hơn chút */sc=th/(rh||bh),n=document.createElement('canvas');n.width=Math.max(1,Math.round(bw*sc*S));n.height=Math.max(1,Math.round(bh*sc*S));
   const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';if(fl){x.translate(n.width,0);x.scale(-1,1);}x.drawImage(src,bx,by,bw,bh,0,0,n.width,n.height);
   const im=x.getImageData(0,0,n.width,n.height);for(let i=3;i<im.data.length;i+=4)im.data[i]=im.data[i]<100?0:255;x.putImageData(im,0,0);
   const r={img:n,w:bw*sc,h:bh*sc};FOLC.set(key,r);return r;}
@@ -2057,13 +2078,13 @@ function updateMap(dt){
   if(!PL.moving&&held.length&&!DLG&&!CH&&!busy){autoStop('Đã dừng tự động');PL.path=null;tryMove(held[held.length-1]);}
   else if(!PL.moving&&PL.path&&PL.path.length&&!DLG&&!CH&&!busy){const d=PL.path.shift();const ox=PL.x,oy=PL.y;tryMove(d);if(PL.x===ox&&PL.y===oy)PL.path=null;}
   if(PL.path&&!PL.path.length&&!PL.moving)PL.path=null;
-  const bi=bioAt(PL.x,PL.y),tr=BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
-function arrive(){G.steps++;vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))for(const u of G.party)if(u.hp>0&&u.hp<u.mhp)u.hp++;const t=tileG(PL.x,PL.y);
+  const bi=bioAt(PL.x,PL.y),tr=G.realm?RLM[G.realm].tint:BIOT[bi]||ZONES[zoneAt(PL.x)].tint;for(let i=0;i<4;i++)tint[i]=lerp(tint[i],tr[i],Math.min(1,dt/400));}
+function arrive(){G.steps++;if(!G.realm)vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))for(const u of G.party)if(u.hp>0&&u.hp<u.mhp)u.hp++;const t=tileG(PL.x,PL.y);
   /* v15.5: người chơi muốn đi trên bản đồ không còn hồi linh lực */
   if(G.sect==='tusi'){const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+1);}
   reveal();townStep();const z=regKey(PL.x,PL.y);if(z!==curZone){curZone=z;bannerT=2200;}
   if(busy)return;/* a lantern ghost may have caught us this same frame */
-  if(G.qt&&PL.x===G.qt.x&&PL.y===G.qt.y)return run(quest);
+  if(G.qt&&!G.realm&&PL.x===G.qt.x&&PL.y===G.qt.y)return run(quest);
   const p=poiAt(PL.x,PL.y);if(p)return run(()=>poiEv(p));
   if(G.steps%5===0)save();
   if(G.wc>0){G.wc--;return;}
@@ -2072,7 +2093,7 @@ function arrive(){G.steps++;vtMark(PL.x,PL.y);if(G.steps%4===0&&hasEq('regen'))f
   const wet=t==='w';if(wet&&!arrive.wet)toast('Lội xuống nước đầm, dễ gặp quỷ nước hơn!');arrive.wet=wet;
   const r=R();const enc=(ENC[t]||.03)*.5*(hasPerk('tieu_mai')?.75:1)*(hasEq('ward')?.7:1);
   if(r<enc)return run(wild);
-  const r2=R();
+  if(G.realm)return;/* v15.41: giới khác không có sự kiện dọc đường */const r2=R();
   /* v10.3: người chơi muốn gặp sự kiện trên đường ít hơn (gặp người 1% -> .5%, thư sinh .7% -> .3%); v10.3.1: quỷ sai tuần đêm giữ .6% như cũ */
   if(r2<.006&&z>0)return patrolRun();
   if(r2<.011)return meetRun();
@@ -2102,19 +2123,20 @@ function runnerPx(r){const p=r.mv>0?Math.min(1,r.mt/r.mv):1;return{x:lerp(r.fx,r
 function drawRunner(y,camX,camY){const r=RUNR;if(!r)return;const row=r.mv>0?Math.max(r.y,r.fy):r.y;if(row!==y)return;
   const p=runnerPx(r),sx=Math.round(p.x-camX),sy=Math.round(p.y-camY),mov=r.mv>0;let top;
   c.globalAlpha=.3;rect(sx+4,sy+14,8,2,'#000');c.globalAlpha=1;
-  if(r.id){const A=ANIM[r.id],pk=k=>!A||A.pose[k]!==undefined?k:'idle',F=lFrame(r.id,pk(mov?(r.up?'back':Math.floor(time/150)%2?'walk':'idle'):'turn'),r.face<0),bob=Math.round(Math.sin(time/300)*1.5);
+  if(r.id){const A=ANIM[r.id],pk=k=>!A||A.pose[k]!==undefined?k:'idle',F=lFrame(r.id,pk(mov?(r.up?'back':Math.floor(time/150)%2?'walk':'idle'):'turn'),r.face<0,LMH[r.id]||25)/* v15.31: quỷ tuần đêm dùng cỡ bản đồ riêng (Thương Sĩ to hơn) */,bob=Math.round(Math.sin(time/300)*1.5);
     const fx0=sx+8-F.ox,fy0=sy+13-F.oy+bob;if(F.hr>1)c.drawImage(F.img,fx0,fy0,F.img.width/F.hr,F.img.height/F.hr);else c.drawImage(F.img,fx0,fy0);top=fy0+(F.top||0);}
   else{const sp=npcSpr(r.k),by=mov?-Math.abs(Math.sin(r.mt/r.mv*Math.PI))*2:0;
     if(r.face<0){c.save();c.translate(sx+17,0);c.scale(-1,1);c.drawImage(sp,0,sy-14+by,18,30);c.restore();}else c.drawImage(sp,sx-1,sy-14+by,18,30);top=sy-14+by;}
   if(!r.go)txt('!',sx+8,top-11,{size:13,align:'center',color:'#ffe060'});}
-function poolPick(z){return pickW(ZONES[z].pool.map(o=>[o[0],o[1]*rkW(o[0])]),R());}
+function poolPick(z){if(G.realm)return pickW(rlmLists(G.realm).enc,R());const L=ZONES[z].pool.slice();if(bioAt(PL.x,PL.y)===2)L.push(['han_bat',3]);/* v15.40: Hạn Bạt chỉ gặp ở Sa Mạc Hoang Vực */return pickW(L.map(o=>[o[0],o[1]*rkW(o[0])]),R());}
 function foe(id,lv,o){const u=makeUnit(id,Math.max(1,lv),o);G.dex[id]=G.dex[id]||1;return u;}
 const WATERF=[['thuy_quy',3],['ma_da',2],['kappa',2]];/* v9.2: đang lội nước đầm thì 75% gặp quỷ nước */
-function wildGroup(n,lvB=0){const z=zoneAt(PL.x),lv=lvAt(PL.x),wet=tileG(PL.x,PL.y)==='w',bt=nearBT(PL.x,PL.y);return Array.from({length:n},()=>foe(wet&&R()<.75?pickW(WATERF,R()):bt&&R()<.4?'gautruc':poolPick(z),lv+ri(-1,1)+lvB));}/* v15.8: quanh Xóm Bờ Tre 40% gặp Tinh Linh Gấu Trúc */
+function wildGroup(n,lvB=0){const z=zoneAt(PL.x),lv=lvAt(PL.x),wet=tileG(PL.x,PL.y)==='w',bt=nearBT(PL.x,PL.y);return kyPair(Array.from({length:n},()=>foe(wet&&R()<.75?pickW(WATERF,R()):bt&&R()<.4?'gautruc':poolPick(z),lv+ri(-1,1)+lvB)));}
+/* v15.28: Oán Linh Ngựa Ma không đi trên bản đồ, luôn theo Oán Linh Kỵ Sĩ ra trận */function kyPair(g){const k=g.find(u=>u.id==='ky_si');if(!k)return g;return[k,foe('ngua_ma',k.lv)].concat(g.filter(u=>u!==k&&u.id!=='ngua_ma')).slice(0,3);}/* v15.8: quanh Xóm Bờ Tre 40% gặp Tinh Linh Gấu Trúc */
 /* v14.5: cài đặt chiến đấu né quái hoang cao hơn Minh Dạ từ SET.av cấp */
 let AVT=-9e9;
 function avoidLv(lv){if(!SET.av||lv<diep().lv+SET.av)return false;if(time-AVT>2500){AVT=time;toast('Né tránh quái cấp '+lv+' (mạnh hơn '+(lv-diep().lv)+' cấp)');}return true;}
-async function wild(){/* v15.13: 22% trận đại chiến 2-3 quái khi có ít nhất 2 người còn sức */const grp=alive().length>1&&R()<.22,n=grp?(R()<.5?3:2):G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild',grp});}
+async function wild(){/* v15.13: 22% trận đại chiến 2-3 quái khi có ít nhất 2 người còn sức */const grp=alive().length>1&&R()<.22,n=grp?(R()<.5?3:2):G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild',grp:grp||g.some(u=>u.id==='ky_si')&&alive().length>1});}
 async function patrol(g){G.wc=4;await say('Tiếng xích sắt kéo lê... Một toán quỷ sai tuần đêm chặn đường!');g=g||wildGroup(R()<.5?2:1,1);g.forEach(u=>u.pat=true);await startBattle(g,{kind:'pat'});}
 function patrolRun(){const g=wildGroup(R()<.5?2:1,1);if(g.some(u=>hidR(u.id)))return patrol(g);/* v15.26: quái hạng A/S không chạy trên bản đồ, gặp thẳng */roadRunner(()=>patrol(g),{id:g[0].id});}
 function meetRun(){const r=ri(0,2);roadRunner(()=>meet(r),{k:['nong','ba','dong'][r]});}
@@ -2139,6 +2161,7 @@ function evOut(o){const L=[],d=diep();
   if(L.length){toast(L.join(' · '));sfx(o.mm||o.hp?'sel':'coin');}return L;}
 /* ---------- places ---------- */
 async function poiEv(p){const s=pst(p);
+  if(p.k==='RG')return gateEv(p,s);
   if(p.k==='V')return village(p,s);
   if(p.k==='S')return temple(p,s);
   if(p.k==='T')return tranMaTi(p,s);
@@ -2381,6 +2404,7 @@ function drawMap0(Z,W0,H0){
       const p=poiAt(x,y);if(p&&p.k==='T'&&TMTIMG.complete&&TMTIMG.naturalWidth){c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(sx+8,sy+15,38,7,0,0,7);c.fill();c.globalAlpha=1;const A=tmtArt(p);if(A){const dw=100,dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+22-dh,dw,dh);}else c.drawImage(TMTIMG,sx+8-40,sy+18-82,80,82);}
       else if(p&&p.k==='L'&&p.lt==='cd'&&CDIMG.complete&&CDIMG.naturalWidth){c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(sx+8,sy+15,26,6,0,0,7);c.fill();c.globalAlpha=1;const A=cdArt(p);if(A){const dw=84,dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+22-dh,dw,dh);}else c.drawImage(CDIMG,sx+8-28,sy+18-109,56,109);}
       else if(p&&(p.k==='S'||p.k==='L'&&LTAR[p.lt])&&ARA.complete&&ARA.naturalWidth){const A=arPart(p.k==='S'?'qgateM':LTAR[p.lt]),dw=p.k==='S'?64:Math.round(A.lw*(PSCALE[LTAR[p.lt]]||1)),dh=Math.round(A.h*dw/A.w);c.drawImage(A.k,sx+8-dw/2,sy+18-dh,dw,dh);if(pst(p).done&&p.k!=='S'){c.globalAlpha=.5;rect(sx+6,sy+18-dh-5,4,4,'#7ac46a');c.globalAlpha=1;}}
+      else if(p&&p.k==='RG')drawGate(p,sx,sy);
       else if(p&&p.k==='W'){const st=pst(p);if(!(st.done&&G.steps<st.at+600)){const k=.5+.5*Math.sin(time/260+x);c.globalAlpha=.25+.25*k;c.fillStyle='#b060ff';c.beginPath();c.ellipse(sx+8,sy+12,9,4,0,0,7);c.fill();c.globalAlpha=1;txt('!',sx+8,sy-6-Math.round(k*2),{size:12,align:'center',color:'#ffd0ff',outline:'#3a0a4a'});}else{c.globalAlpha=.5;rect(sx+6,sy+4,4,4,'#7ac46a');c.globalAlpha=1;}}
       else if(p){const s=obj((p.k==='L'?LTOBJ[p.lt]:POIOBJ[p.k])+':x:'+WD.g[y][x]);const m=p.k==='Q'?1.7:1,sw=Math.round(s.width*m),sh=Math.round(s.height*m);if(m>1)c.imageSmoothingEnabled=false;c.drawImage(s,sx+Math.round(8-sw/2),sy+17-sh,sw,sh);if(m>1)c.imageSmoothingEnabled=true;if(pst(p).done&&p.k!=='S'&&p.k!=='V'&&p.k!=='T'){c.globalAlpha=.5;rect(sx+6,sy+16-sh-5,4,4,'#7ac46a');c.globalAlpha=1;}}
       }
@@ -2407,7 +2431,7 @@ function drawMap0(Z,W0,H0){
   drawWeather(camX,camY);
   W=W0;H=H0;c.setTransform(S,0,0,S,0,0);
   // quest marker + guide arrow
-  if(G.qt){const np=npcPx(G.qt),mx=Math.round((np.x-camX)/Z),my=Math.round((np.y-camY)/Z);const m=bubble();
+  if(G.qt&&!G.realm){const np=npcPx(G.qt),mx=Math.round((np.x-camX)/Z),my=Math.round((np.y-camY)/Z);const m=bubble();
     const top=PORT?64:30,bot=PORT?24:10;if(mx>-8&&mx<W&&my>top&&my<H-bot)c.drawImage(m,mx+Math.round(8/Z)-3,my-Math.round(12/Z)-15+Math.round(Math.sin(time/250)*1.5));
     else{const cx=W/2,cy=H/2,dx=mx+8-cx,dy=my+8-cy,sc=Math.min((W/2-14)/Math.abs(dx||1),(H/2-(PORT?70:34))/Math.abs(dy||1));const ax=cx+dx*sc,ay=cy+dy*sc+6;c.drawImage(m,Math.round(ax-5),Math.round(ay-7));const n=Math.abs(G.qt.x-PL.x)+Math.abs(G.qt.y-PL.y);txt(String(n),Math.round(ax),Math.round(ay+6),{size:8,align:'center',color:'#ffe8a0'});}}
   drawHUD();}
@@ -2444,7 +2468,7 @@ function drawHUD(){if(PORT)return drawHUDP();const d=diep(),L=lead();
 const CAM={x:0,y:0};
 function walkTo(sx,sy){if(AUTO.on){autoStop('Đã dừng tự động');}{const Z=mapZoom();sx*=Z;sy*=Z;}const tx=Math.floor((sx+CAM.x)/TS),ty=Math.floor((sy+CAM.y)/TS);
   if(tx<0||ty<0||tx>=MW||ty>=MH)return;if(tx===PL.x&&ty===PL.y){mapInput('a');return;}
-  PL.npcGoal=null;if(G.qt){const p=npcPx(G.qt),wx=sx+CAM.x,wy=sy+CAM.y;if((tx===G.qt.x&&ty===G.qt.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc();}{const wx=sx+CAM.x,wy=sy+CAM.y;for(const v of vilNear()){if(!seen[v.y*MW+v.x])continue;const p=npcPx(v);if((tx===v.x&&ty===v.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc(false,v);}const b=bldTap(tx,ty);if(b)return walkToB(b);}
+  PL.npcGoal=null;if(G.qt&&!G.realm){const p=npcPx(G.qt),wx=sx+CAM.x,wy=sy+CAM.y;if((tx===G.qt.x&&ty===G.qt.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc();}{const wx=sx+CAM.x,wy=sy+CAM.y;for(const v of vilNear()){if(!seen[v.y*MW+v.x])continue;const p=npcPx(v);if((tx===v.x&&ty===v.y)||(wx>=p.x-1&&wx<p.x+17&&wy>=p.y-14&&wy<p.y+16))return walkToNpc(false,v);}const b=bldTap(tx,ty);if(b)return walkToB(b);}
   if(blocked(tx,ty)||!seen[ty*MW+tx]){sfx('no');PL.mark={x:tx,y:ty,t:500,bad:true};return;}
   const st=PL.y*MW+PL.x,goal=ty*MW+tx;
   /* v6.6.1: rào bao làng nên lối vào có thể nằm trong vùng chưa khám phá; tìm đường qua ô đã thấy trước, không được thì cho đi qua cả ô chưa thấy */
@@ -2469,13 +2493,14 @@ function drawMini(x0,y0){const w=62,h=40,s=1.5,cw=38,ch=24;win(x0,y0,w,h,'#2c3a7
   const ox=clamp(PL.x-(cw>>1),0,MW-cw),oy=clamp(PL.y-(ch>>1),0,MH-ch),ix=x0+2.5,iy=y0+2;
   for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const X=ox+x,Y=oy+y;c.fillStyle=!seen[Y*MW+X]?'#100c18':WD.ob[Y][X]==='B'?'#9a5a3a':WD.ob[Y][X]?'#2a4a2a':MCOL[WD.g[Y][X]]||'#555';c.fillRect(ix+x*s,iy+y*s,s,s);}
   const PC={V:'#f8e070',S:'#ff5a4a',Q:'#b060ff',R:'#7ad0ff',G:'#ff2a6a',T:'#5af0c0',L:'#ffb070',W:'#e070ff'};
-  for(const p of WD.pois){const x=p.x-ox,y=p.y-oy;if(x<0||y<0||x>=cw||y>=ch||!seen[p.y*MW+p.x])continue;c.fillStyle=PC[p.k];c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}
+  for(const p of WD.pois){const x=p.x-ox,y=p.y-oy;if(p.k==='RG'||x<0||y<0||x>=cw||y>=ch||!seen[p.y*MW+p.x])continue;c.fillStyle=PC[p.k];c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}
   {const vp=nearVil(),nm=vp?vp.n:regName(regKey(PL.x,PL.y)),xy=PL.x+','+PL.y,fs=fitS(nm,7,w-6,5);/* v11.6.2: nền trong suốt, canh sát mép phải */
    txt(nm,x0+w-3,y0+1,{size:fs,align:'right',color:'#fff4c0'});txt(xy,x0+w-3,y0+2+fs,{size:6,align:'right',color:'#a8e0ff'});}
   /* v15.9: người chơi muốn thấy tên xóm trên mini map: tên làng/xóm đã khám phá ghi ngay dưới chấm vàng (xóm đang đứng gần thì đã ghi ở góc trên) */
   const vn=nearVil();for(const p of WD.pois){if(p.k!=='V'||p===vn)continue;const x=p.x-ox,y=p.y-oy;if(x<0||y<0||x>=cw||y>=ch||!seen[p.y*MW+p.x])continue;const fs=fitS(p.n,6,w-6,5),tx=clamp(ix+x*s,x0+3+tw(p.n,fs)/2,x0+w-3-tw(p.n,fs)/2),ty=clamp(iy+y*s+2,y0+9,y0+h-fs-2);
     txt(p.n,tx,ty,{size:fs,align:'center',color:'#fff4c0',outline:'#1a1226',lw:1});}
-  if(G.qt&&Math.floor(time/300)%2){const x=G.qt.x-ox,y=G.qt.y-oy;if(x>=0&&y>=0&&x<cw&&y<ch){c.fillStyle='#fff8e0';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}}
+  miniGates(x0,y0,w,h,ix,iy,s,ox,oy,cw,ch);/* v15.42 */
+  if(G.qt&&!G.realm&&Math.floor(time/300)%2){const x=G.qt.x-ox,y=G.qt.y-oy;if(x>=0&&y>=0&&x<cw&&y<ch){c.fillStyle='#fff8e0';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}}
   for(const g of G.lg||[]){const x=g.x-ox,y=g.y-oy;if(g.dead>=0||x<0||y<0||x>=cw||y>=ch||!seen[g.y*MW+g.x])continue;c.fillStyle=g.st==='chase'||g.st==='lunge'||g.st==='alert'?'#ff8a5a':'#7ad0ff';c.fillRect(ix+x*s-.5,iy+y*s-.5,2.5,2.5);}
   c.fillStyle=Math.floor(time/200)%2?'#ffffff':'#ff3a3a';c.fillRect(ix+(PL.x-ox)*s-.5,iy+(PL.y-oy)*s-.5,2.5,2.5);}
 
@@ -2486,7 +2511,7 @@ function drawMini(x0,y0){const w=62,h=40,s=1.5,cw=38,ch=24;win(x0,y0,w,h,'#2c3a7
 const NPCR={rx:3,ry:2,wait:4,stepMs:420};
 const NM=new WeakMap();
 function nst(q){let s=NM.get(q);if(!s){if(q.hx==null){q.hx=q.x;q.hy=q.y;}npcKind(q);s={fx:q.x,fy:q.y,t:1,cool:600+R()*1500,face:1};NM.set(q,s);}return s;}
-function npcList(){return(G.npcOld||[]).concat(G.qt?[G.qt]:[],vilNear());}
+function npcList(){if(G.realm)return[];return(G.npcOld||[]).concat(G.qt?[G.qt]:[],vilNear());}
 function npcPx(q){const s=nst(q);const t=s.t>=1?1:s.t;return{x:lerp(s.fx,q.x,t)*TS,y:lerp(s.fy,q.y,t)*TS};}
 function npcRow(q){const s=nst(q);return s.t<1?Math.max(q.y,s.fy):q.y;}
 function npcOldAt(x,y){return(G.npcOld||[]).some(q=>q.x===x&&q.y===y);}
@@ -2516,7 +2541,7 @@ function drawNpc(q,camX,camY){const p=npcPx(q),s=nst(q),k=npcKind(q),sp=npcSpr(k
   const by=k==='hon'?Math.sin(time/400)*1.5-1.5:walk?-Math.abs(Math.sin(s.t*Math.PI))*1.5:(Math.floor(time/600)%2)*.5;
   if(s.face<0){c.save();c.translate(sx+17,0);c.scale(-1,1);c.drawImage(sp,0,sy-14+by,18,30);c.restore();}else c.drawImage(sp,sx-1,sy-14+by,18,30);
   c.globalAlpha=1;if(q.vil)vilDeco(q,sx,sy+by);}
-function walkToNpc(quiet,q){q=q||G.qt;if(!q)return;PL.npcGoal={x:q.x,y:q.y};PL.npcQ=q;
+function walkToNpc(quiet,q){if(G.realm){if(!quiet)toast('Kiếp nạn kế tiếp chờ ở Nhân Giới. Quay lại cổng để về');return;}q=q||G.qt;if(!q)return;PL.npcGoal={x:q.x,y:q.y};PL.npcQ=q;
   const prev=new Int32Array(MW*MH).fill(-1),st=PL.y*MW+PL.x,goal=q.y*MW+q.x,Q=[st];prev[st]=st;
   for(let h=0;h<Q.length&&prev[goal]<0;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;if(nx<0||ny<0||nx>=MW||ny>=MH||prev[j]>=0||(j!==goal&&blocked(nx,ny)))continue;prev[j]=i;Q.push(j);}}
   if(prev[goal]<0){PL.npcGoal=null;if(!quiet){sfx('no');}return;}
@@ -2851,7 +2876,7 @@ function drawNan(){win(2,18,236,130,'#2c3a78','#1a2250');
   if(G.nan>=NAN.length){txt('Đã vượt đủ '+NAN.length+' kiếp nạn. Quỷ Môn Quan đã đóng!',120,24,{size:10,align:'center',color:'#ffe8a0'});}
   else{const[t,d]=NAN[G.nan];txt(`Nạn ${G.nan+1}/${NAN.length}: ${t}`,8,21,{size:10,color:'#ffe8a0'});txt('Hồi '+(chapOf(G.nan)+1)+' · Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),8,32,{size:8,color:'#ffb0b0'});
     wrap(nanNote(),224,8).slice(0,3).forEach((l,i)=>txt(l,8,41+i*8,{size:8,color:'#e0d8f0'}));
-    if(G.qt){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;txt('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),8,66,{size:8,color:'#c8f0c8'});}}
+    if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;txt('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),8,66,{size:8,color:'#c8f0c8'});}}
   bar(8,77,224,4,G.nan/NAN.length,'#d9b45a','#3a2e44');
   const SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-2)*8.5);const sc=scrollArea('nan',4,84,232,59,(NAN.length+ns)*8.5);clipOn(4,84,230,59);const QL=qList();SR.forEach((l,k)=>{const y=85+k*8.5-sc;if(y>=76&&y<=146){txt(l,10,y,{size:8,color:'#ffc890'});hitC(4,y,228,8.5,()=>qNav(QL[k]),84,59);}});for(let i=0;i<NAN.length;i++){const y=85+(i+ns)*8.5-sc;if(y<76||y>146)continue;const done=i<G.nan,cur=i===G.nan;txt((done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':''),10,y,{size:8,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(4,y,228,8.5,()=>qNav('main'),84,59);}clipOff();scrollBar('nan',234,84,59);}
 /* v5.3: chỉ số cộng thêm của món đang mặc, và so sánh món trong túi với món cùng ô đang mặc */
@@ -2881,9 +2906,11 @@ function wmCanvas(){if(WMC&&WMC.v===SEENV&&WMC.seen===seen&&WMC.wd===WD)return W
   x.putImageData(im,0,0);WMC={k,v:SEENV,seen,wd:WD};return k;}
 function worldMap(ox,oy,s){rect(Math.floor(ox)-1,Math.floor(oy)-1,Math.ceil(MW*s)+2,Math.ceil(MH*s)+2,'#0c0a18');
   const sm=c.imageSmoothingEnabled;c.imageSmoothingEnabled=false;c.drawImage(wmCanvas(),ox,oy,MW*s,MH*s);c.imageSmoothingEnabled=sm;
-  const PC={V:'#f8e070',S:'#ff5a4a',Q:'#b060ff',R:'#7ad0ff',G:'#ff2a6a',T:'#5af0c0',L:'#ffb070',W:'#e070ff'};for(const p of WD.pois){if(!seen[p.y*MW+p.x]&&p.k!=='G')continue;const r=p.k==='V'?4:p.k==='L'?2:3;rect(Math.round(ox+p.x*s-r/2),Math.round(oy+p.y*s-r/2),r,r,PC[p.k]);}
+  const PC={V:'#f8e070',S:'#ff5a4a',Q:'#b060ff',R:'#7ad0ff',G:'#ff2a6a',T:'#5af0c0',L:'#ffb070',W:'#e070ff'};for(const p of WD.pois){if(p.k==='RG'||!seen[p.y*MW+p.x]&&p.k!=='G')continue;const r=p.k==='V'?4:p.k==='L'?2:3;rect(Math.round(ox+p.x*s-r/2),Math.round(oy+p.y*s-r/2),r,r,PC[p.k]);}
   const cz=zoneAt(PL.x,PL.y),box=[],hitB=(x,y,w,h)=>box.some(b=>x<b[0]+b[2]&&x+w>b[0]&&y<b[1]+b[3]&&y+h>b[1]);
-  ZONES.forEach((z,i)=>{const ns=RNODES.filter(n=>n.z===i);if(!ns.some(n=>seen[n.y*MW+n.x])&&i!==cz)return;const x=ns.reduce((a,n)=>a+n.x,0)/ns.length,y=ns.reduce((a,n)=>a+n.y,0)/ns.length;
+  if(G.realm&&WD.rzc){const R0=RLM[G.realm],ck=regKey(PL.x,PL.y)-100;WD.rzc.forEach((q,i)=>{if(!q||(!seen[q.y*MW+q.x]&&i!==ck))return;const n=R0.rn[i],tx=Math.round(ox+q.x*s),ty=Math.round(oy+q.y*s)-4,w=tw(n,7);box.push([tx-w/2,ty,w,8]);
+    txt(n,tx,ty,{size:7,align:'center',color:i===ck?'#ffe8a0':'#c8c0d8',outline:'#1b1224',lw:1});});}/* v15.42: ở giới khác ghi tên vùng của giới đó, không dùng tên Nhân Giới */
+  else ZONES.forEach((z,i)=>{const ns=RNODES.filter(n=>n.z===i);if(!ns.some(n=>seen[n.y*MW+n.x])&&i!==cz)return;const x=ns.reduce((a,n)=>a+n.x,0)/ns.length,y=ns.reduce((a,n)=>a+n.y,0)/ns.length;
     const tx=Math.round(ox+x*s),ty=Math.round(oy+y*s)+(i===5?6:i===0?-14:-12),w=tw(z.n,7);box.push([tx-w/2,ty,w,8]);
     txt(z.n,tx,ty,{size:7,align:'center',color:i===cz?'#ffe8a0':'#c8c0d8'});});
   /* v7.5: người chơi muốn tên làng hiện trên bản đồ; làng gần nhất ưu tiên, nhãn chồng nhau thì thử chỗ khác hoặc bỏ */
@@ -2891,10 +2918,11 @@ function worldMap(ox,oy,s){rect(Math.floor(ox)-1,Math.floor(oy)-1,Math.ceil(MW*s
   for(const p of vs){const px=ox+p.x*s,py=oy+p.y*s,w=Math.ceil(tw(p.n,6))+2,W0=ox+MW*s,H0=oy+MH*s;
     for(const[dx,dy]of[[-w/2,3],[-w/2,-9],[4,-3],[-w-4,-3]]){const x=Math.round(clamp(px+dx,ox,W0-w)),y=Math.round(clamp(py+dy,oy,H0-7));if(hitB(x,y,w,7))continue;box.push([x,y,w,7]);
       c.globalAlpha=.55;rect(x,y+1,w,6,'#0c0a18');c.globalAlpha=1;txt(p.n,x+1,y,{size:6,color:'#fff4c0',outline:'#1b1224',lw:1});break;}}
-  if(G.qt){const qx=Math.round(ox+G.qt.x*s),qy=Math.round(oy+G.qt.y*s);c.drawImage(bubble(),qx-5,qy-12+Math.round(Math.sin(time/250)));}
+  mapGates(ox,oy,s);/* v15.42 */
+  if(G.qt&&!G.realm){const qx=Math.round(ox+G.qt.x*s),qy=Math.round(oy+G.qt.y*s);c.drawImage(bubble(),qx-5,qy-12+Math.round(Math.sin(time/250)));}
   rect(Math.round(ox+PL.x*s-1.5),Math.round(oy+PL.y*s-1.5),3,3,Math.floor(time/200)%2?'#fff':'#ffe8a0');}
 function drawWorld(){win(2,18,236,130,'#2c3a78','#1a2250');const s=Math.min(228/MW,96/MH),ox=6+(228-MW*s)/2,oy=24;worldMap(ox,oy,s);
-  const lg=[['#f8e070','Làng'],['#5af0c0','Trấn Ma Ti'],['#ff5a4a','Đền chùa'],['#b060ff','Hang quỷ'],['#ffb070','Danh thắng'],['#7ad0ff','Người chờ'],['#ff2a6a','Quỷ Môn'],['#fff8e0','NPC ?']];lg.forEach(([cc,l],i)=>{const x=10+(i%4)*57,y=123+Math.floor(i/4)*10;rect(x,y+3,4,4,cc);txt(l,x+6,y,{size:7,color:'#d8d0e8'});});}
+  const lg=[['#f8e070','Làng'],['#5af0c0','Trấn Ma Ti'],['#ff5a4a','Đền chùa'],['#b060ff','Hang quỷ'],['#ffb070','Danh thắng'],['#7ad0ff','Người chờ'],['#ff2a6a','Quỷ Môn'],['#fff8e0','NPC ?'],['RG','Cổng giới']];lg.forEach(([cc,l],i)=>{const x=8+(i%5)*46,y=123+Math.floor(i/5)*10;if(cc==='RG')gateGlyph(x+2,y+5,'#7af0b0');else rect(x,y+3,4,4,cc);txt(l,x+6,y,{size:7,color:'#d8d0e8'});});}/* v15.42: thêm chú thích cổng giới, 5 cột */
 
 /* ---------- portrait menu: header (sound / tab name / close), content, tab bar at the bottom for the thumb ---------- */
 function drawMenuP(){const M=MENU;rect(0,0,W,H,'#151022');for(let y=0;y<H;y+=4)rect(0,y,W,1,'#1a1428');
@@ -2937,7 +2965,7 @@ function drawNanP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');let y=t+3;
   else{const[tt,d]=NAN[G.nan];txt(NCH[chapOf(G.nan)][1],8,y,{size:9,color:'#c8b0ff'});y+=11;wrap(`Nạn ${G.nan+1}/${NAN.length}: ${tt}`,W-16,10).forEach(l=>{txt(l,8,y,{size:10,color:'#ffe8a0'});y+=11;});
     wrap('Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#ffb0b0'});y+=9;});
     wrap(nanNote(),W-16,8).slice(0,9).forEach(l=>{txt(l,8,y,{size:8,color:'#e0d8f0'});y+=9;});
-    if(G.qt){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;y+=2;wrap('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#c8f0c8'});y+=9;});}}
+    if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;y+=2;wrap('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#c8f0c8'});y+=9;});}}
   y+=3;bar(8,y,W-16,4,G.nan/NAN.length,'#d9b45a','#3a2e44');y+=8;
   const lh=b-y-3,ly=y,SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-Math.floor(lh/33))*11);const sc=scrollArea('nan',2,ly,W-4,lh,(NAN.length+ns)*11);clipOn(3,ly,W-6,lh);
   const QL=qList();SR.forEach((l,k)=>{const yy=ly+k*11-sc;if(yy+11>=ly&&yy<=ly+lh){txt(l,8,yy,{size:tw(l,9)>W-16?7:8,color:'#ffc890'});hitC(2,yy,W-4,11,()=>qNav(QL[k]),ly,lh);}});
@@ -3074,6 +3102,7 @@ async function startBattle(foes,o={}){
   B.msg=B.grp?`Đại chiến! ${foes.length} con quỷ cùng xông tới!`:foes.length>1?`${foes.length} con quỷ chặn đường! Đầu tiên: ${foes[0].name}`:((o.kind==='boss'||o.kind==='judge')?foes[0].name+' giáng lâm!':foes[0].name+' xuất hiện!');B.msgT=1500;await wait(900);
   let res=null;
   while(!res){
+    await tuThan();
     if(B.grp){if(B.enemy.hp<=0||B.enemy.gone){if(await gFoeDown()){res='win';break;}continue;}if(!await gActor()){res='lose';break;}}
     else if(B.enemy.hp<=0){await subdue(B.enemy);B.fi++;if(B.fi>=B.foes.length){res='win';break;}await nextFoe();continue;}
     if(!B.grp&&B.ally.hp<=0){if(!alive().length){res='lose';break;}B.forced=true;}
@@ -3100,6 +3129,14 @@ async function startBattle(foes,o={}){
     for(const u of G.party)if(u.b&&u.b.cd)for(const k in u.b.cd)if(u.b.cd[k]>0)u.b.cd[k]--;
   }
   return finish(res);}
+/* v15.28: Kỵ Sĩ hoặc Ngựa Ma còn dưới 30% máu (con kia còn sống) thì cả hai cuồng nộ hợp thể thành Oán Linh Kỵ Sĩ Tử Thần hạng S */
+async function tuThan(){if(B.fused)return;const ok=f=>f&&!f.gone&&f.hp>0;const k=B.foes.find(f=>f.id==='ky_si'&&ok(f)),h=B.foes.find(f=>f.id==='ngua_ma'&&ok(f));if(!k||!h)return;if(k.hp>=k.mhp*.3&&h.hp>=h.mhp*.3)return;
+  B.fused=1;const fr=Math.max(.5,(k.hp/k.mhp+h.hp/h.mhp)/2),F=foe('tu_than',Math.max(k.lv,h.lv));F.b={might:3};foeBoost(F);F.hp=Math.max(1,Math.round(F.mhp*fr));
+  const i=Math.min(B.foes.indexOf(k),B.foes.indexOf(h)),cur=B.enemy===k||B.enemy===h;B.foes=B.foes.filter(f=>f!==k&&f!==h);B.foes.splice(i,0,F);
+  B.msg=(k.hp<k.mhp*.3?k.name:h.name)+' gầm lên cuồng nộ!';B.msgT=1200;sfx('enc');B.shake=10;await wait(700);
+  if(cur){await tween(380,t=>{B.eA=1-t;});B.enemy=F;B.pose.e=null;B.hp.e=F.hp;B.eS=1;B.eF=0;B.eo.y=0;}
+  B.flash=1;sfx('hit');B.msg='Kỵ Sĩ và Ngựa Ma hợp thể: '+F.name+' giáng lâm!';B.msgT=1600;
+  if(cur)await tween(420,t=>{B.eA=t;});await wait(900);}
 async function nextFoe(){const E=B.foes[B.fi];B.enemy=E;B.pose.e=null;B.hp.e=E.hp;B.eA=1;B.eS=1;B.eo.x=-90;B.eo.y=0;B.msg='Tiếp theo: '+E.name+(E.elite?' (tinh anh)':'');await tween(380,t=>{B.eo.x=-90*(1-ease(t));});await wait(300);}
 /* v15.13: người chơi muốn thỉnh thoảng có trận đại chiến: 2 đồng đội đứng cùng đấu 2-3 quái một lúc.
    B.fa: quân ta trên sân, B.gq: lượt quân ta còn trong vòng; người đang tới lượt / mục tiêu đứng hàng trước, những con khác đứng hàng sau */
@@ -3128,7 +3165,7 @@ function gBack(){if(!B.grp)return;const L=[];let i=0;for(const f of B.foes)if(!f
     else{const s0=sprite(u.id);img=sd==='a'?flip(s0):s0;w=img.width;h=img.height;}
     const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8*gK(),bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
     c.globalAlpha=u.hp>0?.9:.45;bSmo(img,img.width*sc*k);c.drawImage(img,bx-dx*k,by-dy2*k,img.width*sc*k,img.height*sc*k);c.imageSmoothingEnabled=false;c.globalAlpha=1;
-    const hw=26,hy=Math.max(PORT?2:30,by-5);rect(x-hw/2,hy,hw,3,'#1b1224');rect(x-hw/2+1,hy+1,Math.round((hw-2)*clamp(u.hp/u.mhp,0,1)),1,sd==='e'?'#ff6a5a':'#5ae07a');
+    /* v15.38: người chơi bỏ thanh máu trên đầu trong đại chiến */
     if(sd==='e'&&u.hp>0){const sx=(PORT?-30:0)+240-x;hit(sx-bw/2,by+(PORT?18:0),bw,bh,()=>{if(B.phase!=='menu'||B.sub)return;B.enemy=u;B.pose.e=null;B.hp.e=u.hp;B.eA=1;B.eS=1;sfx('sel');B.msg='Nhắm vào '+u.name;B.msgT=900;});}}}
 async function doAct(act){const A=B.ally,E=B.enemy;if(act==='stunned')return;
   if(A.b.conf>0&&(act==='atk'||act.startsWith('sk:'))&&R()<.5){B.msg=A.name+' mê loạn, tự đánh vào mình!';pose('a','turn',450);await wait(350);await hurt('a',A,calc(A,A,.5).dmg);return'turn';}
@@ -3311,7 +3348,7 @@ async function finish(res){B.phase='end';
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
   await fadeTo(1,400);scene='map';B=null;G.wc=4;
-  if(res==='lose'){const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
+  if(res==='lose'){if(G.realm)realmSwap(0);/* v15.41: gục ở giới khác thì về Nhân Giới */const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
     sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 2 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 2 điểm trung thành.`]),'Trấn Ma Ti');return res;}
   await fadeTo(0,300);save();return res;}
 /* v13.5 hai bên cân nhau: mọi đấu thủ (ta và địch) vẽ cùng chiều cao thân BTH, trùm cao hơn một chút */
@@ -3324,7 +3361,7 @@ function bVis(id){let r=BVIS.get(id);if(r)return r;const a=ANIM[id];let k,bx=0,b
     for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)if(d[(y*bw+x)*4+3]>60){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
     if(x1>=x0)r={h:(y1-y0+1)/bh,w:(x1-x0+1)/bw,b:(bh-1-y1)/bh};}}catch(e){}
   BVIS.set(id,r);return r;}
-const BSZ={zashiki:.7,shuten:1.15,vo_tuong:1.15,giap_sat:1.08,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
+const BSZ={cuong_thi:.8,thay_boi:.88,chuy_thu:1.06,thuong_si:1.25,zashiki:.7,shuten:1.15,vo_tuong:1.15,giap_sat:1.08,thich_khach:.74}/* v15.20: Thích Khách ngồi thấp, khung rộng nên thu nhỏ */;/* v15.15 Tửu Thôn to hơn chút *//* v14.0 người dùng muốn Tọa Phu Đồng Tử nhỏ hơn chút; v15.22.1 nhỏ thêm (.88 -> .7) */
 function bScale(i,h,id){const v=bVis(id);return(BSZ[id]||1)*Math.min(h/(i.h*v.h),BTW*h/BTH/(i.w*v.w));}
 /* v14.9: hình nét cao (Minh Dạ x3) vẽ thu nhỏ thì làm mượt, khỏi răng cưa; hình pixel phóng to vẫn giữ nét */
 function bSmo(img,w){const on=Math.abs(w)*S<img.width*.98;c.imageSmoothingEnabled=on;if(on)c.imageSmoothingQuality='high';}
@@ -3621,6 +3658,82 @@ const LSK={
   kpsong:{n:'Hà Đồng Cuộn Sóng',c:8,k:'dmg',x:1.1,aoe:.4,am:'Kappa vung tay cuộn sóng lớn, cả đội hình bị nước quật!',cd:2,w:.8,fin:1.2,pose:'raise',ms:850,col:'#a8f0ff',fx:true},
   kpvo:{n:'Nhảy Vồ Mép Đầm',c:6,k:'dmg',x:.5,hits:3,w:1,pose:'dash',ms:750,col:'#c0f8ff',fx:true},
   kpmai:{n:'Rút Vào Mai Rùa',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:750,col:'#9ff0ff',say:'rụt người vào mai rùa, giảm nửa sát thương!'},
+  hbtrao:{n:'Hạn Hỏa Thi Trảo',c:5,k:'dmg',x:1.45,hb:10,loud:true,w:1.2,fin:1.2,pose:'sweep',ms:700,col:'#ffb040',fx:true},
+hbcau:{n:'Xích Diễm Hỏa Cầu',c:9,k:'dmg',x:1.5,inf:'burn',p:.55,tn:2,skip:true,cd:2,w:1.1,pose:'throw',ms:800,col:'#ff7020',fx:true},
+hbsa:{n:'Hoàng Sa Cuồng Phong',c:10,k:'dmg',x:.8,hits:2,aoe:.35,am:'Bão cát vàng cuốn qua, cả đội hình bị cát cứa!',cd:2,w:.9,fin:1,pose:'spin',ms:900,col:'#e8c070',fx:true},
+hbdia:{n:'Xích Địa Thiên Lý',c:11,k:'dmg',x:1.2,aoe:.5,am:'Hạn Bạt đập tay xuống, đất nứt toác, gai đá trồi lên khắp đội hình!',cd:3,w:.9,fin:1.3,pose:'raise',ms:900,col:'#d8a060',fx:true},
+hbkho:{n:'Hạn Khí Khô Hồn',c:8,k:'dmg',x:1,inf:'weak',p:.65,tn:3,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#ffd080',fx:true,im:' bị hạn khí hút cạn sinh lực, sức đánh giảm hẳn!'},
+hbvo:{n:'Sa Ảnh Phi Phác',c:8,k:'dmg',x:1.25,inf:'stun',p:.4,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#f0c080',fx:true,sx:['BỊ VỒ','#ffe0a0',' bị Hạn Bạt lướt tới như bão cát, ngã nhào mất lượt!']},
+hbhoa:{n:'Hạn Bạt Liệt Diễm',c:7,k:'focus',cd:3,w:.6,pose:'halo',ms:900,col:'#ff6020'},
+hbthu:{n:'Sa Bào Hộ Thể',c:6,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#e0c080',say:'khoanh tay, cát vàng cuộn quanh thân che đỡ, giảm nửa sát thương!'},
+pcgtrao:{n:'Phi Thi Âm Trảo',c:5,k:'dmg',x:1.4,hb:15,loud:true,w:1.2,fin:1.2,pose:'sweep',ms:650,col:'#80f4ff',fx:true},
+pcglao:{n:'Thi Ảnh Phi Kích',c:8,k:'dmg',x:1.2,inf:'stun',p:.4,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#a0f8ff',fx:true,sx:['BỊ VỒ','#c0f8ff',' bị Phi Cương Thi từ trên trời lao xuống, ngã nhào mất lượt!']},
+pcgcau:{n:'Âm Hồn Hỏa Cầu',c:8,k:'dmg',x:1.4,inf:'burn',p:.45,tn:2,skip:true,cd:2,w:1,pose:'throw',ms:800,col:'#9ff8ff',fx:true},
+pcgxoay:{n:'Phi Thi Toàn Phong',c:9,k:'dmg',x:.75,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#7af0ff',fx:true},
+pcgbo:{n:'Thiên Thi Bổ Kích',c:10,k:'dmg',x:1.1,aoe:.45,am:'Phi Cương Thi bổ nhào từ trên không, âm phong quét cả đội hình!',cd:2,w:.8,fin:1.3,pose:'raise',ms:850,col:'#b0f8ff',fx:true},
+pcghan:{n:'U Minh Hàn Phong',c:7,k:'dmg',x:.95,inf:'weak',p:.6,tn:2,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#a8f0ff',fx:true,im:' bị âm phong lạnh thấu xương, sức đánh giảm hẳn!'},
+pcgphu:{n:'Phù Quang Tụ Khí',c:6,k:'focus',cd:3,w:.6,pose:'halo',ms:850,col:'#c0fcff'},
+pcgthu:{n:'Phi Bào Hộ Thể',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#90e8ff',say:'khép tay áo bào lơ lửng thủ thế, giảm nửa sát thương!'},
+mcgtrao:{n:'Mao Thi Cuồng Trảo',c:5,k:'dmg',x:1.5,hb:10,loud:true,w:1.3,fin:1.2,pose:'sweep',ms:650,col:'#b0ff80',fx:true},
+mcgvo:{n:'Thiên Thi Phi Phác',c:8,k:'dmg',x:1.25,inf:'stun',p:.45,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#c8ffa0',fx:true,sx:['BỊ VỒ','#d8ffc0',' bị Mao Cương Thi vồ đè xuống, ngã nhào mất lượt!']},
+mcghoa:{n:'Lục Diễm Thi Hỏa',c:9,k:'dmg',x:1.35,inf:'burn',p:.5,tn:2,skip:true,cd:2,w:.9,pose:'throw',ms:800,col:'#70ff60',fx:true},
+mcgdia:{n:'Thi Vương Phá Địa',c:10,k:'dmg',x:1.15,aoe:.5,am:'Mao Cương Thi đập nát mặt đất, đá vụn và lửa lục văng khắp đội hình!',cd:2,w:.9,fin:1.3,pose:'raise',ms:850,col:'#a0ff80',fx:true},
+mcgxoay:{n:'Mao Phong Toàn Trảo',c:8,k:'dmg',x:.8,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#90ff70',fx:true},
+mcgho:{n:'Thi Vương Hống',c:7,k:'dmg',x:.95,inf:'weak',p:.6,tn:2,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#c0ff90',fx:true,im:' nghe tiếng gầm của Mao Cương Thi, run rẩy yếu hẳn sức!'},
+mcgbua:{n:'Phá Phù Cuồng Hóa',c:6,k:'focus',cd:3,w:.6,pose:'halo',ms:850,col:'#a0ff60'},
+mcgthu:{n:'Mao Thân Hộ Thể',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#a0d080',say:'khoanh tay, bộ lông dày che kín thân, giảm nửa sát thương!'},
+lcgtrao:{n:'Lục Độc Thi Trảo',c:5,k:'dmg',x:1.3,inf:'poison',p:.5,tn:3,w:1.2,fin:1.2,pose:'sweep',ms:650,col:'#80ff90',fx:true},
+lcgvo:{n:'Lục Thi Phi Vồ',c:7,k:'dmg',x:1.2,inf:'stun',p:.4,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#a0ffa8',fx:true,sx:['BỊ VỒ','#c0ffc8',' bị Lục Cương Thi vồ trúng, ngã nhào mất lượt!']},
+lcghoa:{n:'Độc Hỏa Thi Chưởng',c:8,k:'dmg',x:1.25,inf:'poison',p:.6,tn:3,cd:2,w:.9,pose:'throw',ms:800,col:'#60ff70',fx:true},
+lcgdia:{n:'Độc Thi Chấn Địa',c:9,k:'dmg',x:1.05,aoe:.45,am:'Lục Cương Thi đập tay xuống đất, độc khí xanh phun khắp đội hình!',cd:2,w:.8,fin:1.2,pose:'raise',ms:850,col:'#a0f0a0',fx:true},
+lcgxoay:{n:'Lục Phong Toàn Trảo',c:8,k:'dmg',x:.75,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#90ff90',fx:true},
+lcgho:{n:'Thi Độc Gào Thét',c:6,k:'dmg',x:.9,inf:'weak',p:.55,tn:2,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#b0ffb0',fx:true,im:' hít phải độc khí, sức đánh giảm hẳn!'},
+lcgbua:{n:'Phù Ấn Lục Quang',c:6,k:'focus',cd:3,w:.6,pose:'halo',ms:850,col:'#c0ff80'},
+lcgthu:{n:'Lục Bào Hộ Thể',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#90e0a0',say:'khoanh tay trước ngực thủ thế, giảm nửa sát thương!'},
+bcgtrao:{n:'Bạch Cốt Hàn Trảo',c:5,k:'dmg',x:1.4,hb:10,loud:true,w:1.2,fin:1.2,pose:'sweep',ms:650,col:'#bff4ff',fx:true},
+bcgvo:{n:'Hàn Thi Phi Ảnh',c:7,k:'dmg',x:1.2,inf:'stun',p:.4,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#d8f8ff',fx:true,sx:['BỊ VỒ','#e0f8ff',' bị Bạch Cương Thi lao tới như gió lạnh, ngã nhào mất lượt!']},
+bcghon:{n:'U Minh Hồn Hỏa',c:8,k:'dmg',x:1.3,inf:'burn',p:.45,tn:2,skip:true,cd:2,w:.9,pose:'throw',ms:800,col:'#7ae8ff',fx:true},
+bcghan:{n:'Hàn Khí Thấu Cốt',c:7,k:'dmg',x:1,inf:'weak',p:.6,tn:3,skip:true,cd:2,w:.8,pose:'halo',ms:900,col:'#a8f0ff',fx:true,im:' bị hàn khí thấu xương, sức đánh giảm hẳn!'},
+bcgxoay:{n:'Bạch Bào Toàn Phong',c:8,k:'dmg',x:.75,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#e0f8ff',fx:true},
+bcgdia:{n:'Băng Thi Chấn Địa',c:9,k:'dmg',x:1.1,aoe:.45,am:'Bạch Cương Thi đập tay xuống đất, băng vụn bắn khắp đội hình!',cd:2,w:.8,fin:1.2,pose:'raise',ms:850,col:'#c8f0ff',fx:true},
+bcgbua:{n:'Phù Ấn Phản Quang',c:6,k:'focus',cd:3,w:.6,pose:'breath',ms:850,col:'#fff0a0'},
+bcgthu:{n:'Bạch Bào Hộ Thể',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#d0f0ff',say:'khoanh tay áo bào trắng che thân, giảm nửa sát thương!'},
+tcgtrao:{n:'Hắc Trảo Xé Hồn',c:5,k:'dmg',x:1.4,hb:10,loud:true,w:1.3,fin:1.2,pose:'sweep',ms:650,col:'#ff8080',fx:true},
+tcgvo:{n:'Tử Thi Phi Vồ',c:7,k:'dmg',x:1.15,inf:'stun',p:.4,tn:0,skip:true,cd:3,w:.9,pose:'dash',ms:750,col:'#ff9090',fx:true,sx:['BỊ VỒ','#ffc0c0',' bị Tử Cương Thi phi thân vồ trúng, ngã nhào mất lượt!']},
+tcghoa:{n:'Huyết Hỏa Thi Chưởng',c:7,k:'dmg',x:1.25,inf:'burn',p:.5,tn:2,skip:true,cd:2,w:.9,pose:'throw',ms:800,col:'#ff5050',fx:true},
+tcgdia:{n:'Thi Phục Chấn Địa',c:8,k:'dmg',x:1.05,aoe:.4,am:'Tử Cương Thi đập tay xuống đất, bụi đá văng khắp đội hình!',cd:2,w:.8,fin:1.2,pose:'raise',ms:850,col:'#e0d0b0',fx:true},
+tcgxoay:{n:'Hắc Phong Toàn Trảo',c:8,k:'dmg',x:.7,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#90f0a0',fx:true},
+tcgho:{n:'Tử Thi Gào Thét',c:6,k:'dmg',x:.9,inf:'weak',p:.55,tn:2,skip:true,cd:2,w:.8,pose:'halo',ms:900,col:'#ffa0a0',fx:true,im:' nghe tiếng gào của xác chết, rùng mình yếu hẳn sức!'},
+tcgno:{n:'Huyết Sát Cuồng Nộ',c:6,k:'focus',cd:3,w:.6,pose:'breath',ms:850,col:'#ff4040'},
+tcgthu:{n:'Thi Thân Hộ Thể',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#c0a0ff',say:'khoanh tay trước ngực thủ thế, giảm nửa sát thương!'},
+chynen:{n:'Thiết Chùy Nện Đầu',c:5,k:'dmg',x:1.45,hb:10,loud:true,w:1.2,fin:1,pose:'throw',ms:650,col:'#8ff4ff',fx:true},
+  chyquet:{n:'Hoành Chùy Quét Ngang',c:8,k:'dmg',x:1,aoe:.4,cd:2,w:.9,fin:1,pose:'sweep',ms:800,col:'#7af0ff',fx:true,am:'Cây chùy gai quét một vòng, cả đội hình trúng đòn!'},
+  chydia:{n:'Chùy Nện Chấn Địa',c:9,k:'dmg',x:1.3,inf:'stun',p:.35,tn:0,skip:true,cd:3,w:.9,fin:1.3,pose:'raise',ms:850,col:'#c8f8ff',fx:true,sx:['CHOÁNG','#bff8ff',' bị chấn động từ cú nện chùy, choáng váng mất lượt!']},
+  chyxoay:{n:'Toàn Phong Chùy',c:8,k:'dmg',x:.7,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#7af0ff',fx:true},
+  chypha:{n:'Chùy Gai Phá Giáp',c:6,k:'dmg',x:1.2,inf:'brk',p:.8,tn:2,skip:true,w:.9,pose:'dash',ms:700,col:'#a8f8ff',fx:true},
+  chyho:{n:'Oán Hồn Gào Thét',c:7,k:'dmg',x:1,inf:'weak',p:.55,tn:2,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#9ff4ff',fx:true,im:' nghe tiếng gào oán hồn, rùng mình yếu hẳn sức!'},
+  chythu:{n:'Chùy Thủ Hộ Thân',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#9ff0ff',say:'ôm chặt cây chùy trước ngực thủ thế, giảm nửa sát thương!'},
+  thgdam:{n:'Trường Thương Đột Thứ',c:5,k:'dmg',x:1.4,hb:10,loud:true,w:1.2,fin:1,pose:'throw',ms:650,col:'#8ff4ff',fx:true},
+  thgquet:{n:'Hoành Thương Tảo Địa',c:8,k:'dmg',x:1,aoe:.4,cd:2,w:.9,fin:1,pose:'sweep',ms:800,col:'#7af0ff',fx:true,am:'Cây thương quét một vòng, cả đội hình trúng đòn!'},
+  thgbo:{n:'Cử Thương Bổ Xuống',c:7,k:'dmg',x:1.6,cr:10,cd:2,w:1,fin:1.3,pose:'raise',ms:750,col:'#c8f8ff',fx:true},
+  thgxoay:{n:'Toàn Phong Thương',c:8,k:'dmg',x:.7,hits:2,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#7af0ff',fx:true},
+  thglao:{n:'Hồn Ma Lao Tới',c:6,k:'dmg',x:1.2,inf:'brk',p:.7,tn:2,skip:true,w:.9,pose:'dash',ms:700,col:'#a8f8ff',fx:true},
+  thgso:{n:'Đầu Lâu Oán Hồn',c:8,k:'dmg',x:1.15,inf:'weak',p:.5,tn:2,skip:true,cd:2,w:.8,pose:'breath',ms:900,col:'#9ff4ff',fx:true,im:' bị đầu lâu oán hồn lao xuyên qua, rùng mình yếu hẳn sức!'},
+  thgthu:{n:'Thương Trận Thủ Thế',c:5,k:'guard',tn:2,hp:[0,.6],cd:4,w:.6,pose:'guard',ms:700,col:'#9ff0ff',say:'xoay thương thủ thế trước người, giảm nửa sát thương!'},
+  ttphi:{n:'Tử Thần Phi Kỵ',c:5,k:'dmg',x:1.45,hb:10,loud:true,w:1.2,fin:1,pose:'dash',ms:700,col:'#8ff4ff',fx:true},
+  ttdam:{n:'Kỵ Thương Xuyên Hồn',c:7,k:'dmg',x:1.7,cr:12,cd:2,w:1,fin:1.4,pose:'throw',ms:750,col:'#a8f8ff',fx:true},
+  ttquet:{n:'Tử Thần Hoành Trảm',c:9,k:'dmg',x:1.15,aoe:.5,cd:2,w:.9,fin:1,pose:'sweep',ms:800,col:'#7af0ff',fx:true,am:'Lưỡi hắc kiếm quét một vòng tử khí, cả đội hình trúng đòn!'},
+  ttxoay:{n:'Toàn Phong Tử Kiếm',c:10,k:'dmg',x:.8,hits:2,aoe:.4,cd:3,w:.8,fin:1.2,pose:'spin',ms:900,col:'#7af0ff',fx:true},
+  ttpha:{n:'Mã Đạp Phá Giáp',c:7,k:'dmg',x:1.3,inf:'brk',p:1,tn:3,skip:true,w:.9,pose:'raise',ms:750,col:'#c8f8ff',fx:true},
+  tthoa:{n:'U Minh Tử Hỏa',c:9,k:'dmg',x:1.3,inf:'burn',p:.5,tn:2,skip:true,cd:2,w:.9,pose:'breath',ms:900,col:'#5ff0e0',fx:true},
+  ttno:{n:'Tử Thần Cuồng Nộ',c:5,k:'focus',cd:3,w:.6,pose:'halo',ms:800,col:'#7af0ff'},
+  nmdap:{n:'Vó Ma Đạp Phá',c:5,k:'dmg',x:1.35,hb:10,loud:true,w:1.2,fin:1,pose:'raise',ms:650,col:'#8ff4ff',fx:true},
+  nmxung:{n:'U Hỏa Phi Nước Đại',c:8,k:'dmg',x:1.75,cr:10,cd:2,w:1,fin:1.4,pose:'dash',ms:750,col:'#a8f8ff',fx:true},
+  nmhau:{n:'Hậu Cước Đá Ngược',c:7,k:'dmg',x:1.15,inf:'stun',p:.35,tn:0,skip:true,cd:3,w:.8,pose:'sweep',ms:750,col:'#c8f8ff',fx:true,sx:['CHOÁNG','#bff8ff',' bị vó sau đá trúng, choáng váng mất lượt!']},
+  nmlua:{n:'Phun Hồn Hỏa',c:8,k:'dmg',x:1.2,inf:'burn',p:.45,tn:2,skip:true,cd:2,w:.9,pose:'breath',ms:900,col:'#5ff0e0',fx:true},
+  nmbui:{n:'Cuồng Phong Bụi Mộ',c:9,k:'dmg',x:1,aoe:.4,cd:2,w:.8,fin:1,pose:'spin',ms:850,col:'#9ff0d8',fx:true,am:'Ngựa ma lồng lên, bụi mộ cuộn khắp đội hình!'},
+  nmhi:{n:'Hí Vang Oán Khí',c:6,k:'dmg',x:.9,inf:'weak',p:.6,tn:2,skip:true,cd:2,w:.7,pose:'guard',ms:750,col:'#d8f4ff',im:' nghe tiếng ngựa ma hí rợn người, sức đánh giảm!'},
+  nmhon:{n:'Hồn Mã Bay Lượn',c:7,k:'heal',x:.22,hp:[0,.45],cd:4,max:2,w:.8,pose:'halo',ms:900,col:'#b8f4ff',say:' bay lơ lửng trên lửa oán, hồi lại sức'},
   kysdam:{n:'Hắc Kiếm Đâm Xuyên',c:5,k:'dmg',x:1.45,cr:10,hb:10,loud:true,w:1.2,fin:1,pose:'throw',ms:650,col:'#8ff4ff',fx:true},
   kysquet:{n:'Oán Hỏa Hoành Trảm',c:9,k:'dmg',x:1.1,aoe:.45,cd:2,w:.9,fin:1,pose:'sweep',ms:800,col:'#7af0ff',fx:true},
   kysxung:{n:'Kỵ Sĩ Xung Phong',c:8,k:'dmg',x:1.8,cr:8,cd:2,w:1,fin:1.4,pose:'dash',ms:750,col:'#a8f8ff',fx:true},
@@ -3710,7 +3823,7 @@ const LSK={
   cvxoay:{n:'Cửu Vĩ Toàn Phong',c:9,k:'dmg',x:1.2,inf:'brk',p:.6,tn:3,skip:true,cd:2,w:.9,fin:1.5,pose:'spin',ms:800,col:'#9ff0ff',fx:true},
   cvho:{n:'Vĩ Hỏa Hộ Thân',c:6,k:'guard',tn:3,hp:[0,.6],cd:4,w:.6,pose:'curl',ms:900,col:'#8ad8ff',say:'cuộn chín đuôi lửa quanh mình, giảm nửa sát thương!'},
   rain:{n:'Bách Quỷ Hỏa Vũ',c:12,k:'dmg',x:.8,hits:3,inf:'burn',p:.25,tn:2,enr:true,w:2,fin:1,pose:'breath',ms:1200,col:'#ff6a4a'}};
-const AIC={ky_si:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['kysdam','kysquet','kysxung','kyspha','kysxoay','kyshoa','kysthuan']}},thay_boi:{n:{atkW:2,maxW:0,wd:0,sk:['tbque','tbbat','tbbua','tblong','tbmenh','tbtran','tbtinh']}},gautruc:{n:{atkW:2,maxW:0,wd:0,sk:['gtquet','gtmang','gtchuong','gtgam','gtlan','gtkhien','gtthien']}},kappa:{n:{atkW:2,maxW:0,wd:0,sk:['kpvuot','kpcau','kpbot','kpxoay','kpsong','kpvo','kpmai']}},nu_oan:{n:{atkW:2,maxW:0,wd:0,sk:['nocao','nocau','nogao','notran','noloc','nobua','notan']}},cuong_thi:{n:{atkW:2,maxW:0,wd:0,sk:['ctvo','ctnhay','cthan','ctlua','ctcau','ctdam','ctno']}},thuy_quy:{n:{atkW:2,maxW:0,wd:0,sk:['tqvuot','tqcau','tqkeo','tqxoay','tqsong','tqgao','tqlua']}},kiem_si:{n:{atkW:2,maxW:0,wd:0,sk:['ksbat','ksbo','ksthu','ksxoay','ksanh','kssong','ksdo']}},karate:{n:{atkW:2,maxW:0,wd:0,sk:['krquyen','krlien','krchat','krchuong','krxoay','krthu','krkhi']}},diemla:{n:{atkW:1.5,maxW:0,wd:0,enr:.45,sk:['dvkiem','dvtram','dvan','dvxich','dvbo','dvlong','dvno']}},thich_khach:{n:{atkW:2,maxW:0,wd:0,sk:['tkdao','tkphi','tkdot','tkxoay','tkkhoi','tkme']}},taishaku:{n:{atkW:1.5,maxW:0,wd:0,enr:.4,sk:['dtquang','dtcanh','dtvong','dtthuan','dtan','dtlien','dtphat']}},susanoo:{n:{atkW:1.5,maxW:0,wd:0,enr:.5,sk:['snkiem','snthu','snxoay','snlao','snbao','snthuan','snno']}},kaguya:{n:{atkW:2,maxW:0,wd:0,sk:['kgnguyet','kglua','kgtruc','kgthuan','kgdiep','kgmong','kghoi']}},aoandon:{n:{atkW:2,maxW:0,wd:0,sk:['aodan','aodien','aonhan','aoxoay','aoanh','aophien','aohon']}},ubume:{n:{atkW:1.5,maxW:0,wd:0,sk:['ubvu','ubdap','ubru','ubket','ubche','ubom','ubxoay']}},ootengu:{n:{atkW:2,maxW:0,wd:0,sk:['tgquat','tgphong','tgloc','tgluot','tgbao','tgthuan','tgno']}},tamamo:{n:{atkW:2,maxW:0,wd:0,sk:['tmhoa','tmlan','tmmi','tmxoay','tmvi','tmlao','tmhon']}},ong_ba_bi:{n:{atkW:2,maxW:0,wd:0,sk:['bbbao','bbchuong','bbkhoi','bbgay','bbdo','bbvang','bbmang','bbthien']}},thien_linh:{n:{atkW:1.5,maxW:0,wd:0,enr:.4,sk:['tlphun','tlhoa','tlbua','tlloc','tlla','tlre','tlno']}},nga_quy:{n:{atkW:2,maxW:0,wd:0,sk:['nqxin','nqvo','nqbam','nqkeu','nqliem','nqhuong']}},ma_da:{n:{atkW:2,maxW:0,wd:0,sk:['mdkeo','mdxoay','mdsong','mdlan','mdkhoc','mdlanh']}},phongdo:{n:{atkW:1.5,maxW:0,wd:0,enr:.5,sk:['pdtram','pdan','pdxich','pdphan','pdlong','pdno','pdhut']}},zashiki:{n:{atkW:2,maxW:0,wd:0,sk:['zwchuong','zwphuc','zwcuoi','zwan','zwhoi','zwxoay']}},dang_lung:{n:{atkW:2,maxW:0,wd:0,sk:['dlluoi','dlhoa','dlbang','dlxoay','dlmat','dlno']}},shuten:{n:{atkW:2,maxW:0,wd:0,sk:['stbong','stquyen','stdia','stnhay','sttuu','stme']}},ibaraki:{n:{atkW:2,maxW:0,wd:0,sk:['ibquyen','ibdia','ibquet','ibchuong','ibgiap','ibno']}},tuyet_nu:{n:{atkW:2,maxW:0,wd:0,sk:['ytthuong','ytphien','ytloc','ytbang','ytlang','ytbich']}},dao_hoa:{n:{atkW:2,maxW:0,wd:0,sk:['dhcanh','dhvu','dhday','dhmi','dhthuan','dhhoi']}},cuu_vi:{n:{atkW:2,maxW:0,wd:0,sk:['cvtrao','cvlao','cvhoa','cvmi','cvxoay','cvho']}},hanmac:{n:{atkW:2,maxW:0,wd:0,sk:['hmtram','hmthang','hmtoan','hmdot','hmluot','hmho']}},handiem:{n:{atkW:2,maxW:2,wd:2,sk:['hantrao','luothon','quyhoa','thetgao','trieuhon','hanthe']}},
+const AIC={han_bat:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['hbtrao','hbcau','hbsa','hbdia','hbkho','hbvo','hbhoa','hbthu']}},phi_cuong:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['pcgtrao','pcglao','pcgcau','pcgxoay','pcgbo','pcghan','pcgphu','pcgthu']}},mao_cuong:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['mcgtrao','mcgvo','mcghoa','mcgdia','mcgxoay','mcgho','mcgbua','mcgthu']}},luc_cuong:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['lcgtrao','lcgvo','lcghoa','lcgdia','lcgxoay','lcgho','lcgbua','lcgthu']}},bach_cuong:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['bcgtrao','bcgvo','bcghon','bcghan','bcgxoay','bcgdia','bcgbua','bcgthu']}},tu_cuong:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['tcgtrao','tcgvo','tcghoa','tcgdia','tcgxoay','tcgho','tcgno','tcgthu']}},chuy_thu:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['chynen','chyquet','chydia','chyxoay','chypha','chyho','chythu']}},thuong_si:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['thgdam','thgquet','thgbo','thgxoay','thglao','thgso','thgthu']}},tu_than:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['ttphi','ttdam','ttquet','ttxoay','ttpha','tthoa','ttno']}},ngua_ma:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['nmdap','nmxung','nmhau','nmlua','nmbui','nmhi','nmhon']}},ky_si:{n:{atkW:2,maxW:0,wd:0,enr:.3,sk:['kysdam','kysquet','kysxung','kyspha','kysxoay','kyshoa','kysthuan']}},thay_boi:{n:{atkW:2,maxW:0,wd:0,sk:['tbque','tbbat','tbbua','tblong','tbmenh','tbtran','tbtinh']}},gautruc:{n:{atkW:2,maxW:0,wd:0,sk:['gtquet','gtmang','gtchuong','gtgam','gtlan','gtkhien','gtthien']}},kappa:{n:{atkW:2,maxW:0,wd:0,sk:['kpvuot','kpcau','kpbot','kpxoay','kpsong','kpvo','kpmai']}},nu_oan:{n:{atkW:2,maxW:0,wd:0,sk:['nocao','nocau','nogao','notran','noloc','nobua','notan']}},cuong_thi:{n:{atkW:2,maxW:0,wd:0,sk:['ctvo','ctnhay','cthan','ctlua','ctcau','ctdam','ctno']}},thuy_quy:{n:{atkW:2,maxW:0,wd:0,sk:['tqvuot','tqcau','tqkeo','tqxoay','tqsong','tqgao','tqlua']}},kiem_si:{n:{atkW:2,maxW:0,wd:0,sk:['ksbat','ksbo','ksthu','ksxoay','ksanh','kssong','ksdo']}},karate:{n:{atkW:2,maxW:0,wd:0,sk:['krquyen','krlien','krchat','krchuong','krxoay','krthu','krkhi']}},diemla:{n:{atkW:1.5,maxW:0,wd:0,enr:.45,sk:['dvkiem','dvtram','dvan','dvxich','dvbo','dvlong','dvno']}},thich_khach:{n:{atkW:2,maxW:0,wd:0,sk:['tkdao','tkphi','tkdot','tkxoay','tkkhoi','tkme']}},taishaku:{n:{atkW:1.5,maxW:0,wd:0,enr:.4,sk:['dtquang','dtcanh','dtvong','dtthuan','dtan','dtlien','dtphat']}},susanoo:{n:{atkW:1.5,maxW:0,wd:0,enr:.5,sk:['snkiem','snthu','snxoay','snlao','snbao','snthuan','snno']}},kaguya:{n:{atkW:2,maxW:0,wd:0,sk:['kgnguyet','kglua','kgtruc','kgthuan','kgdiep','kgmong','kghoi']}},aoandon:{n:{atkW:2,maxW:0,wd:0,sk:['aodan','aodien','aonhan','aoxoay','aoanh','aophien','aohon']}},ubume:{n:{atkW:1.5,maxW:0,wd:0,sk:['ubvu','ubdap','ubru','ubket','ubche','ubom','ubxoay']}},ootengu:{n:{atkW:2,maxW:0,wd:0,sk:['tgquat','tgphong','tgloc','tgluot','tgbao','tgthuan','tgno']}},tamamo:{n:{atkW:2,maxW:0,wd:0,sk:['tmhoa','tmlan','tmmi','tmxoay','tmvi','tmlao','tmhon']}},ong_ba_bi:{n:{atkW:2,maxW:0,wd:0,sk:['bbbao','bbchuong','bbkhoi','bbgay','bbdo','bbvang','bbmang','bbthien']}},thien_linh:{n:{atkW:1.5,maxW:0,wd:0,enr:.4,sk:['tlphun','tlhoa','tlbua','tlloc','tlla','tlre','tlno']}},nga_quy:{n:{atkW:2,maxW:0,wd:0,sk:['nqxin','nqvo','nqbam','nqkeu','nqliem','nqhuong']}},ma_da:{n:{atkW:2,maxW:0,wd:0,sk:['mdkeo','mdxoay','mdsong','mdlan','mdkhoc','mdlanh']}},phongdo:{n:{atkW:1.5,maxW:0,wd:0,enr:.5,sk:['pdtram','pdan','pdxich','pdphan','pdlong','pdno','pdhut']}},zashiki:{n:{atkW:2,maxW:0,wd:0,sk:['zwchuong','zwphuc','zwcuoi','zwan','zwhoi','zwxoay']}},dang_lung:{n:{atkW:2,maxW:0,wd:0,sk:['dlluoi','dlhoa','dlbang','dlxoay','dlmat','dlno']}},shuten:{n:{atkW:2,maxW:0,wd:0,sk:['stbong','stquyen','stdia','stnhay','sttuu','stme']}},ibaraki:{n:{atkW:2,maxW:0,wd:0,sk:['ibquyen','ibdia','ibquet','ibchuong','ibgiap','ibno']}},tuyet_nu:{n:{atkW:2,maxW:0,wd:0,sk:['ytthuong','ytphien','ytloc','ytbang','ytlang','ytbich']}},dao_hoa:{n:{atkW:2,maxW:0,wd:0,sk:['dhcanh','dhvu','dhday','dhmi','dhthuan','dhhoi']}},cuu_vi:{n:{atkW:2,maxW:0,wd:0,sk:['cvtrao','cvlao','cvhoa','cvmi','cvxoay','cvho']}},hanmac:{n:{atkW:2,maxW:0,wd:0,sk:['hmtram','hmthang','hmtoan','hmdot','hmluot','hmho']}},handiem:{n:{atkW:2,maxW:2,wd:2,sk:['hantrao','luothon','quyhoa','thetgao','trieuhon','hanthe']}},
   jaguar:{n:{atkW:2,maxW:0,wd:0,sk:['vomoi','laovut','traoxe','gamthet']}},
   lee:{n:{atkW:2,maxW:0,wd:0,enr:.4,sk:['lienquyen','phicuoc','songchuong','taocuoc','hachinh']}},
   geroh:{n:{atkW:2,maxW:0,wd:0,sk:['songdao','phidao','luotdao','xoaydao','trombac']}},
@@ -3788,8 +3901,8 @@ function drawWisps(E,cx,cy,rx){const ai=E.ai;if(!ai||!ai.w)return;for(let i=0;i<
 /* ---------- Ma Đèn Lồng on the map: float, patrol, spot the hero, chase, lunge, flee when weak ---------- */
 const LMAP={detect:6,lose:10,lungeR:1.8,flee:.25,floatMs:830,chaseMs:385,fleeMs:312,lungeMs:160,lungeCd:2500,alertMs:600,ignoreMs:3000,wander:3};
 /* Cương Thi theo JiangshiStateMachineAI: tuần tra qua lại giữa các điểm, khựng 0.25s khi thấy, đuổi, vồ (giữ thế 0.45s, 1.4s/lần), mất dấu sau 3s, không bỏ chạy */
-const LMAPS={cuong_thi:{detect:6,alertMs:250,loseMs:3000,atkR:1.5,atkCd:1400,atkMs:450,chaseMs:455,walkMs:455,patWait:500,patR:3}};
-const GFLEE={ky_si:0,thay_boi:.2,den_long:.25,vo_si:0,vo_tuong:0,cung_thu:0,giap_sat:0,geroh:.3,lee:0,jaguar:.2,handiem:.15,hanmac:0,cuu_vi:.2,dao_hoa:.15,tuyet_nu:.15,ibaraki:0,shuten:0,dang_lung:.3,zashiki:.3,ma_da:.2,nga_quy:.35,thien_linh:.1,ong_ba_bi:.2,phongdo:0,aoandon:.15,ubume:.2,ootengu:0,tamamo:.1,taishaku:0,susanoo:0,kaguya:.15,diemla:0,thich_khach:.3,karate:.1,cuong_thi:0,nu_oan:.15,kappa:.2};
+const LMAPS={cuong_thi:{detect:6,alertMs:250,loseMs:3000,atkR:1.5,atkCd:1400,atkMs:450,chaseMs:455,walkMs:455,patWait:500,patR:3}};LMAPS.tu_cuong=LMAPS.bach_cuong=LMAPS.luc_cuong=LMAPS.cuong_thi;
+const GFLEE={han_bat:0,phi_cuong:.1,mao_cuong:0,luc_cuong:.1,bach_cuong:.1,tu_cuong:0,chuy_thu:.1,thuong_si:.1,tu_than:0,ngua_ma:0,ky_si:0,thay_boi:.2,den_long:.25,vo_si:0,vo_tuong:0,cung_thu:0,giap_sat:0,geroh:.3,lee:0,jaguar:.2,handiem:.15,hanmac:0,cuu_vi:.2,dao_hoa:.15,tuyet_nu:.15,ibaraki:0,shuten:0,dang_lung:.3,zashiki:.3,ma_da:.2,nga_quy:.35,thien_linh:.1,ong_ba_bi:.2,phongdo:0,aoandon:.15,ubume:.2,ootengu:0,tamamo:.1,taishaku:0,susanoo:0,kaguya:.15,diemla:0,thich_khach:.3,karate:.1,cuong_thi:0,nu_oan:.15,kappa:.2};
 /* map ghosts that fight as elites one level above the zone */
 const GELITE={vo_tuong:1,lee:1,cuu_vi:1,ibaraki:1,shuten:1,thien_linh:1};
 function lFlee(g){return g.hp<=(GFLEE[g.id||'den_long']??.25);}
@@ -3802,17 +3915,17 @@ function hidR(id){return['A','S','SS'].includes(rankOf(id));}
 const GZ=[[['den_long',2],['zashiki',1],['nga_quy',2],['ong_ba_bi',1],['thay_boi',1]],
   [['den_long',2],['geroh',2],['jaguar',2],['dao_hoa',1],['dang_lung',1],['kaguya',1],['thich_khach',1]],
   [['den_long',2],['geroh',1],['handiem',2],['dao_hoa',1],['ma_da',2],['aoandon',1],['ubume',2],['nu_oan',2],['kappa',2]],
-  [['vo_si',2],['hanmac',2],['handiem',2],['thien_linh',1],['aoandon',1],['ubume',1],['thich_khach',1],['karate',2],['cuong_thi',3],['nu_oan',1],['thay_boi',2]],
-  [['vo_si',2],['vo_tuong',1],['cung_thu',2],['giap_sat',1],['lee',1],['hanmac',1],['tuyet_nu',1],['ootengu',1],['tamamo',1],['karate',2]],
-  [['vo_tuong',2],['giap_sat',2],['lee',2],['ibaraki',1],['shuten',1],['ootengu',1],['tamamo',1],['cuong_thi',1]]].map(L=>L.filter(o=>o[1]>0&&!hidR(o[0])).map(o=>[o[0],o[1]*rkW(o[0])]));
-function spawnLanterns(){G.lg=[];G.lgv=16;const N=MW*MH,rc=new Uint8Array(N),s0=WD.path[0];rc[s0]=1;const Q=[s0];
+  [['chuy_thu',2],['thuong_si',2],['vo_si',2],['hanmac',2],['handiem',2],['thien_linh',1],['aoandon',1],['ubume',1],['thich_khach',1],['karate',2],['cuong_thi',3],['tu_cuong',2],['bach_cuong',1],['luc_cuong',1],['nu_oan',1],['thay_boi',2]],
+  [['thuong_si',2],['vo_si',2],['vo_tuong',1],['cung_thu',2],['giap_sat',1],['lee',1],['hanmac',1],['tuyet_nu',1],['ootengu',1],['tamamo',1],['karate',2]],
+  [['chuy_thu',2],['vo_tuong',2],['giap_sat',2],['lee',2],['ibaraki',1],['shuten',1],['ootengu',1],['tamamo',1],['cuong_thi',1],['tu_cuong',2],['bach_cuong',1],['luc_cuong',1]]].map(L=>L.filter(o=>o[1]>0&&!hidR(o[0])).map(o=>[o[0],o[1]*rkW(o[0])]));
+function spawnLanterns(){G.lg=[];G.lgv=19;const N=MW*MH,rc=new Uint8Array(N),s0=WD.path[0];rc[s0]=1;const Q=[s0];
   for(let h=0;h<Q.length;h++){const i=Q[h],x=i%MW;for(const d of[1,-1,MW,-MW]){const j=i+d;if(j<0||j>=N||rc[j]||(d===1&&x===MW-1)||(d===-1&&x===0))continue;const jx=j%MW,jy=(j-jx)/MW;if(blocked(jx,jy))continue;rc[j]=1;Q.push(j);}}
   const C=MW>600?18:MW>300?11:8,/* v10.7.3: người chơi muốn nhiều quái hơn trên bản đồ (ô lưới 26 -> 18, khoảng gấp đôi) */pz=WD.pois.map(p=>[p.x,p.y]);
   for(let cy=2;cy<MH-2;cy+=C)for(let cx=2;cx<MW-2;cx+=C)for(let t=0;t<14;t++){const x=clamp(cx+ri(1,C-2),2,MW-3),y=clamp(cy+ri(1,C-2),2,MH-3),i=y*MW+x;
     if(!rc[i]||inTown(x,y)||WD.road&&WD.road[i]||Math.abs(x-PL.x)+Math.abs(y-PL.y)<10||pz.some(p=>Math.abs(p[0]-x)<=3&&Math.abs(p[1]-y)<=3))continue;
     const z=zoneAt(x,y),L=GZ[z];if(!L||!L.length)break;G.lg.push({id:pickW(L,R()),x,y,hx:x,hy:y,lv:lvAt(x,y),hp:1,dead:-1});break;}
   btPanda();addCvBoss();lReset();}
-function ghostsLoaded(){if(!G.lg||!(G.lgv>=11))return spawnLanterns();if(G.lgv===8){for(const g of G.lg)if(g.id==='cuu_vi')g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());addCvBoss();G.lgv=9;}if(G.lgv===9){for(const g of G.lg)if(!g.boss&&GZ[zoneAt(g.hx,g.hy)])g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());G.lgv=10;}if(G.lgv===11){/* v10.8.3: Cương Thi đi tuần ở Nghĩa Địa Cổ và Phế Tích */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<(z===3?.2:.14))g.id='cuong_thi';}G.lgv=12;}if(G.lgv===12){/* v10.9: Hắc Phát Oán Nương ở Đầm Oan Hồn và Nghĩa Địa Cổ */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===2||z===3)&&R()<(z===2?.12:.06))g.id='nu_oan';else if(!g.boss&&z===2&&R()<.12)g.id='kappa';}G.lgv=13;}if(G.lgv===13){btPanda();G.lgv=14;}/* v15.22: thêm Thầy Bói vào bản đồ cũ: đổi ít quái thường ở Làng Hương Khói và Nghĩa Địa Cổ */if(G.lgv===14){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&g.id!=='gautruc'&&(z===0&&R()<.08||z===3&&R()<.12))g.id='thay_boi';}G.lgv=15;}if(G.lgv===15){for(const g of G.lg)if(!g.boss&&hidR(g.id)){const L=GZ[zoneAt(g.hx,g.hy)];g.id=L&&L.length?pickW(L,R()):'den_long';}G.lgv=16;}G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));G.lg=G.lg.filter(g=>!(g.boss&&bossGone(g.id)));addCvBoss();lReset();}
+function ghostsLoaded(){if(!G.lg||!(G.lgv>=11))return spawnLanterns();if(G.lgv===8){for(const g of G.lg)if(g.id==='cuu_vi')g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());addCvBoss();G.lgv=9;}if(G.lgv===9){for(const g of G.lg)if(!g.boss&&GZ[zoneAt(g.hx,g.hy)])g.id=pickW(GZ[zoneAt(g.hx,g.hy)],R());G.lgv=10;}if(G.lgv===11){/* v10.8.3: Cương Thi đi tuần ở Nghĩa Địa Cổ và Phế Tích */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<(z===3?.2:.14))g.id='cuong_thi';}G.lgv=12;}if(G.lgv===12){/* v10.9: Hắc Phát Oán Nương ở Đầm Oan Hồn và Nghĩa Địa Cổ */for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===2||z===3)&&R()<(z===2?.12:.06))g.id='nu_oan';else if(!g.boss&&z===2&&R()<.12)g.id='kappa';}G.lgv=13;}if(G.lgv===13){btPanda();G.lgv=14;}/* v15.22: thêm Thầy Bói vào bản đồ cũ: đổi ít quái thường ở Làng Hương Khói và Nghĩa Địa Cổ */if(G.lgv===14){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&g.id!=='gautruc'&&(z===0&&R()<.08||z===3&&R()<.12))g.id='thay_boi';}G.lgv=15;}if(G.lgv===15){for(const g of G.lg)if(!g.boss&&hidR(g.id)){const L=GZ[zoneAt(g.hx,g.hy)];g.id=L&&L.length?pickW(L,R()):'den_long';}G.lgv=16;}if(G.lgv===16){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===4)&&R()<.1)g.id='thuong_si';}G.lgv=17;}/* v15.29 Hồn Ma Thương Sĩ */if(G.lgv===17){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<.1)g.id='chuy_thu';}G.lgv=18;}/* v15.32 Hồn Ma Chùy Thủ */if(G.lgv===18){for(const g of G.lg){const z=zoneAt(g.hx,g.hy);if(!g.boss&&(z===3||z===5)&&R()<.08){const q=R();g.id=q<.25?'bach_cuong':q<.5?'luc_cuong':'tu_cuong';}}G.lgv=19;}/* v15.37 Tử Cương Thi */G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));G.lg=G.lg.filter(g=>!(g.boss&&bossGone(g.id)));addCvBoss();lReset();}
 /* v15.8: Tinh Linh Gấu Trúc thường quanh quẩn ở Xóm Bờ Tre: đổi gần nửa quái trong bán kính 30 ô thành gấu trúc, thiếu thì thả thêm cho đủ 8 con */
 const BTN='Xóm Bờ Tre',BTR=30;
 function btPoi(){return WD.pois.find(p=>p.n===BTN);}
@@ -3890,7 +4003,7 @@ function lEncounter(g){if(busy)return;g.st='enc';PL.path=null;held.length=0;
 /* small map frames cut from the player's sheet */
 const LFR=new Map();
 /* v11.1.1: Hắc Phát Oán Nương tối màu, trên bản đồ nhỏ quá thành một vệt đen: vẽ to hơn và viền sáng */
-const LMH={nu_oan:25,cuong_thi:25,zashiki:20,vo_tuong:29,giap_sat:27}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
+const LMH={thay_boi:22,chuy_thu:32,thuong_si:38,nu_oan:25,cuong_thi:20,zashiki:20,vo_tuong:29,giap_sat:27}/* v15.22.2: Quỷ Tướng Thanh Long to hơn chút *//* v15.19: Cương Thi bằng quái khác *//* v14.10: Tọa Phu Đồng Tử khung cao hơn box, thu nhỏ cho bằng quái khác */,LOUT={nu_oan:'#b8a4f0'};
 /* v11.9.4: người chơi thấy quái trên bản đồ hơi mờ: cắt khung ở độ phân giải màn hình (hr theo S, như đồng hành) rồi vẽ thu lại */
 function lFrame(id,k,fl,hh=25){const HR=Math.max(LMH[id]?2:1,Math.ceil(S||1)),key=id+k+(fl?'f':'')+hh+'@'+HR;if(ANIM[id]&&nativeLeft(ANIM[id],ANIM[id].pose[k]))fl=!fl;if(LFR.has(key))return LFR.get(key);const a=ANIM[id];if(!a){const m=fl?flip(mini(id)):mini(id);return{img:m,ox:m.width/2,oy:m.height};}
   const hr=HR,[bx,by,bw,bh]=a.box,sc=hh/bh*hr,n=document.createElement('canvas');n.width=Math.round(a.w*sc);n.height=Math.round(a.h*sc);const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
@@ -3909,7 +4022,7 @@ function drawLanternsRow(row,camX,camY){if(!G.lg)return;for(const g of G.lg){if(
   else if(g.st==='flee')txt('~',sx+8,top-8,{size:9,align:'center',color:'#a8d8ff'});}}
 
 /* v15.15: đánh dấu kỹ năng ma pháp (dùng Ma); còn lại là cận chiến (dùng Lực). Bọc các hàm thi triển để calc biết loại đòn */
-const MAGS=new Set('kyshoa dong2 dong3 dong5 amduong2 amduong4 amduong5 daosi3 daosi4 daosi5 necro2 necro3 necro5 thuoc2 thuoc3 tbque tbbat tbbua tblong tbmenh diep0 t_oan t_xac handiem den_long la_da ho_ly ao_trang thuy_quy vuong hon_ma breath confuse summon chandia quyhoa thetgao trieuhon gamthet pdan pdxich pdphan pdlong bbchuong bbkhoi bbdo bbvang tlphun tlhoa tlbua tlloc nqkeu mdxoay mdsong mdkhoc mdlanh zwchuong zwphuc zwcuoi zwxoay dlhoa dlbang dlxoay dlmat dlno stme ibchuong aodan aodien aonhan aoxoay aoanh aophien ubvu ubdap ubru ubxoay tgquat tgphong tgloc tgbao tmhoa tmlan tmmi tmxoay tmvi dtquang dtcanh dtvong dtan dtphat snbao snno dvan dvxich dvbo dvlong kpcau kpbot kpxoay kpsong gtmang gtgam nocau nogao notran noloc nobua cthan ctlua ctcau tqcau tqxoay tqsong tqgao kssong krchuong tkme kgnguyet kglua kgtruc kgmong ytphien ytloc ytbang ytlang dhvu dhday dhmi cvhoa cvmi cvxoay rain'.split(' '));
+const MAGS=new Set('hbcau hbsa hbkho pcgcau pcghan mcghoa lcghoa bcghon bcghan tcghoa tcgho chyho thgso tthoa nmlua kyshoa dong2 dong3 dong5 amduong2 amduong4 amduong5 daosi3 daosi4 daosi5 necro2 necro3 necro5 thuoc2 thuoc3 tbque tbbat tbbua tblong tbmenh diep0 t_oan t_xac handiem den_long la_da ho_ly ao_trang thuy_quy vuong hon_ma breath confuse summon chandia quyhoa thetgao trieuhon gamthet pdan pdxich pdphan pdlong bbchuong bbkhoi bbdo bbvang tlphun tlhoa tlbua tlloc nqkeu mdxoay mdsong mdkhoc mdlanh zwchuong zwphuc zwcuoi zwxoay dlhoa dlbang dlxoay dlmat dlno stme ibchuong aodan aodien aonhan aoxoay aoanh aophien ubvu ubdap ubru ubxoay tgquat tgphong tgloc tgbao tmhoa tmlan tmmi tmxoay tmvi dtquang dtcanh dtvong dtan dtphat snbao snno dvan dvxich dvbo dvlong kpcau kpbot kpxoay kpsong gtmang gtgam nocau nogao notran noloc nobua cthan ctlua ctcau tqcau tqxoay tqsong tqgao kssong krchuong tkme kgnguyet kglua kgtruc kgmong ytphien ytloc ytbang ytlang dhvu dhday dhmi cvhoa cvmi cvxoay rain'.split(' '));
 for(const k of MAGS){if(SK[k])SK[k].mg=1;if(LSK[k])LSK[k].mg=1;}for(const k in SK)if(SK[k].k==='sum')SK[k].mg=1;
 function magWrap(fn,get){return async function(...a){const p=CMAG;CMAG=get(...a)?1:0;try{return await fn.apply(this,a);}finally{CMAG=p;}};}
 cast=magWrap(cast,(att,def,side,s)=>sMag(s));castL=magWrap(castL,(A,E,side,o)=>LSK[o.L]&&LSK[o.L].mg);lCast=magWrap(lCast,(E,A,k)=>LSK[k]&&LSK[k].mg);summonStrike=magWrap(summonStrike,()=>1);
@@ -4406,6 +4519,7 @@ function useCons(k,u){const d=diep();
   if(k==='coquyen'){itAdd(k,-1);G.pts+=3;G.cq=(G.cq||0)+1;sfx('got');toast('Minh Dạ lĩnh hội Cổ Quyển: +3 điểm cộng');return true;}
   if(k==='thu'){itAdd(k,-1);G.merit+=6;sfx('pur');toast('Đốt cúng Thư Tịch Cổ: +6 công đức');return true;}
   if(k==='giay'){if(!itN('but')||itN('giay')<3)return false;itAdd('giay',-3);G.charms++;sfx('seal');toast('Vẽ xong 1 bùa trấn yểm');return true;}
+  if((k==='thanhanh'||k==='dinhvi')&&G.realm){toast('Phù truyền tống chỉ dùng được ở Nhân Giới');return false;}
   if(k==='thanhanh'){MENU.warp={sel:null};return true;}
   if(k==='dinhvi'){if(!G.dead){toast('Cả đội chưa gục ngã ở đâu cả');return false;}const q=warpSpot(G.dead.x,G.dead.y,0);if(!q)return false;itAdd(k,-1);closeMenu();doWarp(q.x,q.y,'Định Vị Phù dẫn cả đội về chỗ vừa gục ngã');return true;}
   if(k==='linhqua'&&u){loyTick();if(loyOf(u)>=100)return false;itAdd(k,-1);loyAdd(u,10);sfx('heal');toast(u.name+' ăn Linh Quả: trung thành '+Math.floor(loyOf(u))+'/100');return true;}
@@ -4914,6 +5028,144 @@ function arDrawProj(p){const P=ARPAL[p.el]||ARPAL.spirit,r=p.r,ang=Math.atan2(p.
 function arDrawStun(f,h){for(let i=0;i<3;i++){const a=time*.006+i*2.09,x=f.x+Math.cos(a)*7,y=f.y-h-5+Math.sin(a)*2;c.fillStyle=Math.sin(a)>0?'#ffe060':'#c8a030';c.beginPath();for(let k=0;k<4;k++){const b=k*1.571;c.lineTo(x+Math.cos(b)*1.8,y+Math.sin(b)*1.8);c.lineTo(x+Math.cos(b+.785)*.6,y+Math.sin(b+.785)*.6);}c.closePath();c.fill();}}
 function arDrawShield(f,h){const m=FXM.shield;if(!m||!fxOk())return;const w=m[4]*.24,hh=m[5]*.24;c.globalAlpha=.5+.2*Math.sin(time/120);c.drawImage(FXA,m[0],m[1],m[2],m[3],f.x-w/2,f.y-h/2-hh/2-1,w,hh);c.globalAlpha=1;}
 
+/* v15.41: giới diện phụ. Bản đồ đang dùng là Nhân Giới (G.realm 0). Ba cổng ở Rừng Âm U, Nghĩa Địa Cổ và Thần Ma Giới dẫn tới Linh Giới, Quỷ Giới, Ma Giới;
+   mỗi cổng có một quái hạng S canh, thắng mới qua được. Mỗi giới rộng bằng nửa Nhân Giới (vùng đi được hình bầu dục giữa bản đồ, ngoài là biển âm khí),
+   chỉ có quái thuộc hai chủng riêng. Qua cổng có màn tải tài nguyên. */
+const RLM=[{n:'Nhân Giới'},
+  {n:'Linh Giới',gn:'Cổng Linh Giới',k:['Tinh Linh','Thức Thần'],z:1,bio:0,boss:'tamamo',tint:[40,140,110,.16],rn:['Linh Môn Đài','Thanh Linh Cốc','Vạn Hoa Nguyên','Ngọc Tuyền Lâm','Thức Thần Đài','Bích Vân Sơn','Nguyệt Quang Nguyên'],col:'#7af0b0',col2:'#d8fff0',lv:[6,22],
+    say:'Linh khí trong lành tràn qua khe cổng. Ngọc Tảo Tiền chín đuôi phe phẩy, chặn lối: "Phàm nhân muốn qua Linh Giới, trước hết thắng được ta."',
+    intro:'Linh Giới: cõi của tinh linh và thức thần. Cây cỏ ở đây đều có hồn.'},
+  {n:'Quỷ Giới',gn:'Cổng Quỷ Giới',k:['Xác Chết','Cương Thi'],z:3,bio:0,boss:'han_bat',tint:[70,20,40,.3],rn:['Hoàng Tuyền Môn','Bạch Cốt Lĩnh','Vạn Thi Khanh','Hắc Quan Lâm','Huyết Trì','Thi Hồn Động','Âm Phong Hạp'],col:'#ff7060',col2:'#ffd0a0',lv:[16,34],
+    say:'Gió nóng hầm hập thổi ra từ cổng đá. Hạn Bạt đứng chắn giữa lối, đất dưới chân nứt toác: "Người sống không được bước qua Quỷ Giới!"',
+    intro:'Quỷ Giới: nơi xác chết và cương thi lang thang không bao giờ yên nghỉ.'},
+  {n:'Ma Giới',gn:'Cổng Ma Giới',k:['Vong Linh','Oán Linh'],z:5,bio:3,boss:'vuong',tint:[60,10,90,.34],rn:['Cửu U Đài','Oán Hồn Uyên','U Minh Cốc','Vong Xuyên Hà','Tử Vụ Nguyên','Ma Hỏa Sơn','Huyết Nguyệt Lĩnh'],col:'#c080ff',col2:'#f0d8ff',lv:[28,48],
+    say:'Oán khí tím đặc quánh cuộn quanh cổng. Oán Linh Vương rút kiếm: "Muốn vào Ma Giới, hãy để lại linh hồn ở đây!"',
+    intro:'Ma Giới: cõi của vong linh và oán linh, oán khí dày đến nghẹt thở.'}];
+const RW={};let RLD=null;
+function rlmKind(r,id){const s=SPECIES[id];return !!s&&RLM[r].k.includes(s.kind);}
+/* quái gặp ngẫu nhiên: mọi loài trong các vùng của Nhân Giới thuộc hai chủng của giới; quái đi trên bản đồ: loài trong GZ (không có hạng A, S, SS) */
+function rlmLists(r){const R0=RLM[r];if(R0.enc)return R0;const P=new Map(),M=new Map();
+  for(const Z of ZONES)for(const[id,w]of Z.pool)if(rlmKind(r,id))P.set(id,(P.get(id)||0)+w);
+  if(r===2)P.set('han_bat',1);
+  for(const L of GZ)for(const[id]of L)if(rlmKind(r,id))M.set(id,(M.get(id)||0)+1);
+  for(const id of P.keys())if(!M.has(id)&&!hidR(id)&&ANIM_SRC[id])M.set(id,1);
+  R0.enc=[...P].map(([id,w])=>[id,w*rkW(id)]);R0.walk=[...M].map(([id,w])=>[id,w*rkW(id)]);return R0;}
+/* cổng ở Nhân Giới: ô trống 3x3 gần đường, ngoài làng, xa các điểm đến khác; chọn cố định theo hạt giống bản đồ */
+function addGates(){if(!WD||WD.pois.some(p=>p.k==='RG'))return;
+  for(let r=1;r<=3;r++){const R0=RLM[r];let best=null,bs=-1;
+    for(let y=6;y<MH-6;y+=2)for(let x=6;x<MW-6;x+=2){const i=y*MW+x;if(WD.zone[i]!==R0.z||(r===3&&WD.bio[i]!==3)||(r!==3&&WD.bio[i]))continue;
+      let ok=true;for(let dy=-2;dy<=1&&ok;dy++)for(let dx=-2;dx<=2&&ok;dx++){const X=x+dx,Y=y+dy;if(blocked(X,Y)||WD.road[Y*MW+X]||WD.g[Y][X]==='w'||inTown(X,Y))ok=false;}if(!ok)continue;
+      let rd=0;for(let d=2;d<=6&&!rd;d++)for(const[dx,dy]of[[d,0],[-d,0],[0,d],[0,-d]])if(WD.road[(y+dy)*MW+x+dx])rd=1;if(!rd)continue;
+      if(WD.pois.some(p=>Math.abs(p.x-x)<10&&Math.abs(p.y-y)<10))continue;
+      const s=hash(x,y,WD.seed+r*13);if(s>bs){bs=s;best={x,y};}}
+    if(!best)continue;const{x,y}=best;
+    for(let dy=-3;dy<=2;dy++)for(let dx=-3;dx<=3;dx++){const X=x+dx,Y=y+dy;if(X>0&&Y>0&&X<MW&&Y<MH&&WD.ob[Y][X]&&WD.ob[Y][X]!=='B'){WD.ob[Y][X]=null;WD.dc[Y][X]=null;}}
+    WD.pois.push({k:'RG',r,n:R0.gn,x,y});}}
+/* dựng một giới: lấy địa hình từ bộ tạo bản đồ với hạt giống riêng, giữ vùng bầu dục giữa (nửa diện tích), bỏ làng và điểm đến, đổi nền và cây theo giới */
+function realmGen(r){const R0=rlmLists(r),sd=((G.seed*31+r*7919)%99991)+1,W=genRegion(sd),Z=ZONES[R0.z],N=MW*MH;
+  const cx=MW/2,cy=MH/2,ax=MW*.4,ay=MH*.4,keep=new Uint8Array(N),tz=W.tz;
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const dx=(x-cx)/ax,dy=(y-cy)/ay,d=dx*dx+dy*dy,n=(noise(x,y,46,sd+5)-.5)*.5+(noise(x,y,14,sd+6)-.5)*.16;if(d<1+n&&x>3&&y>3&&x<MW-4&&y<MH-4)keep[y*MW+x]=1;}
+  const OBS=Z.obs.filter(o=>o[0]!=='W'),obT=OBS.reduce((a,o)=>a+o[1],0);
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=y*MW+x,t=W.g[y][x];
+    if(!keep[i]){W.g[y][x]='w';W.ob[y][x]=null;W.dc[y][x]=null;W.road[i]=0;if(W.bridge)W.bridge[i]=0;continue;}
+    const town=tz&&tz[i];
+    if(town||(t!=='w'&&t!=='='))W.g[y][x]=(town&&t==='=')?'=':Z.g;
+    if(town&&t!=='='){W.ob[y][x]=null;W.dc[y][x]=null;}
+    else if(W.ob[y][x]){let h=hash(x,y,sd)*obT,o=OBS[0][0];for(const[k,w]of OBS){if(h<w){o=k;break;}h-=w;}W.ob[y][x]=o;}
+    if(W.dc[y][x]==='pier')W.dc[y][x]=null;
+    W.zone[i]=R0.z;W.bio[i]=R0.bio;}
+  /* v15.42: người chơi muốn địa danh các giới khác không trùng Nhân Giới: chia giới thành 7 vùng (giữa + 6 vùng quanh), mỗi vùng tên riêng (RLM.rn) */
+  {const A=[[cx,cy]],a0=hash(r,3,sd)*6.28;for(let k=0;k<6;k++){const a=a0+k*Math.PI/3;A.push([cx+Math.cos(a)*ax*.62,cy+Math.sin(a)*ay*.62]);}
+   const rz=new Uint8Array(N),sx=new Float64Array(7),sy=new Float64Array(7),sn=new Float64Array(7);
+   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=y*MW+x;if(!keep[i])continue;const jx=(noise(x,y,30,sd+9)-.5)*60,jy=(noise(x,y,30,sd+10)-.5)*40;
+     let b=0,bd=1e9;for(let k=0;k<7;k++){const d=Math.hypot(x+jx-A[k][0],(y+jy-A[k][1])*1.3)*(k?1:1.25);if(d<bd){bd=d;b=k;}}rz[i]=b;sx[b]+=x;sy[b]+=y;sn[b]++;}
+   W.rz=rz;W.rzc=A.map((p,k)=>sn[k]?{x:Math.round(sx[k]/sn[k]),y:Math.round(sy[k]/sn[k])}:null);}
+  W.towns=[];W.tz=null;W.bAt=null;W.blds=[];W.bRow=null;W.fq=null;W.pm=null;W.pset=null;W.rlm=r;
+  /* điểm đến: chọn ô đi được gần tâm, rộng rãi */
+  let a=-1,ad=1e9;for(let y=4;y<MH-4;y+=1)for(let x=4;x<MW-4;x+=1){if(!keep[y*MW+x])continue;const d=Math.hypot(x-cx,(y-cy)*1.4);if(d>=ad)continue;
+    let ok=true;for(let dy=-2;dy<=2&&ok;dy++)for(let dx=-2;dx<=2&&ok;dx++){const X=x+dx,Y=y+dy;if(W.g[Y][X]==='w'||W.ob[Y][X])ok=false;}if(ok){ad=d;a=y*MW+x;}}
+  const axx=a%MW,ayy=(a-axx)/MW;
+  for(let dy=-3;dy<=3;dy++)for(let dx=-4;dx<=4;dx++){const X=axx+dx,Y=ayy+dy;W.ob[Y][X]=null;if(W.g[Y][X]!=='w')W.dc[Y][X]=null;}
+  W.pois=[{k:'RG',r:0,n:'Cổng về Nhân Giới',x:axx,y:ayy}];W.path=[a];W.rx=axx;W.ry=ayy+2;
+  /* cấp quái tăng dần khi đi xa cổng */
+  const D=new Int32Array(N).fill(-1),Q=[a];D[a]=0;let mx=1;
+  for(let h=0;h<Q.length;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,j=Y*MW+X;if(X<0||Y<0||X>=MW||Y>=MH||D[j]>=0)continue;const g=W.g[Y][X];if(g==='w'||W.ob[Y][X])continue;D[j]=D[i]+1;if(D[j]>mx)mx=D[j];Q.push(j);}}
+  W.reach=D;const[l0,l1]=R0.lv;for(let i=0;i<N;i++){const f=D[i]>=0?D[i]/mx:.5;W.prog[i]=(l0+(l1-l0)*Math.sqrt(f)-1)/36.5;}
+  return W;}
+function spawnRealm(){const R0=rlmLists(G.realm),C=18,D=WD.reach;G.lg=[];
+  for(let cy=2;cy<MH-2;cy+=C)for(let cx=2;cx<MW-2;cx+=C)for(let t=0;t<14;t++){const x=clamp(cx+ri(1,C-2),2,MW-3),y=clamp(cy+ri(1,C-2),2,MH-3),i=y*MW+x;
+    if(!D||D[i]<0||blocked(x,y)||WD.road[i]||Math.abs(x-PL.x)+Math.abs(y-PL.y)<10)continue;
+    G.lg.push({id:pickW(R0.walk,R()),x,y,hx:x,hy:y,lv:lvAt(x,y),hp:1,dead:-1});break;}
+  lReset();}
+/* đổi giới tức thì (không hoạt cảnh): cất bản đồ và quái của giới đang ở, lấy của giới mới */
+function realmSwap(r,pos){const cur=G.realm|0;if(r===cur)return;
+  if(cur===0){RW[0]=WD;G.rret={x:PL.x,y:PL.y};G.lgH=G.lg;}else{G.lgR=G.lgR||{};G.lgR[cur]=G.lg;delete RW[cur];}
+  G.realm=r;
+  if(r===0){WD=RW[0]||genRegion(G.seed);addGates();G.lg=G.lgH||null;delete G.lgH;const q=G.rret||{x:RNODES[0].x,y:RNODES[0].y};PL.x=q.x;PL.y=q.y;if(poiAt(PL.x,PL.y))PL.y++;}
+  else{WD=RW[r]||(RW[r]=realmGen(r));G.lg=G.lgR&&G.lgR[r]||null;const q=pos||{x:WD.rx,y:WD.ry};PL.x=q.x;PL.y=q.y;}
+  seen=new Uint8Array(MW*MH);freeSpot();PL.dir='down';PL.path=null;PL.npcGoal=null;snapPL();reveal();
+  if(!G.lg||!G.lg.length){if(r)spawnRealm();else ghostsLoaded();}else{G.lg=G.lg.filter(g=>!blocked(g.hx,g.hy));lReset();}
+  curZone=regKey(PL.x,PL.y);bannerT=2600;G.wc=6;}
+const nextFrame=()=>new Promise(res=>requestAnimationFrame(()=>res()));
+/* qua cổng: màn tải tài nguyên (dựng địa hình, thả quái, dựng sẵn khung hình quái của giới) rồi mới hiện bản đồ */
+async function realmTravel(r,pos){const from=G.realm|0,to=r;sfx('seal');await fadeTo(1,450);
+  RLD={r:to,p:0,t:'Mở cổng giới diện...',st:time};scene='rload';await fadeTo(0,250);
+  RLD.p=.12;RLD.t=to?'Dựng địa hình '+RLM[to].n+'...':'Dựng lại Nhân Giới...';await nextFrame();await nextFrame();
+  try{realmSwap(to,pos);}catch(e){console.error(e);}
+  RLD.p=.6;RLD.t='Triệu hồi quái vật...';await nextFrame();
+  const ids=[...new Set((G.lg||[]).map(g=>g.id))];let k=0;
+  for(const id of ids){try{const h=LMH[id]||25;lFrame(id,'idle',false,h);lFrame(id,'idle',true,h);lFrame(id,'walk',false,h);lFrame(id,'walk',true,h);}catch(e){}
+    k++;RLD.p=.6+.35*k/Math.max(1,ids.length);if(k%3===0){RLD.t='Tải hình quái '+k+'/'+ids.length+'...';await nextFrame();}}
+  RLD.p=1;RLD.t='Hoàn tất';const left=700-(time-RLD.st);if(left>0)await tween(left,()=>{});
+  await fadeTo(1,250);scene='map';RLD=null;save();await fadeTo(0,450);
+  if(to&&!(G.rvis||{})[to]){G.rvis=G.rvis||{};G.rvis[to]=1;await say([RLM[to].intro,'Ở đây chỉ gặp quái chủng '+RLM[to].k.join(' và ')+'. Muốn về Nhân Giới thì quay lại cổng nơi vừa bước ra.']);}}
+function drawRLoad(){rect(0,0,W,H,'#08060e');const L=RLD;if(!L)return;const R0=RLM[L.r],col=R0.col||'#ffe8a0';
+  const cx=W/2,cy=H/2-(PORT?20:10),t=time/1000;
+  for(let i=0;i<40;i++){const a=i*2.39+t*.6,rr=(i*7%60)+20+Math.sin(t*2+i)*4;c.globalAlpha=.25+.25*Math.sin(t*3+i);rect(Math.round(cx+Math.cos(a)*rr*1.3),Math.round(cy+Math.sin(a)*rr*.7),1,1,col);}c.globalAlpha=1;
+  txt(L.r?R0.n:'Nhân Giới',cx,cy-14,{size:18,align:'center',color:col});
+  txt('Đang tải tài nguyên',cx,cy+8,{size:9,align:'center',color:'#cfc8e0'});
+  const bw=Math.min(160,W-40),bx=Math.round(cx-bw/2),by=Math.round(cy+24);rect(bx-1,by-1,bw+2,7,'#3a3050');rect(bx,by,bw,5,'#120e1c');rect(bx,by,Math.round(bw*L.p),5,col);
+  txt(L.t+'  '+Math.round(L.p*100)+'%',cx,by+9,{size:8,align:'center',color:'#a8a0c0'});}
+/* cổng: vòm đá hai cột, lòng cổng xoáy màu của giới; chưa thắng quái canh thì nó đứng chắn bên cạnh */
+function drawGate(p,sx,sy){const r=p.r,R0=RLM[r||G.realm||1],col=r?R0.col:'#ffe8a0',col2=r?R0.col2:'#fffbe0',t=time/1000,cx=sx+8,by=sy+16;
+  c.globalAlpha=.35;c.fillStyle='#000';c.beginPath();c.ellipse(cx,by,26,6,0,0,7);c.fill();c.globalAlpha=1;
+  const gw=34,gh=44;
+  c.save();c.beginPath();c.ellipse(cx,by-gh/2,gw/2-4,gh/2-3,0,0,7);c.clip();
+  const gr=c.createRadialGradient(cx,by-gh/2,2,cx,by-gh/2,gh/2);gr.addColorStop(0,col2);gr.addColorStop(.45,col);gr.addColorStop(1,'#120a20');c.fillStyle=gr;c.fillRect(cx-gw/2,by-gh,gw,gh);
+  c.globalAlpha=.55;c.strokeStyle=col2;c.lineWidth=1;for(let i=0;i<3;i++){c.beginPath();c.ellipse(cx,by-gh/2,4+i*5+((t*6)%5),7+i*7+((t*9)%7),0,t*1.5+i,t*1.5+i+4);c.stroke();}c.globalAlpha=1;c.restore();
+  rect(cx-gw/2-3,by-gh+2,6,gh-2,'#4a4250');rect(cx+gw/2-3,by-gh+2,6,gh-2,'#4a4250');rect(cx-gw/2-2,by-gh+3,2,gh-4,'#6a6274');rect(cx+gw/2-2,by-gh+3,2,gh-4,'#6a6274');
+  rect(cx-gw/2-7,by-gh-3,gw+14,5,'#3a3240');rect(cx-gw/2-5,by-gh+3,gw+10,3,'#3a3240');rect(cx-gw/2-7,by-gh-3,gw+14,1,'#7a7084');
+  rect(cx-5,by-gh-1,10,6,'#c8a050');rect(cx-4,by-gh,8,4,'#5a1a18');
+  for(let i=0;i<6;i++){const a=t*1.3+i*1.05,px=cx+Math.cos(a)*(gw/2+4),py=by-gh/2+Math.sin(a)*gh/2*.9-((t*14+i*9)%10);c.globalAlpha=.6;rect(Math.round(px),Math.round(py),1,1,col2);}c.globalAlpha=1;
+  if(r&&!(G.gk||{})[r]){const id=R0.boss,F=lFrame(id,'idle',true,32);if(F){const bob=Math.round(Math.sin(time/380)*1.5);c.globalAlpha=.3;c.fillStyle='#000';c.beginPath();c.ellipse(cx+30,by-1,9,3,0,0,7);c.fill();c.globalAlpha=1;
+    const hr=F.hr||1;c.drawImage(F.img,cx+30-F.ox,by-F.oy+bob,F.img.width/hr,F.img.height/hr);}}}
+async function gateEv(p){const r=p.r;
+  if(r===0){const i=await pick('Cổng về Nhân Giới','Ánh sáng ấm áp của Nhân Giới hắt qua lòng cổng.',[{t:'Trở về Nhân Giới'},{t:'Ở lại '+RLM[G.realm].n,def:1}]);if(i!==0)return;return realmTravel(0);}
+  const R0=RLM[r];G.gk=G.gk||{};
+  if(!G.gk[r]){const lv=Math.max(R0.lv[0]+4,lvAt(p.x,p.y)+6);
+    const i=await pick(R0.gn,R0.say,[{t:'Giao chiến với '+SPECIES[R0.boss].name+' (hạng S, Lv '+lv+')'},{t:'Để sau',def:1}]);if(i!==0)return;
+    const res=await startBattle([foe(R0.boss,lv,{elite:true})],{kind:'boss',noRun:true});if(res!=='win')return;
+    G.gk[r]=1;sfx('got');await say(SPECIES[R0.boss].name+' đã bị khuất phục. '+R0.gn+' mở ra, có thể đi qua bất cứ lúc nào.');save();}
+  const i=await pick(R0.gn,'Lòng cổng xoáy cuộn dẫn tới '+R0.n+'. Quái ở đó chỉ thuộc chủng '+R0.k.join(' và ')+', cấp khoảng '+R0.lv[0]+' đến '+R0.lv[1]+'.',[{t:'Bước vào '+R0.n},{t:'Để sau',def:1}]);
+  if(i!==0)return;return realmTravel(r);}
+/* v15.42: người chơi muốn thấy ký hiệu cổng trên bản đồ nhỏ để dễ tìm: hình cổng vòm màu của giới, nhấp nháy;
+   cổng ngoài khung bản đồ nhỏ thì có mũi tên ở mép chỉ hướng cổng gần nhất. Bản đồ lớn cũng vẽ cổng, chú thích 'Cổng giới'. */
+function gateCol(p){return p.r?RLM[p.r].col:'#ffe8a0';}
+function gateName(p){return p.r?RLM[p.r].gn:'Cổng về Nhân Giới';}
+function gateGlyph(x,y,col,big){x=Math.round(x);y=Math.round(y);const b=big?1:0,on=Math.floor(time/350)%2;
+  rect(x-3-b,y-4-b,7+2*b,8+2*b,'#0c0a18');rect(x-2-b,y-3-b,5+2*b,7+2*b,col);rect(x-1-b,y-4-b,3+2*b,1,col);
+  rect(x-1,y-1,3,4+b,on?'#fff8e0':'#120a20');}
+function gateArrow(x0,y0,w,h,cx,cy,dx,dy,col){const L=Math.hypot(dx,dy)||1;dx/=L;dy/=L;
+  const k=Math.min((w/2-4)/Math.max(Math.abs(dx),1e-3),(h/2-4)/Math.max(Math.abs(dy),1e-3)),px=cx+dx*k,py=cy+dy*k;
+  if(Math.floor(time/300)%3===2)return;c.fillStyle='#0c0a18';c.beginPath();c.moveTo(px+dx*4.5,py+dy*4.5);c.lineTo(px-dy*3.5-dx*2,py+dx*3.5-dy*2);c.lineTo(px+dy*3.5-dx*2,py-dx*3.5-dy*2);c.closePath();c.fill();
+  c.fillStyle=col;c.beginPath();c.moveTo(px+dx*3,py+dy*3);c.lineTo(px-dy*2.2-dx*1.2,py+dx*2.2-dy*1.2);c.lineTo(px+dy*2.2-dx*1.2,py-dx*2.2-dy*1.2);c.closePath();c.fill();}
+function miniGates(x0,y0,w,h,ix,iy,s,ox,oy,cw,ch){let near=null,nd=1e9;
+  for(const p of WD.pois){if(p.k!=='RG')continue;const x=p.x-ox,y=p.y-oy;
+    if(x>=0&&y>=0&&x<cw&&y<ch){gateGlyph(ix+x*s+.75,iy+y*s+.75,gateCol(p));near=null;nd=-1;continue;}
+    const d=Math.hypot(p.x-PL.x,p.y-PL.y);if(nd>=0&&d<nd){nd=d;near=p;}}
+  if(near)gateArrow(ix,iy,cw*s,ch*s,ix+(PL.x-ox)*s,iy+(PL.y-oy)*s,near.x-PL.x,near.y-PL.y,gateCol(near));}
+function mapGates(ox,oy,s){for(const p of WD.pois)if(p.k==='RG')gateGlyph(ox+p.x*s,oy+p.y*s,gateCol(p));}
+
 
 /* ---------- main loop ---------- */
 let last=performance.now();
@@ -4925,7 +5177,8 @@ function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;t
   hits=[];SCR.length=0;INFOH.length=0;
   c.setTransform(S,0,0,S,0,0);c.imageSmoothingEnabled=false;
   rect(0,0,W,H,'#000');
-  if(scene==='title')drawTitle();
+  if(scene==='rload')drawRLoad();
+  else if(scene==='title')drawTitle();
   else if((scene==='map'||scene==='trans'||scene==='intro')&&G)drawMap();
   else if(scene==='battle'&&B){drawBattle(dt);drawTip();}
   else if(scene==='arena'&&AR)drawArena(dt);
