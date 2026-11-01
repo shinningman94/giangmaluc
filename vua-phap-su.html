@@ -2014,8 +2014,8 @@ function fadeTo(v,ms=350){const s=fade;return tween(ms,t=>{fade=lerp(s,v,t);});}
 /* v8.1: tiểu vùng theo ảnh mẫu: tuyết, sa mạc, Thần Ma Giới; có màu trời và tên riêng */
 const BIOT=[null,[40,60,100,.1],[60,30,0,.04],[50,15,100,.32]],BION=[null,null,'Sa Mạc Hoang Vực','Thần Ma Giới'];
 function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;}
-function regKey(x,y){return zoneAt(x,y)+bioAt(x,y)*10;}
-function regName(k){if(G&&G.realm)return RLM[G.realm].n;return BION[Math.floor(k/10)]||ZONES[k%10].n;}
+function regKey(x,y){if(G&&G.realm&&WD.rz)return 100+WD.rz[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)];return zoneAt(x,y)+bioAt(x,y)*10;}
+function regName(k){if(G&&G.realm){const R0=RLM[G.realm];return k>=100&&R0.rn?R0.rn[k-100]:R0.n;}/* v15.42: tên vùng riêng của từng giới */return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
   run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
 async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
@@ -2908,7 +2908,9 @@ function worldMap(ox,oy,s){rect(Math.floor(ox)-1,Math.floor(oy)-1,Math.ceil(MW*s
   const sm=c.imageSmoothingEnabled;c.imageSmoothingEnabled=false;c.drawImage(wmCanvas(),ox,oy,MW*s,MH*s);c.imageSmoothingEnabled=sm;
   const PC={V:'#f8e070',S:'#ff5a4a',Q:'#b060ff',R:'#7ad0ff',G:'#ff2a6a',T:'#5af0c0',L:'#ffb070',W:'#e070ff'};for(const p of WD.pois){if(p.k==='RG'||!seen[p.y*MW+p.x]&&p.k!=='G')continue;const r=p.k==='V'?4:p.k==='L'?2:3;rect(Math.round(ox+p.x*s-r/2),Math.round(oy+p.y*s-r/2),r,r,PC[p.k]);}
   const cz=zoneAt(PL.x,PL.y),box=[],hitB=(x,y,w,h)=>box.some(b=>x<b[0]+b[2]&&x+w>b[0]&&y<b[1]+b[3]&&y+h>b[1]);
-  ZONES.forEach((z,i)=>{const ns=RNODES.filter(n=>n.z===i);if(!ns.some(n=>seen[n.y*MW+n.x])&&i!==cz)return;const x=ns.reduce((a,n)=>a+n.x,0)/ns.length,y=ns.reduce((a,n)=>a+n.y,0)/ns.length;
+  if(G.realm&&WD.rzc){const R0=RLM[G.realm],ck=regKey(PL.x,PL.y)-100;WD.rzc.forEach((q,i)=>{if(!q||(!seen[q.y*MW+q.x]&&i!==ck))return;const n=R0.rn[i],tx=Math.round(ox+q.x*s),ty=Math.round(oy+q.y*s)-4,w=tw(n,7);box.push([tx-w/2,ty,w,8]);
+    txt(n,tx,ty,{size:7,align:'center',color:i===ck?'#ffe8a0':'#c8c0d8',outline:'#1b1224',lw:1});});}/* v15.42: ở giới khác ghi tên vùng của giới đó, không dùng tên Nhân Giới */
+  else ZONES.forEach((z,i)=>{const ns=RNODES.filter(n=>n.z===i);if(!ns.some(n=>seen[n.y*MW+n.x])&&i!==cz)return;const x=ns.reduce((a,n)=>a+n.x,0)/ns.length,y=ns.reduce((a,n)=>a+n.y,0)/ns.length;
     const tx=Math.round(ox+x*s),ty=Math.round(oy+y*s)+(i===5?6:i===0?-14:-12),w=tw(z.n,7);box.push([tx-w/2,ty,w,8]);
     txt(z.n,tx,ty,{size:7,align:'center',color:i===cz?'#ffe8a0':'#c8c0d8'});});
   /* v7.5: người chơi muốn tên làng hiện trên bản đồ; làng gần nhất ưu tiên, nhãn chồng nhau thì thử chỗ khác hoặc bỏ */
@@ -5030,13 +5032,13 @@ function arDrawShield(f,h){const m=FXM.shield;if(!m||!fxOk())return;const w=m[4]
    mỗi cổng có một quái hạng S canh, thắng mới qua được. Mỗi giới rộng bằng nửa Nhân Giới (vùng đi được hình bầu dục giữa bản đồ, ngoài là biển âm khí),
    chỉ có quái thuộc hai chủng riêng. Qua cổng có màn tải tài nguyên. */
 const RLM=[{n:'Nhân Giới'},
-  {n:'Linh Giới',gn:'Cổng Linh Giới',k:['Tinh Linh','Thức Thần'],z:1,bio:0,boss:'tamamo',tint:[40,140,110,.16],col:'#7af0b0',col2:'#d8fff0',lv:[6,22],
+  {n:'Linh Giới',gn:'Cổng Linh Giới',k:['Tinh Linh','Thức Thần'],z:1,bio:0,boss:'tamamo',tint:[40,140,110,.16],rn:['Linh Môn Đài','Thanh Linh Cốc','Vạn Hoa Nguyên','Ngọc Tuyền Lâm','Thức Thần Đài','Bích Vân Sơn','Nguyệt Quang Nguyên'],col:'#7af0b0',col2:'#d8fff0',lv:[6,22],
     say:'Linh khí trong lành tràn qua khe cổng. Ngọc Tảo Tiền chín đuôi phe phẩy, chặn lối: "Phàm nhân muốn qua Linh Giới, trước hết thắng được ta."',
     intro:'Linh Giới: cõi của tinh linh và thức thần. Cây cỏ ở đây đều có hồn.'},
-  {n:'Quỷ Giới',gn:'Cổng Quỷ Giới',k:['Xác Chết','Cương Thi'],z:3,bio:0,boss:'han_bat',tint:[70,20,40,.3],col:'#ff7060',col2:'#ffd0a0',lv:[16,34],
+  {n:'Quỷ Giới',gn:'Cổng Quỷ Giới',k:['Xác Chết','Cương Thi'],z:3,bio:0,boss:'han_bat',tint:[70,20,40,.3],rn:['Hoàng Tuyền Môn','Bạch Cốt Lĩnh','Vạn Thi Khanh','Hắc Quan Lâm','Huyết Trì','Thi Hồn Động','Âm Phong Hạp'],col:'#ff7060',col2:'#ffd0a0',lv:[16,34],
     say:'Gió nóng hầm hập thổi ra từ cổng đá. Hạn Bạt đứng chắn giữa lối, đất dưới chân nứt toác: "Người sống không được bước qua Quỷ Giới!"',
     intro:'Quỷ Giới: nơi xác chết và cương thi lang thang không bao giờ yên nghỉ.'},
-  {n:'Ma Giới',gn:'Cổng Ma Giới',k:['Vong Linh','Oán Linh'],z:5,bio:3,boss:'vuong',tint:[60,10,90,.34],col:'#c080ff',col2:'#f0d8ff',lv:[28,48],
+  {n:'Ma Giới',gn:'Cổng Ma Giới',k:['Vong Linh','Oán Linh'],z:5,bio:3,boss:'vuong',tint:[60,10,90,.34],rn:['Cửu U Đài','Oán Hồn Uyên','U Minh Cốc','Vong Xuyên Hà','Tử Vụ Nguyên','Ma Hỏa Sơn','Huyết Nguyệt Lĩnh'],col:'#c080ff',col2:'#f0d8ff',lv:[28,48],
     say:'Oán khí tím đặc quánh cuộn quanh cổng. Oán Linh Vương rút kiếm: "Muốn vào Ma Giới, hãy để lại linh hồn ở đây!"',
     intro:'Ma Giới: cõi của vong linh và oán linh, oán khí dày đến nghẹt thở.'}];
 const RW={};let RLD=null;
@@ -5072,6 +5074,12 @@ function realmGen(r){const R0=rlmLists(r),sd=((G.seed*31+r*7919)%99991)+1,W=genR
     else if(W.ob[y][x]){let h=hash(x,y,sd)*obT,o=OBS[0][0];for(const[k,w]of OBS){if(h<w){o=k;break;}h-=w;}W.ob[y][x]=o;}
     if(W.dc[y][x]==='pier')W.dc[y][x]=null;
     W.zone[i]=R0.z;W.bio[i]=R0.bio;}
+  /* v15.42: người chơi muốn địa danh các giới khác không trùng Nhân Giới: chia giới thành 7 vùng (giữa + 6 vùng quanh), mỗi vùng tên riêng (RLM.rn) */
+  {const A=[[cx,cy]],a0=hash(r,3,sd)*6.28;for(let k=0;k<6;k++){const a=a0+k*Math.PI/3;A.push([cx+Math.cos(a)*ax*.62,cy+Math.sin(a)*ay*.62]);}
+   const rz=new Uint8Array(N),sx=new Float64Array(7),sy=new Float64Array(7),sn=new Float64Array(7);
+   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=y*MW+x;if(!keep[i])continue;const jx=(noise(x,y,30,sd+9)-.5)*60,jy=(noise(x,y,30,sd+10)-.5)*40;
+     let b=0,bd=1e9;for(let k=0;k<7;k++){const d=Math.hypot(x+jx-A[k][0],(y+jy-A[k][1])*1.3)*(k?1:1.25);if(d<bd){bd=d;b=k;}}rz[i]=b;sx[b]+=x;sy[b]+=y;sn[b]++;}
+   W.rz=rz;W.rzc=A.map((p,k)=>sn[k]?{x:Math.round(sx[k]/sn[k]),y:Math.round(sy[k]/sn[k])}:null);}
   W.towns=[];W.tz=null;W.bAt=null;W.blds=[];W.bRow=null;W.fq=null;W.pm=null;W.pset=null;W.rlm=r;
   /* điểm đến: chọn ô đi được gần tâm, rộng rãi */
   let a=-1,ad=1e9;for(let y=4;y<MH-4;y+=1)for(let x=4;x<MW-4;x+=1){if(!keep[y*MW+x])continue;const d=Math.hypot(x-cx,(y-cy)*1.4);if(d>=ad)continue;
