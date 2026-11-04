@@ -1704,6 +1704,9 @@ function genRegion(seed,LY=LAY5,OLD){const{MW,MH}=LY,RNODES=LY.nodes,RGOAL=LY.go
       if(!ok)continue;for(const[x,y]of T){g[y][x]='w';ob[y][x]=null;dc[y][x]=hash(x,y,seed+317)<.22?'lily':null;}}}
     /* vũng nước đầm lọt vào trong làng (không phải hồ/sông) thì lấp thành đất để làng liền một khối */
     for(let i=0;i<N;i++){if(dA[i]>1||!TW.tz)continue;const x=i%MW,y=(i-x)/MW;if(g[y][x]==='w'&&!river.has(i)&&!inLake(x,y)){g[y][x]=zg(i);dc[y][x]=null;}}
+    /* v16.15.4: người chơi muốn bỏ sông cắt qua làng (Bến Lau Sậy) và bớt nước quanh vùng an toàn: trong làng và 5 ô quanh làng, sông và ao đầm lấp thành đất (hồ lớn giữ nguyên), cầu ở đó thành đường thường */
+    if(TW.tz){const dT=new Uint8Array(N).fill(99),Qt=[];for(let i=0;i<N;i++)if(TW.tz[i]){dT[i]=0;Qt.push(i);}spread(dT,Qt,6);
+      for(let i=0;i<N;i++){if(dT[i]>5)continue;const x=i%MW,y=(i-x)/MW;if(bridge[i])bridge[i]=0;if(g[y][x]==='w'&&!inLake(x,y)){g[y][x]=zg(i);dc[y][x]=null;}}}
     const nat=(x,y)=>{const o=ob[y][x];return !!o&&o!=='B'&&!o.startsWith('P:');};
     const free=(x,y)=>x>1&&y>1&&x<MW-2&&y<MH-2&&!isGoalP(x,y);
     /* làm mượt khối rừng: lấp lỗ giữa rừng, bỏ cây lẻ ở mép */
