@@ -1481,7 +1481,7 @@ function hdReed(x,y){const vr=Math.floor(hash(x,y,74)*3),key='hdre'+vr;if(HDC[ke
       if(i<n-1||vr){const tx=bx+l,ty=18-h;g.fillStyle='#5a3a22';g.beginPath();g.ellipse(tx,ty+1.9,.95,2.1,l*.05,0,7);g.fill();g.fillStyle='#8a5a34';g.beginPath();g.ellipse(tx-.3,ty+1.5,.4,1.3,0,0,7);g.fill();g.strokeStyle='#5f8c36';g.lineWidth=.4;g.beginPath();g.moveTo(tx,ty-.2);g.lineTo(tx+l*.05,ty-1.4);g.stroke();}}
     for(let i=0;i<4;i++){const bx=3+R()*6,side=i%2?1:-1,h=6+R()*6;const G=g.createLinearGradient(bx,18,bx+side*4,18-h);G.addColorStop(0,'#3f6a28');G.addColorStop(1,'#7aa848');g.fillStyle=G;g.beginPath();g.moveTo(bx-.5,18);g.quadraticCurveTo(bx+side*1.2,18-h*.55,bx+side*4,18-h);g.quadraticCurveTo(bx+side*.6,18-h*.45,bx+.5,18);g.closePath();g.fill();}});
   return HDC[key]={k,w:12,h:19};}
-function hdDeco(d,x,y){if(d==='reed')return hdReed(x,y);if(d.startsWith('mush')){const p=d.split(':')[1]||'brown';return hdMush(x,y,p);}return null;}
+function hdDeco(d,x,y){return null;/* v16.15.3: người chơi muốn bản đồ đầm lầy như trước: lau sậy, nấm dùng lại hình cũ */if(d==='reed')return hdReed(x,y);if(d.startsWith('mush')){const p=d.split(':')[1]||'brown';return hdMush(x,y,p);}return null;}
 function hdOb(o,x,y){if(o==='grave')return hdGrave(x,y);return null;}
 
 
