@@ -31,6 +31,7 @@ jobs:
           python3 online/build_online.py server/public --server same
           cp -r img server/public/
           cp vt323-*.woff2 server/public/ 2>/dev/null || cp web/vt323-*.woff2 server/public/ 2>/dev/null || true
+          python3 tools/protect/protect.py server/public/index.html
       - name: Đưa lên Cloudflare
         if: steps.chk.outputs.ok == '1'
         working-directory: server

@@ -6,6 +6,7 @@
 //   /auth/google, /auth/config   đăng nhập bằng Google (bật khi có biến GOOGLE_CLIENT_ID)
 import { Hub } from './hub.js';
 import { Accounts } from './accounts.js';
+import { allowOrigin } from './origin.js';
 
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, PUT, OPTIONS', 'content-type': 'application/json; charset=utf-8' };
 
@@ -20,12 +21,18 @@ export class World {
   constructor(state, env) {
     this.state = state;
     const store = { get: k => state.storage.get(k), put: (k, v) => state.storage.put(k, v), delete: k => state.storage.delete(k) };
+    this.allow = env.ALLOW_ORIGINS;
     this.acc = new Accounts(store, { google: env.GOOGLE_CLIENT_ID });
     this.hub = new Hub({ send: (ws, s) => ws.send(s), close: (ws, code, why) => { try { ws.close(code || 1013, why || 'full'); } catch {} }, store, auth: this.acc });
     this.timer = null;
   }
   async fetch(req) {
     const url = new URL(req.url);
+    // Chặn các trang web nhái (Origin lạ) trước khi làm bất cứ việc gì
+    if (!allowOrigin(req.headers.get('Origin'), this.allow)) {
+      if (req.method === 'OPTIONS') return new Response(null, { status: 403 });
+      return new Response(JSON.stringify({ err: 'origin' }), { status: 403, headers: { 'content-type': 'application/json; charset=utf-8' } });
+    }
     if (url.pathname === '/ws') {
       if (req.headers.get('Upgrade') !== 'websocket') return new Response('cần websocket', { status: 426 });
       const [client, server] = Object.values(new WebSocketPair());

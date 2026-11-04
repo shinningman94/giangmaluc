@@ -16,7 +16,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true            // R8 rút gọn + làm rối mã Java trong APK
+            shrinkResources true
+            debuggable false              // bản phát hành không cho gỡ lỗi
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
     }

@@ -52,6 +52,10 @@ public class MainActivity extends Activity {
         web.setBackgroundColor(0xFF120D18);
         // v12.3: đấu trường gọi AndroidApp.setLandscape(true/false) để xoay ngang khi vào trận, xong trận về dọc
         web.addJavascriptInterface(new Object() {
+            // Khóa bản sao: trang game chạy từ file:// chỉ chạy khi gọi được hàm này và trả đúng tên gói.
+            @JavascriptInterface
+            public String pkg() { return getPackageName(); }
+
             @JavascriptInterface
             public void setLandscape(final boolean on) {
                 runOnUiThread(new Runnable() {

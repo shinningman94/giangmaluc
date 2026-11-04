@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Đóng gói vua-phap-su.html thành bản web (PWA) trong web/ và chép sang app Android."""
-import pathlib, re, shutil
+import os, pathlib, re, shutil, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent
 WEB = ROOT / 'web'
@@ -51,6 +51,12 @@ html,body{{margin:0}}</style>
 </html>
 """
 (WEB / 'index.html').write_text(html, encoding='utf-8')
+# Bản phát hành (GitHub Actions đặt PROTECT=1): làm rối mã + khóa tên miền, xem tools/protect/.
+# Chạy build.py trên máy thì mặc định không làm rối, cho nhanh và dễ thử.
+if os.environ.get('PROTECT') == '1':
+    sys.path.insert(0, str(ROOT / 'tools' / 'protect'))
+    import protect
+    protect.protect([WEB / 'index.html'])
 
 # v9.1: ảnh của game nằm trong img/ (tách khỏi html cho nhẹ, đỡ giật)
 IMG = sorted(p.name for p in (ROOT / 'img').glob('*.*'))
