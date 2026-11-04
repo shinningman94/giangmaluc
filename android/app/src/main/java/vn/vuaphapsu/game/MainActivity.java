@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.webkit.JavascriptInterface;
 import android.os.Bundle;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.ViewGroup;
@@ -20,10 +22,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        useCutout();
         web = makeWeb();
         setContentView(web);
         hideSystemBars();
         web.loadUrl("file:///android_asset/index.html");
+    }
+
+    /** v16.15.2: vẽ tràn vào vùng tai thỏ/camera khi xoay ngang để game phủ kín màn hình. */
+    private void useCutout() {
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
+        }
     }
 
     /** Tạo WebView; nếu tiến trình hiển thị bị hệ thống giết (thiếu RAM/GPU) thì dựng lại thay vì văng app. */
@@ -58,6 +70,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         setRequestedOrientation(on ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        hideSystemBars();
                     }
                 });
             }
@@ -72,6 +85,14 @@ public class MainActivity extends Activity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    /** Xoay màn hình xong thì ẩn lại thanh trạng thái/điều hướng (chúng có thể hiện lại khi đổi hướng). */
+    @Override
+    public void onConfigurationChanged(Configuration cfg) {
+        super.onConfigurationChanged(cfg);
+        hideSystemBars();
+        web.postDelayed(new Runnable() { public void run() { hideSystemBars(); } }, 300);
     }
 
     @Override
