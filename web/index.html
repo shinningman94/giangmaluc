@@ -2678,6 +2678,7 @@ function npcTick(dt){if(!G)return;
   if(G.npcOld)G.npcOld=G.npcOld.filter(q=>Math.abs(q.x-PL.x)<=24||Math.abs(q.x*TS+8-PL.px)<W);
   for(const q of npcList()){const s=nst(q);
     if(s.t<1){s.t=Math.min(1,s.t+dt/NPCR.stepMs);continue;}
+    if(q.grd){grdTick(q,s,dt);continue;}
     const d=Math.abs(q.x-PL.x)+Math.abs(q.y-PL.y);
     if(!q.vil&&d<=NPCR.wait){if(PL.x!==q.x)s.face=PL.x>q.x?1:-1;s.cool=Math.max(s.cool,700);continue;}
     if(busy||DLG||CH)continue;
@@ -2691,7 +2692,7 @@ function npcTick(dt){if(!G)return;
 function npcQN(q){if(q===G.qt&&q.nn===undefined&&G.qs===0&&NQ[G.nan])return{...q,nn:NQ[G.nan].n};return q;}
 function drawNpc(q,camX,camY){const p=npcPx(q),s=nst(q),k=npcLook(npcQN(q)),sx=Math.round(p.x-camX),sy=Math.round(p.y-camY);
   if(sx<-24||sx>W+8||sy<-24||sy>H+40)return;const walk=s.t<1;if(q.vil&&!seen[q.y*MW+q.x])return;
-  /* v16.8: người vẽ mới có chu kỳ bước mượt (xem w_npc.js) */const by=walk?0:0;npcDraw(q,k,sx,sy,s.face,walk?time/840:null);
+  /* v16.8: người vẽ mới có chu kỳ bước mượt (xem w_npc.js) */const by=walk?0:0;if(q.grd){grdDraw(q,s,sx,sy,walk);vilDeco(q,sx,sy-6);return;}npcDraw(q,k,sx,sy,s.face,walk?time/840:null);
   if(q.vil)vilDeco(q,sx,sy+by);}
 function walkToNpc(quiet,q){if(G.realm){if(!quiet)toast('Kiếp nạn kế tiếp chờ ở Nhân Giới. Quay lại cổng để về');return;}q=q||G.qt;if(!q)return;PL.npcGoal={x:q.x,y:q.y};PL.npcQ=q;
   const prev=new Int32Array(MW*MH).fill(-1),st=PL.y*MW+PL.x,goal=q.y*MW+q.x,Q=[st];prev[st]=st;
@@ -4951,7 +4952,7 @@ function townAt(x,y){return WD&&WD.tz&&x>=0&&y>=0&&x<MW&&y<MH?WD.tz[y*MW+x]-1:-1
 function inTown(x,y){return townAt(x,y)>=0;}
 function bldAt(x,y){if(!WD||!WD.bAt||x<0||y<0||x>=MW||y>=MH)return null;const i=WD.bAt[y*MW+x];return i>=0?WD.blds[i]:null;}
 let VNC={t:-1,l:[]};
-function vilNear(){if(!WD||!WD.towns||scene!=='map')return[];if(VNC.t===time)return VNC.l;const l=[];for(const T of WD.towns)if(Math.abs(T.x-PL.x)<=30&&Math.abs(T.y-PL.y)<=24)for(const v of T.vil)l.push(v);for(const v of fqNear())l.push(v);VNC={t:time,l};return l;}
+function vilNear(){if(!WD||!WD.towns||scene!=='map')return[];if(VNC.t===time)return VNC.l;const l=[];for(const T of WD.towns)if(Math.abs(T.x-PL.x)<=30&&Math.abs(T.y-PL.y)<=24){for(const v of T.vil)l.push(v);for(const v of grdAll(T))l.push(v);}for(const v of fqNear())l.push(v);VNC={t:time,l};return l;}
 function vilAt(x,y){return vilNear().find(v=>v.x===x&&v.y===y);}
 
 /* ---------- vẽ nhà ----------
@@ -5023,7 +5024,7 @@ function qCount(){return SQ().length+FQA().length;}
 function qFull(){return qCount()>=QMAX;}
 const QFULL=`Thầy đang nhận đủ ${QMAX} việc rồi. Làm xong và trả bớt việc thì quay lại, tôi có việc muốn nhờ.`;
 function sqOf(k){return SQ().find(q=>q.k===k);}
-function vilMark(v){if(v.fq)return fqMark(v);const k=vkey(v);if(SQ().some(q=>q.ty==='mail'&&q.tk===k))return'?';if(!v.giver)return null;const q=sqOf(k);if(q)return q.c>=q.n?'?':null;return qFull()?null:'!';}
+function vilMark(v){if(v.fq)return fqMark(v);if(v.grd)return null;const k=vkey(v);if(SQ().some(q=>q.ty==='mail'&&q.tk===k))return'?';if(!v.giver)return null;const q=sqOf(k);if(q)return q.c>=q.n?'?':null;return qFull()?null:'!';}
 function sqMake(v){const T=WD.towns[v.ti],k=vkey(v),cnt=(G.sqd||{})[k]||0,h=i=>hash(v.ti*31+v.vi,cnt*7+i,G.seed+91);
   const tier=tierAt(T.x,T.y),zz=Math.min(5,T.z+(h(1)<.3?1:0)),sp=pickW(ZONES[zz].pool,h(2)),nm=SPECIES[sp].name;
   let ty=['kill','cap','mail'][Math.floor(h(0)*3)];const q={k,ty,sp,n:1,c:0,from:v.name,ft:T.n,rw:{s:10+tier*8,m:5+tier*2}};
@@ -5040,7 +5041,7 @@ function sqReward(q){const s=gainSilver(q.rw.s);G.merit+=q.rw.m;let ex='';if(R()
 function sqHit(id,cap){fqHit(id);evHit(id,cap);for(const q of SQ()){if(q.sp!==id||q.c>=q.n)continue;if(q.ty==='kill'||(q.ty==='cap'&&cap)){q.c++;if(q.c>=q.n)toast(`Xong việc "${q.title}". Về gặp ${q.from} ở ${q.ft}.`);}}}
 function sqRows(){return fqRows().concat(SQ().map(q=>(q.c>=q.n||q.ty==='mail'?'◆ ':'◇ ')+q.title+(q.ty==='mail'?' · từ '+q.from:q.c>=q.n?' · về gặp '+q.from+' ('+q.ft+')':` (${q.c}/${q.n}) · ${q.from}, ${q.ft}`)));}
 async function vilTalk(v){try{await vilTalk0(v);}finally{v.tk=time;}}
-async function vilTalk0(v){if(v.fq)return fqTalk(v);const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);const k=vkey(v),T=WD.towns[v.ti];
+async function vilTalk0(v){if(v.fq)return fqTalk(v);if(v.grd)return grdTalk(v);const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);const k=vkey(v),T=WD.towns[v.ti];
   const mq=SQ().find(q=>q.ty==='mail'&&q.tk===k);
   if(mq){await say([`Thư của ${mq.from} ở ${mq.ft} gửi tôi đây sao? Đa tạ thầy đã cất công mang tới!`],v.name);sqReward(mq);return;}
   if(v.giver){const q=sqOf(k);
@@ -5278,6 +5279,47 @@ function npcDraw(q,lk,sx,sy,face,walkT,alpha){if(lk==='hon'||!NPCLK[lk]){const s
   const f=walkT!=null?Math.floor(walkT*8)%8:8+(Math.floor((time+vr*333)/700)%2);const k=npcFrame(lk,vr,f);
   /* to hơn 12% cho cân với Minh Dạ */const S=1.12,dw=22*S,dh=34*S,top=sy+16.5-32*S;if(alpha!=null)c.globalAlpha=alpha;
   if(face<0){c.save();c.translate(sx+8,0);c.scale(-1,1);c.drawImage(k,-dw/2,top,dw,dh);c.restore();}else c.drawImage(k,sx+8-dw/2,top,dw,dh);c.globalAlpha=1;return top+2;}
+
+/* v16.18: lính canh làng (sheet của người chơi). Lính gác đứng hai bên chỗ đường vào làng, lính tuần đi dọc đường trong làng.
+   Chỉ tạo lúc chạy (không lưu), vị trí tính từ bản đồ nên giống nhau mỗi lần. Khung: 0 trước, 1 đứng trái, 2 đứng phải, 3 sau,
+   4-5 đi trái, 6-7 đi phải, 8 đi lên, 9 giơ tay chào. */
+const GRD=new Image();GRD.src='img/grd.png';
+const GRDN=['Tư','Năm','Sáu','Bảy','Tám','Lực','Dũng','Mạnh','Hùng','Cường','Tráng','Bảo','Hổ','Báo','Thiết','Kiên'];
+function grdOf(T,ti){if(T.grd)return T.grd;const L=[];T.grd=L;if(!WD.road||!WD.tz)return L;const id=ti+1,inT=(x,y)=>x>0&&y>0&&x<MW-1&&y<MH-1&&WD.tz[y*MW+x]===id;
+  const ok=(x,y)=>inT(x,y)&&!WD.road[y*MW+x]&&!blocked(x,y)&&!poiAt(x,y)&&!bldAt(x,y)&&!L.some(o=>o.x===x&&o.y===y)&&!T.vil.some(o=>o.hx===x&&o.hy===y);
+  const R0=26,ent=[],rd=[];
+  for(let y=T.y-R0;y<=T.y+R0;y++)for(let x=T.x-R0;x<=T.x+R0;x++){if(!inT(x,y))continue;const i=y*MW+x;if(!WD.road[i])continue;rd.push(i);
+    for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const j=(y+dy)*MW+x+dx;if(WD.tz[j]!==id&&WD.road[j]&&!ent.some(e=>Math.abs(e.x-x)+Math.abs(e.y-y)<5))ent.push({x,y,dx,dy});}}
+  let n=0;const nm=()=>'Lính '+GRDN[Math.floor(hash(ti,n++,G.seed+611)*GRDN.length)];
+  for(const e of ent.slice(0,4)){const px=e.dy?1:0,py=e.dy?0:1;
+    for(const sd of[-1,1]){let put=null;for(let d=1;d<=3&&!put;d++)for(const k of[0,1]){const x=e.x+px*sd*d-e.dx*k,y=e.y+py*sd*d-e.dy*k;if(ok(x,y)){put={x,y};break;}}
+      if(put)L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'g'+L.length,vil:true,grd:'g',name:nm(),k:'grd'});}}
+  const np=T.vil.length>=6?2:1;
+  for(let p=0;p<np&&rd.length;p++){for(let t=0;t<20;t++){const i=rd[Math.floor(hash(ti*5+p,t,G.seed+613)*rd.length)],x=i%MW,y=(i-x)/MW;if(blocked(x,y)||poiAt(x,y)||L.some(o=>o.x===x&&o.y===y))continue;
+    L.push({x,y,hx:x,hy:y,ti,vi:'p'+p,vil:true,grd:'p',name:nm(),k:'grd',rd});break;}}
+  return L;}
+function grdAll(T){return grdOf(T,WD.towns.indexOf(T));}
+/* đường đi tuần: BFS trong làng tới một ô đường ngẫu nhiên */
+function grdPath(q){const id=q.ti+1,goal=q.rd[Math.floor(R()*q.rd.length)];if(goal===q.y*MW+q.x)return null;const st=q.y*MW+q.x,prev=new Map([[st,st]]),Q=[st];
+  for(let h=0;h<Q.length&&!prev.has(goal)&&h<4000;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;if(prev.has(j)||WD.tz[j]!==id||blocked(nx,ny)||poiAt(nx,ny))continue;prev.set(j,i);Q.push(j);}}
+  if(!prev.has(goal))return null;const P=[];for(let i=goal;i!==st;i=prev.get(i))P.push(i);return P.reverse();}
+function grdFree(q,x,y){if(blocked(x,y)||poiAt(x,y)||townAt(x,y)!==q.ti)return false;if(x===PL.x&&y===PL.y)return false;if(PL.moving&&x===PL.fx&&y===PL.fy)return false;return!npcList().some(o=>o!==q&&o.x===x&&o.y===y);}
+function grdTick(q,s,dt){const d=Math.abs(q.x-PL.x)+Math.abs(q.y-PL.y);
+  if(q.grd==='g'){if(d<=2){if(!s.near){s.near=1;s.halt=time;}if(PL.x!==q.x)s.face=PL.x>q.x?1:-1;}else if(d>4)s.near=0;return;}
+  if(busy||DLG||CH)return;if((s.cool-=dt)>0)return;
+  if(!q.path||!q.path.length){q.path=grdPath(q);s.cool=q.path?1500+R()*2500:800;s.dir=null;return;}
+  const j=q.path[0],nx=j%MW,ny=(j-nx)/MW;if(!grdFree(q,nx,ny)){s.cool=600;if((s.wt=(s.wt||0)+1)>4){q.path=null;s.wt=0;}return;}s.wt=0;
+  q.path.shift();const dx=nx-q.x,dy=ny-q.y;s.fx=q.x;s.fy=q.y;s.t=0;if(dx)s.face=dx;s.dir=dy<0?'up':dy>0?'down':'side';q.x=nx;q.y=ny;s.cool=NPCR.stepMs+80;}
+function grdDraw(q,s,sx,sy,walk){if(!GRD.complete||!GRD.width)return;let f;
+  if(q.grd==='g'){f=s.halt&&time-s.halt<1400?9:s.near?(s.face<0?1:2):0;}
+  else if(walk){const st=Math.floor(time/230)%4;if(s.dir==='up')f=st%2?3:8;else if(s.dir==='down')f=0;else f=st%2?(s.face<0?1:2):(s.face<0?4:6)+(st>>1);}
+  else f=s.dir==='up'?3:s.face<0?1:s.face>0&&s.dir?2:0;
+  const by=!walk&&q.grd==='g'?Math.round(Math.sin((time+q.x*97)/600)*.6):0;
+  c.drawImage(GRD,f*90,0,90,140,sx+8-13.5,sy+16.5-40.8+by,27,42);}
+const GRDL={g:['Trong làng có lính canh gác ngày đêm, quỷ dữ không dám lại gần. Thầy pháp cứ tự nhiên vào.','Ra khỏi cổng này là đường hoang. Trời tối thầy đi cẩn thận.','Đêm qua có bóng gì lởn vởn ngoài cổng, anh em bọn tôi canh tới sáng.','Ai ra vào làng bọn tôi đều để ý. Thầy pháp thì xin mời.'],
+  p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.']};
+async function grdTalk(v){const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);if(v.grd==='g')s.halt=time;
+  const l=GRDL[v.grd],t=WD.towns[v.ti];await say([l[Math.floor(hash(v.x,G.steps>>4,G.seed+617)*l.length)].replace('làng',t&&/^Xóm/.test(t.n)?'xóm':'làng')],v.name);}
 
 /* v8.5: hiệu ứng thời tiết và phép thuật từ 2 sheet của người dùng (tách nền xanh giữ độ trong mờ, lưu 2 lần kích thước) */
 const FXA=new Image();FXA.src='img/fxa.png';
