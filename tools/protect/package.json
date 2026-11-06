@@ -1,0 +1,8 @@
+{
+  "name": "gms-protect",
+  "private": true,
+  "description": "Làm rối mã + khóa tên miền cho bản phát hành của Giáng Ma Sư",
+  "dependencies": {
+    "javascript-obfuscator": "4.1.1"
+  }
+}

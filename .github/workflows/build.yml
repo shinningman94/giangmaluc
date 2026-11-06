@@ -7,6 +7,8 @@ on:
 env:
   # địa chỉ server online (wss://.../ws); để trống thì dùng file online/server.txt
   ONLINE_SERVER: ${{ vars.ONLINE_SERVER }}
+  # bản phát hành: làm rối mã + khóa tên miền (tools/protect)
+  PROTECT: '1'
 
 permissions:
   contents: read

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { WebSocketServer } from 'ws';
 import { Hub } from './hub.js';
 import { Accounts } from './accounts.js';
+import { allowOrigin } from './origin.js';
 
 const PORT = +process.argv[2] || +process.env.PORT || 8787;
 const FILE = process.env.BOARD_FILE || 'board.json';
@@ -18,6 +19,7 @@ const hub = new Hub({ send: (ws, s) => ws.send(s), close: (ws, code, why) => ws.
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, PUT, OPTIONS', 'content-type': 'application/json; charset=utf-8' };
 const srv = http.createServer(async (req, res) => {
   const path = req.url.split('?')[0];
+  if (!allowOrigin(req.headers.origin, process.env.ALLOW_ORIGINS)) { res.writeHead(403, H); return res.end(JSON.stringify({ err: 'origin' })); }
   if (req.method === 'OPTIONS') { res.writeHead(204, H); return res.end(); }
   if (path.startsWith('/auth/') || path === '/save') {
     let raw = ''; for await (const c of req) { raw += c; if (raw.length > 2e6) break; }
@@ -28,7 +30,8 @@ const srv = http.createServer(async (req, res) => {
   if (req.url.startsWith('/top')) { res.writeHead(200, H); return res.end(JSON.stringify(await hub.top(50))); }
   res.writeHead(200, H); res.end(JSON.stringify({ game: 'Giáng Ma Sư Online', online: hub.online() }));
 });
-const wss = new WebSocketServer({ server: srv, path: '/ws', maxPayload: 8192 });
+const wss = new WebSocketServer({ server: srv, path: '/ws', maxPayload: 8192,
+  verifyClient: info => allowOrigin(info.req.headers.origin, process.env.ALLOW_ORIGINS) });
 wss.on('connection', ws => {
   hub.open(ws);
   ws.on('message', d => hub.message(ws, d.toString()));

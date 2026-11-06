@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Đóng gói vua-phap-su.html thành bản web (PWA) trong web/ và chép sang app Android."""
-import pathlib, re, shutil
+import os, pathlib, re, shutil, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent
 WEB = ROOT / 'web'
@@ -51,11 +51,22 @@ html,body{{margin:0}}</style>
 </html>
 """
 (WEB / 'index.html').write_text(html, encoding='utf-8')
+# Bản phát hành (GitHub Actions đặt PROTECT=1): làm rối mã + khóa tên miền, xem tools/protect/.
+# Chạy build.py trên máy thì mặc định không làm rối, cho nhanh và dễ thử.
+if os.environ.get('PROTECT') == '1':
+    sys.path.insert(0, str(ROOT / 'tools' / 'protect'))
+    import protect
+    protect.protect([WEB / 'index.html'])
 
 # v9.1: ảnh của game nằm trong img/ (tách khỏi html cho nhẹ, đỡ giật)
 IMG = sorted(p.name for p in (ROOT / 'img').glob('*.*'))
 shutil.rmtree(WEB / 'img', ignore_errors=True)
 shutil.copytree(ROOT / 'img', WEB / 'img')
+# Bản phát hành: mã hóa ảnh (ảnh nguồn trong img/ giữ nguyên). ASSETS copy từ WEB/img nên cũng được mã hóa.
+if os.environ.get('PROTECT') == '1':
+    sys.path.insert(0, str(ROOT / 'tools' / 'protect'))
+    import protect
+    protect.encrypt_images(WEB / 'img')
 files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
          'vt323-latin.woff2', 'vt323-latin-ext.woff2', 'vt323-vietnamese.woff2'] + ['img/' + n for n in IMG]
 (WEB / 'sw.js').write_text(f"""const CACHE='vua-phap-su-v{VERSION}';
