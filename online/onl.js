@@ -237,11 +237,12 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
   onlUIFrame();}
 /* người chơi muốn bỏ số người online ở màn hình đầu và bản đồ; trên bản đồ có nút CHAT cạnh MENU */
 function onlTitle(){}
-function onlHudBtns(x,y,w,h,ty,sz){const w1=Math.floor((w-2)/2),w2=w-w1-2,x2=x+w1+2;
-  win(x,y,w1,h,'#7a2a22','#5a1a18','#ffe8a0');txt('CHAT',x+w1/2,ty,{size:sz,align:'center',color:'#fff8e0'});
-  win(x2,y,w2,h,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',x2+w2/2,ty,{size:sz,align:'center',color:'#fff8e0'});
-  if(ONL.unread){const n=String(Math.min(99,ONL.unread)),bw=Math.max(7,n.length*4+3);rect(x+w1-bw+2,y-3,bw,7,'#0c0a18');rect(x+w1-bw+3,y-2,bw-2,5,'#d03030');txt(n,x+w1-bw/2+2,y-4,{size:7,align:'center',color:'#fff'});}}
-function onlHudHits(x,y,w,h){const w1=Math.floor(w/2);hit(x,y,w1,h,()=>{audio();onlOpen(0);});hit(x+w1,y,w-w1,h,()=>openMenu());}
+/* v16.17.2: MENU/AUTO/SỰ KIỆN thu nhỏ thành một hàng 3 nút 20px dưới bản đồ nhỏ; CHAT là nút riêng cùng cỡ ngay dưới MENU */
+function onlHudBtns(x,y,w,h,ty,sz){
+  win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',x+w/2,ty,{size:sz,align:'center',color:'#fff8e0'});
+  const cy=y+h+2;win(x,cy,w,h,'#2a4a7a','#1a2a50','#ffe8a0');txt('CHAT',x+w/2,ty+h+2,{size:sz,align:'center',color:'#fff8e0'});
+  if(ONL.unread){const n=String(Math.min(99,ONL.unread)),bw=Math.max(7,n.length*4+3);rect(x+w-bw+3,cy-2,bw,7,'#0c0a18');rect(x+w-bw+4,cy-1,bw-2,5,'#d03030');txt(n,x+w-bw/2+3,cy-3,{size:7,align:'center',color:'#fff'});}}
+function onlHudHits(x,y,w,h){hit(x,y,w,h,()=>openMenu());hit(x,y+h+1,w,h,()=>{audio();onlOpen(0);});}
 
 /* ---------- thách đấu ---------- */
 function onlChallenge(peer,force){const r=ONL.peers.get(peer);if(!r)return;if(!force&&!onlFree()){toast('Đang bận, ra bản đồ rồi hãy thách đấu');return;}
