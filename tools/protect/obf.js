@@ -15,6 +15,27 @@ const SUFFIX = ['.giangmaluc.workers.dev']; // bản xem trước của nhánh t
 const PKG = 'vn.vuaphapsu.game';
 const HOME = 'https://game.giangmaluc.workers.dev';
 
+// Khóa mã hóa ảnh (dùng chung với protect.py). Ảnh img/*.png bị XOR lúc build nên tải thẳng về
+// chỉ ra file rác, không mở được; shim dưới đây giải mã lại khi game cần (qua blob URL cùng nguồn
+// nên canvas vẫn đọc được pixel). Mọi chỗ game gọi im.src='img/x.png' đều đi qua setter này.
+const IMGKEY = fs.readFileSync(require('path').join(__dirname, 'imgkey.txt'), 'utf8').trim();
+const IMGSHIM = `(function(){
+var S=${JSON.stringify(IMGKEY)};
+function fnv(n){var h=2166136261;for(var i=0;i<n.length;i++){h=(h^n.charCodeAt(i))>>>0;h=Math.imul(h,16777619)>>>0;}return h;}
+function dec(buf,name){var a=new Uint8Array(buf),h=fnv(name),L=S.length;for(var i=0;i<a.length;i++){a[i]=(a[i]^S.charCodeAt(i%L)^((h>>>((i&3)*8))&255)^((i*73)&255))&255;}return a;}
+var P=HTMLImageElement.prototype,D=Object.getOwnPropertyDescriptor(P,'src');
+Object.defineProperty(P,'src',{configurable:true,enumerable:true,get:function(){return D.get.call(this);},set:function(v){
+var m=typeof v==='string'&&v.match(/(^|\\/)img\\/([A-Za-z0-9_]+\\.png)(\\?|$)/);
+if(!m){D.set.call(this,v);return;}
+var self=this,file=m[2],path=v;
+try{var x=new XMLHttpRequest();x.open('GET',path,true);x.responseType='arraybuffer';
+x.onload=function(){try{D.set.call(self,URL.createObjectURL(new Blob([dec(x.response,file)],{type:'image/png'})));}catch(e){D.set.call(self,path);}};
+x.onerror=function(){D.set.call(self,path);};x.send();
+}catch(e){D.set.call(self,path);}
+}});
+})();
+`;
+
 const LOCK = `(function(){
 var H=${JSON.stringify(HOSTS)},S=${JSON.stringify(SUFFIX)};
 function ok(){try{var l=window.location,h=(l.hostname||'').toLowerCase();
@@ -63,7 +84,7 @@ for (const file of process.argv.slice(2)) {
     let code = m[1];
     out += html.slice(last, m.index);
     if (code.length >= MIN) {
-      code = O.obfuscate(LOCK + code, OPTS).getObfuscatedCode();
+      code = O.obfuscate(IMGSHIM + LOCK + code, OPTS).getObfuscatedCode();
       if (code.includes('</script')) throw new Error('mã sau khi làm rối chứa </script');
       code = BANNER + code;
       n++;

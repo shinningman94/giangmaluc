@@ -62,6 +62,11 @@ if os.environ.get('PROTECT') == '1':
 IMG = sorted(p.name for p in (ROOT / 'img').glob('*.*'))
 shutil.rmtree(WEB / 'img', ignore_errors=True)
 shutil.copytree(ROOT / 'img', WEB / 'img')
+# Bản phát hành: mã hóa ảnh (ảnh nguồn trong img/ giữ nguyên). ASSETS copy từ WEB/img nên cũng được mã hóa.
+if os.environ.get('PROTECT') == '1':
+    sys.path.insert(0, str(ROOT / 'tools' / 'protect'))
+    import protect
+    protect.encrypt_images(WEB / 'img')
 files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
          'vt323-latin.woff2', 'vt323-latin-ext.woff2', 'vt323-vietnamese.woff2'] + ['img/' + n for n in IMG]
 (WEB / 'sw.js').write_text(f"""const CACHE='vua-phap-su-v{VERSION}';
