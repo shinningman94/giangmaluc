@@ -2571,6 +2571,7 @@ function drawHUDP(){const d=diep(),L=lead();
   win(W-64,44,62,16,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',W-33,46,{size:11,align:'center',color:'#fff8e0'});
   if(!busy&&!DLG&&!CH){hit(W-64,2,62,40,()=>{openMenu();MENU.tab=4;});hit(W-66,42,66,18,()=>openMenu());}
   drawAutoBtn(W-64,62,62,16);
+  drawEvBtn(W-64,80,62,16);/* v16.16: nút Sự kiện dưới AUTO */
   drawQHud(2,62,W-70);
   drawBLog(H-22,22,2);
   if(bannerT>0){const a=clamp(Math.min(bannerT/400,(2200-bannerT)/300+.01),0,1);c.globalAlpha=a;const n=regName(curZone);const w=tw(n,12)+20;orn(Math.round(W/2-w/2),72,Math.round(w),20,'#5a2a52','#3a1a38');txt(n,W/2,76,{size:12,align:'center',color:'#ffe8a0'});c.globalAlpha=1;}}
@@ -2585,7 +2586,8 @@ function drawHUD(){if(PORT)return drawHUDP();const d=diep(),L=lead();
   drawMini(176,2);
   win(176,44,62,13,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',207,45,{size:10,align:'center',color:'#fff8e0'});
   if(!busy&&!DLG&&!CH){hit(176,2,62,40,()=>{openMenu();MENU.tab=4;});hit(176,44,62,13,()=>openMenu());}
-  drawAutoBtn(176,59,62,13);});
+  drawAutoBtn(176,59,62,13);
+  drawEvBtn(176,74,62,13);/* v16.16: nút Sự kiện dưới AUTO */});
   drawQHud(2,30,120);
   drawBLog(H-11,11,1);
   if(bannerT>0){const a=clamp(Math.min(bannerT/400,(2200-bannerT)/300+.01),0,1);c.globalAlpha=a;const n=regName(curZone);const w=tw(n,12)+20;orn(Math.round(W/2-w/2),34,Math.round(w),20,'#5a2a52','#3a1a38');txt(n,W/2,38,{size:12,align:'center',color:'#ffe8a0'});c.globalAlpha=1;}}
@@ -3830,7 +3832,7 @@ function capP(E){if(E.capB==null)E.capB=.45+R()*.4;const d=E.lv-diep().lv;let p=
    Dưới ngưỡng CAPHP (11.4.1: 20%), mỗi lượt được chọn: thu phục, đánh cho phục (đánh nương tay, sát thương nhỏ ngẫu nhiên, không giết, +5% tỉ lệ mỗi lần, tối đa +20%), hoặc đánh tiếp */
 const CAPHP=.3;
 function capNeed(E){return E.boss?2:1;}
-function capOpen(E){return E&&E.hp>0&&E.hp<=E.mhp*CAPHP&&B.o.kind!=='judge'&&B.o.kind!=='duel';}
+function capOpen(E){return E&&E.hp>0&&E.hp<=E.mhp*CAPHP&&B.o.kind!=='judge'&&B.o.kind!=='duel'&&!B.o.wb;}
 function capDis(E){return sGone(E.id)?'Loài này đã bị thu phục đủ '+SCAP+' con':G.charms<capNeed(E)?'Không đủ bùa trấn yểm':towerFree()?null:'Đội và Tháp Trấn Hồn đều đã đầy';}
 async function capAsk(E){const cp=Math.round(capP(E)*100),need=capNeed(E),dis=capDis(E),pc=Math.max(1,Math.round(E.hp/E.mhp*100));
   const i=await ask(E.name+' sắp khuất phục',`${E.name} chỉ còn ${pc}% máu, oán khí đã yếu. Tỉ lệ thu phục ${cp}%${E.tame?' (đã được đánh cho phục '+E.tame+' lần)':''}.${rankOf(E.id)==='S'?' Loài hạng S này chỉ còn '+Math.max(0,sLeft(E.id))+' con có thể thu phục.':''} Thầy định làm gì?`,[
@@ -3882,7 +3884,9 @@ async function finish(res){B.phase='end';
     for(const u of mem){let n=0;for(const[E,m]of B.gain)n+=expFor(E,u)*m*(u===B.ally?1:.6);await expTo(u,Math.round(n));}}
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
-  await fadeTo(1,400);scene='map';B=null;G.wc=4;
+  const wbx=B.o.wb;await fadeTo(1,400);scene='map';B=null;G.wc=4;
+  /* v16.16: thua Boss Thế Giới không mất bạc, không bị đưa về Trấn Ma Ti; cả đội dậy với 30% máu */
+  if(res==='lose'&&wbx){for(const u of G.party)u.hp=Math.max(1,Math.ceil(u.mhp*.3));await fadeTo(0,300);save();return res;}
   if(res==='lose'){if(G.realm)realmSwap(0);/* v15.41: gục ở giới khác thì về Nhân Giới */const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
     sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 2 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 2 điểm trung thành.`]),'Trấn Ma Ti');return res;}
   await fadeTo(0,300);save();return res;}
@@ -4962,7 +4966,7 @@ function sqMake(v){const T=WD.towns[v.ti],k=vkey(v),cnt=(G.sqd||{})[k]||0,h=i=>h
   return q;}
 function sqReward(q){const s=gainSilver(q.rw.s);G.merit+=q.rw.m;let ex='';if(R()<.3){G.pill.hp++;ex=', +1 đan dược';}sfx('coin');toast(`+${s} bạc · +${q.rw.m} công đức${ex}`);
   G.sq=SQ().filter(o=>o!==q);if(q.ty!=='mail'||true){G.sqd=G.sqd||{};G.sqd[q.k]=(G.sqd[q.k]||0)+1;}}
-function sqHit(id,cap){fqHit(id);for(const q of SQ()){if(q.sp!==id||q.c>=q.n)continue;if(q.ty==='kill'||(q.ty==='cap'&&cap)){q.c++;if(q.c>=q.n)toast(`Xong việc "${q.title}". Về gặp ${q.from} ở ${q.ft}.`);}}}
+function sqHit(id,cap){fqHit(id);evHit(id,cap);for(const q of SQ()){if(q.sp!==id||q.c>=q.n)continue;if(q.ty==='kill'||(q.ty==='cap'&&cap)){q.c++;if(q.c>=q.n)toast(`Xong việc "${q.title}". Về gặp ${q.from} ở ${q.ft}.`);}}}
 function sqRows(){return fqRows().concat(SQ().map(q=>(q.c>=q.n||q.ty==='mail'?'◆ ':'◇ ')+q.title+(q.ty==='mail'?' · từ '+q.from:q.c>=q.n?' · về gặp '+q.from+' ('+q.ft+')':` (${q.c}/${q.n}) · ${q.from}, ${q.ft}`)));}
 async function vilTalk(v){try{await vilTalk0(v);}finally{v.tk=time;}}
 async function vilTalk0(v){if(v.fq)return fqTalk(v);const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);const k=vkey(v),T=WD.towns[v.ti];
@@ -6145,6 +6149,83 @@ function miniGates(x0,y0,w,h,ix,iy,s,ox,oy,cw,ch){let near=null,nd=1e9;
 function mapGates(ox,oy,s){for(const p of WD.pois)if(p.k==='RG')gateGlyph(ox+p.x*s,oy+p.y*s,gateCol(p));}
 function gateTick(dt){if(scene!=='map'||!WD||G.realm||WD.gep==null)return;gateTick.t=(gateTick.t||0)+dt;if(gateTick.t<1000)return;gateTick.t=0;
   if(gateEp()===WD.gep||busy)return;WD.pois=WD.pois.filter(p=>p.k!=='RG');addGates();toast('Các cổng giới đã dịch chuyển sang chỗ khác!');}
+
+/* v16.16: mục Sự kiện cạnh nút MENU (người chơi yêu cầu 2026-11-06):
+   săn Boss Thế Giới mỗi ngày, quà đăng nhập 7 ngày, quà đăng nhập 30 ngày, săn và thu phục quái theo yêu cầu mỗi ngày.
+   Dữ liệu ở G.ev (lưu cùng G). Ngày tính theo giờ máy (fqDay). */
+function EV(){if(!G.ev)G.ev={ld:0,n7:0,c7:0,n30:0,c30:0,wb:null,hd:null};return G.ev;}
+/* mỗi ngày mới mở game tính thêm 1 ngày đăng nhập; nhận hết một vòng thì vòng sau bắt đầu lại từ ngày 1 */
+function evLogin(){if(!G)return;const E=EV(),d=fqDay();if(E.ld===d)return;E.ld=d;
+  if(E.c7>=7){E.n7=0;E.c7=0;}if(E.c30>=30){E.n30=0;E.c30=0;}E.n7=Math.min(7,E.n7+1);E.n30=Math.min(30,E.n30+1);}
+const EV7=[{s:300},{it:{hoihon:3,tulinh:2}},{it:{bua:5}},{it:{thanhanh:2,dinhvi:1}},{m:50,it:{linhqua:3}},{it:{thienthu:1,anphu:2}},{s:1500,it:{coquyen:2},eq:1}];
+function ev30(k){if(k%5)return{s:120+k*15,it:k%2?{hoihon:1}:{bua:2}};
+  return[null,{m:40,it:{thienthu:2}},{s:800,eq:1},{m:80,it:{coquyen:3}},{s:1500,it:{thienthu:3},eq:1},{m:120,it:{coquyen:5,linhqua:5}},{s:5000,m:200,it:{thienthu:5},eq:2}][k/5];}
+function evRwT(rw){const o=[];if(rw.s)o.push(rw.s+' bạc');if(rw.m)o.push(rw.m+' công đức');for(const k in rw.it||{})o.push(rw.it[k]+' '+CONS[k].n);if(rw.eq)o.push(rw.eq>1?'1 trang bị thượng phẩm':'1 trang bị');return o.join(', ');}
+function evGive(rw){const o=[];if(rw.s){G.silver+=rw.s;o.push('+'+rw.s+' bạc');}if(rw.m){G.merit+=rw.m;o.push('+'+rw.m+' công đức');}
+  for(const k in rw.it||{}){itAdd(k,rw.it[k]);o.push('+'+rw.it[k]+' '+CONS[k].n);}
+  if(rw.eq){const it=mkItem(rw.eq>1?4:clamp(tierAt(PL.x,PL.y)+1,0,4));if(addItem(it))o.push(it.n);else{G.silver+=600;o.push('+600 bạc (hành trang đầy)');}}
+  sfx('got');return o.join(', ');}
+/* Boss Thế Giới: mỗi ngày một con hạng S hoặc A, ai chơi cũng gặp cùng một con trong ngày; 3 lượt khiêu chiến, thắng lần đầu nhận quà lớn */
+const EVWB={s:2000,m:100,it:{thienthu:2,coquyen:1},eq:1},EVWB2={s:300,m:20};
+function evWbList(){return[...new Set(ZONES.flatMap(z=>z.pool.map(p=>p[0])))].filter(id=>SPECIES[id]&&ANIM_SRC[id]&&(rankOf(id)==='S'||rankOf(id)==='A')).sort();}
+function evWb(){const E=EV(),d=fqDay();if(E.wb&&E.wb.d===d&&SPECIES[E.wb.id])return E.wb;const C=evWbList();
+  E.wb={d,id:C.length?C[Math.floor(hash(d%100000,7,913)*C.length)]:'hon_ma',t:3,w:0};return E.wb;}
+function evWbLv(){return Math.max(5,diep().lv+3);}
+async function evWbFight(){const W=evWb();
+  if(G.realm){toast('Boss thế giới chỉ khiêu chiến được ở Nhân Giới');return;}
+  if(W.t<=0){toast('Hôm nay đã hết lượt khiêu chiến, mai quay lại nhé');return;}
+  if(!alive().length){toast('Cả đội đang kiệt sức, hồi máu trước đã');return;}
+  W.t--;const b=foe(W.id,evWbLv(),{boss:true,name:'Boss '+SPECIES[W.id].name});b.mhp=b.hp=Math.round(b.mhp*5);b.atk=Math.round(b.atk*1.15);b.def=Math.round(b.def*1.15);
+  const r=await startBattle([b],{kind:'boss',noRun:true,bg:'boss',wb:1});
+  if(r==='win'){if(!W.w){W.w=1;const t=evGive(EVWB);await say(['Boss thế giới đã bị hạ! Thiên hạ truyền tai nhau danh hiệu của Minh Dạ.','Phần thưởng: '+t],'Sự kiện');}
+    else{const t=evGive(EVWB2);toast('Hạ boss thêm lần nữa: '+t);}}
+  else if(r==='lose')toast('Chưa hạ được boss. Còn '+W.t+' lượt hôm nay.');
+  save();}
+/* Săn và thu phục theo yêu cầu: 4 việc mỗi ngày, lấy loài quái đang có trên bản đồ quanh vùng của người chơi lúc nhận */
+const EVHR=[{s:250,it:{hoihon:1}},{s:400,m:30},{s:300,it:{bua:3}},{s:300,it:{thienthu:1}}],EVHB={it:{coquyen:1},m:40};
+function evHd(){const E=EV(),d=fqDay();if(E.hd&&E.hd.d===d)return E.hd;const z=zoneAt(PL.x,PL.y),bad=id=>!SPECIES[id]||['SS','S','A'].includes(rankOf(id));
+  let P=[...new Set((G.lg||[]).filter(g=>g.dead<0&&zoneAt(g.x,g.y)===z).map(g=>g.id))].filter(id=>!bad(id)).sort();
+  if(P.length<2)P=[...new Set((ZONES[z]||ZONES[0]).pool.map(p=>p[0]))].filter(id=>!bad(id)).sort();if(!P.length)P=['hon_ma'];
+  const pk=i=>P[Math.floor(hash(d%100000,i,(G.seed||1)+911)*P.length)],a=pk(1);let b=pk(2);if(b===a&&P.length>1)b=P[(P.indexOf(a)+1)%P.length];
+  E.hd={d,z,q:[{ty:'kill',sp:a,n:10,c:0},{ty:'kill',sp:null,n:30,c:0},{ty:'cap',sp:b,n:1,c:0},{ty:'cap',sp:null,n:3,c:0}],ok:[0,0,0,0],all:0};return E.hd;}
+function evHqT(q){const nm=q.sp?SPECIES[q.sp].name:'quái bất kỳ';return(q.ty==='kill'?'Hạ ':'Thu phục ')+q.n+' '+nm;}
+/* gọi từ sqHit: mỗi con quái bị hạ (cap=true nếu thu phục) */
+function evHit(id,cap){if(!G||!G.ev||!G.ev.hd||G.ev.hd.d!==fqDay())return;const H=G.ev.hd;
+  H.q.forEach((q,i)=>{if(H.ok[i]||q.c>=q.n)return;if(q.sp&&q.sp!==id)return;if(q.ty==='cap'&&!cap)return;q.c++;if(q.c>=q.n)toast('Sự kiện: xong "'+evHqT(q)+'", mở Sự kiện để nhận quà');});}
+function evAlert(){if(!G)return false;evLogin();const E=EV(),W=evWb(),H=E.hd&&E.hd.d===fqDay()?E.hd:null;
+  return E.c7<E.n7||E.c30<E.n30||(!W.w&&W.t>0)||!H||H.q.some((q,i)=>q.c>=q.n&&!H.ok[i])||(H.ok.every(Boolean)&&!H.all);}
+function drawEvBtn(x,y,w,h){const al=evAlert(),bl=al&&Math.floor(time/600)%2;win(x,y,w,h,'#6a4a12','#40280a',bl?'#fff0a0':'#e8c060');
+  txt('SỰ KIỆN',x+w/2,y+(h>14?2:1),{size:h>14?11:10,align:'center',color:'#fff4d0'});
+  if(al){c.fillStyle='#ff3a2a';c.beginPath();c.arc(x+w-5,y+4,2.5,0,7);c.fill();}
+  if(!busy&&!DLG&&!CH)hit(x,y,w,h,evOpen);}
+function evOpen(){if(busy||DLG||CH)return;sfx('sel');run(async()=>{for(;;){evLogin();const E=EV(),W=evWb(),H=evHd(),dn=H.q.filter((q,i)=>H.ok[i]).length;
+    const rows=[
+      {t:'Săn Boss Thế Giới: '+SPECIES[W.id].name+(W.w?' (đã hạ)':' (còn '+W.t+'/3 lượt)')+(!W.w&&W.t>0?' !':''),k:'wb'},
+      {t:'Đăng nhập 7 ngày: đã nhận '+E.c7+'/7'+(E.c7<E.n7?' !':''),k:'d7'},
+      {t:'Đăng nhập 30 ngày: đã nhận '+E.c30+'/30'+(E.c30<E.n30?' !':''),k:'d30'},
+      {t:'Săn và thu phục theo yêu cầu: '+dn+'/4'+(H.q.some((q,i)=>q.c>=q.n&&!H.ok[i])||(dn===4&&!H.all)?' !':''),k:'hd'},
+      {t:'Đóng',k:'x',def:true}];
+    const i=await ask('Sự kiện','Dấu ! là có quà đang chờ nhận. Sự kiện hằng ngày làm mới lúc 0 giờ.',rows);const k=(rows[i]||{}).k;if(!k||k==='x')return;
+    if(k==='wb'){if(await evWbMenu())return;}else if(k==='d7')await evLoginMenu(7);else if(k==='d30')await evLoginMenu(30);else if(k==='hd'){if(await evHdMenu())return;}}});}
+async function evWbMenu(){for(;;){const W=evWb(),nm=SPECIES[W.id].name,rk=rankOf(W.id);
+  const i=await ask('Boss Thế Giới',`Hôm nay ${nm} (hạng ${rk}, cấp ${evWbLv()}) xuất hiện, máu gấp 5 lần, không thu phục được. Thua không mất bạc, không bị đưa về Trấn Ma Ti. Thắng lần đầu: ${evRwT(EVWB)}. Thắng thêm: ${evRwT(EVWB2)}.`,
+    [{t:W.t>0?`Khiêu chiến (còn ${W.t}/3 lượt)`:'Hết lượt hôm nay',dis:W.t<=0},{t:'Quay lại',def:true}]);
+  if(i!==0)return false;await evWbFight();return true;}}
+async function evLoginMenu(N){for(;;){const E=EV(),n=N===7?E.n7:E.n30,cl=N===7?E.c7:E.c30,rw=k=>N===7?EV7[k-1]:ev30(k);const rows=[];
+  for(let k=1;k<=N;k++)rows.push({t:`Ngày ${k}: ${evRwT(rw(k))}`+(k<=cl?' (đã nhận)':k===cl+1&&k<=n?' · NHẬN':''),dis:!(k===cl+1&&k<=n),k});
+  rows.push({t:'Quay lại',def:true});
+  const i=await ask(`Đăng nhập ${N} ngày`,`Đã đăng nhập ${n}/${N} ngày của vòng này. Mỗi ngày mở game được nhận một mốc, nhận lần lượt từ ngày 1.`,rows);
+  const r=rows[i];if(!r||!r.k)return;if(r.k!==cl+1||r.k>n)continue;
+  if(N===7)E.c7++;else E.c30++;const t=evGive(rw(r.k));toast('Nhận quà ngày '+r.k+': '+t);save();}}
+async function evHdMenu(){for(;;){const H=evHd(),rows=H.q.map((q,i)=>({t:evHqT(q)+` (${Math.min(q.c,q.n)}/${q.n})`+(H.ok[i]?' · đã nhận':q.c>=q.n?' · NHẬN':' · '+evRwT(EVHR[i])),k:'q',i}));
+  const all=H.ok.every(Boolean);rows.push({t:'Xong cả 4 việc: '+evRwT(EVHB)+(H.all?' (đã nhận)':all?' · NHẬN':''),k:'b',dis:!all||H.all});rows.push({t:'Quay lại',k:'x',def:true});
+  const i=await ask('Săn và thu phục',`Việc hôm nay ở ${ZONES[H.z]?ZONES[H.z].n:'vùng này'}. Chọn việc chưa xong để tìm đường tới con quái gần nhất. Thu phục cần dùng bùa khi quái còn ít máu.`,rows);
+  const r=rows[i];if(!r||r.k==='x')return false;
+  if(r.k==='b'){if(all&&!H.all){H.all=1;toast('Xong việc sự kiện hôm nay: '+evGive(EVHB));save();}continue;}
+  const q=H.q[r.i];if(H.ok[r.i])continue;
+  if(q.c>=q.n){H.ok[r.i]=1;toast('Nhận quà: '+evGive(EVHR[r.i]));save();continue;}
+  const g=q.sp?qGhost(q.sp):null;if(g){walkToNpc(false,g);toast(`Đang tìm ${SPECIES[q.sp].name}, cách ${Math.abs(g.x-PL.x)+Math.abs(g.y-PL.y)} bước`);return true;}
+  toast(q.sp?'Chưa thấy '+SPECIES[q.sp].name+' gần đây, thử đi quanh '+(ZONES[H.z]?ZONES[H.z].n:'vùng này'):'Quái loại nào cũng được tính, cứ đi săn quanh đây');}}
 
 
 /* ---------- main loop ---------- */
