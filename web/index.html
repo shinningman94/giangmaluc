@@ -2238,7 +2238,7 @@ function drawFollower(f,camX,camY){const id=f.u.id,a=ANIM[id],mv=PL.moving,float
   c.drawImage(F.img,sx-F.w/2,sy-F.h+bob,F.w,F.h);c.globalAlpha=1;}
 function heroMapFrame(k,fl){const a=ANIM.diep,f=a.fr[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;
   return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
-function updateMap(dt){
+function updateMap(dt){mineTick(dt);
   if(scene!=='map'||!G)return;
   updateLanterns(dt);npcTick(dt);updateRunner(dt);
   trackTrail();
@@ -2336,7 +2336,7 @@ async function poiEv(p){const s=pst(p);
   if(p.k==='W')return wildShrine(p,s);
   if(p.k==='R')return recruitSpot(p,s);
   if(p.k==='L')return landmark(p,s);
-  if(p.k==='G'){if(G.nan>=NAN.length)return pdGate();if(G.nan<NAN.length-1||G.qs<2)return say(`Quỷ Môn Quan đóng kín bởi oán khí. Cần vượt ${NAN.length-1} kiếp nạn trước khi đối đầu Oán Linh Vương (đã qua ${G.nan}).`);return say('Oán Linh Vương đang chờ ở trước cổng. Bước tới dấu chấm than để bắt đầu trận cuối.');}}
+  if(p.k==='G'){if(G.nan>=NAN.length)return pdGate();if(G.nan<NAN.length-1||G.qs<2)return say(`Quỷ Môn Quan đóng kín bởi oán khí. Cần vượt hết các kiếp nạn trước khi đối đầu Oán Linh Vương (đã qua ${G.nan}).`);return say('Oán Linh Vương đang chờ ở trước cổng. Bước tới dấu chấm than để bắt đầu trận cuối.');}}
 const VPROB=['Đêm nào cũng có tiếng khóc ngoài bãi tha ma.','Ma trơi lập lòe khiến dân không dám ra đồng.','Giếng làng bỗng đục ngầu, ai uống cũng mê sảng.','Lũ trẻ gặp ác mộng, khóc thét mỗi đêm.','Gà vịt chết dần, dân đồn có quỷ đói về làng.'];
 async function village(p,s){
   const helps=[
@@ -2499,7 +2499,7 @@ const MORAL=[
   ['Một lữ khách bị lạc trong sương mù âm khí.',[{t:'Dẫn đường (công đức, bạc)',f:()=>{evOut({m:3,s:3});}},{t:'Chỉ hướng rồi đi'}]],
   ['Một ngôi miếu hoang có lư hương nguội lạnh.',[{t:'Thắp hương (cả đội đầy linh lực)',f:()=>{evOut({mp:1});}},{t:'Đi tiếp'}]],
   ['Người lái đò đòi tiền mới chịu chở qua khúc sông âm.',[{t:'Trả 8 bạc (cả đội hồi máu)',dis:G=>G.silver<8?'Không đủ bạc':null,f:()=>{G.silver-=8;evOut({heal:.15});}},{t:'Đi đường vòng'}]]];
-async function quest(){const i=G.nan,s=G.qs,q=NQ[i];const tag=`Nạn ${i+1}/${NAN.length}: ${q.t}`;let ok=true;
+async function quest(){const i=G.nan,s=G.qs,q=NQ[i];const tag=`Nạn ${i+1}: ${q.t}`;let ok=true;
   const nk=G.qt?npcLook(npcQN(G.qt)):'nong',who=s===0?q.n:NPCLN[nk]||'Dân làng',last=i===NAN.length-1;
   if(s===0){const ck=chapOf(i);if(NCH[ck][0]===i&&(G.chs==null?-1:G.chs)<ck){G.chs=ck;sfx('lvl');await say([NCH[ck][1].split(': ')[1],...NCH[ck][2]],'Hồi '+(ck+1));}
     await say(['Thầy pháp ơi, xin dừng bước!',...pages(q.d)],who);
@@ -2514,7 +2514,7 @@ async function quest(){const i=G.nan,s=G.qs,q=NQ[i];const tag=`Nạn ${i+1}/${NA
   const ex=Math.round(4+i*.04);for(const u of G.party.slice(0,3))if(u.hp>0)await expTo(u,ex,true);
   G.qs++;
   if(G.qs>=3){G.qs=0;G.nan++;const cd=rv(2+Math.floor(i/30)),sv=gainSilver(rv(5+Math.floor(i/6)));G.merit+=cd;const it=R()<(BOSSES[i]?.8:.2)?mkItem(tierAt(PL.x,PL.y)+(BOSSES[i]?1:0)):null;const got=it&&addItem(it);sfx('got');
-    toast(`Qua nạn ${G.nan}: ${q.t}`);await say(`Đã vượt qua nạn ${G.nan}/${NAN.length}: ${q.t}. Nhận ${cd} công đức, ${sv} bạc`+(got?`, ${it.n}.`:'.'));
+    toast(`Qua nạn ${G.nan}: ${q.t}`);await say(`Đã vượt qua nạn ${G.nan}: ${q.t}. Nhận ${cd} công đức, ${sv} bạc`+(got?`, ${it.n}.`:'.'));
     if(q.e)await say(pages(q.e),'Hậu ký');
     if(G.nan>=24&&!G.sect)await pickSect();
     if(G.nan>=NAN.length){G.qt=null;if(await phongDo())await ending();return;}}
@@ -2941,7 +2941,7 @@ function row(x,y,l,v,sel,col='#fff'){if(sel)rect(x-2,y,110,10,'#4a64c0');txt(l,x
 function drawStats(){const d=diep();win(2,18,118,130,'#2c3a78','#1a2250');
   const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit]];/* v15.14: bùa và đan dược chuyển sang Hành trang */
   res.forEach(([i,l,v],k)=>{icS(i,6,21+k*11,9);txt(l,17,20+k*11,{size:9,color:'#cfd8ff'});txt(String(v),114,20+k*11,{size:9,align:'right',color:'#fff'});});
-  const y=88;txt('Kiếp nạn: '+G.nan+'/'+NAN.length,6,y,{size:9,color:'#ffe8a0'});txt('Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),6,y+10,{size:9,color:'#f0d0ff'});
+  const y=88;txt('Kiếp nạn đã vượt: '+G.nan,6,y,{size:9,color:'#ffe8a0'});txt('Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),6,y+10,{size:9,color:'#f0d0ff'});
   txt('Giáng Ma Lục: '+dexCount()+'/'+dexIds().length,6,y+20,{size:9,color:'#cfe'});txt('Bước đi: '+G.steps,6,y+30,{size:9,color:'#cfe'});
   txt('Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,6,y+40,{size:8,color:'#b8a8d0'});
   win(122,18,116,130,'#2c3a78','#1a2250');txt('Minh Dạ · Lv '+d.lv,126,20,{size:10,color:'#fff'});txt('EXP '+d.exp+'/'+expNeed(d.lv,d),234,21,{size:8,align:'right',color:'#f8e080'});
@@ -3044,11 +3044,10 @@ function infoL(u){const w=weapon(u);win(100,18,138,130,'#2c3a78','#1a2250');
 function nanNote(){const q=NQ[G.nan];return G.qs===0?q.d:(G.qs===1?'Manh mối: '+q.s[0]:'Đã làm: '+q.s[1])+' Tìm người có dấu ? để đi tiếp.';}
 function drawNan(){win(2,18,236,130,'#2c3a78','#1a2250');
   if(G.nan>=NAN.length){txt('Đã vượt đủ '+NAN.length+' kiếp nạn. Quỷ Môn Quan đã đóng!',120,24,{size:10,align:'center',color:'#ffe8a0'});}
-  else{const[t,d]=NAN[G.nan];txt(`Nạn ${G.nan+1}/${NAN.length}: ${t}`,8,21,{size:10,color:'#ffe8a0'});txt('Hồi '+(chapOf(G.nan)+1)+' · Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),8,32,{size:8,color:'#ffb0b0'});
+  else{const[t,d]=NAN[G.nan];txt(`Nạn ${G.nan+1}: ${t}`,8,21,{size:10,color:'#ffe8a0'});txt('Hồi '+(chapOf(G.nan)+1)+' · Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),8,32,{size:8,color:'#ffb0b0'});
     wrap(nanNote(),224,8).slice(0,3).forEach((l,i)=>txt(l,8,41+i*8,{size:8,color:'#e0d8f0'}));
     if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;txt('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),8,66,{size:8,color:'#c8f0c8'});}}
-  bar(8,77,224,4,G.nan/NAN.length,'#d9b45a','#3a2e44');
-  const SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-2)*8.5);const sc=scrollArea('nan',4,84,232,59,(NAN.length+ns)*8.5);clipOn(4,84,230,59);const QL=qList();SR.forEach((l,k)=>{const y=85+k*8.5-sc;if(y>=76&&y<=146){txt(l,10,y,{size:8,color:'#ffc890'});hitC(4,y,228,8.5,()=>qNav(QL[k]),84,59);}});for(let i=0;i<NAN.length;i++){const y=85+(i+ns)*8.5-sc;if(y<76||y>146)continue;const done=i<G.nan,cur=i===G.nan;txt((done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':''),10,y,{size:8,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(4,y,228,8.5,()=>qNav('main'),84,59);}clipOff();scrollBar('nan',234,84,59);}
+  const SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-2)*8.5);const NV=Math.min(NAN.length,G.nan+4),sc=scrollArea('nan',4,84,232,59,(NV+ns)*8.5);clipOn(4,84,230,59);const QL=qList();SR.forEach((l,k)=>{const y=85+k*8.5-sc;if(y>=76&&y<=146){txt(l,10,y,{size:8,color:'#ffc890'});hitC(4,y,228,8.5,()=>qNav(QL[k]),84,59);}});for(let i=0;i<NV;i++){const y=85+(i+ns)*8.5-sc;if(y<76||y>146)continue;const done=i<G.nan,cur=i===G.nan;txt((done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+(i>G.nan?'???':NAN[i][0]+(BOSSES[i]?' (trùm)':'')),10,y,{size:8,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(4,y,228,8.5,()=>qNav('main'),84,59);}clipOff();scrollBar('nan',234,84,59);}
 /* v5.3: chỉ số cộng thêm của món đang mặc, và so sánh món trong túi với món cùng ô đang mặc */
 function eqStats(s,it){const v=it?it.v:0;return s==='w'?[['Lực',v],['Ma',it&&it.m||0]]:s==='a'?[['Thủ',Math.ceil(v*.6)],['HP',v*2]]:s==='b'?[['Tốc',Math.ceil(v/2)],['HP',v]]:[['LL',v*3],['Kỹ',Math.ceil(v/2)]];}
 function eqDesc(s){const it=G.eq[s];return it?itemDesc(it):'không cộng thêm';}
@@ -3115,7 +3114,7 @@ function drawStatsP(t,b){const d=diep();const rows=statRows();const rh=clamp(Mat
   const y=t+hA+3;win(2,y,W-4,Math.min(b-y,94),'#2c3a78','#1a2250');
   const res=[['coin','Ngân lượng',G.silver],['lotus','Công đức',G.merit]];/* v15.14: bùa và đan dược chuyển sang Hành trang */
   const cw=(W-12)/2;res.forEach(([ic0,l,v],k)=>{const x=Math.round(6+(k%2)*cw),yy=y+4+Math.floor(k/2)*11;icS(ic0,x,yy+1,9);txt(l,x+11,yy,{size:8,color:'#cfd8ff'});txt(String(v),Math.round(x+cw-4),yy,{size:9,align:'right',color:'#fff'});});
-  const y2=y+39;[['Kiếp nạn: '+G.nan+'/'+NAN.length,'#ffe8a0'],['Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),'#f0d0ff'],['Giáng Ma Lục: '+dexCount()+'/'+dexIds().length+' · Bước: '+G.steps,'#cfe'],['Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,'#b8a8d0']]
+  const y2=y+39;[['Kiếp nạn đã vượt: '+G.nan,'#ffe8a0'],['Nghề: '+(G.sect?SECT[G.sect].n:'Pháp Sư'),'#f0d0ff'],['Giáng Ma Lục: '+dexCount()+'/'+dexIds().length+' · Bước: '+G.steps,'#cfe'],['Diệt '+G.stats.kill+' · Độ '+G.stats.purify+' · Phục '+G.stats.capture,'#b8a8d0']]
     .forEach(([l,col],i)=>{if(y2+i*10+10<=b)txt(l,7,y2+i*10,{size:9,color:col});});}
 function drawPartyP(t,b){const cw=Math.floor((W-6)/2),ch=24,PLs=pList(),inT=MENU.tw,vh=3*(ch+1)-1,sc=scrollArea('pty',0,t,W,vh,Math.ceil(PLs.length/2)*(ch+1)-1);listShow('pty',Math.floor(MENU.i/2),ch+1,vh);clipOn(0,t,W,vh);
   PLs.forEach((u,k)=>{const i=k,x=2+(k%2)*(cw+2),y=t+Math.floor(k/2)*(ch+1)-sc;if(y+ch<t||y>t+vh)return;const sel=i===MENU.i;win(x,y,cw,ch,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');
@@ -3132,14 +3131,14 @@ function infoP(u,y,b){const w=weapon(u);win(2,y,W-4,b-y,'#2c3a78','#1a2250');
   yy+=42;infoText(infoLines(u,W-16),8,yy,b-3,9,8,W-7);}
 function drawNanP(t,b){win(2,t,W-4,b-t,'#2c3a78','#1a2250');let y=t+3;
   if(G.nan>=NAN.length){wrap('Đã vượt đủ '+NAN.length+' kiếp nạn. Quỷ Môn Quan đã đóng!',W-16,10).forEach(l=>{txt(l,W/2,y,{size:10,align:'center',color:'#ffe8a0'});y+=11;});}
-  else{const[tt,d]=NAN[G.nan];txt(NCH[chapOf(G.nan)][1],8,y,{size:9,color:'#c8b0ff'});y+=11;wrap(`Nạn ${G.nan+1}/${NAN.length}: ${tt}`,W-16,10).forEach(l=>{txt(l,8,y,{size:10,color:'#ffe8a0'});y+=11;});
+  else{const[tt,d]=NAN[G.nan];txt(NCH[chapOf(G.nan)][1],8,y,{size:9,color:'#c8b0ff'});y+=11;wrap(`Nạn ${G.nan+1}: ${tt}`,W-16,10).forEach(l=>{txt(l,8,y,{size:10,color:'#ffe8a0'});y+=11;});
     wrap('Chặng '+(G.qs+1)+'/3'+(BOSSES[G.nan]?' · trùm: '+BOSSES[G.nan][0]:''),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#ffb0b0'});y+=9;});
     wrap(nanNote(),W-16,8).slice(0,9).forEach(l=>{txt(l,8,y,{size:8,color:'#e0d8f0'});y+=9;});
     if(G.qt&&!G.realm){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;y+=2;wrap('Người có dấu ? cách '+(Math.abs(dx)+Math.abs(dy))+' bước về phía '+(Math.abs(dx)>=Math.abs(dy)?(dx>=0?'Đông':'Tây'):(dy>0?'Nam':'Bắc')),W-16,8).forEach(l=>{txt(l,8,y,{size:8,color:'#c8f0c8'});y+=9;});}}
-  y+=3;bar(8,y,W-16,4,G.nan/NAN.length,'#d9b45a','#3a2e44');y+=8;
-  const lh=b-y-3,ly=y,SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-Math.floor(lh/33))*11);const sc=scrollArea('nan',2,ly,W-4,lh,(NAN.length+ns)*11);clipOn(3,ly,W-6,lh);
+  y+=3;/* v16.27.1: người chơi muốn bỏ số đếm tổng kiếp nạn */y+=4;
+  const lh=b-y-3,ly=y,SR=sqRows(),ns=SR.length;if(SCO.nan==null)SCO.nan=ns?0:Math.max(0,(G.nan-Math.floor(lh/33))*11);const NV=Math.min(NAN.length,G.nan+4),sc=scrollArea('nan',2,ly,W-4,lh,(NV+ns)*11);clipOn(3,ly,W-6,lh);
   const QL=qList();SR.forEach((l,k)=>{const yy=ly+k*11-sc;if(yy+11>=ly&&yy<=ly+lh){txt(l,8,yy,{size:tw(l,9)>W-16?7:8,color:'#ffc890'});hitC(2,yy,W-4,11,()=>qNav(QL[k]),ly,lh);}});
-  for(let i=0;i<NAN.length;i++){const yy=ly+(i+ns)*11-sc;if(yy+11<ly||yy>ly+lh)continue;const done=i<G.nan,cur=i===G.nan;const l=(done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+NAN[i][0]+(BOSSES[i]?' (trùm)':'');txt(l,10,yy,{size:tw(l,9)>W-20?8:9,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(2,yy,W-4,11,()=>qNav('main'),ly,lh);}clipOff();scrollBar('nan',W-6,ly,lh);}
+  for(let i=0;i<NV;i++){const yy=ly+(i+ns)*11-sc;if(yy+11<ly||yy>ly+lh)continue;const done=i<G.nan,cur=i===G.nan;const l=(done?'✓ ':cur?'▶ ':'  ')+(i+1)+'. '+(i>G.nan?'???':NAN[i][0]+(BOSSES[i]?' (trùm)':''));txt(l,10,yy,{size:tw(l,9)>W-20?8:9,color:done?'#80c890':cur?'#ffe8a0':'#9a90b0'});if(cur&&G.qt)hitC(2,yy,W-4,11,()=>qNav('main'),ly,lh);}clipOff();scrollBar('nan',W-6,ly,lh);}
 function drawGearP(t,b){const M=MENU;bagFix();bagChips(2,t,W-4,18);let y=t+21;const rh=29;
   if(M.bg){const CL=consList();win(2,y,W-4,b-y,'#2c3a78','#1a2250');y+=3;const lh=b-y-3,sc=scrollArea('bag',2,y,W-4,lh,CL.length*rh);listShow('bag',M.i,rh,lh);clipOn(3,y,W-6,lh);const ly=y;
     CL.forEach((k,i)=>{const yy=ly+i*rh-sc,sel=i===M.i;if(yy+rh<ly||yy>ly+lh)return;if(sel)rect(5,yy,W-10,rh-1,'#4a64c0');cArt(k,5,yy+3,16);txt(CONS[k].n+' ×'+itN(k),22,yy,{size:9,color:'#ffe8a0'});wrap(CONS[k].d,W-30,8).slice(0,2).forEach((l,q)=>txt(l,22,yy+9+q*9,{size:8,color:'#c8c0e0'}));hitC(2,yy,W-4,rh,()=>{M.i=i;M.sub=gearSub;M.si=0;sfx('ok');},ly,lh);});clipOff();scrollBar('bag',W-6,ly,lh);
@@ -6460,7 +6459,13 @@ function oreCell(cx,cy){if(!WD||!WD.g)return null;if(ORE_W!==WD){ORE_W=WD;ORE_C=
   ORE_C.set(id,n);return n;}
 function oreAt(x,y){if(!G||G.realm)return null;const n=oreCell(Math.floor(x/ORCELL),Math.floor(y/ORCELL));return n&&n.x===x&&n.y===y?n:null;}
 function oreLive(n){return!(G.ore&&G.ore[n.id]!=null&&G.steps-G.ore[n.id]<300);}
-function oreStep(){const n=oreAt(PL.x,PL.y);if(!n||!oreLive(n))return;G.ore=G.ore||{};const a=1+(R()<.5?1:0)+(R()<.2?1:0);itAdd(n.k,a);G.ore[n.id]=G.steps;
+/* v16.27.1 (người chơi: đào quặng tốn thời gian, có thanh đếm ngược trên đầu mỏ, quặng càng hiếm càng lâu): bước lên mỏ thì đứng lại đào,
+   đi khỏi ô là bỏ dở; thời gian chỉ chạy khi đang ở bản đồ, không có hộp thoại */
+const ORT={qsat:2500,qdong:4000,qbac:6000,qhuyen:8500};let MINE=null;
+function oreStep(){const n=oreAt(PL.x,PL.y);if(!n||!oreLive(n))return;if(MINE&&MINE.n===n)return;PL.path=null;PL.npcGoal=null;MINE={n,el:0,dur:ORT[n.k]||3000};sfx('sel');}
+function mineTick(dt){const M=MINE;if(!M)return;if(!G||G.realm||PL.x!==M.n.x||PL.y!==M.n.y||!oreLive(M.n)){MINE=null;return;}if(busy||DLG||CH||PL.moving)return;
+  M.el+=dt;if(Math.floor(M.el/450)!==Math.floor((M.el-dt)/450)){ORFX={x:M.n.x,y:M.n.y,t:time};sfx('hit');}if(M.el>=M.dur){MINE=null;oreDone(M.n);}}
+function oreDone(n){G.ore=G.ore||{};const a=1+(R()<.5?1:0)+(R()<.2?1:0);itAdd(n.k,a);G.ore[n.id]=G.steps;
   ORFX={x:n.x,y:n.y,t:time};sfx('got');toast('Đào được '+a+' '+CONS[n.k].n);}
 const ORSPR={};
 function oreSpr(k,live){const key=k+live;if(ORSPR[key])return ORSPR[key];const[a,b]=ORC[k];
@@ -6471,6 +6476,8 @@ function oreRow(y,camX,camY){if(!G||G.realm||!WD)return;const cy=Math.floor(y/OR
   for(let cx=Math.floor(x0/ORCELL);cx<=Math.floor(x1/ORCELL);cx++){const n=oreCell(cx,cy);if(!n||n.y!==y||n.x<x0||n.x>x1||!seen[y*MW+n.x])continue;
     const live=oreLive(n),sx=n.x*TS-camX,sy=y*TS-camY;c.drawImage(oreSpr(n.k,live),sx-2,sy+2);
     if(live&&Math.floor(time/700+n.x)%4===0){c.fillStyle=ORC[n.k][1];c.fillRect(sx+4+(n.x*7+Math.floor(time/700))%10,sy+3,1,1);}
+    if(MINE&&MINE.n===n){const f=Math.min(1,MINE.el/MINE.dur),bw=26,bx=Math.round(sx+8-bw/2),by=sy-22;c.fillStyle='rgba(0,0,0,.65)';c.fillRect(bx-1,by-1,bw+2,6);c.fillStyle='#3a2a1a';c.fillRect(bx,by,bw,4);c.fillStyle=ORC[n.k][1];c.fillRect(bx,by,Math.round(bw*f),4);
+      txt(((MINE.dur-MINE.el)/1000).toFixed(1)+'s',sx+8,by-9,{size:7,align:'center',color:'#fff4c0'});}
     if(ORFX&&ORFX.x===n.x&&ORFX.y===n.y&&time-ORFX.t<900){const f=(time-ORFX.t)/900;c.fillStyle='#ffe08a';for(let i=0;i<6;i++){const a=i*1.05+f*2;c.fillRect(Math.round(sx+8+Math.cos(a)*f*12),Math.round(sy+6-Math.sin(a)*f*10-f*4),1,1);}}}}
 
 /* ---------- tiệm rèn: biển hiệu và lò rèn vẽ thêm vào nhà ---------- */
