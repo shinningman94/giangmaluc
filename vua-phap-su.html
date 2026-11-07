@@ -1201,13 +1201,13 @@ function townFields(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed
      sát nhau trong khu ruộng, ruộng rau trước rồi ruộng lúa ngay cạnh */
   const lay=(r,t)=>{for(let yy=r.y;yy<r.y+r.h;yy++)for(let xx=r.x;xx<r.x+r.w;xx++){g[yy][xx]=t;dc[yy][xx]=null;}
     for(let yy=r.y-1;yy<=r.y+r.h;yy++)for(let xx=r.x-1;xx<=r.x+r.w;xx++)if(yy>=0&&xx>=0&&yy<mh&&xx<mw)used[yy*mw+xx]=1;};
-  for(const T of o.towns||[]){const id=T.i+1,big=T.i<12,W0=big?13:11,H0=big?7:6,rx=big?26:22,ry=big?18:15;
+  for(const T of o.towns||[]){const id=T.i+1,big=T.i<12,W0=big?9:8,H0=big?5:4,/* v16.30: người chơi muốn ruộng nhỏ lại (cũ 13x7 / 11x6) */rx=big?26:22,ry=big?18:15;
     /* bảng cộng dồn ô trống của làng: kiểm tra một hình chữ nhật trống trong O(1) */
     const X0=Math.max(2,T.x-rx-1),Y0=Math.max(2,T.y-ry-1),X1=Math.min(mw-2,T.x+rx+2),Y1=Math.min(mh-2,T.y+ry+2),BW=X1-X0+1,BH=Y1-Y0+1,S=new Int32Array((BW+1)*(BH+1));
     for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){const X=X0+x,Y=Y0+y,i=Y*mw+X,ok=tz[i]===id&&!used[i]&&!ob[Y][X]&&!near(X,Y)?1:0;S[(y+1)*(BW+1)+x+1]=ok+S[y*(BW+1)+x+1]+S[(y+1)*(BW+1)+x]-S[y*(BW+1)+x];}
     const fit=(x,y,w,h,A)=>{x-=X0;y-=Y0;if(x<0||y<0||x+w>BW||y+h>BH)return false;if(S[(y+h)*(BW+1)+x+w]-S[y*(BW+1)+x+w]-S[(y+h)*(BW+1)+x]+S[y*(BW+1)+x]!==w*h)return false;
       if(A){const ax=A.x-X0,ay=A.y-Y0;if(x<ax+A.w+1&&x+w>ax-1&&y<ay+A.h+1&&y+h>ay-1)return false;}return true;};
-    const SZ=[[W0,H0],[W0-2,H0],[W0,H0-1],[W0-2,H0-1],[W0-4,H0-1],[W0-4,H0-2],[W0-6,H0-2],[5,3]];
+    const SZ=[[W0,H0],[W0-1,H0],[W0,H0-1],[W0-2,H0-1],[W0-3,H0-1],[5,3]].filter(([w,h])=>w>=5&&h>=3);
     const pick=(cx,cy,R,A)=>{let best=null,bs=-1e9;for(const[w,h]of SZ)for(let y=Math.floor(cy-R*.7);y<=cy+R*.7;y++)for(let x=Math.floor(cx-R);x<=cx+R;x++){
         const d=Math.hypot(x+w/2-cx,(y+h/2-cy)*1.4),sc=w*h*4-d;if(sc<=bs||!fit(x,y,w,h,A))continue;bs=sc;best={x,y,w,h};}return best;};
     let bp=null,bsc=-1;const f=FZ[id];const C=f?[[f.fx,f.fy]]:[];
@@ -3195,7 +3195,8 @@ function loyOf(u){return!u||u.id==='diep'?100:u.loy==null?100:u.loy;}
 function loyAdd(u,n){u.loy=clamp(loyOf(u)+n,0,100);if(u.loy>=100)u.loyT=null;}
 function loyTick(){if(!G)return;const now=Date.now();for(const u of G.box||[]){if(!u||u.id==='diep')continue;const l=loyOf(u);if(l>=100){u.loyT=null;continue;}
   if(!u.loyT||now<u.loyT){u.loyT=now;continue;}u.loy=Math.min(100,l+(now-u.loyT)/LOYD*100);u.loyT=u.loy>=100?null:now;}}
-function loyLose(){const out=[];for(const u of G.party.slice()){if(u.id==='diep')continue;loyAdd(u,-2);if(u.loy<=0){u.loy=0;G.party.splice(G.party.indexOf(u),1);toTower(u);u.loyT=Date.now();out.push(u.name);}}return out;}
+/* v16.30 (người chơi): thua trận bị đưa về Trấn Ma Ti thì mỗi đồng đội -5; gục ngã trong trận ngoài thành thì người gục -2 */
+function loyLose(n=5,L=G.party){const out=[];for(const u of L.slice()){if(u.id==='diep'||!G.party.includes(u))continue;loyAdd(u,-n);if(u.loy<=0){u.loy=0;G.party.splice(G.party.indexOf(u),1);toTower(u);u.loyT=Date.now();out.push(u.name);}}return out;}
 
 /* ---------- v16.0 VFX: va chạm, khựng hình, bóng mờ, hiệu ứng theo hệ, trạng thái trên người ----------
    Người chơi đã bỏ: vòng linh hồn (ring), chuỗi bùa (chain), tia cyan (beam), đốm ma trơi xanh (wisps),
@@ -3920,7 +3921,7 @@ async function expTo(u,n,quiet){if(!u||u.lv>=LVMAX||n<=0)return;const inB=scene=
   let left=n;while(left>0){const step=Math.min(left,Math.max(0,expNeed(u.lv,u)-u.exp));const s0=u.exp;if(inB)await tween(Math.min(1000,Math.max(220,step*10)),t=>{B.expBar.v=Math.round(s0+step*t);});u.exp+=step;left-=step;
     if(u.exp>=expNeed(u.lv,u)){u.exp=0;const old={...u};const g=levelUp(u);sfx('lvl');const nu=allSkillsOf(u).filter(o=>o.lv>0&&o.lv===u.lv).map(o=>o.s.n);if(inB){fxG('cirG',176,96,1800,1.1);fxS('parts',176,56,1600,1.2,{rise:26});B.expBar=null;B.lvl={u,g,old};await waitPress();B.lvl=null;if(nu.length){B.msg=u.name+' lĩnh ngộ kỹ năng mới: '+nu.join(', ')+'!';sfx('got');await wait(1100);}B.expBar={u,v:0};}else toast(u.name+' lên cấp '+u.lv+'!'+(u.id==='diep'?' +3 điểm cộng':'')+(nu.length?' Mở chiêu '+nu.join(', '):''));if(u.lv>=LVMAX)break;}}
   if(inB){await wait(250);B.expBar=null;}}
-async function finish(res){B.phase='end';
+async function finish(res){if(B.f0&&G)for(const u of G.party)if(u.hp<=0&&u.id!=='diep'&&!B.f0.has(u))B.fell.add(u);const fell=res==='lose'&&!B.o.wb?[]:[...(B.fell||[])];B.phase='end';
   {const nm=[...new Set(B.foes.map(f=>f.name))].join(', '),lv=Math.max(...B.foes.map(f=>f.lv));
    blogAdd(res==='win'?`${B.out&&B.out.length?(o=>o[0].toUpperCase()+o.slice(1))(B.out.join(', ')):'Thắng '+nm} (Lv ${lv})${B.loot.length?' · '+B.loot.join(', '):''}`:res==='lose'?`Thua trước ${nm} (Lv ${lv})`:`Bỏ chạy khỏi ${nm} (Lv ${lv})`);}
   if(res==='win'){if(hasPerk('eliza')){let n=0;for(const u of G.party)if(u.hp<=0){u.hp=1;n++;}if(n)B.loot.push('Eliza dìu '+n+' người dậy');}if(G.sect==='amduong'&&R()<.35){G.charms++;B.loot.push('+1 bùa');}if(G.sect==='thuoc'){healAll(.15);B.loot.push('cả đội hồi 15% HP');}B.msg='Chiến thắng!';if(B.loot.length){B.msg='Chiến lợi phẩm: '+B.loot.join(', ');}await wait(900);
@@ -3929,10 +3930,11 @@ async function finish(res){B.phase='end';
   if(res==='lose'){B.msg='Cả đội kiệt sức...';await wait(1200);}
   if(res==='run')await wait(300);
   const wbx=B.o.wb;await fadeTo(1,400);scene='map';B=null;G.wc=4;
+  if(fell.length){const lo=loyLose(2,fell);toast(fell.map(u=>u.name).join(', ')+' gục ngã, mất 2 điểm trung thành'+(lo.length?'. '+lo.join(', ')+' hết trung thành, đã vào Tháp Trấn Hồn':''));}
   /* v16.16: thua Boss Thế Giới không mất bạc, không bị đưa về Trấn Ma Ti; cả đội dậy với 30% máu */
   if(res==='lose'&&wbx){for(const u of G.party)u.hp=Math.max(1,Math.ceil(u.mhp*.3));await fadeTo(0,300);save();return res;}
   if(res==='lose'){if(G.realm)realmSwap(0);/* v15.41: gục ở giới khác thì về Nhân Giới */const lo=loyLose();G.dead={x:PL.x,y:PL.y};if(!G.home||!WD.pois.some(p=>p.k==='T'&&p.x===G.home.x&&p.y===G.home.y))G.home=homeTMT(PL.x,PL.y);const h=G.home,tp=WD.pois.find(p=>p.x===h.x&&p.y===h.y);let sx=h.x,sy=h.y;for(const[dx,dy]of[[0,1],[0,-1],[-1,0],[1,0]])if(!blocked(h.x+dx,h.y+dy)&&!poiAt(h.x+dx,h.y+dy)){sx=h.x+dx;sy=h.y+dy;break;}PL.x=sx;PL.y=sy;PL.dir='down';snapPL();for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}const lost=Math.floor(G.silver/2);G.silver-=lost;reveal();curZone=zoneAt(PL.x);await fadeTo(0);save();
-    sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 2 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 2 điểm trung thành.`]),'Trấn Ma Ti');return res;}
+    sfx('heal');await say(['Phù truyền tống trong ngực áo bốc cháy, ánh sáng xanh cuốn cả đội đi giữa lúc nguy cấp...',`Thầy tỉnh dậy trước ${tp?tp.n:'Trấn Ma Ti'}. Hương trầm đã hồi phục cả đội.`,`Lúc truyền tống, hành trang rơi mất ${lost} ngân lượng.`].concat(lo.length?[`Thua trận, đồng hành mất 5 điểm trung thành. ${lo.join(', ')} hết trung thành, không chịu ra trận nữa và đã vào Tháp Trấn Hồn. Ở trong tháp sẽ tự hồi dần (đầy sau 2 ngày), hoặc cho ăn Linh Quả.`]:[`Thua trận, đồng hành mất 5 điểm trung thành.`]),'Trấn Ma Ti');return res;}
   await fadeTo(0,300);save();return res;}
 /* v13.5 hai bên cân nhau: mọi đấu thủ (ta và địch) vẽ cùng chiều cao thân BTH, trùm cao hơn một chút */
 const BTH=62;
@@ -6572,6 +6574,7 @@ function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;t
   else if(scene==='menu'&&MENU)ctr(drawMenu,1);
   if(scene!=='battle'&&fx.length)fx.length=0;if(scene!=='battle'&&scene!=='arena'&&VX.length)VX.length=0;if(scene!=='battle'&&fxU.length)fxU.length=0;
   if(stripes>0){for(let i=0;i<10;i++){const h=Math.ceil(H/10);const w=Math.round(W*clamp(stripes*1.4-i*.04,0,1));rect(i%2?W-w:0,i*h,w,h,'#0c0a18');}}
+  if(scene==='battle'&&B&&G&&B.phase!=='end'){if(!B.f0){B.f0=new Set(G.party.filter(u=>u.hp<=0));B.fell=new Set();}for(const u of G.party)if(u.hp<=0&&u.id!=='diep'&&!B.f0.has(u))B.fell.add(u);}/* v16.30: ghi lại đồng đội gục ngã trong trận */
   drawJoy();drawToasts(dt);ctr(drawCh);ctr(()=>drawDlg(dt));
   if(fade>0){c.globalAlpha=fade;rect(0,0,W,H,'#000');c.globalAlpha=1;}}
 /* lưu khi app bị ẩn/đóng hoặc hệ thống thiếu RAM (chỉ khi không đang đánh/hội thoại) */
