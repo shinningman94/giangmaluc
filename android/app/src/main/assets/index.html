@@ -1081,7 +1081,7 @@ function floraOb(o,x,y){const[kind,pal]=o.split(':');let set=kind,v='';
 const PSCALE={qmieu:1.5};
 function floraOb0(o,x,y,vv){const[kind,pal]=o.split(':');let set=kind,v=vv;
   if(kind==='X')return{k:QX,w:1,h:1};if(o==='P:stilt')return stiltArt();
-  if(kind==='P'&&pal.startsWith('t_')){const nm=pal.slice(2),A=blPart(nm);const m=nm==='bush2'||nm==='bonsai'?1:.62;return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
+  if(kind==='P'&&pal.startsWith('t_')){const nm=pal.slice(2),A=blPart(nm);const m=nm==='bush2'||nm==='bonsai'?1.3:.85;/* v16.26: người chơi muốn cây trong làng to hơn một chút (cũ 1 và .62) */return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='P'){const A=blPart(pal);const m=PSCALE[pal]||1;return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='round'||kind==='lime'||kind==='pine'){const z=zoneAt(x,y);if(kind==='round'&&(z===0||z===1))set='round0';if(kind==='pine'&&z===1)set='pine1';if(pal==='ghost')v=vv||'ghost';}
   else if(!FLSET[kind])return null;
@@ -5323,9 +5323,9 @@ function grdOf(T,ti){if(T.grd)return T.grd;const L=[];T.grd=L;if(!WD.road||!WD.t
     for(const[dx,dy]of[[1,0],[-1,0],[2,0],[-2,0],[1,1],[-1,1]]){const x=b.dx+dx,y=b.fy+dy;if(inT(x,y)&&!blocked(x,y)&&!poiAt(x,y)&&!bldAt(x,y)&&!L.some(o=>o.x===x&&o.y===y)&&!T.vil.some(o=>o.hx===x&&o.hy===y)){put={x,y};break;}}
     if(put){const lk=lkOf(put.x,put.y);L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'d'+bi,vil:true,grd:'d',lk,name:tnm(lk),k:'grd',dr:put.x<b.dx?1:-1});}}
   return L;}
-const TWLK=['nong','nong','co','co','sinh','dong','ong'];
+const TWLK=['nong','nong','co','co','sinh','dong','ong','an','be'];
 const TWNM={nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
-  sinh:[['Anh','Cậu'],['Minh','Tú','Quang','Khải','Tín','Văn','Phúc','Thanh']],ong:[['Ông','Cụ'],['Lộc','Thọ','Phúc','Bảy','Tư','Khang','Đức','Năm']],dong:[['Thằng','Bé'],['Tí','Tèo','Cu','Bin','Bống','Út','Cò','Bờm']]};
+  sinh:[['Anh','Cậu'],['Minh','Tú','Quang','Khải','Tín','Văn','Phúc','Thanh']],an:[['Ăn mày','Lão khất'],['Tư','Mốc','Lủi','Sáu','Ba','Còm']],be:[['Bé','Con'],['Gạo','Na','Mít','Su','Bông','Thóc','Cốm']],ong:[['Ông','Cụ'],['Lộc','Thọ','Phúc','Bảy','Tư','Khang','Đức','Năm']],dong:[['Thằng','Bé'],['Tí','Tèo','Cu','Bin','Bống','Út','Cò','Bờm']]};
 function grdAll(T){return grdOf(T,WD.towns.indexOf(T));}
 /* đường đi tuần: BFS trong làng tới một ô đường ngẫu nhiên */
 function grdPath(q){const id=q.ti+1,n=q.rd.length;q.wi=((q.wi+q.wd)%n+n)%n;const goal=q.rd[q.wi];if(goal===q.y*MW+q.x)return null;const st=q.y*MW+q.x,prev=new Map([[st,st]]),Q=[st];
@@ -5347,9 +5347,10 @@ function grdDraw(q,s,sx,sy,walk){if(q.lk){vlaDraw(q,q.lk,sx,sy,s.face||q.dr||1,w
 const GRDL={g:['Trong làng có lính canh gác ngày đêm, quỷ dữ không dám lại gần. Thầy pháp cứ tự nhiên vào.','Ra khỏi cổng này là đường hoang. Trời tối thầy đi cẩn thận.','Đêm qua có bóng gì lởn vởn ngoài cổng, anh em bọn tôi canh tới sáng.','Ai ra vào làng bọn tôi đều để ý. Thầy pháp thì xin mời.'],
   p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.'],
   w:['Hôm nay trời đẹp, tôi ra chợ một vòng.','Thầy pháp mới tới làng hả? Làng mình hiền lắm.','Đi dạo quanh làng cho khuây khỏa, tối đến là đóng cửa sớm.','Nghe nói ngoài bìa rừng có ma trơi, thầy cẩn thận nhé.','Có thầy pháp ở đây, bà con yên tâm làm ăn.'],
+  an:['Thầy pháp ơi, bố thí cho lão bát cơm. Trời phù hộ thầy.','Lão đi khắp các làng, chuyện ma quỷ ở đâu lão cũng nghe qua.','Đêm qua lão ngủ dưới gốc cây, thấy bóng trắng đi qua đi lại.','Làng này tốt bụng, ngày nào cũng có người cho lão miếng ăn.'],
   d:['Mời thầy ghé nhà chơi, uống chén nước chè.','Nhà tôi ở đây đã ba đời rồi.','Tối qua nghe tiếng gõ cửa mà mở ra chẳng thấy ai, may có lá bùa dán trên cửa.','Thầy đi đường xa có mệt không?','Cả nhà tôi đội ơn các thầy pháp trừ ma giữ làng.']};
 async function grdTalk(v){const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);if(v.grd==='g')s.halt=time;
-  const l=GRDL[v.grd],t=WD.towns[v.ti];if(v.lk)v.gt=time;await say([l[Math.floor(hash(v.x,G.steps>>4,G.seed+617)*l.length)].replace('làng',t&&/^Xóm/.test(t.n)?'xóm':'làng')],v.name);}
+  const l=v.lk==='an'?GRDL.an:GRDL[v.grd],t=WD.towns[v.ti];if(v.lk)v.gt=time;await say([l[Math.floor(hash(v.x,G.steps>>4,G.seed+617)*l.length)].replace('làng',t&&/^Xóm/.test(t.n)?'xóm':'làng')],v.name);}
 
 /* v16.19: dân làng vẽ từ sheet của người chơi (nông dân, thợ rèn, thầy lang, cô gái, cậu bé). Mỗi người 4 bộ màu áo quần (hàng atlas),
    chọn theo chỗ ở như cũ. Khung: 0 đứng, 1 chớp mắt, 2 đứng nghiêng, 3 sau lưng, 4-6 bước, 7 vẫy chào. Bà cụ, cụ ông, sư thầy, hồn giữ hình cũ. */
@@ -5366,8 +5367,10 @@ const VLA_vu=new Image();VLA_vu.src='img/vla_vu.png';
 const VLA_bep=new Image();VLA_bep.src='img/vla_bep.png';
 const VLA_lao=new Image();VLA_lao.src='img/vla_lao.png';
 const VLA_quan=new Image();VLA_quan.src='img/vla_quan.png';
-const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan};
-const VLALT={nong:[['ren',.3],['bep',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.3],['vu',.25],33],dong:[['tieu',.45],37]};
+const VLA_an=new Image();VLA_an.src='img/vla_an.png';
+const VLA_be=new Image();VLA_be.src='img/vla_be.png';
+const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan,an:VLA_an,be:VLA_be};
+const VLALT={nong:[['ren',.3],['bep',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.3],['vu',.25],33],dong:[['tieu',.35],['be',.3],37]};
 function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
 function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const im=VLA[vlaPick(lk,hx,hy)];if(!im||!im.complete||!im.width)return null;
   const vr=Math.floor(hash(hx,hy,17)*4);let f;
