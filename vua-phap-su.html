@@ -1068,6 +1068,7 @@ function floraOb(o,x,y){const[kind,pal]=o.split(':');let set=kind,v='';
 const PSCALE={qmieu:1.5};
 function floraOb0(o,x,y,vv){const[kind,pal]=o.split(':');let set=kind,v=vv;
   if(kind==='X')return{k:QX,w:1,h:1};if(o==='P:stilt')return stiltArt();
+  if(kind==='P'&&pal.startsWith('t_')){const nm=pal.slice(2),A=blPart(nm);const m=nm==='bush2'||nm==='bonsai'?1:.62;return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='P'){const A=blPart(pal);const m=PSCALE[pal]||1;return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='round'||kind==='lime'||kind==='pine'){const z=zoneAt(x,y);if(kind==='round'&&(z===0||z===1))set='round0';if(kind==='pine'&&z===1)set='pine1';if(pal==='ghost')v=vv||'ghost';}
   else if(!FLSET[kind])return null;
@@ -1192,8 +1193,16 @@ function townFields(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed
   const free=(x,y)=>{const i=y*mw+x;return tz[i]&&!used[i]&&!ob[y][x]&&!near(x,y);};
   for(let y=2;y<mh-2;y++)for(let x=2;x<mw-2;x++){if(!free(x,y))continue;const ti=tz[y*mw+x];let w=0;while(w<9&&free(x+w,y)&&tz[y*mw+x+w]===ti)w++;if(w<3)continue;
     let h=1;while(h<5){let ok=true;for(let k=0;k<w;k++)if(!free(x+k,y+h)||tz[(y+h)*mw+x+k]!==ti){ok=false;break;}if(!ok)break;h++;}if(h<2)continue;
-    const t=hash(x,y,seed+301)<.6?'F':'Y';for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++){g[yy][xx]=t;dc[yy][xx]=null;used[yy*mw+xx]=1;}
+    /* v16.22: người chơi muốn bớt ruộng lúa vàng: 60% ruộng rau, 12% lúa vàng, còn lại để cỏ */const hv=hash(x,y,seed+301),t=hv<.25?'F':hv<.37?'Y':null;/* v16.23: bớt cả ruộng rau xanh (cũ 60%) */for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++){if(t){g[yy][xx]=t;dc[yy][xx]=null;}used[yy*mw+xx]=1;}
     for(let yy=y-1;yy<=y+h;yy++)for(let xx=x-1;xx<=x+w;xx++)if(yy>=0&&xx>=0&&yy<mh&&xx<mw)used[yy*mw+xx]=1;}}
+/* v16.23 (người chơi: thêm cây nhỏ trong làng xóm): cây nhỏ đứng lẻ trên bãi cỏ trong làng, cách nhau ít nhất 4 ô,
+   tám ô xung quanh đều trống (không đường, nhà, ruộng, điểm đến) nên không bao giờ chắn lối đi */
+const TTREE=['oak','sakura2','banana','oak3','bush2','bonsai','sakura2','oak'];
+function townTrees(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed;if(!tz)return 0;const PS=new Set(pois.map(p=>p.y*mw+p.x)),pl=[];let n=0;for(const T of o.towns||[])for(const v of T.vil)PS.add(v.hy*mw+v.hx);
+  const clear=(x,y)=>{if(x<1||y<1||x>=mw-1||y>=mh-1)return false;const j=y*mw+x,t=g[y][x];return tz[j]&&!road[j]&&!PS.has(j)&&!ob[y][x]&&t!=='='&&t!=='t'&&t!=='w'&&t!=='F'&&t!=='Y';};
+  for(let y=3;y<mh-3;y++)for(let x=3;x<mw-3;x++){if(hash(x,y,seed+331)>.16)continue;let ok=true;for(let dy=-1;dy<=1&&ok;dy++)for(let dx=-1;dx<=1&&ok;dx++)if(!clear(x+dx,y+dy))ok=false;
+    if(!ok||!clear(x,y+2)||pl.some(q=>Math.abs(q[0]-x)<4&&Math.abs(q[1]-y)<4))continue;ob[y][x]='P:t_'+TTREE[Math.floor(hash(x,y,seed+332)*TTREE.length)];dc[y][x]=null;pl.push([x,y]);n++;}
+  return n;}
 /* nhà sàn và cầu ván trong đầm: mỗi ô lưới 24x24 tối đa một nhà, đứng trên đất, trước mặt là nước */
 function swampStilts(o,dA){const{g,ob,dc,road,zone,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed,PS=new Set(o.pois.map(p=>p.y*mw+p.x));const land=(x,y)=>g[y][x]!=='w'&&!ob[y][x]&&!road[y*mw+x]&&!(tz&&tz[y*mw+x])&&!PS.has(y*mw+x);let n=0;
   for(let cy=4;cy<mh-8;cy+=24)for(let cx=4;cx<mw-8;cx+=24){if(hash(cx,cy,seed+311)<.25)continue;let done=false;
@@ -1771,6 +1780,7 @@ function genRegion(seed,LY=LAY5,OLD){const{MW,MH}=LY,RNODES=LY.nodes,RGOAL=LY.go
   TZG=null;
   /* v10.0 (thay v9.5): trong làng đường lát đá, khoảnh trống thành ruộng rau / ruộng lúa có rào thấp, còn lại là cỏ */
   if(TW.tz)townFields({g,ob,dc,pois,road,tz:TW.tz,seed,MW,MH});
+  if(TW.tz&&LY.v>=5)townTrees({g,ob,dc,pois,road,tz:TW.tz,seed,MW,MH,towns:TW.towns});
   /* v9.2: người chơi bỏ cầu gỗ ở Đầm (nước đầm lội được), trả lại mặt nước */
   for(let i=0;i<bridge.length;i++)if(bridge[i]&&zone[i]===2){const x=i%MW,y=(i-x)/MW;g[y][x]='w';bridge[i]=0;}
   /* v10.5: người chơi muốn thêm cầu từ vùng cỏ xanh sang vùng tuyết: bắc cầu ngang sông biên giới tuyết, sông chảy từ hồ xuống phía nam, cách nhau ít nhất 26 hàng, dọn cây 3 ô hai đầu cầu */
@@ -5281,32 +5291,52 @@ function grdOf(T,ti){if(T.grd)return T.grd;const L=[];T.grd=L;if(!WD.road||!WD.t
   for(const e of ent.slice(0,4)){const px=e.dy?1:0,py=e.dy?0:1;
     for(const sd of[-1,1]){let put=null;for(let d=1;d<=3&&!put;d++)for(const k of[0,1]){const x=e.x+px*sd*d-e.dx*k,y=e.y+py*sd*d-e.dy*k;if(ok(x,y)){put={x,y};break;}}
       if(put)L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'g'+L.length,vil:true,grd:'g',name:nm(),k:'grd'});}}
-  const np=T.vil.length>=6?2:1;
-  for(let p=0;p<np&&rd.length;p++){for(let t=0;t<20;t++){const i=rd[Math.floor(hash(ti*5+p,t,G.seed+613)*rd.length)],x=i%MW,y=(i-x)/MW;if(blocked(x,y)||poiAt(x,y)||L.some(o=>o.x===x&&o.y===y))continue;
-    L.push({x,y,hx:x,hy:y,ti,vi:'p'+p,vil:true,grd:'p',name:nm(),k:'grd',rd});break;}}
+  /* v16.21 (người chơi: lính canh đi tuần toàn bộ trong làng): điểm tuần xếp thành 2 vòng (ngoài sát rào, trong quanh sân) và
+     mỗi lính đi lần lượt qua các điểm, người theo chiều kim đồng hồ, người ngược lại, nên đi khắp làng */
+  const wk=(x,y)=>inT(x,y)&&!blocked(x,y)&&!poiAt(x,y),snap=(x,y)=>{x=Math.round(x);y=Math.round(y);for(let r=0;r<=5;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;if(wk(x+dx,y+dy))return(y+dy)*MW+x+dx;}return -1;};
+  const big=T.vil.length>=6,RX=big?26:22,RY=big?18:15,wp=[];
+  for(const[f,n2]of[[.78,12],[.42,8]])for(let k=0;k<n2;k++){const a=k/n2*Math.PI*2+(f<.5?.3:0),j=snap(T.x+Math.cos(a)*RX*f,T.y+Math.sin(a)*RY*f);if(j>=0&&!wp.includes(j))wp.push(j);}
+  const out=wp.slice(0,12),inn=wp.slice(12),route=out.concat(inn);
+  const np=big?3:2;
+  for(let p=0;p<np&&route.length;p++){const st=Math.floor(route.length*p/np);for(let t=0;t<route.length;t++){const i=route[(st+t)%route.length],x=i%MW,y=(i-x)/MW;if(L.some(o=>o.x===x&&o.y===y))continue;
+    L.push({x,y,hx:x,hy:y,ti,vi:'p'+p,vil:true,grd:'p',name:nm(),k:'grd',rd:route,wi:(st+t)%route.length,wd:p%2?-1:1});break;}}
+  /* v16.25 (người chơi: thêm dân đi lại trong làng, mỗi nhà có một người đứng cạnh cửa). Cũng chỉ tạo lúc chạy, không lưu. */
+  let m=0;const tnm=lk=>{const a=TWNM[lk],r=hash(ti,m++,G.seed+621);return a[0][Math.floor(r*a[0].length)]+' '+a[1][Math.floor(hash(m,ti,G.seed+623)*a[1].length)];};
+  const lkOf=(x,y)=>TWLK[Math.floor(hash(x,y,G.seed+625)*TWLK.length)];
+  const nw=big?5:3;
+  for(let p=0;p<nw&&route.length;p++){const st=Math.floor(route.length*(p+.5)/nw);for(let t=0;t<route.length;t++){const i=route[(st+t)%route.length],x=i%MW,y=(i-x)/MW;if(L.some(o=>o.x===x&&o.y===y))continue;
+    const lk=lkOf(x,y);L.push({x,y,hx:x,hy:y,ti,vi:'w'+p,vil:true,grd:'w',lk,name:tnm(lk),k:'grd',rd:route,wi:(st+t)%route.length,wd:p%2?1:-1});break;}}
+  for(const bi of T.b||[]){const b=WD.blds[bi];if(!b)continue;let put=null;
+    for(const[dx,dy]of[[1,0],[-1,0],[2,0],[-2,0],[1,1],[-1,1]]){const x=b.dx+dx,y=b.fy+dy;if(inT(x,y)&&!blocked(x,y)&&!poiAt(x,y)&&!bldAt(x,y)&&!L.some(o=>o.x===x&&o.y===y)&&!T.vil.some(o=>o.hx===x&&o.hy===y)){put={x,y};break;}}
+    if(put){const lk=lkOf(put.x,put.y);L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'d'+bi,vil:true,grd:'d',lk,name:tnm(lk),k:'grd',dr:put.x<b.dx?1:-1});}}
   return L;}
+const TWLK=['nong','nong','co','co','sinh','dong','ong'];
+const TWNM={nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
+  sinh:[['Anh','Cậu'],['Minh','Tú','Quang','Khải','Tín','Văn','Phúc','Thanh']],ong:[['Ông','Cụ'],['Lộc','Thọ','Phúc','Bảy','Tư','Khang','Đức','Năm']],dong:[['Thằng','Bé'],['Tí','Tèo','Cu','Bin','Bống','Út','Cò','Bờm']]};
 function grdAll(T){return grdOf(T,WD.towns.indexOf(T));}
 /* đường đi tuần: BFS trong làng tới một ô đường ngẫu nhiên */
-function grdPath(q){const id=q.ti+1,goal=q.rd[Math.floor(R()*q.rd.length)];if(goal===q.y*MW+q.x)return null;const st=q.y*MW+q.x,prev=new Map([[st,st]]),Q=[st];
-  for(let h=0;h<Q.length&&!prev.has(goal)&&h<4000;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;if(prev.has(j)||WD.tz[j]!==id||blocked(nx,ny)||poiAt(nx,ny))continue;prev.set(j,i);Q.push(j);}}
+function grdPath(q){const id=q.ti+1,n=q.rd.length;q.wi=((q.wi+q.wd)%n+n)%n;const goal=q.rd[q.wi];if(goal===q.y*MW+q.x)return null;const st=q.y*MW+q.x,prev=new Map([[st,st]]),Q=[st];
+  for(let h=0;h<Q.length&&!prev.has(goal)&&h<9000;h++){const i=Q[h],x=i%MW,y=(i-x)/MW;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,j=ny*MW+nx;if(prev.has(j)||WD.tz[j]!==id||blocked(nx,ny)||poiAt(nx,ny))continue;prev.set(j,i);Q.push(j);}}
   if(!prev.has(goal))return null;const P=[];for(let i=goal;i!==st;i=prev.get(i))P.push(i);return P.reverse();}
 function grdFree(q,x,y){if(blocked(x,y)||poiAt(x,y)||townAt(x,y)!==q.ti)return false;if(x===PL.x&&y===PL.y)return false;if(PL.moving&&x===PL.fx&&y===PL.fy)return false;return!npcList().some(o=>o!==q&&o.x===x&&o.y===y);}
 function grdTick(q,s,dt){const d=Math.abs(q.x-PL.x)+Math.abs(q.y-PL.y);
-  if(q.grd==='g'){if(d<=2){if(!s.near){s.near=1;s.halt=time;}if(PL.x!==q.x)s.face=PL.x>q.x?1:-1;}else if(d>4)s.near=0;return;}
+  if(q.grd==='g'||q.grd==='d'){if(d<=2){if(!s.near){s.near=1;s.halt=time;if(q.lk)q.gt=time;}if(PL.x!==q.x)s.face=PL.x>q.x?1:-1;}else if(d>4){s.near=0;if(q.dr)s.face=q.dr;}return;}
   if(busy||DLG||CH)return;if((s.cool-=dt)>0)return;
-  if(!q.path||!q.path.length){q.path=grdPath(q);s.cool=q.path?1500+R()*2500:800;s.dir=null;return;}
+  if(!q.path||!q.path.length){q.path=grdPath(q);s.cool=q.path?900+R()*1600:300;s.dir=null;return;}
   const j=q.path[0],nx=j%MW,ny=(j-nx)/MW;if(!grdFree(q,nx,ny)){s.cool=600;if((s.wt=(s.wt||0)+1)>4){q.path=null;s.wt=0;}return;}s.wt=0;
   q.path.shift();const dx=nx-q.x,dy=ny-q.y;s.fx=q.x;s.fy=q.y;s.t=0;if(dx)s.face=dx;s.dir=dy<0?'up':dy>0?'down':'side';q.x=nx;q.y=ny;s.cool=NPCR.stepMs+80;}
-function grdDraw(q,s,sx,sy,walk){if(!GRD.complete||!GRD.width)return;let f;
+function grdDraw(q,s,sx,sy,walk){if(q.lk){vlaDraw(q,q.lk,sx,sy,s.face||q.dr||1,walk?1:null);return;}if(!GRD.complete||!GRD.width)return;let f;
   if(q.grd==='g'){f=s.halt&&time-s.halt<1400?9:s.near?(s.face<0?1:2):0;}
   else if(walk){const st=Math.floor(time/230)%4;if(s.dir==='up')f=st%2?3:8;else if(s.dir==='down')f=0;else f=st%2?(s.face<0?1:2):(s.face<0?4:6)+(st>>1);}
   else f=s.dir==='up'?3:s.face<0?1:s.face>0&&s.dir?2:0;
   const by=!walk&&q.grd==='g'?Math.round(Math.sin((time+q.x*97)/600)*.6):0;
   c.drawImage(GRD,f*90,0,90,140,sx+8-13.5*VLS,sy+16.5-40.8*VLS+by,27*VLS,42*VLS);}
 const GRDL={g:['Trong làng có lính canh gác ngày đêm, quỷ dữ không dám lại gần. Thầy pháp cứ tự nhiên vào.','Ra khỏi cổng này là đường hoang. Trời tối thầy đi cẩn thận.','Đêm qua có bóng gì lởn vởn ngoài cổng, anh em bọn tôi canh tới sáng.','Ai ra vào làng bọn tôi đều để ý. Thầy pháp thì xin mời.'],
-  p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.']};
+  p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.'],
+  w:['Hôm nay trời đẹp, tôi ra chợ một vòng.','Thầy pháp mới tới làng hả? Làng mình hiền lắm.','Đi dạo quanh làng cho khuây khỏa, tối đến là đóng cửa sớm.','Nghe nói ngoài bìa rừng có ma trơi, thầy cẩn thận nhé.','Có thầy pháp ở đây, bà con yên tâm làm ăn.'],
+  d:['Mời thầy ghé nhà chơi, uống chén nước chè.','Nhà tôi ở đây đã ba đời rồi.','Tối qua nghe tiếng gõ cửa mà mở ra chẳng thấy ai, may có lá bùa dán trên cửa.','Thầy đi đường xa có mệt không?','Cả nhà tôi đội ơn các thầy pháp trừ ma giữ làng.']};
 async function grdTalk(v){const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);if(v.grd==='g')s.halt=time;
-  const l=GRDL[v.grd],t=WD.towns[v.ti];await say([l[Math.floor(hash(v.x,G.steps>>4,G.seed+617)*l.length)].replace('làng',t&&/^Xóm/.test(t.n)?'xóm':'làng')],v.name);}
+  const l=GRDL[v.grd],t=WD.towns[v.ti];if(v.lk)v.gt=time;await say([l[Math.floor(hash(v.x,G.steps>>4,G.seed+617)*l.length)].replace('làng',t&&/^Xóm/.test(t.n)?'xóm':'làng')],v.name);}
 
 /* v16.19: dân làng vẽ từ sheet của người chơi (nông dân, thợ rèn, thầy lang, cô gái, cậu bé). Mỗi người 4 bộ màu áo quần (hàng atlas),
    chọn theo chỗ ở như cũ. Khung: 0 đứng, 1 chớp mắt, 2 đứng nghiêng, 3 sau lưng, 4-6 bước, 7 vẫy chào. Bà cụ, cụ ông, sư thầy, hồn giữ hình cũ. */
@@ -5315,8 +5345,18 @@ const VLA_ren=new Image();VLA_ren.src='img/vla_ren.png';
 const VLA_lang=new Image();VLA_lang.src='img/vla_lang.png';
 const VLA_co=new Image();VLA_co.src='img/vla_co.png';
 const VLA_dong=new Image();VLA_dong.src='img/vla_dong.png';
-const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,co:VLA_co,dong:VLA_dong};
-function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const im=VLA[lk==='nong'&&hash(hx,hy,29)<.3?'ren':lk];if(!im||!im.complete||!im.width)return null;
+/* v16.24: thêm lãng khách đội nón, nữ y, tiểu nhị bưng trà; thầy lang cắt lại nét hơn */
+const VLA_khach=new Image();VLA_khach.src='img/vla_khach.png';
+const VLA_langn=new Image();VLA_langn.src='img/vla_langn.png';
+const VLA_tieu=new Image();VLA_tieu.src='img/vla_tieu.png';
+const VLA_vu=new Image();VLA_vu.src='img/vla_vu.png';
+const VLA_bep=new Image();VLA_bep.src='img/vla_bep.png';
+const VLA_lao=new Image();VLA_lao.src='img/vla_lao.png';
+const VLA_quan=new Image();VLA_quan.src='img/vla_quan.png';
+const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan};
+const VLALT={nong:[['ren',.3],['bep',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.3],['vu',.25],33],dong:[['tieu',.45],37]};
+function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
+function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const im=VLA[vlaPick(lk,hx,hy)];if(!im||!im.complete||!im.width)return null;
   const vr=Math.floor(hash(hx,hy,17)*4);let f;
   if(walkT!=null)f=[4,5,6,5][Math.floor(time/210)%4];else if(q.gt&&time-q.gt<1500)f=7;else f=(time+vr*777+hx*131)%3400<150?1:0;
   const flip=face<0&&(walkT!=null||f===7),top=sy+16.5-40.8*VLS;if(alpha!=null)c.globalAlpha=alpha;
