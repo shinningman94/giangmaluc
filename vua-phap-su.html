@@ -1197,11 +1197,24 @@ function townFields(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed
     for(let k=0;k<8;k++){const a=k/8*Math.PI*2+hash(T.i,seed,341),fx=T.x+Math.cos(a)*rx*.55,fy=T.y+Math.sin(a)*ry*.55;let n=0;
       for(let y=Math.floor(fy-6);y<=fy+6;y++)for(let x=Math.floor(fx-9);x<=fx+9;x++){if(x<2||y<2||x>=mw-2||y>=mh-2)continue;if(((x-fx)/9)**2+((y-fy)/6)**2>1)continue;if(tz[y*mw+x]===id&&!ob[y][x]&&!near(x,y))n++;}
       if(n>bn){bn=n;best={fx,fy};}}FZ[id]=best;}
-  const inFZ=(x,y,w,h,ti)=>{const f=FZ[ti];if(!f)return true;const cx=x+w/2,cy=y+h/2;return((cx-f.fx)/10)**2+((cy-f.fy)/7)**2<=1;};
-  for(let y=2;y<mh-2;y++)for(let x=2;x<mw-2;x++){if(!free(x,y))continue;const ti=tz[y*mw+x];let w=0;while(w<9&&free(x+w,y)&&tz[y*mw+x+w]===ti)w++;if(w<3)continue;
-    let h=1;while(h<5){let ok=true;for(let k=0;k<w;k++)if(!free(x+k,y+h)||tz[(y+h)*mw+x+k]!==ti){ok=false;break;}if(!ok)break;h++;}if(h<2)continue;
-    /* v16.22: người chơi muốn bớt ruộng lúa vàng: 60% ruộng rau, 12% lúa vàng, còn lại để cỏ */const hv=hash(x,y,seed+301),fz=inFZ(x,y,w,h,ti),t=!fz?null:hv<.5?'F':hv<.75?'Y':null;/* v16.23: bớt cả ruộng rau xanh (cũ 60%) */for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++){if(t){g[yy][xx]=t;dc[yy][xx]=null;}used[yy*mw+xx]=1;}
-    for(let yy=y-1;yy<=y+h;yy++)for(let xx=x-1;xx<=x+w;xx++)if(yy>=0&&xx>=0&&yy<mh&&xx<mw)used[yy*mw+xx]=1;}}
+  /* v16.29 (người chơi: làng nào cũng có 1 ruộng rau to và 1 ruộng lúa vàng to gom lại): mỗi làng đặt đúng 2 ruộng hình chữ nhật lớn
+     sát nhau trong khu ruộng, ruộng rau trước rồi ruộng lúa ngay cạnh */
+  const lay=(r,t)=>{for(let yy=r.y;yy<r.y+r.h;yy++)for(let xx=r.x;xx<r.x+r.w;xx++){g[yy][xx]=t;dc[yy][xx]=null;}
+    for(let yy=r.y-1;yy<=r.y+r.h;yy++)for(let xx=r.x-1;xx<=r.x+r.w;xx++)if(yy>=0&&xx>=0&&yy<mh&&xx<mw)used[yy*mw+xx]=1;};
+  for(const T of o.towns||[]){const id=T.i+1,big=T.i<12,W0=big?13:11,H0=big?7:6,rx=big?26:22,ry=big?18:15;
+    /* bảng cộng dồn ô trống của làng: kiểm tra một hình chữ nhật trống trong O(1) */
+    const X0=Math.max(2,T.x-rx-1),Y0=Math.max(2,T.y-ry-1),X1=Math.min(mw-2,T.x+rx+2),Y1=Math.min(mh-2,T.y+ry+2),BW=X1-X0+1,BH=Y1-Y0+1,S=new Int32Array((BW+1)*(BH+1));
+    for(let y=0;y<BH;y++)for(let x=0;x<BW;x++){const X=X0+x,Y=Y0+y,i=Y*mw+X,ok=tz[i]===id&&!used[i]&&!ob[Y][X]&&!near(X,Y)?1:0;S[(y+1)*(BW+1)+x+1]=ok+S[y*(BW+1)+x+1]+S[(y+1)*(BW+1)+x]-S[y*(BW+1)+x];}
+    const fit=(x,y,w,h,A)=>{x-=X0;y-=Y0;if(x<0||y<0||x+w>BW||y+h>BH)return false;if(S[(y+h)*(BW+1)+x+w]-S[y*(BW+1)+x+w]-S[(y+h)*(BW+1)+x]+S[y*(BW+1)+x]!==w*h)return false;
+      if(A){const ax=A.x-X0,ay=A.y-Y0;if(x<ax+A.w+1&&x+w>ax-1&&y<ay+A.h+1&&y+h>ay-1)return false;}return true;};
+    const SZ=[[W0,H0],[W0-2,H0],[W0,H0-1],[W0-2,H0-1],[W0-4,H0-1],[W0-4,H0-2],[W0-6,H0-2],[5,3]];
+    const pick=(cx,cy,R,A)=>{let best=null,bs=-1e9;for(const[w,h]of SZ)for(let y=Math.floor(cy-R*.7);y<=cy+R*.7;y++)for(let x=Math.floor(cx-R);x<=cx+R;x++){
+        const d=Math.hypot(x+w/2-cx,(y+h/2-cy)*1.4),sc=w*h*4-d;if(sc<=bs||!fit(x,y,w,h,A))continue;bs=sc;best={x,y,w,h};}return best;};
+    let bp=null,bsc=-1;const f=FZ[id];const C=f?[[f.fx,f.fy]]:[];
+    for(const k of[.35,.55,.75])for(let j=0;j<8;j++){const a=j/8*Math.PI*2+hash(T.i,seed,341);C.push([T.x+Math.cos(a)*rx*k,T.y+Math.sin(a)*ry*k]);}
+    for(const[cx,cy]of C){const A=pick(cx,cy,8);if(!A)continue;const B=pick(A.x+A.w/2,A.y+A.h/2,W0+5,A);if(!B)continue;
+      const sc=Math.min(A.w*A.h,B.w*B.h)*3+A.w*A.h+B.w*B.h+(bp?0:.5);if(sc>bsc){bsc=sc;bp=[A,B];}}
+    if(bp){lay(bp[0],'F');lay(bp[1],'Y');}}}
 /* v16.23 (người chơi: thêm cây nhỏ trong làng xóm): cây nhỏ đứng lẻ trên bãi cỏ trong làng, cách nhau ít nhất 4 ô,
    tám ô xung quanh đều trống (không đường, nhà, ruộng, điểm đến) nên không bao giờ chắn lối đi */
 const TTREE=['oak','sakura2','banana','oak3','bush2','bonsai','sakura2','oak'];
