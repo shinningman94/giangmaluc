@@ -1397,7 +1397,7 @@ function marketArt(roof,WP,R,thatch){const W2=112,H2=88,k=qCan(W2*HU,H2*HU),g=k.
     for(let x=x0-1;x<x1+1;x+=4){hRect(g,x,64,2,4,'#c8321e');hRect(g,x+2,64,2,4,'#f0e6d0');}hRect(g,x0-1,63,x1-x0+2,1,'#6a2416');
     for(let x=x0-1;x<x1+1;x+=2){g.fillStyle=(Math.floor((x-x0+1)/2)%2)?'#f0e6d0':'#c8321e';g.beginPath();g.arc(x+1,68,1,0,Math.PI);g.fill();}}
   hRoof(g,4,108,10,50,18,P,thatch,R);
-  hLantern(g,30,52);hLantern(g,82,52);hPlaque(g,64,50,20,'CHỢ');
+  hLantern(g,26,52);hLantern(g,102,52);hPlaque(g,64,50,34,'TẠP HÓA');
   /* thúng hàng trước chợ */
   for(const[x,c]of[[8,'#e0a030'],[104,'#5a9a3a'],[100,'#c8401c']]){g.fillStyle='#8a6432';g.beginPath();g.ellipse(x,82,3.4,2,0,0,7);g.fill();g.fillStyle=c;g.beginPath();g.ellipse(x,81.2,2.6,1.3,0,0,7);g.fill();}
   return{k,w:W2,h:H2};}
@@ -2362,7 +2362,7 @@ async function village(p,s){
     {t:'Trừ tà cho làng (-1 bùa, công đức, bạc)',dis:G.charms<1?'Hết bùa':null,f:()=>{G.charms--;evOut({m:10,s:10,luck:.3});}}];
   if(!s.pk)s.pk=[ri(0,2),ri(3,5)];
   const opts=[];if(!s.done)for(const i of s.pk){const h=helps[i];opts.push({...h,f:async()=>{await h.f();s.done=1;}});}
-  opts.push({t:'Vào chợ (bạc '+G.silver+')',f:()=>shop(p,s)});
+  opts.push({t:'Vào tạp hóa (bạc '+G.silver+')',f:()=>shop(p,s)});
   if(p.start&&!s.rest)opts.push({t:'Nghỉ ở nhà (hồi phục toàn đội)',f:()=>{for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}sfx('heal');}});
   {const T=arenaTown(p);if(!(T&&T.b&&T.b.some(bi=>WD.blds[bi].t==='dt')))opts.push({t:'Đấu Trường (tìm trận xếp hạng, tự điều khiển)',f:()=>arenaMenu(p)});}
   opts.push({t:'Đi tiếp'});
@@ -2445,11 +2445,11 @@ async function recruitSpot(p,s){const R0=RECRUIT[p.rid];if(s.done)return say(R0.
 async function shop(p,s){const st=s||{},tr=tierAt(PL.x);if(!st.stock||!st.stock.length){st.stock=[mkItem(tr+1),mkItem(tr),mkItem(tr)];st.up=1;}if(!st.up){st.up=1;st.stock.unshift(mkItem(tr+1));}
   const price=it=>15+it.tier*12+it.v*2,no=n=>G.silver<n?'Không đủ bạc':null,pay=n=>{G.silver-=n;};
   const it1=(ic,n,d,pr,h,f)=>({ic,n,d,p:pr+' bạc',h:'Đang có '+h,dis:no(pr),f:()=>{pay(pr);f();toast('Mua được '+n);}});
-  await shopUI({t:'Chợ '+p.n,cur:()=>'Bạc: '+G.silver,g:['Trang bị','Vật phẩm','Bán đồ'],rows:g=>g===0?st.stock.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),c:cmpEq(it),p:price(it)+' bạc',dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{pay(price(it));addItem(it);st.stock.splice(i,1);toast('Mua được '+it.n);}}))
-    :g===1?[it1((x,y,z)=>icS('pill',x,y,z),'Hồi Hồn Đan','Hồi 40% HP',10,G.pill.hp,()=>G.pill.hp++),it1((x,y,z)=>icS('pillb',x,y,z),'Tụ Linh Đan','Hồi 50% linh lực',8,G.pill.mp,()=>G.pill.mp++),it1((x,y,z)=>icS('seal',x,y,z),'Bùa trấn yểm','Dùng để thu phục quỷ',12,G.charms,()=>G.charms++),
-      ...[['hoaphu',14],['anphu',15],['kcphu',12],['giay',4],['thanhanh',30],['dinhvi',20],['but',30]].filter(([k])=>k!=='but'||!itN('but')).map(([k,pr])=>it1((x,y,z)=>itArt(CONS[k].k,x,y,z),CONS[k].n,CONS[k].d,pr,itN(k),()=>itAdd(k)))]
+  await shopUI({t:'Tạp Hóa '+p.n,cur:()=>'Bạc: '+G.silver,g:['Trang bị','Vật phẩm','Bán đồ'],rows:g=>g===0?st.stock.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),c:cmpEq(it),p:price(it)+' bạc',dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{pay(price(it));addItem(it);st.stock.splice(i,1);toast('Mua được '+it.n);}}))
+    :g===1?[it1((x,y,z)=>icS('pill',x,y,z),'Hồi Hồn Đan','Hồi 40% HP',10,G.pill.hp,()=>G.pill.hp++),it1((x,y,z)=>icS('pillb',x,y,z),'Tụ Linh Đan','Hồi 50% linh lực',8,G.pill.mp,()=>G.pill.mp++),/* v16.31: tạp hóa không bán bùa trấn yểm, Giấy Phù Vàng; hàng ở tạp hóa và Tháp Công Đức không trùng nhau */
+      ...[['hoaphu',14],['anphu',15],['kcphu',12],['thanhanh',30],['dinhvi',20],['but',30]].filter(([k])=>k!=='but'||!itN('but')).map(([k,pr])=>it1((x,y,z)=>itArt(CONS[k].k,x,y,z),CONS[k].n,CONS[k].d,pr,itN(k),()=>itAdd(k)))]
     :G.inv.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),p:'+'+sellPrice(it)+' bạc',act:'Bán',h:'Đồ đang mặc không bán ở đây',f:()=>{const pr=sellPrice(it);G.inv.splice(i,1);G.silver+=pr;toast(`Bán ${it.n}: +${pr} bạc`);}})),
-    empty:['Chợ đã bán hết pháp bảo. Lần sau ghé lại sẽ có hàng mới.','','Túi đồ không có gì để bán. Đồ đang mặc không bán được.']});}
+    empty:['Tạp hóa đã bán hết pháp bảo. Lần sau ghé lại sẽ có hàng mới.','','Túi đồ không có gì để bán. Đồ đang mặc không bán được.']});}
 /* v11.4: người chơi muốn bán đồ không dùng ở chợ; đồ đang mặc không nằm trong G.inv nên không bán nhầm. Giá bán bằng nửa giá mua, pháp bảo đặc biệt (có k) x1.5 */
 function sellPrice(it){return Math.max(5,Math.round((15+it.tier*12+it.v*2)*.5*(it.k?1.5:1)));}
 async function sellItems(){for(;;){if(!G.inv.length)return;const opts=G.inv.map(it=>({t:`${it.n}: ${itemDesc(it)} (+${sellPrice(it)} bạc)`}));opts.push({t:'Xong'});
@@ -2460,7 +2460,7 @@ async function meritShop(p,s,tr){if(!s.stock||!s.stock.length)s.stock=[mkItem(tr
   const price=it=>30+it.tier*25+it.v*3,no=n=>G.merit<n?'Chưa đủ công đức':null,pay=n=>{G.merit-=n;G.mspent=(G.mspent||0)+n;};
   const it1=(ic,n,d,pr,h,f)=>({ic,n,d,p:pr+' công đức',h:h==null?'':'Đang có '+h,dis:no(pr),f:()=>{pay(pr);f();toast('Thỉnh được '+n);}});
   await shopUI({t:p.n,cur:()=>'Công đức: '+G.merit,g:['Trang bị','Vật phẩm'],act:'Thỉnh',rows:g=>g===0?s.stock.map((it,i)=>({ic:(x,y,z)=>itIc(it,x,y,z),n:it.n,d:itemDesc(it),c:cmpEq(it),p:price(it)+' công đức',dis:no(price(it))||(G.inv.length>=12?'Túi đồ đã đầy':null),f:()=>{pay(price(it));addItem(it);s.stock.splice(i,1);toast('Thỉnh được '+it.n);}}))
-    :[it1((x,y,z)=>icS('pill',x,y,z),'Hồi Hồn Đan','Hồi 40% HP',12,G.pill.hp,()=>G.pill.hp++),it1((x,y,z)=>icS('pillb',x,y,z),'Tụ Linh Đan','Hồi 50% linh lực',10,G.pill.mp,()=>G.pill.mp++),it1((x,y,z)=>icS('seal',x,y,z),'Bùa trấn yểm','Dùng để thu phục quỷ',15,G.charms,()=>G.charms++),
+    :[/* v16.31: đan dược chỉ bán ở tạp hóa, bùa trấn yểm chỉ thỉnh ở tháp */it1((x,y,z)=>icS('seal',x,y,z),'Bùa trấn yểm','Dùng để thu phục quỷ',15,G.charms,()=>G.charms++),
       it1((x,y,z)=>itArt('jade',x,y,z),'Linh Quả','Đồng hành ăn: +10 trung thành',20,itN('linhqua'),()=>itAdd('linhqua')),
       ...[['loiphu',14],['thienthu',40],['coquyen',45]].map(([k,pr])=>it1((x,y,z)=>itArt(CONS[k].k,x,y,z),CONS[k].n,CONS[k].d,pr,itN(k),()=>itAdd(k))),
       it1((x,y,z)=>icS('water',x,y,z),'Cam Lộ Thủy','Cả đội hồi đầy HP và linh lực ngay',25,null,()=>{for(const u of G.party){u.hp=u.mhp;u.mp=u.mmp;}})],
@@ -2837,7 +2837,7 @@ function bagGrp(g){const M=MENU;if((M.bg||0)===g)return;M.bg=g;M.i=0;M.l_bag=nul
 function bagChips(x,y,w,h){const M=MENU,cw=w/2,ns=[G.inv.length+'/12',consList().length];BAGG.forEach((k,i)=>{const cx=Math.round(x+i*cw),ww=Math.round(cw)-2,sel=(M.bg||0)===i;
   win(cx,y,ww,h,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#5a4a6a');txt(k+' ('+ns[i]+')',cx+ww/2,y+(h-9)/2,{size:9,align:'center',color:sel?'#fff':'#c8bcd8'});hit(cx,y-1,ww,h+2,()=>{bagGrp(i);M.sub=null;});});}
 function bagFix(){const M=MENU,n=M.bg?consList().length:G.inv.length;if(M.i>=n)M.i=Math.max(0,n-1);}
-const BAGE=['Chưa có pháp bảo. Tìm ở hang quỷ, kiếp nạn hoặc mua ở chợ.','Chưa có vật phẩm. Mua ở chợ, đổi ở Tháp Công Đức hoặc nhặt khi hàng phục yêu ma.'];
+const BAGE=['Chưa có pháp bảo. Tìm ở hang quỷ, kiếp nạn hoặc mua ở tạp hóa.','Chưa có vật phẩm. Mua ở tạp hóa, đổi ở Tháp Công Đức hoặc nhặt khi hàng phục yêu ma.'];
 const setVc=v=>v==='Tắt'?'#a8a0c0':'#fff8e0';
 function drawSettings(){const M=MENU,rs=setRows(),rh=13;win(2,18,236,130,'#2c3a78','#1a2250');setChips(6,21,228,12);
   rs.forEach((r,i)=>{const y=37+i*rh,sel=i===M.i;if(sel)rect(5,y-1,230,rh,'#4a64c0');txt(r.l,10,y+1,{size:9,color:'#e0e8ff'});
@@ -3036,7 +3036,7 @@ const GUIDE=[['Chỉ số cơ bản',0],
   ['Minh Dạ tăng chậm hơn đồng hành nhưng mỗi cấp được 1 điểm cộng (Cổ Quyển cho thêm 3): HP, LL +3; Lực, Kỹ, Tốc, Thủ +1.',1],
   ['Làng và trấn',0],
   ['Trong làng là vùng an toàn: không gặp quỷ, quỷ tuần tra không vào được. Ra khỏi làng mới chạm trán quỷ dọc đường.',1],
-  ['Bước vào cửa nhà (hoặc chạm vào nhà) để vào Chợ, Y Quán chữa thương, hay nhà dân uống trà. Chạm vào dân làng để trò chuyện.',1],
+  ['Bước vào cửa nhà (hoặc chạm vào nhà) để vào Tạp Hóa, Y Quán chữa thương, hay nhà dân uống trà. Chạm vào dân làng để trò chuyện.',1],
   ['Người có dấu ! giao việc làng: trừ quỷ, thu phục, đưa thư. Xong việc quay lại người đó (dấu ?) nhận bạc và công đức. Nhận tối đa 10 việc cùng lúc (tính chung cả việc ngày), xem ở mục Kiếp nạn.',1]]);
 function guideOverlay(){const M=MENU;hits.length=0;SCR.length=0;rect(0,0,W,H,'rgba(8,6,14,.75)');hit(0,0,W,H,()=>{M.guide=0;sfx('sel');});
   const x=PORT?2:2,y=PORT?26:2,w=PORT?W-4:236,b=PORT?H-24:148,cols=['#ffe8a0','#e0d8f0','#c8d8ff','#d8d0e8','#80ff90'],L=[];
@@ -3918,7 +3918,7 @@ async function subdue(E){B.phase='end';if(E.stolen){G.silver+=E.stolen;B.loot.pu
     sfx('got');spark(B.tal.x+8,B.tal.y+8,'#fff8a0',30,1.8);fxS('spark',B.tal.x+8,B.tal.y+8,1000,1,{grow:.5});fxS('ring',62,70,1200,1.1,{rise:20,grow:.3});const u={...E,exp:0,b:{}};if(E.ai){if(E.ai.enr){u.atk=E.ai.atk0;u.spd=E.ai.spd0;}delete u.ai;}if(E.dbl){Object.assign(u,E.dbl);delete u.dbl;}/* v14.1: thu phục giữ nguyên cấp, chỉ số, máu và linh lực tối đa như lúc còn là quái (kể cả tinh anh, trùm); hồi đầy khi nhập đội */delete u.boss;delete u.b3;delete u.elite;delete u.pat;delete u.tame;delete u.capB;delete u.capOK;delete u.stolen;u.cl=u.lv;u.hp=u.mhp;u.mp=u.mmp;(B.caps=B.caps||[]).push(u);const tw=G.party.length>=6;if(tw)toTower(u);else G.party.push(u);allyFix();G.dex[E.id]=2;G.stats.capture++;if(rankOf(E.id)==='S'){G.scap=G.scap||{};G.scap[E.id]=(G.scap[E.id]||0)+1;const sl=sLeft(E.id);B.loot.push(sl>0?'Hạng S: còn '+sl+'/'+SCAP+' con':'Hạng S: đã thu phục hết '+SCAP+' con');}
     B.msg=E.name+(tw?' được đưa vào Tháp Trấn Hồn!':' gia nhập đội!');if(tw)B.loot.push(E.name+' vào Tháp Trấn Hồn');B.gain.push([E,.7]);await wait(800);B.tal=null;}
   else if(i===1){sfx('pur');pose('e','halo',Infinity);B.msg=E.name+' đã được siêu thoát.';fxG('cirG',62,96,1600,1.15);/* v9.3.1: giữ cột sáng vàng, bỏ lấp lánh vàng */await tween(1200,t=>{B.pillar=Math.sin(Math.min(1,t*1.6)*Math.PI/2)*(t>.8?(1-t)*5:1);B.eo.y=-40*ease(t);B.eA=1-t;});B.pillar=0;
-    G.merit+=mer;G.stats.purify++;const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+Math.ceil(d.mhp*.1));if(B.ally===d)B.hp.a=d.hp;let extra='';if(R()<.3){G.charms++;extra=', +1 bùa';}B.loot.push(`+${mer} công đức${extra}`);G.stats.kill++;if(G.sect==='necro'){healAll(.1);B.hp.a=B.ally.hp;B.loot.push('tử khí hồi máu');}
+    G.merit+=mer;G.stats.purify++;const d=diep();if(d.hp>0)d.hp=Math.min(d.mhp,d.hp+Math.ceil(d.mhp*.1));if(B.ally===d)B.hp.a=d.hp;let extra='';if(R()<.3){itAdd('giay');extra=', +1 Giấy Phù Vàng';}/* v16.31: người chơi muốn tiêu diệt quái ra Giấy Phù Vàng thay cho bùa trấn yểm */B.loot.push(`+${mer} công đức${extra}`);G.stats.kill++;if(G.sect==='necro'){healAll(.1);B.hp.a=B.ally.hp;B.loot.push('tử khí hồi máu');}
     const ch=E.boss?1:E.elite?.95:E.pat?.85:.75;if(R()<ch){const sv=gainSilver(ri(3,8)+Math.round(E.lv*(E.boss?3:E.elite||E.pat?1.5:.6)));B.loot.push('+'+sv+' bạc');sfx('coin');}
     if(R()<(E.boss?.8:E.elite?.5:.08)){const it=mkItem(tierAt(PL.x)+(E.boss?1:0));if(addItem(it))B.loot.push(it.n);}
     if(R()<.12){G.pill.hp++;B.loot.push('Hồi Hồn Đan');}B.loot.push(...consDrop(E,true),...renDrop(E));B.gain.push([E,1.25]);await wait(300);}
@@ -4848,7 +4848,7 @@ for(const id in SPECIES){if(id==='diep')continue;const sp=SPECIES[id];if(sp.rang
    không có quỷ, ra khỏi làng mới gặp quỷ dọc đường. Trong làng có dân tên ngẫu nhiên đi lại quanh chỗ của mình, vài người giao việc.
    Mỗi nút trên bản đồ vùng là một làng: 12 nút chính là trấn lớn, 10 nút giữa chặng là làng nhỏ. Làng được dựng sau cùng trong
    genRegion (chỉ dọn cây và đặt nhà, không động tới đường và điểm đến) nên save cũ vẫn khớp. */
-const BLD={cho:{w:6,h:3,n:'Chợ'},y:{w:5,h:4,n:'Y Quán'},nha:{w:5,h:3,n:'Nhà dân'},dt:{w:7,h:4,n:'Đấu Trường'}};
+const BLD={cho:{w:6,h:3,n:'Tạp Hóa'},y:{w:5,h:4,n:'Y Quán'},nha:{w:5,h:3,n:'Nhà dân'},dt:{w:7,h:4,n:'Đấu Trường'}};
 const VK=['nong','ba','sinh','dong','su','nong','ba'];
 const VPRE={nong:['Bác','Chú','Ông'],ba:['Bà','Cô','Thím','Chị'],sinh:['Anh','Thầy đồ','Cậu'],dong:['Bé','Thằng'],su:['Sư']};
 const VNM={m:['Ba','Tư','Năm','Sáu','Bảy','Tám','Phúc','Lộc','Thọ','Đức','Hùng','Dũng','Sơn','Hải','Khoa','Toàn','Cường','Thành','Bình','Quý'],
@@ -5013,7 +5013,7 @@ function bldSpr(b){const gch=WD.g[b.fy]&&WD.g[b.fy][b.dx]||'.',key=b.t+b.v+gch;i
     const bk=(x,c1,c2)=>{P.e(x,45,7,3,'#b08a50');P.r(x-7,45,14,2,'#8a6a3a');P.e(x-3,42,2.5,2.5,c1);P.e(x+2,42,2.5,2.5,c2);P.e(x,40,2.5,2.5,c1);};
     bk(15,'#e84a2a','#f0c040');bk(33,'#7ac84a','#4c9a3a');P.r(55,38,12,8,'#3a6ac8');P.r(55,38,12,2,'#7a9ae8');P.r(59,36,10,8,'#c8402a');P.r(59,36,10,2,'#e87a6a');
     P.e(76,42,4,5,'#6a5a8a');P.r(74,36,4,2,'#4a3a6a');P.e(86,43,3,4,'#8a6a3a');bk(86,'#f8e070','#ffffff');
-    P.r(36,14,28,10,'#2a1a10');P.r(37,15,26,8,'#c8402a');P.r(39,11,1,4,'#2a1a10');P.r(60,11,1,4,'#2a1a10');},'#2a1a0e');lx=50;ly=15;lab='CHỢ';}
+    P.r(36,14,28,10,'#2a1a10');P.r(37,15,26,8,'#c8402a');P.r(39,11,1,4,'#2a1a10');P.r(60,11,1,4,'#2a1a10');},'#2a1a0e');lx=50;ly=15;lab='TẠP HÓA';}
   else{img=spr(84,92,P=>{grassBase(P,42,90,38,gch);
     P.r(6,82,72,8,'#8a8478');P.r(6,82,72,2,'#b4ae9e');
     P.r(10,56,64,26,WL);P.r(10,56,64,4,WD2);for(const x of[10,27,55,71])P.r(x,54,4,28,'#5a3a22');
@@ -5040,7 +5040,7 @@ function drawBldRow(y,camX,camY){drawPhongDo(y,camX,camY);drawGates(y,camX,camY)
 /* ---------- dân làng ---------- */
 const VLINE={
   all:['Trong làng có Trấn Ma Ti trông coi nên quỷ không dám bén mảng. Thầy cứ yên tâm nghỉ chân.','Ra khỏi cổng làng là đường hoang, quỷ hay chặn người qua lại lắm. Thầy đi đường cẩn thận.',
-    'Y quán trong làng chữa thương khéo lắm. Thầy bị thương thì ghé vào.','Chợ làng hôm nay đông, nghe nói có cả pháp bảo người ta mang từ trấn trên xuống.',
+    'Y quán trong làng chữa thương khéo lắm. Thầy bị thương thì ghé vào.','Tiệm tạp hóa trong làng hôm nay đông, nghe nói có cả pháp bảo người ta mang từ trấn trên xuống.',
     'Đêm qua tôi thấy ánh lửa xanh lượn ngoài bờ tre, sợ quá đóng cửa đi ngủ sớm.','Thầy đi xa thì nhớ mang thêm bùa trấn yểm, ngoài kia quỷ nhiều lắm.',
     'Nghe đồn ở Quỷ Môn Quan âm khí bốc lên ngùn ngụt, ai lại gần cũng phát sốt.','Từ ngày thầy pháp đi qua, làng tôi ngủ yên hơn hẳn. Đa tạ thầy.'],
   nong:['Mùa này lúa trổ đòng, chỉ mong quỷ đừng phá ruộng.','Con trâu nhà tôi cứ đêm là rống, chắc ngoài đồng có gì lạ.','Đất làng mình tốt, cắm cây gì lên cây nấy.'],
@@ -5210,7 +5210,7 @@ function qNav(e){const T=qTarget(e);if(!T){sfx('no');toast('Không tìm thấy �
   run(async()=>{const n=itN('thanhanh'),dd=Math.abs(T.v.x-PL.x)+Math.abs(T.v.y-PL.y)+(T.near?3:0),opts=[{t:dd<=1?'Tìm đường (đang ở ngay đây)':`Tìm đường (cách khoảng ${dd} bước)`},{t:n>0?`Dịch chuyển (Thần Hành Phù ×${n})`:'Dịch chuyển (cần Thần Hành Phù)'},{t:'Đóng'}];
     const i=await ask(e==='main'?'Kiếp nạn':e.q.title,T.t,opts);
     if(i===0){const v=T.v;if(T.near){const s=warpSpot(v.x,v.y+3,0);if(s)walkToNpc(false,{x:s.x,y:s.y});return;}walkToNpc(false,v);}
-    else if(i===1&&n<1){sfx('no');toast('Cần Thần Hành Phù, mua ở chợ');}
+    else if(i===1&&n<1){sfx('no');toast('Cần Thần Hành Phù, mua ở tạp hóa');}
     else if(i===1){const v=T.v,s=warpSpot(v.x,v.y+(T.g?3:1),0)||warpSpot(v.x,v.y,0);if(!s){sfx('no');return;}itAdd('thanhanh',-1);doWarp(s.x,s.y,'Thần Hành Phù đưa cả đội tới nơi');}});}
 /* v11.3: bảng tóm tắt nhiệm vụ trên bản đồ (chỗ dòng "Ra trận" cũ); chạm một dòng để chọn Tìm đường / Dịch chuyển */
 const QH_MAX=3;
@@ -5370,7 +5370,7 @@ function grdDraw(q,s,sx,sy,walk){if(q.wk&&renWorkDraw(q,s,sx,sy))return;if(q.lk)
   c.drawImage(GRD,f*90,0,90,140,sx+8-13.5*VLS,sy+16.5-40.8*VLS+by,27*VLS,42*VLS);}
 const GRDL={g:['Trong làng có lính canh gác ngày đêm, quỷ dữ không dám lại gần. Thầy pháp cứ tự nhiên vào.','Ra khỏi cổng này là đường hoang. Trời tối thầy đi cẩn thận.','Đêm qua có bóng gì lởn vởn ngoài cổng, anh em bọn tôi canh tới sáng.','Ai ra vào làng bọn tôi đều để ý. Thầy pháp thì xin mời.'],
   p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.'],
-  w:['Hôm nay trời đẹp, tôi ra chợ một vòng.','Thầy pháp mới tới làng hả? Làng mình hiền lắm.','Đi dạo quanh làng cho khuây khỏa, tối đến là đóng cửa sớm.','Nghe nói ngoài bìa rừng có ma trơi, thầy cẩn thận nhé.','Có thầy pháp ở đây, bà con yên tâm làm ăn.'],
+  w:['Hôm nay trời đẹp, tôi ra tiệm tạp hóa một vòng.','Thầy pháp mới tới làng hả? Làng mình hiền lắm.','Đi dạo quanh làng cho khuây khỏa, tối đến là đóng cửa sớm.','Nghe nói ngoài bìa rừng có ma trơi, thầy cẩn thận nhé.','Có thầy pháp ở đây, bà con yên tâm làm ăn.'],
   an:['Thầy pháp ơi, bố thí cho lão bát cơm. Trời phù hộ thầy.','Lão đi khắp các làng, chuyện ma quỷ ở đâu lão cũng nghe qua.','Đêm qua lão ngủ dưới gốc cây, thấy bóng trắng đi qua đi lại.','Làng này tốt bụng, ngày nào cũng có người cho lão miếng ăn.'],
   d:['Mời thầy ghé nhà chơi, uống chén nước chè.','Nhà tôi ở đây đã ba đời rồi.','Tối qua nghe tiếng gõ cửa mà mở ra chẳng thấy ai, may có lá bùa dán trên cửa.','Thầy đi đường xa có mệt không?','Cả nhà tôi đội ơn các thầy pháp trừ ma giữ làng.']};
 async function grdTalk(v){if(v.wk)return renMenu(WD.towns[v.ti]);const s=nst(v);s.face=PL.x>v.x?1:PL.x<v.x?-1:s.face;s.cool=Math.max(s.cool,2500);if(v.grd==='g')s.halt=time;
@@ -6768,7 +6768,7 @@ function onlSysList(){if(onlSysL)return onlSysL;const L=[];let sec='',tl='';
   return onlSysL=L;}
 function onlSysTick(dt){if(!ONL.room)return;if((onlSysT-=dt)>0)return;onlSysT=ONL_SYS_GAP;const L=onlSysList();if(!L.length)return;
   let i=0;try{i=(+localStorage.getItem('gms-sys')||0)%L.length;localStorage.setItem('gms-sys',String(i+1));}catch(_){}
-  onlAddChat(ONL_SYS,L[i],false,true);}
+  onlAddChat(ONL_SYS,onlHN(L[i]),false,true);}
 function onlSay(t){t=onlClean(t).slice(0,120);if(!t)return;const now=performance.now();if(now-ONL.sayAt<900){toast('Gõ chậm thôi thầy ơi');return;}
   ONL.sayI++;ONL.sayT=t;ONL.sayAt=now;onlAddChat(onlNick(),t,true);onlSend(true);}
 /* gửi presence sảnh: tối đa 8 lần/giây, chỉ khi có thay đổi */
@@ -7103,7 +7103,7 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
 
 /* ---------- main loop ---------- */
 /* v16.15.2: vẽ fn trong khung 240 đặt giữa màn ngang rộng; các vùng chạm/cuộn đăng ký trong lúc vẽ được dời theo */
