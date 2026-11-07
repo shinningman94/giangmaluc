@@ -2046,8 +2046,10 @@ const JOY={on:false,fixed:false,id:null,ox:PAD.x,oy:PAD.y,x:PAD.x,y:PAD.y,t0:0,m
 function toLogic(e){const r=cv.getBoundingClientRect();if(ROT)return{x:(1-(e.clientY-r.top)/r.height)*W,y:(e.clientX-r.left)/r.width*H};return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
 function joySet(d){if(d===JOY.dir)return;if(JOY.dir)hold(JOY.dir,false);JOY.dir=d;if(d){hold(d,true);if(!PL.moving)press(d);}}
 /* v4.2: người chơi yêu cầu bỏ joystick; trên bản đồ chỉ còn chạm vào ô để tự đi tới (bàn phím vẫn dùng được) */
-const JOY_OFF=true;
+/* v16.28: người chơi muốn có lại joystick nhưng chỉ hiện khi giữ tay trên màn hình (joystick nổi, không có nút cố định) */
+const JOY_OFF=false;
 function padShown(){return !JOY_OFF&&scene==='map'&&G&&!DLG&&!CH;}
+function joyVis(){return JOY.on&&(JOY.moved||performance.now()-JOY.t0>180);}
 function tapAt(x,y){
   if(waitPressRes||DLG){press('a');return;}
   for(let i=hits.length-1;i>=0;i--){const h=hits[i];if(x>=h.x&&y>=h.y&&x<h.x+h.w&&y<h.y+h.h){h.fn(x,y);return;}}
@@ -2057,7 +2059,7 @@ function tapAt(x,y){
   if(scene==='map'&&G&&!busy)walkTo(x,y);}
 function joyMove(x,y){let dx=x-JOY.ox,dy=y-JOY.oy;const L=Math.hypot(dx,dy);
   if(!JOY.fixed&&L>18){JOY.ox=x-dx/L*18;JOY.oy=y-dy/L*18;dx=x-JOY.ox;dy=y-JOY.oy;}JOY.x=x;JOY.y=y;
-  if(L>5){JOY.moved=true;joySet(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));}else joySet(null);}
+  if(L>6){if(!JOY.moved){JOY.moved=true;PL.path=null;}joySet(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));}else joySet(null);}
 /* vuốt để cuộn danh sách ở màn Tháp Trấn Hồn; chạm không kéo vẫn là chạm thường */
 let TDRAG=null;
 /* v5.2: vùng chữ cuộn được (MENU.trect do infoText ghi lại mỗi khung hình) */
@@ -2099,16 +2101,15 @@ cv.addEventListener('pointerdown',e=>{e.preventDefault();audio();const{x,y}=toLo
   if(scene==='battle'&&B&&!CH&&!DLG){const ih=INFOH.find(r=>x>=r.x&&y>=r.y&&x<r.x+r.w&&y<r.y+r.h);if(ih){const L={x,y,id:e.pointerId};L.tm=setTimeout(()=>{if(LP===L&&!L.moved&&B){L.fired=1;B.tip={t:ih.t,d:typeof ih.d==='function'?ih.d():ih.d};sfx('sel');}},450);LP=L;try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}}
   if(textDragStart(e,x,y)||towerDragStart(e,x,y)||scrollDragStart(e,x,y))return;
   const onHit=hits.some(h=>x>=h.x&&y>=h.y&&x<h.x+h.w&&y<h.y+h.h);
-  if(padShown()&&!busy&&!JOY.on&&!onHit){const onPad=Math.hypot(x-PAD.x,y-PAD.y)<=PAD.r+8;
-    if(onPad||(e.pointerType!=='mouse'&&x<W/2&&(!PORT||y>H*.5))){JOY.on=true;JOY.fixed=onPad;JOY.id=e.pointerId;JOY.t0=performance.now();JOY.moved=false;PL.path=null;
-      if(onPad){JOY.ox=PAD.x;JOY.oy=PAD.y;}else{JOY.ox=x;JOY.oy=y;}try{cv.setPointerCapture(e.pointerId);}catch(_){}joyMove(x,y);return;}}
+  if(padShown()&&!busy&&!JOY.on&&!onHit&&!waitPressRes){JOY.on=true;JOY.fixed=false;JOY.id=e.pointerId;JOY.t0=performance.now();JOY.moved=false;
+    JOY.ox=JOY.x=x;JOY.oy=JOY.y=y;JOY.dir=null;try{cv.setPointerCapture(e.pointerId);}catch(_){}return;}
   tapAt(x,y);});
 cv.addEventListener('pointermove',e=>{if(!JOY.on||e.pointerId!==JOY.id)return;const{x,y}=toLogic(e);joyMove(x,y);});
 function joyEnd(e){if(!JOY.on||e.pointerId!==JOY.id)return;JOY.on=false;JOY.id=null;joySet(null);
-  if(!JOY.fixed&&!JOY.moved&&performance.now()-JOY.t0<300)tapAt(JOY.ox,JOY.oy);}
+  if(!JOY.fixed&&!JOY.moved&&performance.now()-JOY.t0<450)tapAt(JOY.ox,JOY.oy);}
 cv.addEventListener('pointerup',joyEnd);cv.addEventListener('pointercancel',joyEnd);
-function drawJoy(){if(!padShown()){if(JOY.on){JOY.on=false;joySet(null);}return;}
-  const bx=JOY.on?JOY.ox:PAD.x,by=JOY.on?JOY.oy:PAD.y,r=PAD.r;const dx=JOY.x-bx,dy=JOY.y-by,L=Math.hypot(dx,dy)||1,k=Math.min(L,r-8)/L;
+function drawJoy(){if(!padShown()){if(JOY.on){JOY.on=false;joySet(null);}return;}if(!joyVis())return;
+  const bx=JOY.ox,by=JOY.oy,r=PAD.r;const dx=JOY.x-bx,dy=JOY.y-by,L=Math.hypot(dx,dy)||1,k=Math.min(L,r-8)/L;
   const kx=JOY.on&&JOY.moved?bx+dx*k:bx,ky=JOY.on&&JOY.moved?by+dy*k:by;
   c.globalAlpha=JOY.on?.3:.2;c.fillStyle='#120d18';c.beginPath();c.arc(bx,by,r,0,7);c.fill();
   c.globalAlpha=JOY.on?.6:.4;c.strokeStyle='#fff3d0';c.lineWidth=1;c.beginPath();c.arc(bx,by,r-.5,0,7);c.stroke();
