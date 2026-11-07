@@ -5,6 +5,9 @@
 import { BOT_PATHS } from './botpaths.js';
 
 const TS = 16, STEP_MS = 140, TICK = 250;
+// Người chơi muốn tắt chat của các bot nhân vật (2026-11-07): bot vẫn đi lại và nhận thách đấu nhưng không nói gì.
+// Tin nhắn hướng dẫn giờ do bot "Hệ Thống" phía client (onl.js onlSysTick) đọc từ Hướng dẫn chỉ số.
+const BOT_CHAT = false;
 export const BOT_DEFS = [
   { u: 'LongVu_88', hn: 'Long Vũ', lv: 18, rp: 1180, w: 23, l: 17 },
   { u: 'HoaMai2k', hn: 'Hoa Mai', lv: 9, rp: 1020, w: 6, l: 8 },
@@ -80,7 +83,7 @@ export class Bots {
     b.peer.pres.set('', p);
     this.hub.cast('', JSON.stringify({ t: 'up', r: '', peer: b.peer.id, p }), null);
   }
-  talk(b, t) { b.say = { i: ++b.sayI, t: String(t).slice(0, 120), at: Date.now() }; this.push(b, true); }
+  talk(b, t) { if (!BOT_CHAT) return; b.say = { i: ++b.sayI, t: String(t).slice(0, 120), at: Date.now() }; this.push(b, true); }
   later(ms, fn) { setTimeout(() => { if (this.timer) fn(); }, ms); }
 
   tick(dt, now) {
