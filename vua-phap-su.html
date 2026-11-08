@@ -5334,8 +5334,8 @@ function grdOf(T,ti){if(T.grd)return T.grd;const L=[];T.grd=L;if(!WD.road||!WD.t
     for(const[dx,dy]of[[1,0],[-1,0],[2,0],[-2,0],[1,1],[-1,1]]){const x=b.dx+dx,y=b.fy+dy;if(inT(x,y)&&!blocked(x,y)&&!poiAt(x,y)&&!bldAt(x,y)&&!L.some(o=>o.x===x&&o.y===y)&&!T.vil.some(o=>o.hx===x&&o.hy===y)){put={x,y};break;}}
     if(put){const rn=b.t==='ren',lk=rn?'ren':lkOf(put.x,put.y);L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'d'+bi,vil:true,grd:'d',lk,name:rn?'Thợ rèn '+tnm('nong').split(' ')[1]:tnm(lk),k:'grd',dr:put.x<b.dx?1:-1,wk:rn?1:0});}}
   return L;}
-const TWLK=['nong','nong','co','co','sinh','dong','ong','an','be'];
-const TWNM={nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
+const TWLK=['nong','nong','co','co','sinh','dong','ong','an','be','su'];
+const TWNM={su:[['Sư','Chú tiểu'],['Minh','Tịnh','Huệ','Giác','Pháp','Tâm','Thiện','Quang']],nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
   sinh:[['Anh','Cậu'],['Minh','Tú','Quang','Khải','Tín','Văn','Phúc','Thanh']],an:[['Ăn mày','Lão khất'],['Tư','Mốc','Lủi','Sáu','Ba','Còm']],be:[['Bé','Con'],['Gạo','Na','Mít','Su','Bông','Thóc','Cốm']],ong:[['Ông','Cụ'],['Lộc','Thọ','Phúc','Bảy','Tư','Khang','Đức','Năm']],dong:[['Thằng','Bé'],['Tí','Tèo','Cu','Bin','Bống','Út','Cò','Bờm']]};
 function grdAll(T){return grdOf(T,WD.towns.indexOf(T));}
 /* đường đi tuần: BFS trong làng tới một ô đường ngẫu nhiên */
@@ -5354,7 +5354,7 @@ function grdDraw(q,s,sx,sy,walk){if(q.wk&&renWorkDraw(q,s,sx,sy))return;if(q.lk)
   else if(walk){const st=Math.floor(time/230)%4;if(s.dir==='up')f=st%2?3:8;else if(s.dir==='down')f=0;else f=st%2?(s.face<0?1:2):(s.face<0?4:6)+(st>>1);}
   else f=s.dir==='up'?3:s.face<0?1:s.face>0&&s.dir?2:0;
   const by=!walk&&q.grd==='g'?Math.round(Math.sin((time+q.x*97)/600)*.6):0;
-  c.drawImage(GRD,f*90,0,90,140,sx+8-13.5*VLS,sy+16.5-40.8*VLS+by,27*VLS,42*VLS);}
+  const gk=GRD.height/140;c.drawImage(GRD,f*90*gk,0,90*gk,140*gk,sx+8-13.5*VLS,sy+16.5-40.8*VLS+by,27*VLS,42*VLS);}
 const GRDL={g:['Trong làng có lính canh gác ngày đêm, quỷ dữ không dám lại gần. Thầy pháp cứ tự nhiên vào.','Ra khỏi cổng này là đường hoang. Trời tối thầy đi cẩn thận.','Đêm qua có bóng gì lởn vởn ngoài cổng, anh em bọn tôi canh tới sáng.','Ai ra vào làng bọn tôi đều để ý. Thầy pháp thì xin mời.'],
   p:['Tôi đi tuần quanh làng, có gì lạ là báo ngay cho Trấn Ma Ti.','Làng yên ổn được là nhờ các thầy pháp như thầy đấy.','Thầy cần gì cứ hỏi dân làng, bọn tôi lo giữ an ninh.'],
   w:['Hôm nay trời đẹp, tôi ra tiệm tạp hóa một vòng.','Thầy pháp mới tới làng hả? Làng mình hiền lắm.','Đi dạo quanh làng cho khuây khỏa, tối đến là đóng cửa sớm.','Nghe nói ngoài bìa rừng có ma trơi, thầy cẩn thận nhé.','Có thầy pháp ở đây, bà con yên tâm làm ăn.'],
@@ -5380,14 +5380,15 @@ const VLA_lao=new Image();VLA_lao.src='img/vla_lao.png';
 const VLA_quan=new Image();VLA_quan.src='img/vla_quan.png';
 const VLA_an=new Image();VLA_an.src='img/vla_an.png';
 const VLA_be=new Image();VLA_be.src='img/vla_be.png';
-const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan,an:VLA_an,be:VLA_be};
+/* v16.32: người chơi thêm tấm nhà sư; dân làng 'su' (Sư thầy) dùng tấm này thay hình vẽ bằng code */const VLA_su=new Image();VLA_su.src='img/vla_su.png';
+const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan,an:VLA_an,be:VLA_be,su:VLA_su};
 const VLALT={nong:[['ren',.3],['bep',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.3],['vu',.25],33],dong:[['tieu',.35],['be',.3],37]};
 function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
 function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const im=VLA[vlaPick(lk,hx,hy)];if(!im||!im.complete||!im.width)return null;
   const vr=Math.floor(hash(hx,hy,17)*4);let f;
   if(walkT!=null)f=[4,5,6,5][Math.floor(time/210)%4];else if(q.gt&&time-q.gt<1500)f=7;else f=(time+vr*777+hx*131)%3400<150?1:0;
-  const flip=face<0&&(walkT!=null||f===7),top=sy+16.5-40.8*VLS;if(alpha!=null)c.globalAlpha=alpha;
-  if(flip){c.save();c.translate(sx+8,0);c.scale(-1,1);c.drawImage(im,f*90,vr*140,90,140,-13.5*VLS,top,27*VLS,42*VLS);c.restore();}else c.drawImage(im,f*90,vr*140,90,140,sx+8-13.5*VLS,top,27*VLS,42*VLS);
+  const flip=face<0&&(walkT!=null||f===7),top=sy+16.5-40.8*VLS,k=im.height/560;/* v16.32: atlas gấp đôi (k=2) cho nét hơn */if(alpha!=null)c.globalAlpha=alpha;
+  if(flip){c.save();c.translate(sx+8,0);c.scale(-1,1);c.drawImage(im,f*90*k,vr*140*k,90*k,140*k,-13.5*VLS,top,27*VLS,42*VLS);c.restore();}else c.drawImage(im,f*90*k,vr*140*k,90*k,140*k,sx+8-13.5*VLS,top,27*VLS,42*VLS);
   c.globalAlpha=1;return top+5*VLS;}
 const VLA_OK=1;
 /* v16.19.1: người chơi muốn dân làng và lính canh mới nhỏ ngang Minh Dạ trên bản đồ */
@@ -6492,7 +6493,7 @@ function renDeco(g){hPlaque(g,46,50,32,'TIỆM RÈN');
 /* thợ rèn đứng cạnh cửa đập búa trên đe (khung 11,12,13,14 của sheet thợ rèn) */
 function renWorkDraw(q,s,sx,sy){if(!RENW.complete||!RENW.width)return false;const seq=[3,1,2,0],f=seq[Math.floor((time+q.x*131)/280)%4];
   const w=45*VLS,h=42*VLS,flip=q.dr>0;const top=sy+16.5-40.8*VLS;
-  if(flip){c.save();c.translate(sx+8,0);c.scale(-1,1);c.drawImage(RENW,f*150,0,150,140,-w*.36,top,w,h);c.restore();}else c.drawImage(RENW,f*150,0,150,140,sx+8-w*.36,top,w,h);
+  if(flip){c.save();c.translate(sx+8,0);c.scale(-1,1);const rk=RENW.height/140;c.drawImage(RENW,f*150*rk,0,150*rk,140*rk,-w*.36,top,w,h);c.restore();}else{const rk=RENW.height/140;c.drawImage(RENW,f*150*rk,0,150*rk,140*rk,sx+8-w*.36,top,w,h);}
   if(f===2){c.fillStyle='#ffd060';for(let i=0;i<3;i++){const ax=sx+8+(flip?-1:1)*(w*.3+hash(i,Math.floor(time/90),3)*6);c.fillRect(Math.round(ax),Math.round(top+h*.62-hash(i,Math.floor(time/90),5)*5),1,1);}}
   return true;}
 
