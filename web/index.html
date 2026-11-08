@@ -6589,7 +6589,7 @@ function trlBg(k,z,px,py,a){const im=bgFor(k),s=Math.max(W/240,H/160)*(z||1),w=2
 /* một khung hình quái/nhân vật: chân đặt tại (cx,by), cao hgt, mặt quay sang phải khi right=true */
 function trlMon(id,k,cx,by,hgt,right,o={}){const a=ANIM[id];if(!a||!a.im){const s=sprite(id);if(!s)return;const k2=hgt/s.height;c.globalAlpha=o.a==null?1:o.a;c.drawImage(right?s:flip(s),cx-s.width*k2/2,by-hgt,s.width*k2,hgt);c.globalAlpha=1;return;}
   let i=typeof k==='number'?k:(a.seq&&a.seq[k]&&o.anim!=null?a.seq[k][Math.floor(o.anim/(o.ms||160))%a.seq[k].length]:a.pose[k]);if(i==null||i>=a.n)i=a.pose.idle||0;
-  let fl=!!right;if(id==='diep')fl=!right;else if(nativeLeft(a,i))fl=!fl;
+  let fl=!right;if(id!=='diep'&&nativeLeft(a,i))fl=!fl;
   const f=animFr(id,i),[bx,by0,bw,bh]=a.box,s=hgt/bh,img=o.red?trlRed(id,i,fl?flip(f):f):fl?flip(f):f,dx=(fl?a.w-bx-bw:bx)*s;
   c.save();c.globalAlpha=o.a==null?1:o.a;c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
   c.drawImage(img,cx-bw*s/2-dx,by-hgt-by0*s,a.w*s,a.h*s);c.restore();c.imageSmoothingEnabled=false;}
@@ -6603,8 +6603,8 @@ function trlVig(a){const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,
 function trlMoon(x,y,r,col,a){c.globalAlpha=a;const g=c.createRadialGradient(x,y,r*.2,x,y,r*2.4);g.addColorStop(0,col);g.addColorStop(.35,'rgba(160,20,20,.35)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r*2.4,y-r*2.4,r*4.8,r*4.8);
   c.fillStyle='#e8433a';c.beginPath();c.arc(x,y,r,0,7);c.fill();c.fillStyle='rgba(120,10,20,.45)';c.beginPath();c.arc(x+r*.25,y-r*.15,r*.8,0,7);c.fill();c.globalAlpha=1;}
 function trlCue(i,k){if(TRL.cut<i){TRL.cut=i;sfx(k);}}
-const TRLM=[['tamamo','sweep','THU PHỤC','#8fe0ff','forest'],['thaothiet','dash','SIÊU ĐỘ','#ffe8a0','ruins'],['susanoo','throw','TIÊU DIỆT','#ff8a7a','mount'],['cungky','sweep','BÁCH QUỶ','#d8a8ff','swamp'],['tsukuyomi','halo','THỨC THẦN','#a8ffd0','grave'],['conlon','spin','99 KIẾP NẠN','#ffd27a','meadow']];
-function drawTrailer(){const dt=Math.min(50,time-(TRL.last||time));TRL.last=time;TRL.t+=dt;const t=TRL.t;let sh=0;
+const TRLM=[['tamamo','sweep','THU PHỤC','#8fe0ff','forest'],['thaothiet','sweep','SIÊU ĐỘ','#ffe8a0','ruins'],['susanoo','throw','TIÊU DIỆT','#ff8a7a','mount'],['cungky','sweep','BÁCH QUỶ','#d8a8ff','swamp'],['tsukuyomi','halo','THỨC THẦN','#a8ffd0','grave'],['conlon','spin','99 KIẾP NẠN','#ffd27a','meadow']];
+function drawTrailer(){const dt=Math.min(50,time-(TRL.last||time));TRL.last=time;if(!TRL.freeze)TRL.t+=dt;const t=TRL.t;let sh=0;
   rect(0,0,W,H,'#000');
   if(t<4600){/* 1. hỗn mang */
     trlEmbers('#ff7a3a',1,tOut(t,3800,4600));
@@ -6666,6 +6666,7 @@ function drawTrailer(){const dt=Math.min(50,time-(TRL.last||time));TRL.last=time
   {const w=Math.round(W*Math.min(1,t/TRLEN));rect(0,H-1,w,1,'rgba(255,220,150,.5)');}
   hit(0,0,W,H,trlInput);}
 if(!navigator.webdriver||window.__trailer)trlStart();
+window.__trlT=t=>{TRL.t=t;TRL.last=0;TRL.freeze=1;};
 
 
 /* ================= BẢN ONLINE (v1.0) =================
