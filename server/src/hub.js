@@ -9,6 +9,7 @@
 //   {t:'join', r} / {t:'leave', r}
 //   {t:'ping'}
 //   {t:'botduel', b} / {t:'botres', b, win}   bắt đầu / kết thúc trận với bot b (mã peer của bot), xem bots.js
+//   nhắn riêng, tổ đội, bang hội: xem social.js (dm, pinv, pans, pleave, pmsg, gcreate, gjoin, gleave, glist, gmsg)
 //  server -> client
 //   {t:'welcome', you, n}         you: mã peer của mình
 //   {t:'peers', r, list:[{peer,p}]}  ảnh chụp cả phòng (khi vào phòng)
@@ -22,6 +23,7 @@ const ROOM_RE = /^duel-[a-z0-9]{4,16}$/;
 const ID_RE = /^[a-zA-Z0-9_-]{6,40}$/;
 const BAD = new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u206f\\ufeff]', 'g');
 import { Bots } from './bots.js';
+import { Social } from './social.js';
 const clean = (s, n) => String(s || '').replace(BAD, '').trim().slice(0, n);
 
 export class Hub {
@@ -34,6 +36,7 @@ export class Hub {
     this.seq = 0;
     this.board = null; this.boardDirty = false;
     this.bots = bots ? new Bots(this) : null;
+    this.social = new Social(this);
   }
   online() { return this.peers.size; }
 
@@ -66,6 +69,7 @@ export class Hub {
     if (r !== '' && !ROOM_RE.test(r)) return;
     if (m.t === 'join') return this.join(peer, r);
     if (m.t === 'leave') return r ? this.leave(peer, r) : undefined;
+    if (Social.TYPES.has(m.t)) return void this.social.handle(peer, m);
     if (m.t === 'botduel' && this.bots && typeof m.b === 'string') return void this.bots.duel(peer, m.b);
     if (m.t === 'botres' && this.bots && typeof m.b === 'string') return void this.bots.result(peer, m.b, !!m.win, !!m.cancel);
     if (m.t === 'p') {
@@ -91,6 +95,7 @@ export class Hub {
     this.out(peer, { t: 'auth', u: a.n });
     this.join(peer, '');
     if (this.bots) { this.bots.start(); this.bots.greet(peer); }
+    this.social.login(peer).catch(() => {});
     const q = peer.q; peer.q = null;
     for (const raw of q) this.message(peer.sock, raw);
   }
@@ -115,6 +120,7 @@ export class Hub {
     for (const r of [...peer.rooms]) this.leave(peer, r);
     this.peers.delete(sock);
     if (this.bots) this.bots.gone(peer);
+    this.social.gone(peer).catch(() => {});
   }
 
   out(peer, o) { if (!peer.sock) return; try { this.send(peer.sock, JSON.stringify(o)); } catch { this.closed(peer.sock); } }
