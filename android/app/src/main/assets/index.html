@@ -5347,8 +5347,8 @@ function grdOf(T,ti){if(T.grd)return T.grd;const L=[];T.grd=L;if(!WD.road||!WD.t
     for(const[dx,dy]of[[1,0],[-1,0],[2,0],[-2,0],[1,1],[-1,1]]){const x=b.dx+dx,y=b.fy+dy;if(inT(x,y)&&!blocked(x,y)&&!poiAt(x,y)&&!bldAt(x,y)&&!L.some(o=>o.x===x&&o.y===y)&&!T.vil.some(o=>o.hx===x&&o.hy===y)){put={x,y};break;}}
     if(put){const rn=b.t==='ren',lk=rn?'ren':lkOf(put.x,put.y);L.push({x:put.x,y:put.y,hx:put.x,hy:put.y,ti,vi:'d'+bi,vil:true,grd:'d',lk,name:rn?'Thợ rèn '+tnm('nong').split(' ')[1]:tnm(lk),k:'grd',dr:put.x<b.dx?1:-1,wk:rn?1:0});}}
   return L;}
-const TWLK=['nong','nong','co','co','sinh','dong','ong','an','be','su'];
-const TWNM={su:[['Sư','Chú tiểu'],['Minh','Tịnh','Huệ','Giác','Pháp','Tâm','Thiện','Quang']],nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
+const TWLK=['nong','nong','co','co','sinh','dong','ong','an','be','su','ba'];
+const TWNM={ba:[['Bà','Cụ bà'],['Tư','Năm','Sáu','Đào','Mai','Lý','Hai','Nhàn']],su:[['Sư','Chú tiểu'],['Minh','Tịnh','Huệ','Giác','Pháp','Tâm','Thiện','Quang']],nong:[['Chú','Anh'],['Tám','Bình','Hai','Lực','Sửu','Mão','Tý','Khoa','Tâm','Lành']],co:[['Cô','Chị'],['Hoa','Lan','Đào','Mận','Nhài','Thơm','Xuân','Hạnh','Gấm','Thắm']],
   sinh:[['Anh','Cậu'],['Minh','Tú','Quang','Khải','Tín','Văn','Phúc','Thanh']],an:[['Ăn mày','Lão khất'],['Tư','Mốc','Lủi','Sáu','Ba','Còm']],be:[['Bé','Con'],['Gạo','Na','Mít','Su','Bông','Thóc','Cốm']],ong:[['Ông','Cụ'],['Lộc','Thọ','Phúc','Bảy','Tư','Khang','Đức','Năm']],dong:[['Thằng','Bé'],['Tí','Tèo','Cu','Bin','Bống','Út','Cò','Bờm']]};
 function grdAll(T){return grdOf(T,WD.towns.indexOf(T));}
 /* đường đi tuần: BFS trong làng tới một ô đường ngẫu nhiên */
@@ -5393,9 +5393,14 @@ const VLA_lao=new Image();VLA_lao.src='img/vla_lao.png';
 const VLA_quan=new Image();VLA_quan.src='img/vla_quan.png';
 const VLA_an=new Image();VLA_an.src='img/vla_an.png';
 const VLA_be=new Image();VLA_be.src='img/vla_be.png';
+/* v16.33: người chơi thêm 4 tấm: bà cụ (thay hình vẽ code của 'ba'), chàng trai làm thuê, cô thôn nữ, chú râu */
+const VLA_bacu=new Image();VLA_bacu.src='img/vla_bacu.png';
+const VLA_phu=new Image();VLA_phu.src='img/vla_phu.png';
+const VLA_thon=new Image();VLA_thon.src='img/vla_thon.png';
+const VLA_chu=new Image();VLA_chu.src='img/vla_chu.png';
 /* v16.32: người chơi thêm tấm nhà sư; dân làng 'su' (Sư thầy) dùng tấm này thay hình vẽ bằng code */const VLA_su=new Image();VLA_su.src='img/vla_su.png';
-const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan,an:VLA_an,be:VLA_be,su:VLA_su};
-const VLALT={nong:[['ren',.3],['bep',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.3],['vu',.25],33],dong:[['tieu',.35],['be',.3],37]};
+const VLA={nong:VLA_nong,ren:VLA_ren,sinh:VLA_lang,khach:VLA_khach,co:VLA_co,langn:VLA_langn,dong:VLA_dong,tieu:VLA_tieu,vu:VLA_vu,bep:VLA_bep,ong:VLA_lao,quan:VLA_quan,an:VLA_an,be:VLA_be,su:VLA_su,ba:VLA_bacu,phu:VLA_phu,thon:VLA_thon,chu:VLA_chu};
+const VLALT={nong:[['ren',.2],['bep',.15],['phu',.2],['chu',.2],29],sinh:[['khach',.3],['quan',.25],31],co:[['langn',.25],['vu',.2],['thon',.25],33],dong:[['tieu',.35],['be',.3],37]};
 function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
 function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const im=VLA[vlaPick(lk,hx,hy)];if(!im||!im.complete||!im.width)return null;
   const vr=Math.floor(hash(hx,hy,17)*4);let f;
