@@ -2121,6 +2121,7 @@ function press(k){
   if(waitPressRes&&(k==='a'||k==='b')&&!DLG&&!CH){const r=waitPressRes;waitPressRes=null;sfx('sel');r();return;}
   if(DLG){if(k==='a'||k==='b')dlgNext();return;}
   if(CH)return chInput(k);
+  if(scene==='trailer')return trlInput();
   if(scene==='title')return titleInput(k);
   if(scene==='arena'&&AR)return arenaInput(k);
   if(scene==='arsel'&&ARS)return arsInput(k);
@@ -2184,23 +2185,20 @@ const BIOT=[null,[40,60,100,.1],[60,30,0,.04],[50,15,100,.32]],BION=[null,null,'
 function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]:0;}
 function regKey(x,y){if(G&&G.realm&&WD.rz)return 100+WD.rz[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)];return zoneAt(x,y)+bioAt(x,y)*10;}
 function regName(k){if(G&&G.realm){const R0=RLM[G.realm];return k>=100&&R0.rn?R0.rn[k-100]:R0.n;}/* v15.42: tên vùng riêng của từng giới */return BION[Math.floor(k/10)]||ZONES[k%10].n;}
-async function startNew(){newGame();scene='intro';await fadeTo(1);scene='map';curZone=0;bannerT=2200;await fadeTo(0);
+async function startNew(){newGame();await gameLoad();scene='map';curZone=0;bannerT=2200;await fadeTo(0);
   run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
-async function continueGame(){applySave(SAVED);scene='intro';await fadeTo(1);scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
+async function continueGame(){applySave(SAVED);await gameLoad();scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
 const titleWisps=Array.from({length:14},(_,i)=>({x:hash(i,1)*W,y:hash(i,2)*H,s:.2+hash(i,3)*.5,p:hash(i,4)*6}));
-function drawTitleP(){const k=H/160;c.drawImage(bgFor('boss'),Math.round((W-240*k)/2),0,Math.round(240*k),H);rect(0,0,W,H,'rgba(10,6,20,.5)');
+function drawTitleP(){
   for(const w of titleWisps){const y=(w.y*2.5-time*w.s*0.02+H*10)%H;const x=w.x%W+Math.sin(time/700+w.p)*6;c.globalAlpha=.5+.5*Math.sin(time/300+w.p);rect(Math.round(x),Math.round(y),2,2,'#9fe0ff');c.globalAlpha=1;}
-  const v=sprite('lee');drawPic('lee',W-v.width-8,Math.round(H*.62)-v.height+Math.round(Math.sin(time/600)*1),v.width,v.height,true,'tl');
-  const d=sprite('diep');drawPic('diep',10,Math.round(H*.62)-d.height,d.width,d.height,false,'tl');
   txt('GIÁNG MA SƯ',W/2,Math.round(H*.08),{size:27,align:'center',color:'#ffe8a0',outline:'#5a1a18',lw:2.5});
   txt('HÀNG MA LỘ',W/2,Math.round(H*.08)+28,{size:13,align:'center',color:'#f0d0d0',outline:'#2a0a14'});
   const it=titleItems();const y0=Math.round(H*.66);it.forEach((o,i)=>{const y=y0+i*30;const sel=i===titleIdx;win(22,y,W-44,24,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(o.l,W/2,y+5,{size:12,align:'center',color:sel?'#fff8e0':'#c8bcd8'});hit(22,y,W-44,24,()=>{titleIdx=i;sfx('ok');o.f();});});
   wrap('Thu phục · Siêu độ · Tiêu diệt',W-16,9).forEach((l,i,a)=>txt(l,W/2,H-12-(a.length-i)*10,{size:9,align:'center',color:'#b8a8d0'}));}
-function drawTitle(){ctr(drawTitle0,1);}
+/* v16.40 (người chơi): màn chờ có nền động như video (titleVid trong z_trailer.js) */
+function drawTitle(){titleVid();ctr(drawTitle0);}
 function drawTitle0(){if(PORT)return drawTitleP();
-  c.drawImage(bgFor('boss'),0,0);rect(0,0,W,H,'rgba(10,6,20,.45)');
   for(const w of titleWisps){const y=(w.y-time*w.s*0.02+H*10)%H;const x=w.x+Math.sin(time/700+w.p)*6;c.globalAlpha=.5+.5*Math.sin(time/300+w.p);rect(Math.round(x),Math.round(y),2,2,'#9fe0ff');c.globalAlpha=1;}
-  {const d=sprite('diep');drawPic('diep',8,62,d.width,d.height,false,'tl');const v=sprite('lee');drawPic('lee',W-v.width-12,62+d.height-v.height+Math.round(Math.sin(time/600)*1),v.width,v.height,true,'tl');}
   txt('GIÁNG MA SƯ',W/2,14,{size:30,align:'center',color:'#ffe8a0',outline:'#5a1a18',lw:2.5});
   txt('HÀNG MA LỘ',W/2,44,{size:12,align:'center',color:'#f0d0d0',outline:'#2a0a14'});
   const it=titleItems();it.forEach((o,i)=>{const y=108+i*16;const sel=i===titleIdx;win(70,y,100,14,sel?'#7a2a22':'#2c2238',sel?'#5a1a18':'#1d1626',sel?'#ffe8a0':'#6a5a7a');txt(o.l,W/2,y+2,{size:10,align:'center',color:sel?'#fff8e0':'#c8bcd8'});hit(70,y,100,14,()=>{titleIdx=i;sfx('ok');o.f();});});
@@ -6560,6 +6558,143 @@ async function renSyn(){for(;;){const L=RSYN.filter(r=>r.o.slice(0,3)!=='dch'||i
 async function renBag(){const ks=Object.keys(CONS).filter(k=>CONS[k].ic&&CONS[k].ic.slice(0,2)==='r_'&&itN(k)>0);
   await say(ks.length?ks.map(k=>CONS[k].n+' ×'+itN(k)).join(', '):'Thầy chưa có nguyên liệu nào. Đào mỏ quặng ngoài thành và diệt quái để thu thập.','Nguyên liệu');}
 
+/* ---------- v16.38 (người chơi): trailer mở đầu trước màn hình tiêu đề ----------
+   Khoảng 32 giây, 6 cảnh dựng bằng chính hình trong game: hỗn mang, bách quỷ dạ hành, Minh Dạ lên đường,
+   giao chiến (thu phục · siêu độ · tiêu diệt), Phong Đô Đại Đế, rồi logo. Chạm hoặc bấm phím bất kỳ để bỏ qua.
+   Trình duyệt tự động (test) thì bỏ qua trailer, trừ khi đặt window.__trailer. */
+const TRL={t:0,on:false,last:0,emb:[],cut:-1};
+function trlStart(){TRL.on=true;TRL.t=0;TRL.cut=-1;scene='trailer';fade=0;
+  trlEmb();}
+function trlEmb(){TRL.emb.length=0;for(let i=0;i<46;i++)TRL.emb.push({x:Math.random(),y:Math.random(),s:.4+Math.random()*1.2,p:Math.random()*6.3,r:Math.random()<.25?2:1});}
+function trlEnd(){if(scene!=='trailer')return;TRL.on=false;TRLR.clear();scene='title';fade=1;tween(500,p=>fade=1-p);}
+function trlInput(){sfx('ok');trlEnd();}
+const TRLEN=32500;
+/* vẽ ảnh nền 240x160 phủ kín màn, có phóng chậm */
+function trlBg(k,z,px,py,a){const im=bgFor(k),s=Math.max(W/240,H/160)*(z||1),w=240*s,h=160*s;c.globalAlpha=a==null?1:a;c.imageSmoothingEnabled=true;c.drawImage(im,(W-w)/2+(px||0),(H-h)/2+(py||0),w,h);c.imageSmoothingEnabled=false;c.globalAlpha=1;}
+/* một khung hình quái/nhân vật: chân đặt tại (cx,by), cao hgt, mặt quay sang phải khi right=true */
+function trlMon(id,k,cx,by,hgt,right,o={}){const a=ANIM[id];if(!a||!a.im){const s=sprite(id);if(!s)return;const k2=hgt/s.height;c.globalAlpha=o.a==null?1:o.a;c.drawImage(right?s:flip(s),cx-s.width*k2/2,by-hgt,s.width*k2,hgt);c.globalAlpha=1;return;}
+  let i=typeof k==='number'?k:(a.seq&&a.seq[k]&&o.anim!=null?a.seq[k][Math.floor(o.anim/(o.ms||160))%a.seq[k].length]:a.pose[k]);if(i==null||i>=a.n)i=a.pose.idle||0;
+  let fl=!right;if(id!=='diep'&&nativeLeft(a,i))fl=!fl;
+  const f=animFr(id,i),[bx,by0,bw,bh]=a.box,s=hgt/bh,img=o.red?trlRed(id,i,fl?flip(f):f):fl?flip(f):f,dx=(fl?a.w-bx-bw:bx)*s;
+  c.save();c.globalAlpha=o.a==null?1:o.a;c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+  c.drawImage(img,cx-bw*s/2-dx,by-hgt-by0*s,a.w*s,a.h*s);c.restore();c.imageSmoothingEnabled=false;}
+/* bóng quỷ màu đỏ thẫm: tô một lần rồi giữ lại (bộ lọc canvas mỗi khung làm tụt fps) */
+const TRLR=new Map();function trlRed(id,i,f){const k=id+'|'+i+'|'+f.width;if(TRLR.has(k))return TRLR.get(k);const n=document.createElement('canvas');n.width=f.width;n.height=f.height;const x=n.getContext('2d');x.drawImage(f,0,0);
+  try{const d=x.getImageData(0,0,n.width,n.height),p=d.data;for(let j=0;j<p.length;j+=4){const l=(p[j]*.3+p[j+1]*.59+p[j+2]*.11)/255;p[j]=40+l*150;p[j+1]=8+l*40;p[j+2]=10+l*30;}x.putImageData(d,0,0);}catch(e){}TRLR.set(k,n);return n;}
+function trlText(s,y,size,a,col,out){if(a<=0)return;c.globalAlpha=Math.min(1,a);const L=wrap(s,W-24,size);L.forEach((l,i)=>txt(l,W/2,y+i*(size+2),{size,align:'center',color:col||'#f4e6c8',outline:out||'#1a0a10',lw:2}));c.globalAlpha=1;}
+const tIn=(t,a,b)=>clamp((t-a)/(b-a),0,1),tOut=(t,a,b)=>1-tIn(t,a,b),tEase=p=>p*p*(3-2*p);
+function trlEmbers(col,dir,a){if(!TRL.emb.length)trlEmb();const T=scene==='trailer'?TRL.t:time;for(const e of TRL.emb){const y=((e.y*H-(dir||1)*T*.012*e.s)%H+H)%H,x=e.x*W+Math.sin(T/600+e.p)*5;c.globalAlpha=a*(.4+.6*Math.abs(Math.sin(T/400+e.p)));rect(Math.round(x),Math.round(y),e.r,e.r,col);}c.globalAlpha=1;}
+function trlVig(a){const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+a+')');c.fillStyle=g;c.fillRect(0,0,W,H);}
+function trlMoon(x,y,r,col,a){c.globalAlpha=a;const g=c.createRadialGradient(x,y,r*.2,x,y,r*2.4);g.addColorStop(0,col);g.addColorStop(.35,'rgba(160,20,20,.35)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(x-r*2.4,y-r*2.4,r*4.8,r*4.8);
+  c.fillStyle='#e8433a';c.beginPath();c.arc(x,y,r,0,7);c.fill();c.fillStyle='rgba(120,10,20,.45)';c.beginPath();c.arc(x+r*.25,y-r*.15,r*.8,0,7);c.fill();c.globalAlpha=1;}
+function trlCue(i,k){if(TRL.cut<i){TRL.cut=i;sfx(k);}}
+const TRLM=[['tamamo','sweep','THU PHỤC','#8fe0ff','forest'],['thaothiet','sweep','SIÊU ĐỘ','#ffe8a0','ruins'],['susanoo','throw','TIÊU DIỆT','#ff8a7a','mount'],['cungky','sweep','BÁCH QUỶ','#d8a8ff','swamp'],['tsukuyomi','halo','THỨC THẦN','#a8ffd0','grave'],['conlon','spin','99 KIẾP NẠN','#ffd27a','meadow']];
+function drawTrailer(){const dt=Math.min(50,time-(TRL.last||time));TRL.last=time;if(!TRL.freeze)TRL.t+=dt;const t=TRL.t;let sh=0;
+  rect(0,0,W,H,'#000');
+  if(t<4600){/* 1. hỗn mang */
+    trlEmbers('#ff7a3a',1,tOut(t,3800,4600));
+    trlText('Thuở ấy, Âm Dương đảo lộn...',H*.38,12,tIn(t,400,1200)*tOut(t,3600,4400));
+    trlText('cửa Quỷ Môn mở toang giữa nhân gian.',H*.38+18,10,tIn(t,1600,2400)*tOut(t,3600,4400),'#d8b8b0');
+  }else if(t<10400){/* 2. bách quỷ dạ hành */const u=t-4600,p=u/5800;
+    trlBg('grave',1.15+p*.12,0,-p*10);rect(0,0,W,H,'rgba(40,0,10,.55)');trlMoon(W*.72,H*.24,Math.min(W,H)*.09,'rgba(255,90,70,.6)',tIn(u,0,1200));
+    const gy=H*(PORT?.66:.82),hh=Math.min(H*.42,W*(PORT?.5:.36));
+    [['phongdo',W*.5,1.15,700],['tamamo',W*.2,.85,1500],['thaothiet',W*.8,.8,2200]].forEach(([id,x,m,d],i)=>{const q=tEase(tIn(u,d,d+1600));if(q<=0)return;
+      trlMon(id,'idle',x,gy+(1-q)*H*.25,hh*m,i===1,{a:q*.95,red:1});});
+    rect(0,gy-2,W,H-gy+2,'rgba(0,0,0,.7)');trlEmbers('#ff4a3a',-1,.7);trlVig(.85);
+    trlText('Bách quỷ dạ hành, ma quỷ tràn khắp thôn làng.',H*.12,11,tIn(u,800,1600)*tOut(u,4800,5600));
+    if(u<500){c.globalAlpha=1-u/500;rect(0,0,W,H,'#000');c.globalAlpha=1;}
+  }else if(t<15600){/* 3. Minh Dạ lên đường */const u=t-10400;
+    if(u>200)trlCue(0,'thunder');
+    trlBg('mount',1.1,-u*.004,0);rect(0,0,W,H,'rgba(10,10,40,.45)');
+    const fl=u>200&&u<700?(1-Math.abs(u-350)/350):0;
+    const walk=u<3000,x=W*.18+tEase(Math.min(1,u/3000))*W*.32,hh=Math.min(H*.5,W*(PORT?.62:.42)),gy3=H*(PORT?.7:.86);
+    trlMon('diep',walk?'w'+(Math.floor(u/150)%4):'raise',x,gy3,hh,true,{});
+    if(!walk)trlMon('ho_ly','idle',x-hh*.55,gy3,hh*.42,true,{a:tIn(u,3000,3600)*.9});
+    trlEmbers('#9fe0ff',1,.6);trlVig(.75);
+    trlText('Một Giáng Ma Sư trẻ tuổi lên đường hàng ma.',H*.1,11,tIn(u,1200,2000)*tOut(u,4400,5200));
+    if(fl>0){c.globalAlpha=fl;rect(0,0,W,H,'#e8f0ff');c.globalAlpha=1;}
+    if(u<300){c.globalAlpha=1-u/300;rect(0,0,W,H,'#000');c.globalAlpha=1;}
+  }else if(t<22800){/* 4. giao chiến dồn dập */const u=t-15600,ci=Math.min(5,Math.floor(u/1200)),v=u-ci*1200,M=TRLM[ci];
+    trlCue(1+ci,ci%2?'crit':'hit');sh=v<220?(220-v)/220*4:0;
+    c.save();c.translate(Math.round((Math.random()-.5)*sh),Math.round((Math.random()-.5)*sh));
+    trlBg(M[4],1.2+v*.0001,(ci%2?1:-1)*v*.01,0);rect(0,0,W,H,'rgba(0,0,0,.35)');
+    const gy=H*(PORT?.68:.84),hh=Math.min(H*.46,W*(PORT?.44:.34));
+    trlMon(M[0],M[1],W*(PORT?.64:.72),gy-(PORT?H*.07:0),hh*(PORT?.9:1.05),false,{anim:v,ms:220});
+    trlMon('diep',v<500?'sweep':'ready',W*(PORT?.2:.26)+(v<300?v*.03:9),gy+(PORT?H*.09:0),hh*1.05,true,{});
+    c.restore();
+    if(v<160){c.globalAlpha=(160-v)/160*.85;rect(0,0,W,H,'#fff');c.globalAlpha=1;}
+    {c.save();c.globalAlpha=Math.max(0,1-v/420);c.strokeStyle=M[3];c.lineWidth=3;c.beginPath();c.moveTo(W*.15,H*(.25+.1*(ci%2)));c.lineTo(W*.85,H*(.7-.1*(ci%2)));c.stroke();c.lineWidth=1;c.strokeStyle='#fff';c.stroke();c.restore();}
+    trlVig(.7);const z=1+Math.max(0,.35-v/600);trlText(M[2],H*.12-(z-1)*10,Math.round(20*z),tIn(v,60,200)*tOut(v,1000,1200),M[3],'#1a0610');
+  }else if(t<27600){/* 5. Phong Đô Đại Đế */const u=t-22800;
+    trlBg('boss',1.05+u*.00003,0,0);rect(0,0,W,H,'rgba(50,0,0,'+(.3+.1*Math.sin(u/200))+')');
+    if(u>300)trlCue(7,'enc');
+    const q=tEase(tIn(u,300,2200)),hh=Math.min(H*.66,W*(PORT?.8:.55));
+    c.globalAlpha=q*.6;const g=c.createRadialGradient(W/2,H*.55,10,W/2,H*.55,hh);g.addColorStop(0,'rgba(255,60,40,.8)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,W,H);c.globalAlpha=1;
+    trlMon('phongdo',u<2600?'idle':'halo',W/2,H*(PORT?.74:.9)+(1-q)*20,hh*(.85+.15*q),false,{a:q});
+    trlEmbers('#ff5a3a',-1,.9);trlVig(.85);
+    trlText('Phong Đô Đại Đế đang chờ ở tận cùng Quỷ Môn Quan.',H*.08,11,tIn(u,1400,2200)*tOut(u,4000,4800),'#ffd0c0');
+    if(u<200){c.globalAlpha=1-u/200;rect(0,0,W,H,'#000');c.globalAlpha=1;}
+  }else{/* 6. logo */const u=t-27600;
+    if(u>200)trlCue(8,'pur');
+    trlEmbers('#ffd27a',1,tIn(u,0,800)*.8);
+    const q=tEase(tIn(u,200,1300)),sz=Math.round(Math.min(34,W/7.5)*(1.25-.25*q));
+    c.globalAlpha=q;txt('GIÁNG MA SƯ',W/2,H*.36,{size:sz,align:'center',color:'#ffe8a0',outline:'#5a1a18',lw:2.5});c.globalAlpha=1;
+    {const sx=-60+(u-900)*.3;if(u>900&&sx<W+60){c.save();c.globalCompositeOperation='lighter';const g=c.createLinearGradient(sx-20,0,sx+20,0);g.addColorStop(0,'rgba(255,240,200,0)');g.addColorStop(.5,'rgba(255,240,200,.55)');g.addColorStop(1,'rgba(255,240,200,0)');c.fillStyle=g;c.fillRect(sx-20,H*.34,40,sz+8);c.restore();}}
+    trlText('HÀNG MA LỘ',H*.36+sz+6,12,tIn(u,1300,2000),'#f0d0d0','#2a0a14');
+    trlText('Thu phục · Siêu độ · Tiêu diệt',H*.36+sz+26,9,tIn(u,2000,2700),'#b8a8d0');
+    if(t>TRLEN-700){c.globalAlpha=tIn(t,TRLEN-700,TRLEN);rect(0,0,W,H,'#000');c.globalAlpha=1;}
+    if(t>=TRLEN){trlEnd();return;}
+  }
+  /* khung điện ảnh + nút bỏ qua */
+  const bar=Math.round(H*.07);rect(0,0,W,bar,'#000');rect(0,H-bar,W,bar,'#000');
+  {const bw=46,bx=W-bw-4,by=H-bar+Math.max(0,Math.round((bar-12)/2));c.globalAlpha=.75+.25*Math.sin(time/300);txt('Bỏ qua ▸',bx+bw/2,by,{size:10,align:'center',color:'#e8dcc8'});c.globalAlpha=1;}
+  {const w=Math.round(W*Math.min(1,t/TRLEN));rect(0,H-1,w,1,'rgba(255,220,150,.5)');}
+  hit(0,0,W,H,trlInput);}
+if(!navigator.webdriver||window.__trailer)trlStart();
+window.__trlT=t=>{TRL.t=t;TRL.last=0;TRL.freeze=1;};
+/* v16.40 (người chơi): nền động cho màn chờ "Tiếp tục / Chơi mới": các cảnh 6 giây nối nhau lặp mãi,
+   Minh Dạ bên trái đối mặt một quái bên phải, nền trôi chậm, tro lửa, cứ mỗi cảnh có một lần giao chiến chớp sáng */
+const TVS=[['boss','phongdo','halo','#ff6a4a'],['forest','tamamo','sweep','#8fe0ff'],['ruins','thaothiet','sweep','#ffe8a0'],['mount','susanoo','throw','#ff8a7a'],['swamp','cungky','sweep','#d8a8ff'],['grave','tsukuyomi','halo','#a8ffd0'],['meadow','conlon','spin','#ffd27a']];
+function titleVid(){const P=6000,n=Math.floor(time/P),u=time-n*P,S0=TVS[n%TVS.length];rect(0,0,W,H,'#000');
+  let sh=u>3600&&u<3800?(3800-u)/200*3:0;c.save();if(sh)c.translate(Math.round((Math.random()-.5)*sh),Math.round((Math.random()-.5)*sh));
+  trlBg(S0[0],1.12+u*.00003,(n%2?1:-1)*(u-P/2)*.004,0);rect(0,0,W,H,'rgba(10,6,20,.42)');
+  const gy=PORT?H*.62:H*.97,hh=PORT?Math.min(H*.3,W*.42):Math.min(H*.5,W*.3),atk=u>3400&&u<4600;
+  const fx=PORT?W*.22:Math.max(W*.16,W/2-110),mx=PORT?W*.74:Math.min(W*.84,W/2+110);
+  trlMon(S0[1],atk?S0[2]:(Math.floor(u/700)%6===5?'turn':'idle'),mx,gy,hh*(S0[1]==='phongdo'?1.15:1.05),false,{anim:u-3400,ms:200});
+  trlMon('diep',atk?(u<3900?'sweep':'dash'):'ready',fx+(atk?Math.min(10,(u-3400)*.04):0),gy,hh,true,{});
+  c.restore();
+  if(u>3400&&u<3560){c.globalAlpha=(3560-u)/160*.7;rect(0,0,W,H,'#fff');c.globalAlpha=1;}
+  if(u>3400&&u<3900){c.save();c.globalAlpha=1-(u-3400)/500;c.strokeStyle=S0[3];c.lineWidth=3;c.beginPath();c.moveTo(fx,gy-hh*.9);c.lineTo(mx,gy-hh*.2);c.stroke();c.lineWidth=1;c.strokeStyle='#fff';c.stroke();c.restore();}
+  trlEmbers(S0[0]==='boss'?'#ff6a3a':'#9fe0ff',S0[0]==='boss'?-1:1,.7);trlVig(.8);
+  const e=Math.min(u,P-u);if(e<400){c.globalAlpha=1-e/400;rect(0,0,W,H,'#000');c.globalAlpha=1;}}
+/* v16.40 (người chơi): màn tải khi vào game (Tiếp tục / Bắt đầu): vòng phù ấn xoay, Minh Dạ chạy trên thanh tải,
+   mẹo chơi, các bước tải thật (đọc hành trình, giải hình đồng hành, dựng bản đồ) */
+let GLD=null;
+const GLTIP=['Đánh quái còn dưới 10% máu rồi chọn Đánh cho phục để thu phục.','Thua trận thì cả đội được đưa về Trấn Ma Ti gần nhất.','Bùa trấn yểm bán ở Tháp Công Đức, thuốc và đồ dùng bán ở Tạp Hóa.','Bấm giữ lên kỹ năng hay trang bị để xem mô tả.','Đồng hành gục ngã trong trận sẽ giảm độ trung thành.','Tiệm Rèn nâng cấp trang bị tới +10.','Nút AUTO tự săn quái quanh khu vực bạn chọn.','Thần Hành Phù đưa bạn về những nơi đã ghé qua.'];
+async function gameLoad(){await fadeTo(1,250);GLD={p:0,t:'Đọc dữ liệu hành trình',tip:GLTIP[Math.floor(Math.random()*GLTIP.length)],t0:time};scene='gload';fadeTo(0,250);
+  const K=navigator.webdriver&&!window.__trailer?.1:1;/* test tự động: tải nhanh để không lệch thời gian các bài test cũ */
+  const step=async(to,t,fn,ms)=>{ms*=K;GLD.t=t;try{fn&&fn();}catch(e){}const s=GLD.p;await tween(ms,q=>GLD.p=s+(to-s)*q);};
+  await step(.25,'Đọc dữ liệu hành trình',null,450);
+  await step(.6,'Triệu hồi đồng hành',()=>{for(const u of (G&&G.party)||[]){const a=ANIM[u.id];if(a&&a.pose)animFr(u.id,a.pose.idle||0);}},650);
+  await step(.85,'Dựng bản đồ',()=>{if(typeof reveal==='function'&&G)reveal();},550);
+  await step(1,'Mở cổng Âm Dương',null,400);
+  await fadeTo(1,300);GLD=null;}
+function drawGLoad(){const L=GLD;rect(0,0,W,H,'#07050d');if(!L)return;const t=time/1000,cx=W/2,cy=Math.round(H*(PORT?.38:.3)),R=Math.min(W,H)*(PORT?.2:.19);
+  {const g=c.createRadialGradient(cx,cy,4,cx,cy,R*2.2);g.addColorStop(0,'rgba(120,40,30,.35)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,W,H);}
+  trlEmbers('#ffb060',1,.6);
+  c.save();c.translate(cx,cy);c.strokeStyle='#c9a24a';c.globalAlpha=.85;
+  for(const [r,sp,n] of [[R,.5,8],[R*.72,-.8,12],[R*.45,1.2,3]]){c.save();c.rotate(t*sp);c.lineWidth=1;c.beginPath();c.arc(0,0,r,0,7);c.stroke();
+    for(let i=0;i<n;i++){const a=i/n*Math.PI*2;c.beginPath();c.moveTo(Math.cos(a)*r,Math.sin(a)*r);c.lineTo(Math.cos(a+Math.PI/n)*r*.82,Math.sin(a+Math.PI/n)*r*.82);c.lineTo(Math.cos(a+2*Math.PI/n)*r,Math.sin(a+2*Math.PI/n)*r);c.stroke();}c.restore();}
+  c.restore();c.globalAlpha=1;
+  {const k=1+.05*Math.sin(t*4),w=Math.round(R*.42*k),h=Math.round(R*.9*k),x=cx-w/2,y=cy-h/2;c.save();c.translate(cx,cy);c.rotate(Math.sin(t*2)*.08);c.translate(-cx,-cy);rect(x,y,w,h,'#e8c860');rect(x+1,y+1,w-2,h-2,'#f4dc80');c.strokeStyle='#b0201a';c.lineWidth=1;c.beginPath();c.moveTo(cx,y+3);c.lineTo(cx,y+h-3);for(let i=1;i<5;i++){const yy=y+h*i/5;c.moveTo(x+3,yy);c.lineTo(x+w-3,yy+(i%2?2:-2));}c.stroke();c.fillStyle='#b0201a';c.beginPath();c.arc(cx,y+h*.2,w*.18,0,7);c.fill();c.restore();}
+  const bw=Math.min(PORT?W-40:180,W-40),bx=Math.round(cx-bw/2),by=Math.round(H*(PORT?.66:.62));
+  trlMon('diep','w'+(Math.floor(time/130)%4),bx+bw*L.p,by-2,PORT?34:28,true,{});
+  rect(bx-1,by-1,bw+2,8,'#3a2a20');rect(bx,by,bw,6,'#140c10');
+  {const w=Math.round(bw*L.p),g=c.createLinearGradient(bx,0,bx+bw,0);g.addColorStop(0,'#8a2a1a');g.addColorStop(1,'#ffd27a');c.fillStyle=g;c.fillRect(bx,by,w,6);c.globalAlpha=.5+.5*Math.sin(t*6);rect(bx+w-2,by-1,3,8,'#fff0c0');c.globalAlpha=1;}
+  txt(L.t+(['','.','..','...'][Math.floor(t*3)%4]),cx,by+11,{size:10,align:'center',color:'#e8dcc8'});
+  txt(Math.round(L.p*100)+'%',bx,by-12,{size:9,align:'left',color:'#ffd27a'});
+  wrap('Mẹo: '+L.tip,W-30,9).forEach((l,i)=>txt(l,cx,by+(PORT?28:25)+i*10,{size:9,align:'center',color:'#a89cc0'}));}
+
 
 /* ---------- main loop ---------- */
 /* v16.15.2: vẽ fn trong khung 240 đặt giữa màn ngang rộng; các vùng chạm/cuộn đăng ký trong lúc vẽ được dời theo */
@@ -6585,7 +6720,9 @@ function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;t
   c.setTransform(S,0,0,S,0,0);c.imageSmoothingEnabled=false;
   rect(0,0,W,H,'#000');
   /* v16.15.2: màn ngang rộng hơn 3:2 thì W lớn hơn 240; bản đồ vẽ tràn hết bề ngang, các màn còn lại (thiết kế cho 240) vẽ ở giữa */
-  if(scene==='rload')ctr(drawRLoad,1);
+  if(scene==='trailer')drawTrailer();
+  else if(scene==='gload')drawGLoad();
+  else if(scene==='rload')ctr(drawRLoad,1);
   else if(scene==='title')drawTitle();
   else if((scene==='map'||scene==='trans'||scene==='intro')&&G)drawMap();
   else if(scene==='battle'&&B)ctr(()=>{drawBattle(dt);drawTip();},1);
