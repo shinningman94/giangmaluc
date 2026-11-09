@@ -10,6 +10,7 @@
 //   {t:'ping'}
 //   {t:'botduel', b} / {t:'botres', b, win}   bắt đầu / kết thúc trận với bot b (mã peer của bot), xem bots.js
 //   nhắn riêng, tổ đội, bang hội: xem social.js (dm, pinv, pans, pleave, pmsg, gcreate, gjoin, gleave, glist, gmsg)
+//   chợ, giao dịch trực tiếp, hòm thư: xem trade.js (mlist, msell, mbuy, mcancel, tinv, toff, tlock, tok, mack, xchk...)
 //  server -> client
 //   {t:'welcome', you, n}         you: mã peer của mình
 //   {t:'peers', r, list:[{peer,p}]}  ảnh chụp cả phòng (khi vào phòng)
@@ -18,12 +19,13 @@
 //   {t:'auth', u}                 đăng nhập xong (u: tên tài khoản), lúc này mới vào sảnh
 //   {t:'err', m}                  m: 'auth' phiên hết hạn / 'dup' tài khoản vừa vào từ máy khác (server đóng kết nối)
 
-export const LIMITS = { maxPeers: 400, maxRoomsPerPeer: 8, maxPresence: 4096, maxMsgPerSec: 45, maxDuelRoom: 4 };
+export const LIMITS = { maxPeers: 400, maxRoomsPerPeer: 8, maxPresence: 4096, maxMsgPerSec: 45, maxDuelRoom: 4, maxMsg: 32000 };
 const ROOM_RE = /^duel-[a-z0-9]{4,16}$/;
 const ID_RE = /^[a-zA-Z0-9_-]{6,40}$/;
 const BAD = new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u206f\\ufeff]', 'g');
 import { Bots } from './bots.js';
 import { Social } from './social.js';
+import { Trade } from './trade.js';
 const clean = (s, n) => String(s || '').replace(BAD, '').trim().slice(0, n);
 
 export class Hub {
@@ -37,6 +39,7 @@ export class Hub {
     this.board = null; this.boardDirty = false;
     this.bots = bots ? new Bots(this) : null;
     this.social = new Social(this);
+    this.trade = new Trade(this);
   }
   online() { return this.peers.size; }
 
@@ -53,7 +56,7 @@ export class Hub {
     const now = Date.now();
     if (now - peer.tb > 1000) { peer.tb = now; peer.tn = 0; }
     if (++peer.tn > LIMITS.maxMsgPerSec) return; // gửi quá nhanh: bỏ qua
-    if (typeof raw !== 'string' || raw.length > LIMITS.maxPresence + 200) return;
+    if (typeof raw !== 'string' || raw.length > LIMITS.maxMsg) return; // tin giao dịch (nhiều món đồ) dài hơn presence
     let m; try { m = JSON.parse(raw); } catch { return; }
     if (!m || typeof m !== 'object') return;
     if (m.t === 'ping') return this.out(peer, { t: 'pong' });
@@ -70,6 +73,7 @@ export class Hub {
     if (m.t === 'join') return this.join(peer, r);
     if (m.t === 'leave') return r ? this.leave(peer, r) : undefined;
     if (Social.TYPES.has(m.t)) return void this.social.handle(peer, m);
+    if (Trade.TYPES.has(m.t)) return void this.trade.handle(peer, m);
     if (m.t === 'botduel' && this.bots && typeof m.b === 'string') return void this.bots.duel(peer, m.b);
     if (m.t === 'botres' && this.bots && typeof m.b === 'string') return void this.bots.result(peer, m.b, !!m.win, !!m.cancel);
     if (m.t === 'p') {
@@ -96,6 +100,7 @@ export class Hub {
     this.join(peer, '');
     if (this.bots) { this.bots.start(); this.bots.greet(peer); }
     this.social.login(peer).catch(() => {});
+    this.trade.login(peer).catch(() => {});
     const q = peer.q; peer.q = null;
     for (const raw of q) this.message(peer.sock, raw);
   }
@@ -121,6 +126,7 @@ export class Hub {
     this.peers.delete(sock);
     if (this.bots) this.bots.gone(peer);
     this.social.gone(peer).catch(() => {});
+    this.trade.gone(peer).catch(() => {});
   }
 
   out(peer, o) { if (!peer.sock) return; try { this.send(peer.sock, JSON.stringify(o)); } catch { this.closed(peer.sock); } }
