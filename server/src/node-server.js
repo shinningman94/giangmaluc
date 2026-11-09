@@ -30,7 +30,7 @@ const srv = http.createServer(async (req, res) => {
   if (req.url.startsWith('/top')) { res.writeHead(200, H); return res.end(JSON.stringify(await hub.top(50))); }
   res.writeHead(200, H); res.end(JSON.stringify({ game: 'Giáng Ma Sư Online', online: hub.online() }));
 });
-const wss = new WebSocketServer({ server: srv, path: '/ws', maxPayload: 8192,
+const wss = new WebSocketServer({ server: srv, path: '/ws', maxPayload: 65536,
   verifyClient: info => allowOrigin(info.req.headers.origin, process.env.ALLOW_ORIGINS) });
 wss.on('connection', ws => {
   hub.open(ws);
