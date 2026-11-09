@@ -2064,7 +2064,7 @@ const JOY_OFF=false;
 function padShown(){return !JOY_OFF&&scene==='map'&&G&&!DLG&&!CH;}
 function joyVis(){return JOY.on&&(JOY.moved||performance.now()-JOY.t0>180);}
 function tapAt(x,y){
-  if(waitPressRes||DLG){press('a');return;}
+  if(waitPressRes||DLG){if(tutTap(x,y))return;press('a');return;}
   for(let i=hits.length-1;i>=0;i--){const h=hits[i];if(x>=h.x&&y>=h.y&&x<h.x+h.w&&y<h.y+h.h){h.fn(x,y);return;}}
   if(CH)return;
   if(scene==='battle'&&B){if(B.auto)press('b');else if(B.sub)press('b');return;}
@@ -2199,7 +2199,7 @@ function bioAt(x,y){return WD&&WD.bio?WD.bio[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)]
 function regKey(x,y){if(G&&G.realm&&WD.rz)return 100+WD.rz[clamp(y,0,MH-1)*MW+clamp(x,0,MW-1)];return zoneAt(x,y)+bioAt(x,y)*10;}
 function regName(k){if(G&&G.realm){const R0=RLM[G.realm];return k>=100&&R0.rn?R0.rn[k-100]:R0.n;}/* v15.42: tên vùng riêng của từng giới */return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);await gameLoad();scene='map';curZone=0;bannerT=2200;await fadeTo(0);
-  run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.','Chạm vào ô nào trên bản đồ thì thầy tự đi tới đó.','Bấm MENU ở góc trên để xem đội, cộng điểm, trang bị; chạm bản đồ nhỏ để xem toàn bộ hành trình.'],'Sư Thầy');});}
+  run(async()=>{await say(['Đêm rằm tháng Bảy, Quỷ Môn Quan ở tận cùng phía Đông bỗng mở toang. Âm khí tràn khắp sáu vùng đất.','Minh Dạ, con là pháp sư cuối cùng của làng. Hãy đi về phía Đông, vượt qua muôn vàn kiếp nạn và đóng cửa Quỷ Môn.','Gặp ma quỷ, đánh cho chúng khuất phục rồi chọn: thu phục làm đồng hành, siêu độ để tích công đức, hoặc tiêu diệt.','Ai có dấu ? trên đầu là người đang cần thầy giúp. Bước tới hoặc chạm vào họ để nghe chuyện và bắt đầu kiếp nạn kế tiếp.'],'Sư Thầy');if(!G.tut)await tutRun();});}
 async function continueGame(){applySave(SAVED);if(ONLM)await onlHeroFix();await gameLoad();scene='map';curZone=regKey(PL.x,PL.y);reveal();await fadeTo(0);}
 const titleWisps=Array.from({length:14},(_,i)=>({x:hash(i,1)*W,y:hash(i,2)*H,s:.2+hash(i,3)*.5,p:hash(i,4)*6}));
 function drawTitleP(){
@@ -2818,7 +2818,7 @@ function setRows(){if(MENU&&MENU.sg)return[
   {l:'Tự dùng thuốc',v:SET.ap?'Dưới '+SET.ap+'%':'Tắt',f:setCy('ap',APS),d:'Khi máu người đang ra trận còn dưới mức này, tự uống Hồi Hồn Đan (nếu còn) thay cho lượt đánh.'},
   {l:'Né quái mạnh hơn',v:SET.av?'Hơn '+SET.av+' cấp':'Tắt',f:setCy('av',AVS),d:'Tự né, không giao chiến với quái hoang cao hơn Minh Dạ từ chừng này cấp trở lên. Trận nhiệm vụ, sào huyệt và trùm cốt truyện vẫn phải đánh.'},
   {l:'Đánh cho phục',v:onOff(SET.tm),f:setTg('tm'),d:'Bật: bảng thu phục có thêm lựa chọn Đánh cho phục (đánh nhẹ, không giết, +5% tỉ lệ mỗi lần). Tắt: bảng chỉ còn Thu phục và Đánh tiếp.'}];
-  return[{l:'Âm thanh',v:onOff(!muted),f:toggleSnd,d:'Bật hoặc tắt toàn bộ tiếng động trong game.'},
+  return[{l:'Hướng dẫn',v:'Xem lại',f:()=>{closeMenu();run(tutRun);},d:'Sư Thầy hướng dẫn lại các tính năng chính của game.'},{l:'Âm thanh',v:onOff(!muted),f:toggleSnd,d:'Bật hoặc tắt toàn bộ tiếng động trong game.'},
   {l:'Âm lượng',v:VOLN[SET.vol]||'Vừa',f:()=>{SET.vol=((SET.vol|0)+1)%VOLS.length;saveSet();sfx('ok');},d:'Nhỏ, Vừa hoặc To: độ lớn của tiếng động.'},
   {l:'Tầm nhìn bản đồ',v:ZOOMN[ZOOMI],f:cycleZoom,d:'Gần, Xa hoặc Rất xa: thu phóng bản đồ khi đi lại.'},
   {l:'Hình ảnh',v:HQ?'Cao':'Thấp',f:()=>{sfx('sel');ask('Đổi hình ảnh sang '+(HQ?'Thấp':'Cao')+'?',HQ?'Hình quái như bản cũ, nhẹ máy và tải nhanh hơn. Game sẽ lưu và tải lại.':'Hình quái nét gấp đôi, tốn bộ nhớ hơn. Game sẽ lưu và tải lại.',[{t:'Đổi'},{t:'Thôi'}]).then(i=>{if(i!==0)return;try{localStorage.setItem('gms-hq',HQ?'0':'1');}catch(e){}save();location.reload();});},d:'Cao: hình quái nét gấp đôi. Thấp: hình quái như bản cũ, nhẹ máy hơn. Đổi xong game tự lưu và tải lại.'},
@@ -6571,6 +6571,51 @@ async function renSyn(){for(;;){const L=RSYN.filter(r=>r.o.slice(0,3)!=='dch'||i
 async function renBag(){const ks=Object.keys(CONS).filter(k=>CONS[k].ic&&CONS[k].ic.slice(0,2)==='r_'&&itN(k)>0);
   await say(ks.length?ks.map(k=>CONS[k].n+' ×'+itN(k)).join(', '):'Thầy chưa có nguyên liệu nào. Đào mỏ quặng ngoài thành và diệt quái để thu thập.','Nguyên liệu');}
 
+/* ---------- v16.41 (người chơi): người hướng dẫn đầu game ----------
+   Sư Thầy (hình tấm sư của người chơi) đứng cạnh hộp thoại, lần lượt khoanh sáng từng phần giao diện và giải thích.
+   Chạy sau lời mở đầu khi bắt đầu hành trình mới; xem lại ở MENU > Cài đặt > Hướng dẫn. Bấm "Bỏ qua" để thôi. */
+let TUT=null;
+function tutHero(){return{x:PL.px-CAM.x-5,y:PL.py-CAM.y-20,w:26,h:38};}
+function tutSteps(){const P=PORT,R=(lx,y,w,h,px,py,pw,ph)=>()=>P?{x:px,y:py,w:pw,h:ph}:{x:lx,y,w,h},X=()=>lwx();
+  return[
+  {t:'Ta là Sư Thầy, người dẫn đường cho các pháp sư trẻ. Để ta chỉ con những điều cần biết trước khi lên đường.'},
+  {r:R(2,2,96,27,2,2,112,27),t:'Đây là Máu và Linh lực (LL) của con. Hết máu là ngã; Linh lực dùng để thi triển pháp thuật. Đứng nghỉ hay về làng sẽ hồi lại.'},
+  {r:R(100,2,74,27,2,31,112,27),t:'Bạc để mua đồ, Công đức có được khi siêu độ ma quỷ, Bùa trấn yểm dùng khi thu phục, còn Hồi Hồn Đan để uống hồi máu.'},
+  {r:()=>P?{x:2,y:62,w:W-70,h:24}:{x:2,y:30,w:120,h:24},t:'Bảng Nhiệm vụ cho biết kiếp nạn và việc đang làm. Ai có dấu ? trên đầu là người cần con giúp.'},
+  {r:tutHero,t:'Chạm vào một ô trên bản đồ, con sẽ tự đi tới đó. Muốn tự điều khiển thì giữ ngón tay trên màn hình và kéo, cần điều khiển sẽ hiện ra.'},
+  {r:()=>P?{x:W-64,y:2,w:62,h:40}:{x:X()+176,y:2,w:62,h:40},t:'Bản đồ nhỏ ở góc. Chạm vào để xem toàn bộ vùng đất và những nơi con đã đi qua.'},
+  {r:()=>P?{x:W-65,y:43,w:22,h:18}:{x:X()+175,y:43,w:22,h:15},t:'MENU: xem chỉ số, cộng điểm, xếp đội hình, hành trang, trang bị, Giáng Ma Lục và cài đặt.'},
+  {r:()=>P?{x:W-44,y:43,w:22,h:18}:{x:X()+196,y:43,w:22,h:15},t:'AUTO: tự săn quái quanh khu vực, tự đánh và tự uống thuốc. Bấm lần nữa để dừng.'},
+  {r:()=>P?{x:W-23,y:43,w:22,h:18}:{x:X()+217,y:43,w:22,h:15},t:'SỰ KIỆN: quà đăng nhập mỗi ngày, nhiệm vụ săn bắt hằng ngày và trùm thế giới.'},
+  {t:'Gặp ma quỷ thì giao chiến theo lượt: đánh, dùng pháp thuật, đỡ, uống thuốc. Đánh quái còn dưới 10% máu rồi chọn Đánh cho phục để thu phục chúng làm đồng hành.'},
+  {t:'Thắng trận con chọn: Thu phục làm đồng hành, Siêu độ để tích công đức, hoặc Tiêu diệt. Công đức quyết định kết cục hành trình.'},
+  {t:'Trong làng có Tạp Hóa bán thuốc, Tháp Công Đức đổi bùa và bảo vật, Tiệm Rèn rèn và nâng cấp trang bị. Thua trận cả đội được đưa về Trấn Ma Ti.'},
+  {t:'Vậy là đủ để lên đường. Muốn nghe lại thì vào MENU > Cài đặt > Hướng dẫn. Đi đi con, chúc con hàng ma thuận lợi!'}];}
+async function tutRun(){const S=tutSteps();TUT={i:0,n:S.length,r:null,t0:time};
+  try{for(let i=0;i<S.length&&TUT&&!TUT.skip;i++){TUT.i=i;TUT.r=S[i].r||null;TUT.t0=time;await say([S[i].t],'Sư Thầy');}}
+  finally{TUT=null;if(G){G.tut=1;}}}
+function tutSkip(){if(!TUT)return;TUT.skip=1;if(DLG){const r=DLG.res;DLG=null;r&&r();}sfx('sel');}
+/* nút Bỏ qua, chạm trước khi chạm vào hộp thoại */
+function tutTap(x,y){if(!TUT||!TUT.btn)return false;const b=TUT.btn;if(x>=b.x&&y>=b.y&&x<b.x+b.w&&y<b.y+b.h){tutSkip();return true;}return false;}
+function drawTut(){if(!TUT||!DLG)return;const r0=TUT.r?TUT.r():null,a=Math.min(1,(time-TUT.t0)/250);
+  c.save();c.fillStyle='rgba(4,2,10,'+(.62*a)+')';c.beginPath();c.rect(0,0,W,H);
+  if(r0){const p=3,x=r0.x-p,y=r0.y-p,w=r0.w+p*2,h=r0.h+p*2;c.moveTo(x,y);c.lineTo(x,y+h);c.lineTo(x+w,y+h);c.lineTo(x+w,y);c.closePath();}
+  c.fill('evenodd');
+  if(r0){const p=3+Math.sin(time/180)*1.2,x=r0.x-p,y=r0.y-p,w=r0.w+p*2,h=r0.h+p*2;c.strokeStyle='#ffd27a';c.lineWidth=1.5;c.strokeRect(x,y,w,h);c.globalAlpha=.35;c.lineWidth=4;c.strokeRect(x-1,y-1,w+2,h+2);c.globalAlpha=1;
+    /* mũi tên nhún chỉ vào ô sáng */
+    const ax=Math.round(x+w/2),below=y+h+16<H*.55,ay=below?Math.round(y+h+3+Math.abs(Math.sin(time/200))*4):Math.round(y-3-Math.abs(Math.sin(time/200))*4);
+    c.fillStyle='#ffd27a';c.beginPath();if(below){c.moveTo(ax,ay);c.lineTo(ax-5,ay+7);c.lineTo(ax+5,ay+7);}else{c.moveTo(ax,ay);c.lineTo(ax-5,ay-7);c.lineTo(ax+5,ay-7);}c.fill();}
+  c.restore();
+  /* Sư Thầy đứng cạnh hộp thoại (khung chào trong tấm sư) */
+  const im=typeof VLA!=='undefined'&&VLA.su;const ox=PORT?0:Math.floor(lwx()/2);
+  const dTop=PORT?(()=>{const n=Math.min(7,wrap(DLG.lines[DLG.i],W-24,10).length),h=Math.max(56,20+n*11);return H-h-(scene==='map'?24:6);})():104;
+  const dH=PORT?Math.max(56,20+Math.min(7,wrap(DLG.lines[DLG.i],W-24,10).length)*11):52;
+  if(im&&im.complete&&im.width){const k=im.height/560,hh=PORT?64:46,ww=hh*90/140,x=PORT?W-ww-6:ox+6,y=dTop-hh-(PORT?0:9)+Math.round(Math.sin(time/500));
+    c.save();c.imageSmoothingEnabled=true;if(PORT){c.translate(x+ww,0);c.scale(-1,1);c.drawImage(im,7*90*k,0,90*k,140*k,0,y,ww,hh);}else c.drawImage(im,7*90*k,0,90*k,140*k,x,y,ww,hh);c.restore();c.imageSmoothingEnabled=false;}
+  {const t='Bỏ qua ▸',bw=tw(t,9)+10,bx=PORT?W-bw-4:ox+236-bw,yy=PORT?Math.min(H-13,dTop+dH+5):dTop-12;
+    win(bx,yy,bw,11,'#2c2238','#1d1626','#6a5a7a');txt(t,bx+bw/2,yy+1,{size:9,align:'center',color:'#e8dcc8'});TUT.btn={x:bx-3,y:yy-4,w:bw+6,h:19};}
+  txt((TUT.i+1)+'/'+TUT.n,(PORT?8:ox+8)+tw('Sư Thầy',10)+16,dTop-(PORT?9:8),{size:9,color:'#d8c8f0',outline:'#1a0a10'});}
+
 /* ---------- v16.38 (người chơi): trailer mở đầu trước màn hình tiêu đề ----------
    Khoảng 32 giây, 6 cảnh dựng bằng chính hình trong game: hỗn mang, bách quỷ dạ hành, Minh Dạ lên đường,
    giao chiến (thu phục · siêu độ · tiêu diệt), Phong Đô Đại Đế, rồi logo. Chạm hoặc bấm phím bất kỳ để bỏ qua.
@@ -7348,7 +7393,7 @@ function frame1(now){const dt=Math.min(50,now-last)*(window.__spd||1);last=now;t
   if(scene!=='battle'&&fx.length)fx.length=0;if(scene!=='battle'&&scene!=='arena'&&VX.length)VX.length=0;if(scene!=='battle'&&fxU.length)fxU.length=0;
   if(stripes>0){for(let i=0;i<10;i++){const h=Math.ceil(H/10);const w=Math.round(W*clamp(stripes*1.4-i*.04,0,1));rect(i%2?W-w:0,i*h,w,h,'#0c0a18');}}
   if(scene==='battle'&&B&&G&&B.phase!=='end'){if(!B.f0){B.f0=new Set(G.party.filter(u=>u.hp<=0));B.fell=new Set();}for(const u of G.party)if(u.hp<=0&&u.id!=='diep'&&!B.f0.has(u))B.fell.add(u);}/* v16.30: ghi lại đồng đội gục ngã trong trận */
-  drawJoy();drawToasts(dt);ctr(drawCh);ctr(()=>drawDlg(dt));
+  drawJoy();drawToasts(dt);ctr(drawCh);drawTut();ctr(()=>drawDlg(dt));
   if(fade>0){c.globalAlpha=fade;rect(0,0,W,H,'#000');c.globalAlpha=1;}}
 /* lưu khi app bị ẩn/đóng hoặc hệ thống thiếu RAM (chỉ khi không đang đánh/hội thoại) */
 function safeSave(){if(G&&!busy&&scene!=='battle'&&scene!=='title')save();}
