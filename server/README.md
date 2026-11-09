@@ -62,7 +62,7 @@ Server có sẵn 6 bot (`src/bots.js`): mỗi bot có tài khoản thật (mật
 
 ## Giao dịch giữa người chơi (`src/trade.js`)
 
-Trong game: nút CHAT → mục **Giao dịch**, gồm 5 phần:
+Trong game: nút **GIAO DỊCH** riêng cạnh nút CHAT (dưới AUTO) mở khung Giao dịch, gồm 5 phần:
 
 - **Chợ**: xem các món người khác treo bán (lọc Trang bị / Đồng hành, tìm theo tên), bấm giá hai lần để mua.
 - **Bán**: chọn trang bị trong túi (đồ đang mặc không bán được) hoặc đồng hành trong đội / Tháp Trấn Hồn (trừ nhân vật chính), nhập giá bạc. Mỗi người treo tối đa 8 món, mỗi món treo 3 ngày; hết hạn thì đồ về Hòm thư. Người bán chịu 5% phí chợ.
