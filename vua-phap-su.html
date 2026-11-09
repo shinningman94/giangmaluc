@@ -5505,7 +5505,7 @@ const VLALT={nong:[['ren',.2],['bep',.15],['phu',.2],['chu',.2],29],sinh:[['khac
 function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
 /* v16.35 (người chơi): chàng trai, cô thôn nữ, chú râu, ăn mày, cô bé, đầu bếp thỉnh thoảng làm việc: gánh, cuốc đất, khuân bao, bê rổ, xin ăn, đọc sách, nấu nướng, nhào bột, ngồi nghỉ.
    Khung lao động nằm sau 8 khung thường, mỗi ô rộng gấp đôi. Mỗi người theo chu kỳ 16 giây: khoảng 7 giây đứng thường, còn lại làm một việc ngẫu nhiên */
-const VLAWK={phu:[[0,1],[2],[3],[4]],thon:[[0],[1,2],[3],[4]],chu:[[0],[1,2],[3],[4]],an:[[0,1],[2],[3],[4]],be:[[0],[1],[2],[3],[4]],bep:[[0],[1],[2,3],[4],[5],[6,7]]};
+const VLAWK={};/* 16.42: người chơi bỏ đổi tư thế làm việc (phu,thon,chu,an,be,bep) */
 function vlaWork(pk,hx,hy){const A=VLAWK[pk];if(!A)return -1;const P=16000,t=time+hash(hx,hy,41)*P,ph=t%P;if(ph<7000)return -1;const a=A[Math.floor(hash(hx,hy,Math.floor(t/P)%97+43)*A.length)];return a[Math.floor(time/900)%a.length];}
 function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const pk=vlaPick(lk,hx,hy),im=VLA[pk];if(!im||!im.complete||!im.width)return null;
   if(walkT==null&&!(q.gt&&time-q.gt<1500)){const wj=vlaWork(pk,hx,hy);if(wj>=0){const k=im.height/560,vr=Math.floor(hash(hx,hy,17)*4),top=sy+16.5-40.8*VLS,x0=(720+wj*180)*k;if(alpha!=null)c.globalAlpha=alpha;

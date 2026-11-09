@@ -5518,7 +5518,7 @@ const VLALT={nong:[['ren',.2],['bep',.15],['phu',.2],['chu',.2],29],sinh:[['khac
 function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,hy,al[al.length-1]);let c=0;for(let k=0;k<al.length-1;k++){c+=al[k][1];if(r<c)return al[k][0];}return lk;}
 /* v16.35 (người chơi): chàng trai, cô thôn nữ, chú râu, ăn mày, cô bé, đầu bếp thỉnh thoảng làm việc: gánh, cuốc đất, khuân bao, bê rổ, xin ăn, đọc sách, nấu nướng, nhào bột, ngồi nghỉ.
    Khung lao động nằm sau 8 khung thường, mỗi ô rộng gấp đôi. Mỗi người theo chu kỳ 16 giây: khoảng 7 giây đứng thường, còn lại làm một việc ngẫu nhiên */
-const VLAWK={phu:[[0,1],[2],[3],[4]],thon:[[0],[1,2],[3],[4]],chu:[[0],[1,2],[3],[4]],an:[[0,1],[2],[3],[4]],be:[[0],[1],[2],[3],[4]],bep:[[0],[1],[2,3],[4],[5],[6,7]]};
+const VLAWK={};/* 16.42: người chơi bỏ đổi tư thế làm việc (phu,thon,chu,an,be,bep) */
 function vlaWork(pk,hx,hy){const A=VLAWK[pk];if(!A)return -1;const P=16000,t=time+hash(hx,hy,41)*P,ph=t%P;if(ph<7000)return -1;const a=A[Math.floor(hash(hx,hy,Math.floor(t/P)%97+43)*A.length)];return a[Math.floor(time/900)%a.length];}
 function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const pk=vlaPick(lk,hx,hy),im=VLA[pk];if(!im||!im.complete||!im.width)return null;
   if(walkT==null&&!(q.gt&&time-q.gt<1500)){const wj=vlaWork(pk,hx,hy);if(wj>=0){const k=im.height/560,vr=Math.floor(hash(hx,hy,17)*4),top=sy+16.5-40.8*VLS,x0=(720+wj*180)*k;if(alpha!=null)c.globalAlpha=alpha;
@@ -6073,7 +6073,7 @@ function arLagV(f,k,v){const q='_'+k;if(f[q]==null||v>f[q])f[q]=v;else f[q]+=(v-
 function arWalkK(f){const a=ANIM[f.id];if(!a)return'idle';if(LMAPS[f.id])return'walk';
   if(a.pose.back!==undefined&&(f.vy||0)<-Math.abs(f.vx||0)*1.2)return'back';
   if(a.pose.walk!==undefined)return Math.floor(time/180)%2?'walk':'idle';return'walk';}
-function arDrawF(f){if(!f)return;const th=PORT?21:18,mv=f.mv&&!f.act,k=f.hp<=0?'down':f.act?f.act.k:f.hurt>0?'hit':mv?arWalkK(f):'idle';const F=arFrame(f.lkid||f.id,arPose(f.id,k,f.wp||0),f.face<0,th);
+function arDrawF(f){if(!f)return;const th=PORT?21:18,mv=f.mv&&!f.act,k=f.hp<=0?'down':f.act?f.act.k:f.hurt>0?'hit':mv?arWalkK(f):'idle';const F=arFrame(f.id,arPose(f.id,k,f.wp||0),f.face<0,th);
   c.globalAlpha=.3;c.fillStyle='#000';c.beginPath();c.ellipse(f.x,f.y,6,1.8,0,0,7);c.fill();c.globalAlpha=1;
   if(f.buff>0){c.globalAlpha=.3;c.fillStyle='#ff6040';c.beginPath();c.ellipse(f.x,f.y,7.5,2.2,0,0,7);c.fill();c.globalAlpha=1;}
   for(const g of f.gh){c.globalAlpha=g.life/260*.4;{const SZ=S*arZ();c.drawImage(F.img,Math.round((g.x-F.ax)*SZ)/SZ,Math.round((g.y-F.ay)*SZ)/SZ,F.iw,F.ih);}}c.globalAlpha=1;
@@ -7221,12 +7221,12 @@ async function onlDuelFlow(){const D=ONL.duel;if(!D)return;if(D.bot)return onlBo
   else{sel=C.slice(0,3);await say(['Thầy chưa đủ 3 đồng hành, '+sel.map(u=>u.name).join(', ')+' sẽ ra sân.'],'Đấu Trường');}
   if(!sel){await onlDuelEnd(D);toast('Đã hủy trận');return;}
   const P=onlPvp();
-  await D.r.presence({rdy:1,nm:onlNick(),rp:P.rp,lk:G.look||null,tm:sel.map(u=>({id:u.id,n:u.name,lv:u.lv}))}).catch(()=>{});
+  await D.r.presence({rdy:1,nm:onlNick(),rp:P.rp,tm:sel.map(u=>({id:u.id,n:u.name,lv:u.lv}))}).catch(()=>{});
   const foe=await onlWaitFoe(D,s=>s&&s.rdy&&Array.isArray(s.tm),90000,'Đang chờ '+D.nm+' chọn đội...');
   if(!foe){await onlDuelEnd(D);await say(D.cancel?'Đã hủy trận.':D.nm+' không vào trận. Trận bị hủy.','Đấu Trường');return;}
   const fs=foe.presence,te=fs.tm.slice(0,3).map(t=>{const id=SPECIES[t&&t.id]?t.id:'den_long';return{id,name:onlClean(t.n).slice(0,24)||SPECIES[id].name,lv:clamp(t.lv|0,1,LVMAX)};});
   if(!te.length){await onlDuelEnd(D);return;}
-  D.foeRp=fs.rp|0||D.rp||1000;D.flk=fs.lk&&typeof fs.lk==='object'?fs.lk:null;
+  D.foeRp=fs.rp|0||D.rp||1000;
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
   setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();
   AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1800,t:0,hold:null,res:null,foe:D.nm+' (người chơi)',iq:.5,
@@ -7249,11 +7249,10 @@ async function onlDuelEnd(D){if(D.r){try{await D.r.leave();}catch(_){}D.r=null;}
 const ONL_HY=typeof arFxHit==='function'?11:16,ONL_HR=typeof arFxHit==='function'?11:15;
 function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...a);else if(k==='ko'&&typeof arFxKO==='function')arFxKO(...a);
   else if(k==='slash'&&typeof arFxSlash==='function')arFxSlash(...a);else if(k==='trail'&&typeof arFxTrail==='function')arFxTrail(...a);else if(k==='upd'&&typeof arFxUpdate==='function')arFxUpdate(...a);}catch(e){}}
-function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;if(t.id==='diep')f.lkid=onlLookAnim(AR&&AR.pvp&&AR.pvp.D?AR.pvp.D.flk:null);return f;}
-/* v16.42: tạo hình nhân vật. ANIM.diep.fr đã là tạo hình của chính mình (lookApply), nên người khác và đối thủ PvP vẽ bằng lookFrames(look của họ); không có look = hình gốc */
+function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
+/* v16.42: tạo hình nhân vật. ANIM.diep.fr đã là tạo hình của chính mình (lookApply), nên người chơi khác vẽ bằng lookFrames(look của họ); không có look = hình gốc. Minh Dạ không ra sân PvP nên đấu trường không cần */
 function onlLookFr(lk){const a=ANIM.diep;let L=null;try{if(typeof lookFrames==='function')L=lookFrames(lk||{});}catch(e){L=null;}return L&&L.fr||a.fr0||a.fr;}
 function onlPeerFrame(lk,k,fl){const a=ANIM.diep,f=onlLookFr(lk)[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
-function onlLookAnim(lk){const a=ANIM.diep;if(!a)return null;const key=typeof lookKey==='function'?lookKey(lookNorm(lk)):'0.0.0',id='diep@'+key;if(!ANIM[id]||ANIM[id].fr!==onlLookFr(lk))ANIM[id]={...a,fr:onlLookFr(lk)};return id;}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
@@ -7468,7 +7467,7 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,onlPeerFrame,onlLookFr,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
 
 /* ---------- main loop ---------- */
 /* v16.15.2: vẽ fn trong khung 240 đặt giữa màn ngang rộng; các vùng chạm/cuộn đăng ký trong lúc vẽ được dời theo */
