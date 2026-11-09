@@ -670,10 +670,13 @@ function animFr(id,i){const A=ANIM[id];if(!A.cut){A.cut=[];for(let j=0;j<A.n;j++
 /* battle image for a unit: its pose frame (or plain sprite), the layout box it occupies, and where the image sits inside that box */
 function bSpr(u,side){const a=ANIM[u.id];let fl=side==='a';
   if(!a){const s=sprite(u.id),img=fl?flip(s):s;return{img,sc:1,w:img.width,h:img.height,dx:0,dy:0};}
-  const p=B.pose&&B.pose[side];let k=p&&time<p.until?p.k:(Math.floor(time/700)%6===5?'turn':'idle');
+  const p=B.pose&&B.pose[side];let k=p&&time<p.until?p.k:(!bCalm(a)&&Math.floor(time/700)%6===5?'turn':'idle');
   let i=a.pose[k];if(i==null)i=a.pose.raise!=null?a.pose.raise:a.pose.idle||0;/* v16.7: tư thế riêng của loài (pillar, wave) rơi về raise ở loài khác */if(p&&a.seq&&a.seq[k]&&k===p.k&&p.t0!=null){const q=a.seq[k],d=p.until===Infinity?150*q.length:Math.max(1,p.until-p.t0);i=q[Math.min(q.length-1,Math.floor((time-p.t0)/d*q.length))];}/* v16.2: động tác nhiều khung */
   if(nativeLeft(a,i))fl=!fl;const f=a.fr[i],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;
   return{img,sc:a.sc,w:bw*a.sc,h:bh*a.sc,dx:(fl?a.w-bx-bw:bx)*a.sc,dy:by*a.sc};}
+/* v16.44 (người chơi): quái mới (tấm nhiều khung) khi chờ chọn lệnh chỉ đứng khung idle quay về đối thủ, thở nhẹ (co giãn dọc ~1.4% neo ở chân), không chen khung turn */
+function bCalm(a){return!!a&&a.n>=20;}
+function bBreath(u,side,ph){const a=ANIM[u.id];if(!bCalm(a))return null;const p=B.pose&&B.pose[side];if(p&&time<p.until)return null;return{s:1+.014*Math.sin(time/640+ph),y:Math.sin(time/1150+ph)*.7};}
 function pose(side,k,ms){if(B&&B.pose)B.pose[side]={k,t0:time,until:ms===Infinity?Infinity:time+ms};}
 
 
@@ -3537,7 +3540,7 @@ async function gEnemyPhase(){const tg=B.enemy;
 /* hàng sau: hình đứng yên nhỏ hơn, thanh máu ngắn; chạm quái hàng sau để chọn làm mục tiêu */
 function gBack(){if(!B.grp)return;const L=[];let i=0;for(const f of B.foes)if(!f.gone&&f!==B.enemy&&i<GSLE.length)L.push([f,'e',GSLE[i++]]);i=0;for(const u of B.fa)if(u!==B.ally&&u.hp>0&&i<GSLA.length)L.push([u,'a',GSLA[i++]]);
   for(const[u,sd,[x,dy]]of L){const a=ANIM[u.id];let img,w,h,dx=0,dy2=0,sc=1;
-    if(a){const k=Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
+    if(a){const k=!bCalm(a)&&Math.floor((time+x*37)/700)%6===5?'turn':'idle',fi=a.pose[k];let fl=sd==='a';if(nativeLeft(a,fi))fl=!fl;const f=a.fr[fi],[bx,by,bw,bh]=a.box;img=fl?flip(f):f;sc=a.sc;w=bw*sc;h=bh*sc;dx=(fl?a.w-bx-bw:bx)*sc;dy2=by*sc;}
     else{const s0=sprite(u.id);img=sd==='a'?flip(s0):s0;w=img.width;h=img.height;}
     const k=bScale({w,h},BTH*(sd==='e'?EBH:1),u.id)*.8*gK(),bw=Math.round(w*k),bh=Math.round(h*k),bx=Math.round(x-bw/2),by=Math.round(100+dy-bh*(1-bVis(u.id).b)+Math.round(Math.sin(time/400+x)*1.5));
     c.globalAlpha=u.hp>0?.9:.45;bSmo(img,img.width*sc*k);c.drawImage(img,bx-dx*k,by-dy2*k,img.width*sc*k,img.height*sc*k);c.imageSmoothingEnabled=false;c.globalAlpha=1;
@@ -4063,17 +4066,17 @@ function drawBattle(dt){const E=B.enemy,A=B.ally;
   c.save();c.translate(Math.round(sh)+(PORT?-30:0)+240,SY);c.scale(-1,1);c.drawImage(bgFor(B.bg),0,0);
   if(B.dark>0){c.globalAlpha=B.dark*.5;rect(0,0,240,104,'#300818');c.globalAlpha=1;}
   drawFxU(dt);gBack();
-  const ei=bSpr(E,'e'),es=ei.img;const bob=Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.12:1),E.id)*gK();
-  const ew=Math.round(ei.w*ek),eh=Math.round(ei.h*ek);const ex=Math.round(62-ew/2+B.eo.x),ey=Math.round(100-eh*(1-bVis(E.id).b)+B.eo.y+bob-4);
-  const eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;
+  const ei=bSpr(E,'e'),es=ei.img;const ebr=bBreath(E,'e',0),bob=ebr?ebr.y:Math.round(Math.sin(time/380)*2);const ek=B.eS*bScale(ei,BTH*EBH*(E.boss?1.12:1),E.id)*gK();
+  const ew=Math.round(ei.w*ek),eh=Math.round(ei.h*ek);const ex=Math.round(62-ew/2+B.eo.x),ey=(ebr?v=>v:Math.round)(100-eh*(1-bVis(E.id).b)+B.eo.y+bob-4);
+  let eX=ex-ei.dx*ek,eY=ey-ei.dy*ek,eW=es.width*ei.sc*ek,eH=es.height*ei.sc*ek;if(ebr){const gy=ey+eh*(1-bVis(E.id).b),nw=eW*(1-(ebr.s-1)*.5);eY=gy-(gy-eY)*ebr.s;eH*=ebr.s;eX+=(eW-nw)/2;eW=nw;}
   c.globalAlpha=.28;rect(46,99,32,3,'#000');c.globalAlpha=1;
   if((E.kind==='Oán Linh'||E.boss||E.elite)&&B.eA>0){c.globalAlpha=.25+.1*Math.sin(time/200);c.drawImage(white(es),eX-1,eY,eW+2,eH);c.globalAlpha=1;}
   if(B.eA>0){vGhost('e',es,eX,eY,eW,eH,B.eo.x);c.globalAlpha=B.eA*(E.kind==='Vong Linh'?.92:1);bSmo(es,eW);c.drawImage(E.ai&&E.ai.enr?redT(es):es,eX,eY,eW,eH);c.imageSmoothingEnabled=false;if(B.eF>0){c.globalAlpha=B.eF*(ANIM[E.id]?.45:1);c.drawImage(white(es),eX,eY,eW,eH);}c.globalAlpha=1;}
   if((E.kind==='Oán Linh'||E.boss)&&B.eA>0&&Math.random()<.25)fx.push({k:'p',x:ex+R()*ew,y:ey+eh*.6+R()*eh*.4,vx:0,vy:-.5,life:700,max:700,col:E.boss?'#b060ff':'#ff4060',sz:1});
   if(B.eA>.5)drawWisps(E,ex+ew/2,ey+eh*.55,ew/2+8);
   const ai=bSpr(A,'a'),as=ai.img;const sc=bScale(ai,BTH,A.id)*gK();/* v5.0: đồng hành cao (Giáp Sắt, Quỷ Tướng, Amida) giữ đúng cỡ như khi đứng bên quái */const aw=Math.round(ai.w*sc),ah=Math.round(ai.h*sc);
-  const ax=Math.round(176-aw/2+B.ao.x),ay=Math.round(100-ah*(1-bVis(A.id).b)+B.ao.y+(A.id!=='diep'?Math.round(Math.sin(time/420+1)*2)-4:0));
-  const aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;
+  const abr=A.id!=='diep'?bBreath(A,'a',2):null,ax=Math.round(176-aw/2+B.ao.x),ay=(abr?v=>v:Math.round)(100-ah*(1-bVis(A.id).b)+B.ao.y+(A.id!=='diep'?(abr?abr.y:Math.round(Math.sin(time/420+1)*2))-4:0));
+  let aX=ax-ai.dx*sc,aY=ay-ai.dy*sc,aW=as.width*ai.sc*sc,aH=as.height*ai.sc*sc;if(abr){const gy=ay+ah*(1-bVis(A.id).b),nw=aW*(1-(abr.s-1)*.5);aY=gy-(gy-aY)*abr.s;aH*=abr.s;aX+=(aW-nw)/2;aW=nw;}
   c.globalAlpha=.28;rect(160,99,32,3,'#000');c.globalAlpha=1;
   if(B.aA>0){vGhost('a',as,aX,aY,aW,aH,B.ao.x);c.globalAlpha=B.aA;bSmo(as,aW);c.drawImage(as,aX,aY,aW,aH);c.imageSmoothingEnabled=false;if(B.aF>0){c.globalAlpha=B.aF*(ANIM[A.id]?.45:1);c.drawImage(white(as),aX,aY,aW,aH);}c.globalAlpha=1;}
   if(A.b&&A.b.guard){c.globalAlpha=.3+.15*Math.sin(time/150);c.strokeStyle='#ffe080';c.lineWidth=1;c.beginPath();c.ellipse(176,74,26,30,0,0,Math.PI*2);c.stroke();c.globalAlpha=1;}
