@@ -56,7 +56,7 @@ async function onlConnect(){if(onlConnect.d)return;onlConnect.d=1;try{
   if(SRV){ONL.room=null;ONL.top=onlHttp()+'/top';if(ONL.acc)ONL.nm=ONL.acc.u;
     const room=onlWsRoom(SRV,{tok:ONL.acc&&ONL.acc.tok,onAuth:u=>{ONL.nm=u;onlUI();},onErr:onlAuthErr,onMsg:onlSocMsg});let user=null;
     if(window.claude&&typeof window.claude.use==='function'){try{user=await Promise.race([window.claude.use('user'),new Promise(r=>setTimeout(()=>r(null),3000))]);}catch(_){}}
-    ONL.user=user;ONL.room=room;room.onConnection(c=>{ONL.conn=c;if(!ONL.dead)ONL.err=c?'':'Đang nối lại server...';onlUI();});room.onPeers(onlPeers);
+    ONL.user=user;ONL.room=room;room.onConnection(c=>{ONL.conn=c;if(c)ONL.cseq++;if(!ONL.dead)ONL.err=c?'':'Đang nối lại server...';onlUI();});room.onPeers(onlPeers);
     if(!ONL.nm&&user){try{const v=await user.me();ONL.nm=onlClean(v&&v.name).slice(0,18);}catch(_){}}
     if(!ONL.nm){ONL.nm='Pháp Sư '+ri(100,999);try{localStorage.setItem('gms-onl-nm',ONL.nm);}catch(_){}}onlUI();return;}
   if(!window.claude||typeof window.claude.use!=='function'){ONL.err='Bản online chỉ chạy khi mở trên claude.ai';onlUI();return;}
@@ -205,20 +205,21 @@ function onlPeers(ch){
   onlUI();}
 function onlAddChat(nm,t,me,sys){onlPush(sys?1:0,{nm,t,me,sys});}
 /* người chơi muốn khung chat chia 5 mục (bỏ danh sách người chơi): Trò chuyện (chung, đi qua presence 'say'), Hệ Thống,
-   Tổ Đội, Riêng tư, Bang hội (ba mục sau đi qua server riêng, xem server/src/social.js). Số là mã tab; 2 là Tài khoản. */
-const ONL_TABS=[[0,'Trò chuyện'],[1,'Hệ Thống'],[4,'Tổ Đội'],[5,'Riêng tư'],[6,'Bang hội'],[2,'⚙']];
+   Tổ Đội, Riêng tư, Bang hội (ba mục sau đi qua server riêng, xem server/src/social.js). Số là mã tab; 2 là Tài khoản.
+   7 là Giao dịch (chợ, giao dịch trực tiếp, hòm thư; server/src/trade.js). */
+const ONL_TABS=[[0,'Trò chuyện'],[1,'Hệ Thống'],[4,'Tổ Đội'],[5,'Riêng tư'],[6,'Bang hội'],[7,'Giao dịch'],[2,'⚙']];
 Object.assign(ONL,{ch:{0:ONL.chat,1:[],4:[],6:[]},dm:new Map(),dmN:new Map(),dmUn:new Map(),dmTo:'',party:null,pinv:null,guild:null,glist:null,un:{},pick:null});
 function onlPush(tab,m,key){m.at=Date.now();let L;if(tab===5){L=ONL.dm.get(key);if(!L){L=[];ONL.dm.set(key,L);}}else L=ONL.ch[tab];L.push(m);if(L.length>80)L.shift();
   const vis=ONL.open&&ONL.tab===tab&&(tab!==5||ONL.dmTo===key);
   if(!m.me&&!vis&&tab!==1){ONL.un[tab]=(ONL.un[tab]||0)+1;if(tab===5)ONL.dmUn.set(key,(ONL.dmUn.get(key)||0)+1);}
-  onlUnread();if(!vis)onlFeed((tab===4?'[Đội] ':tab===5?'[Riêng] ':tab===6?'[Bang] ':'')+m.nm,m.t,m.me,!!m.sys);onlUI();}
-function onlUnread(){ONL.unread=(ONL.un[0]||0)+(ONL.un[4]||0)+(ONL.un[5]||0)+(ONL.un[6]||0);}
-function onlBestTab(){for(const t of[5,4,6,0])if(ONL.un[t])return t;return ONL.tab===3?0:ONL.tab;}
+  onlUnread();if(!vis)onlFeed((tab===4?'[Đội] ':tab===5?'[Riêng] ':tab===6?'[Bang] ':tab===7?'[Giao dịch] ':'')+m.nm,m.t,m.me,!!m.sys);onlUI();}
+function onlUnread(){ONL.unread=(ONL.un[0]||0)+(ONL.un[4]||0)+(ONL.un[5]||0)+(ONL.un[6]||0)+(ONL.un[7]||0);}
+function onlBestTab(){for(const t of[5,7,4,6,0])if(ONL.un[t])return t;return ONL.tab===3?0:ONL.tab;}
 const onlSoc=()=>!!(ONL.room&&ONL.room.raw);
 function onlRaw(o){if(onlSoc()&&ONL.conn){ONL.room.raw(o);return true;}toast('Chưa nối được server');return false;}
 function onlDmKey(n){return onlClean(n).slice(0,18).toLowerCase();}
 function onlDmOpen(n){const k=onlDmKey(n);if(!k)return;if(!ONL.dmN.has(k))ONL.dmN.set(k,onlClean(n).slice(0,18));if(!ONL.dm.has(k))ONL.dm.set(k,[]);ONL.dmTo=k;ONL.pick=null;onlOpen(5);}
-function onlSocMsg(m){const T={party:4,guild:6,dm:5};
+function onlSocMsg(m){const T={party:4,guild:6,dm:5,trade:7};if(onlTrMsg(m))return 1;
   if(m.t==='cm'){const t=onlClean(m.m).slice(0,120),fr=onlClean(m.from).slice(0,18);if(!t||!fr)return 1;const me=fr.toLowerCase()===onlNick().toLowerCase();
     if(m.ch==='dm'){const on=me?onlClean(m.to).slice(0,18):fr,k=onlDmKey(on);ONL.dmN.set(k,on);onlPush(5,{nm:fr,t,me},k);}else if(T[m.ch])onlPush(T[m.ch],{nm:fr,t,me});return 1;}
   if(m.t==='note'){const t=onlClean(m.m).slice(0,160);if(!t)return 1;if(m.ch==='dm')toast(t);else onlPush(T[m.ch]||1,{nm:'Hệ Thống',t,sys:1});return 1;}
@@ -265,7 +266,7 @@ function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
     c.globalAlpha=.92;rect(bx,by,w,h,'#e8fff0');rect(hx+7,by+h,3,2,'#e8fff0');c.globalAlpha=1;L.forEach((l,i)=>txt(l,hx+8,by+2+i*8,{size:7,align:'center',color:'#10301a'}));}}
 function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
   for(const r of ONL.peers.values()){const k=Math.min(1,dt/110);r.x+=(r.tx-r.x)*k;r.y+=(r.ty-r.y)*k;r.mv=r.m||Math.abs(r.tx-r.x)+Math.abs(r.ty-r.y)>1.5;}
-  if(ONL.room){onlSend(false);if(AR&&AR.pvp)onlDuelSend();}onlSysTick(dt);
+  if(ONL.room){onlSend(false);if(AR&&AR.pvp)onlDuelSend();}onlSysTick(dt);onlTrTick(dt);
   const D=ONL.duel;if(D){if(D.st==='ask'&&performance.now()-D.t0>30000){toast('Không ai nhận lời thách đấu');ONL.duel=null;onlUI();}
     if(D.st==='go'&&onlFree()){D.st='run';run(onlDuelFlow);}}
   onlUIFrame();}
@@ -518,7 +519,7 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
   U.inv.querySelector('.ok').onclick=()=>{audio();onlAccept();};U.inv.querySelector('.no').onclick=onlDecline;
   U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   ONL.ui=U;return U;}
-function onlOpen(t){if(scene!=='map'&&scene!=='title'){toast('Ra bản đồ rồi mở bảng online');return;}const U=onlBuildUI();ONL.tab=t|0;ONL.open=true;U.panel.style.display='flex';ONL.un[ONL.tab]=0;if(ONL.tab===5&&!ONL.dmTo&&ONL.dm.size){let bk='',bt=-1;for(const[k,L]of ONL.dm){const at=(ONL.dmUn.get(k)?1e15:0)+(L.length?L[L.length-1].at:0);if(at>bt){bt=at;bk=k;}}ONL.dmTo=bk;}if(ONL.tab===5&&ONL.dmTo)ONL.dmUn.delete(ONL.dmTo);if(ONL.tab===5&&!ONL.dmTo)ONL.un[5]=[...ONL.dmUn.values()].reduce((a,b)=>a+b,0);onlUnread();held.length=0;onlRender();}
+function onlOpen(t){if(scene!=='map'&&scene!=='title'){toast('Ra bản đồ rồi mở bảng online');return;}const U=onlBuildUI();ONL.tab=t|0;ONL.open=true;U.panel.style.display='flex';ONL.un[ONL.tab]=0;if(ONL.tab===5&&!ONL.dmTo&&ONL.dm.size){let bk='',bt=-1;for(const[k,L]of ONL.dm){const at=(ONL.dmUn.get(k)?1e15:0)+(L.length?L[L.length-1].at:0);if(at>bt){bt=at;bk=k;}}ONL.dmTo=bk;}if(ONL.tab===5&&ONL.dmTo)ONL.dmUn.delete(ONL.dmTo);if(ONL.tab===5&&!ONL.dmTo)ONL.un[5]=[...ONL.dmUn.values()].reduce((a,b)=>a+b,0);if(ONL.tab===7)onlTrReq(ONL.tsub|0,1);onlUnread();held.length=0;onlRender();}
 function onlClose(){ONL.open=false;if(ONL.ui)ONL.ui.panel.style.display='none';try{cv.focus();}catch(_){}}
 function onlFeed(nm,t,me,sys){const U=onlBuildUI(),el=document.createElement('div');if(sys)el.className='sys';const i=document.createElement('i');i.textContent=nm+': ';el.appendChild(i);el.appendChild(document.createTextNode(t));
   U.feed.appendChild(el);while(U.feed.children.length>3)U.feed.firstChild.remove();setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),700);},sys?10000:6000);}
@@ -539,10 +540,12 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
   if(ONL.room&&ONL.dead&&ONL.err)note(ONL.err);
   if(!ONL.room){note(ONL.err||'Đang kết nối...');note('Bản online cần mở trên claude.ai. Bạn bè được chủ game chia sẻ link artifact là vào chơi cùng được.');}
   if(ONL.pick&&onlSoc()&&[0,4,6].includes(ONL.tab)){const nm=ONL.pick;Pk.style.display='flex';const sp=document.createElement('span');sp.textContent=nm+':';Pk.appendChild(sp);
-    btn('Nhắn riêng',()=>onlDmOpen(nm),Pk);if(!ONL.party||ONL.party.mem.length<4)btn('Mời tổ đội',()=>{if(onlRaw({t:'pinv',to:nm})){ONL.pick=null;onlUI();}},Pk);btn('✕',()=>{ONL.pick=null;onlRender();},Pk);}
-  const soc=()=>{if(onlSoc())return true;note('Tổ đội, nhắn riêng và bang hội chỉ có khi chơi trên server game.giangmaluc.workers.dev (hoặc app Android), không có trong bản chạy trên claude.ai.');return false;};
+    btn('Nhắn riêng',()=>onlDmOpen(nm),Pk);if(!ONL.party||ONL.party.mem.length<4)btn('Mời tổ đội',()=>{if(onlRaw({t:'pinv',to:nm})){ONL.pick=null;onlUI();}},Pk);
+    if(!ONL.trade)btn('Giao dịch',()=>{if(onlRaw({t:'tinv',to:nm})){ONL.pick=null;ONL.tsub=3;onlOpen(7);}},Pk);btn('✕',()=>{ONL.pick=null;onlRender();},Pk);}
+  const soc=()=>{if(onlSoc())return true;note('Tổ đội, nhắn riêng, bang hội và giao dịch chỉ có khi chơi trên server game.giangmaluc.workers.dev (hoặc app Android), không có trong bản chạy trên claude.ai.');return false;};
   if(ONL.tab===0){if(!ONL.chat.length)note('Chưa có tin nhắn. Mọi người đang mở game đều thấy tin nhắn của thầy.'+(onlSoc()?' Chạm tên một người để nhắn riêng hoặc mời vào tổ đội.':''));
     msgs(ONL.chat);input('Nhập tin nhắn...',v=>{onlSay(v);});}
+  else if(ONL.tab===7){if(!soc())return;onlTrView(B,note,btn,input);}
   else if(ONL.tab===1){note('Hệ Thống đọc lần lượt từng mục trong Hướng dẫn chỉ số, mỗi phút một mục.');msgs(ONL.ch[1]);}
   else if(ONL.tab===4){if(!soc())return;const I=ONL.pinv;
     if(I&&performance.now()-I.t0<60000){const r=document.createElement('div');r.className='chips';const sp=document.createElement('span');sp.textContent=I.from+' mời thầy vào tổ đội ';r.appendChild(sp);
@@ -584,6 +587,128 @@ function onlRender(){const U=onlBuildUI();if(!ONL.open)return;U.panel.querySelec
     sb.onclick=()=>{const v=onlClean(inp.value).slice(0,18);if(!v)return;ONL.nm=v;try{localStorage.setItem('gms-onl-nm',v);}catch(_){}onlSend(true);toast('Đã đổi tên: '+v);onlOpen(2);};
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')sb.onclick();});Ft.appendChild(inp);Ft.appendChild(sb);
     if(ONL_DUAL){note('Chế độ online dùng bản lưu riêng. Về chế độ một người thì game tải lại, tiến trình online vẫn được lưu.');const q=document.createElement('button');q.className='b';q.textContent='Về chế độ một người';q.onclick=onlLeaveMode;B.appendChild(q);}}}
+/* ---------- Giao dịch giữa người chơi: Chợ, giao dịch trực tiếp, Hòm thư (server/src/trade.js) ----------
+   người chơi muốn mua bán trang bị và đồng hành (pet) với nhau. Đồ đem bán / đem đổi được bỏ khỏi bản lưu ngay và ghi vào G.esc
+   (ký gửi, có mã n) cho tới khi server trả lời xr: ok thì xóa, không ok thì trả đồ lại. Đồ nhận được nằm trong Hòm thư,
+   tự vào túi / đội / tháp khi thầy đang ở bản đồ và còn chỗ; thư đã nhận ghi trong G.mailDone để không nhận hai lần. */
+Object.assign(ONL,{mkt:null,mktK:'',mktQ:'',mmine:null,mail:[],trade:null,tinv:null,tsub:0,tsel:null,tRefs:[],tS:0,mailT:0,xchkT:0,cseq:0,xseq:-1});ONL.ch[7]=[];
+const ONL_TSUB=['Chợ','Bán','Đang bán','Giao dịch','Hòm thư'];
+function onlNonce(){let s='';while(s.length<14)s+=Math.random().toString(36).slice(2);return s.slice(0,14);}
+function onlClone(o){return JSON.parse(JSON.stringify(o));}
+function onlTrOk(){return onlSoc()&&ONL.conn&&!ONL.kick&&!ONL.dead;}
+/* tên + mô tả ngắn của một món (k: 'it' trang bị, 'u' đồng hành, 's' bạc) */
+function onlObj(k,d){try{if(k==='s')return{nm:(d|0)+' bạc',ds:''};
+  if(k==='it')return{nm:onlClean(d.n).slice(0,40),ds:(typeof SLOTN!=='undefined'&&SLOTN[d.s]?SLOTN[d.s]+' · ':'')+itemDesc(d)};
+  const sp=SPECIES[d.id],rk=typeof rankOf==='function'?rankOf(d.id):'';
+  return{nm:onlClean(d.name).slice(0,40),ds:(sp?'':'(loài lạ) ')+'Lv '+(d.lv|0)+(rk?' · hạng '+rk:'')+(d.kind?' · '+onlClean(d.kind).slice(0,16):'')+(d.mhp?' · '+(d.mhp|0)+' HP':'')};}catch(_){return{nm:'?',ds:''};}}
+/* những thứ đem giao dịch được: trang bị trong túi (không gồm đồ đang mặc) và đồng hành trong đội / tháp (trừ nhân vật chính) */
+function onlTradables(){if(!G)return[];const L=[];for(const it of G.inv||[])L.push({k:'it',ref:it,w:'Túi'});
+  for(const u of G.party||[])if(u&&u.id!=='diep')L.push({k:'u',ref:u,w:'Đội'});for(const u of G.box||[])if(u&&u.id!=='diep')L.push({k:'u',ref:u,w:'Tháp'});return L;}
+function onlHas(k,ref){return k==='it'?(G.inv||[]).includes(ref):(G.party||[]).includes(ref)||(G.box||[]).includes(ref);}
+function onlTake(k,ref){let A=k==='it'?G.inv:(G.party||[]).includes(ref)?G.party:G.box;const i=A?A.indexOf(ref):-1;if(i<0||(k==='u'&&ref.id==='diep'))return null;A.splice(i,1);
+  return onlClone(ref);}
+/* nhận một món vào bản lưu; false nếu chưa có chỗ (túi 12 món, đội 6, tháp TOWER_MAX) */
+function onlGive(k,d,s){if(k==='s'){G.silver=(G.silver|0)+Math.max(0,s|0);return true;}
+  if(!d||typeof d!=='object')return true;
+  if(k==='it'){if((G.inv||[]).length>=12)return false;G.inv.push(d);return true;}
+  if(k==='u'){if(!SPECIES[d.id]||d.id==='diep')return false;d.hp=d.mhp;d.mp=d.mmp;
+    if(G.party.length<6){if(d.b)d.b={};G.party.push(d);}else if((G.box||[]).length<(typeof TOWER_MAX==='number'?TOWER_MAX:50))toTower(d);else return false;
+    try{allyFix();rkFix();}catch(_){}return true;}
+  return true;}
+function onlTrSave(){try{save();}catch(_){}onlUpload(true);}
+/* ký gửi: bỏ đồ khỏi bản lưu trước rồi mới gửi lên server */
+function onlEscrow(why,its,s,extra){const n=onlNonce();(G.esc||(G.esc=[])).push({n,why,its,s:s|0,at:Date.now(),...extra});return n;}
+function onlEscBack(e){for(const x of e.its||[])(G.tq||(G.tq=[])).push({k:x.k,d:x.d,m:'Trả lại '+onlObj(x.k,x.d).nm});if(e.s>0)G.silver=(G.silver|0)+e.s;}
+function onlXr(m){if(!G||!G.esc)return;const i=G.esc.findIndex(e=>e.n===m.n);if(i<0)return;const e=G.esc.splice(i,1)[0];
+  if(!m.ok){onlEscBack(e);const t=onlClean(m.m).slice(0,160);if(t){toast(t);onlPush(7,{nm:'Chợ',t,sys:1});}}
+  else if(e.why==='buy'){sfx('coin');toast('Đã mua '+(e.nm||'')+'. Đồ vào Hòm thư');}
+  onlTrSave();if(e.why==='buy')onlTrReq(0,1);if(e.why==='sell')onlTrReq(2,1);onlUI();}
+/* đồ nhận được (thư của server và đồ trả lại ở máy) vào bản lưu khi thầy rảnh trên bản đồ */
+function onlTrTick(dt){if(!ONLM||!G)return;
+  if(onlFree()&&G.tq&&G.tq.length){const left=[];let got=0;for(const q of G.tq){if(onlGive(q.k,onlClone(q.d)))got++;else left.push(q);}if(got){G.tq=left;toast('Đồ ký gửi đã trở về');onlTrSave();onlUI();}}
+  if(!onlTrOk())return;
+  /* hỏi lại các lần ký gửi chưa có trả lời: ngay khi nối (lại) server, và cứ 15 giây với lần ký gửi đã quá 10 giây */
+  const fresh=ONL.xseq!==ONL.cseq;
+  if(fresh||(G.esc&&G.esc.length&&(ONL.xchkT-=dt)<=0)){ONL.xseq=ONL.cseq;ONL.xchkT=15000;
+    const ns=(G.esc||[]).filter(e=>fresh||Date.now()-e.at>10000).map(e=>e.n);if(ns.length)ONL.room.raw({t:'xchk',ns});}
+  if(ONL.mail.length&&onlFree()&&(ONL.mailT-=dt)<=0){ONL.mailT=1500;const done=new Set(G.mailDone||(G.mailDone=[])),ack=[],msg=[];
+    for(const e of ONL.mail){if(done.has(e.id)){ack.push(e.id);continue;}if(onlGive(e.k,e.d&&onlClone(e.d),e.s)){G.mailDone.push(e.id);ack.push(e.id);msg.push(e.m||onlObj(e.k,e.k==='s'?e.s:e.d).nm);}}
+    if(ack.length){if(G.mailDone.length>300)G.mailDone.splice(0,G.mailDone.length-300);onlTrSave();ONL.room.raw({t:'mack',ids:ack});const a=new Set(ack);ONL.mail=ONL.mail.filter(e=>!a.has(e.id));
+      for(const t of msg)onlPush(7,{nm:'Hòm thư',t,sys:1});if(msg.length){sfx('got');toast(msg.length>1?'Nhận '+msg.length+' món từ Hòm thư':'Hòm thư: '+msg[0]);}onlUI();}
+    const stuck=ONL.mail.length;if(stuck&&!ONL.mailWarn){ONL.mailWarn=1;toast('Hòm thư còn '+stuck+' món: túi / đội / tháp đã đầy');}if(!stuck)ONL.mailWarn=0;}}
+function onlTrReq(sub,force){if(!onlTrOk())return;if(sub===0&&(force||!ONL.mkt))ONL.room.raw({t:'mlist',k:ONL.mktK,q:ONL.mktQ,o:force===2&&ONL.mkt?ONL.mkt.o:0});
+  if(sub===2&&(force||!ONL.mmine))ONL.room.raw({t:'mmine'});}
+function onlTrMsg(m){
+  if(m.t==='xr'){onlXr(m);return 1;}
+  if(m.t==='mail'){ONL.mail=(Array.isArray(m.list)?m.list:[]).filter(e=>e&&typeof e.id==='string'&&['it','u','s'].includes(e.k)).map(e=>({id:e.id,k:e.k,d:e.d&&typeof e.d==='object'?e.d:null,s:e.s|0,m:onlClean(e.m).slice(0,160),at:+e.at||0}));ONL.mailT=0;onlUI();return 1;}
+  if(m.t==='mkt'){ONL.mkt={k:m.k||'',q:onlClean(m.q),o:m.o|0,tot:m.tot|0,list:(Array.isArray(m.list)?m.list:[]).filter(x=>x&&x.d&&typeof x.d==='object').map(x=>({id:String(x.id),k:x.k,d:x.d,p:x.p|0,sn:onlClean(x.sn).slice(0,18),mine:!!x.mine}))};onlUI();return 1;}
+  if(m.t==='mmine'){ONL.mmine=(Array.isArray(m.list)?m.list:[]).filter(x=>x&&x.d&&typeof x.d==='object').map(x=>({id:String(x.id),k:x.k,d:x.d,p:x.p|0,exp:+x.exp||0}));onlUI();return 1;}
+  if(m.t==='tinv'){const f=onlClean(m.from).slice(0,18);if(!f)return 1;ONL.tinv={from:f,t0:performance.now()};onlPush(7,{nm:'Giao dịch',t:f+' mời thầy giao dịch. Mở Chat → Giao dịch để đồng ý.',sys:1});return 1;}
+  if(m.t==='trade'){const was=ONL.trade;if(!m.w){ONL.trade=null;ONL.tRefs=[];ONL.tS=0;}
+    else{const S=x=>({its:(Array.isArray(x&&x.its)?x.its:[]).filter(i=>i&&i.d),s:(x&&x.s)|0,lock:!!(x&&x.lock),ok:!!(x&&x.ok)});ONL.trade={w:onlClean(m.w).slice(0,18),me:S(m.me),them:S(m.them)};ONL.tinv=null;
+      if(!was){ONL.tsub=3;if((!ONL.open||ONL.tab!==7)&&scene==='map')onlOpen(7);else toast('Bắt đầu giao dịch với '+ONL.trade.w);}}onlUI();return 1;}
+  return 0;}
+/* giao dịch trực tiếp: gửi lời đề nghị (đồ vẫn trong bản lưu cho tới lúc xác nhận) */
+function onlTrOffer(){ONL.tRefs=ONL.tRefs.filter(x=>onlHas(x.k,x.ref));if(ONL.tS>(G.silver|0))ONL.tS=G.silver|0;
+  onlRaw({t:'toff',its:ONL.tRefs.map(x=>({k:x.k,d:onlClone(x.ref)})),s:ONL.tS});}
+function onlTrConfirm(){const T=ONL.trade;if(!T||!onlTrOk())return;
+  if(!ONL.tRefs.every(x=>onlHas(x.k,x.ref))||T.me.its.length!==ONL.tRefs.length){toast('Đồ trong lời đề nghị đã đổi, đặt lại rồi khóa lại');onlTrOffer();return;}
+  if(T.me.s>(G.silver|0)){toast('Không đủ bạc');return;}
+  const its=ONL.tRefs.map(x=>({k:x.k,d:onlTake(x.k,x.ref)}));G.silver-=T.me.s;
+  const n=onlEscrow('trade',its,T.me.s);ONL.tRefs=[];onlTrSave();ONL.room.raw({t:'tok',n,its:T.me.its,s:T.me.s});toast('Đã xác nhận, chờ '+T.w);}
+function onlTrSell(sel,p){if(!onlTrOk()){toast('Chưa nối được server');return false;}p=Math.floor(+String(p).replace(/[^0-9]/g,''));
+  if(!(p>=1&&p<=9999999)){toast('Giá bán từ 1 đến 9.999.999 bạc');return false;}
+  if(!onlHas(sel.k,sel.ref)){toast('Món này không còn trong túi / đội');ONL.tsel=null;onlUI();return false;}
+  if(ONL.tRefs.some(x=>x.ref===sel.ref)){toast('Món này đang nằm trong giao dịch trực tiếp');return false;}
+  const d=onlTake(sel.k,sel.ref),n=onlEscrow('sell',[{k:sel.k,d}],0);ONL.tsel=null;onlTrSave();ONL.room.raw({t:'msell',n,k:sel.k,d,p});ONL.mmine=null;sfx('coin');return true;}
+function onlTrBuy(x){if(!onlTrOk()){toast('Chưa nối được server');return;}if((G.silver|0)<x.p){toast('Không đủ bạc');return;}
+  G.silver-=x.p;const n=onlEscrow('buy',[],x.p,{nm:onlObj(x.k,x.d).nm});onlTrSave();ONL.room.raw({t:'mbuy',n,id:x.id,p:x.p});}
+function onlTrView(B,note,btn,input){const sub=ONL.tsub|0,T=ONL.trade;
+  const chips=document.createElement('div');chips.className='chips';
+  ONL_TSUB.forEach((l,i)=>{const n=i===4?ONL.mail.length+((G&&G.tq)||[]).length:0;btn(l+(n?' ('+n+')':''),()=>{ONL.tsub=i;ONL.tsel=null;onlTrReq(i,1);onlRender();},chips).classList.toggle('on',i===sub);});B.appendChild(chips);
+  if(!G){note('Vào game rồi mới giao dịch được.');return;}
+  const esc=(G.esc||[]).length;note('Bạc: '+(G.silver|0)+(esc?' · đang chờ server xử lý '+esc+' giao dịch':''));
+  const row=(o,sm,act)=>{const r=document.createElement('div');r.className='row';const sp=document.createElement('span');sp.textContent=o.nm;const s2=document.createElement('small');s2.textContent=sm;sp.appendChild(s2);r.appendChild(sp);if(act)act(r);B.appendChild(r);return r;};
+  const twice=(lab,lab2,f)=>r=>btn(lab,b=>{if(!b.dataset.ok){b.dataset.ok=1;b.textContent=lab2;return;}f();},r);
+  if(sub===0){const f=document.createElement('div');f.className='chips';[['','Tất cả'],['it','Trang bị'],['u','Đồng hành']].forEach(([k,l])=>btn(l,()=>{ONL.mktK=k;onlTrReq(0,1);},f).classList.toggle('on',ONL.mktK===k));B.appendChild(f);
+    const M=ONL.mkt;if(!M){note('Đang tải chợ...');onlTrReq(0);}
+    else{if(M.q)note('Tìm "'+M.q+'": '+M.tot+' món.');if(!M.list.length)note('Chưa có món nào. Vào mục Bán để treo bán trang bị hoặc đồng hành của thầy.');
+      for(const x of M.list){const o=onlObj(x.k,x.d);row(o,o.ds+' · '+x.sn+' bán',x.mine?r=>btn('Gỡ',()=>{onlRaw({t:'mcancel',id:x.id});ONL.mkt=null;},r):twice(x.p+' bạc','Mua '+x.p+'?',()=>onlTrBuy(x)));}
+      if(M.tot>M.o+M.list.length){const r=document.createElement('div');r.className='chips';btn('Trang sau',()=>{onlRaw({t:'mlist',k:ONL.mktK,q:ONL.mktQ,o:M.o+30});},r);B.appendChild(r);}
+      else if(M.o>0){const r=document.createElement('div');r.className='chips';btn('Về trang đầu',()=>onlTrReq(0,1),r);B.appendChild(r);}}
+    note('Mua xong đồ vào Hòm thư rồi tự vào túi. Người bán trả '+5+'% phí chợ.');
+    input('Tìm theo tên...',v=>{ONL.mktQ=v;onlTrReq(0,1);},{max:24,lab:'Tìm',lab2:ONL.mktQ?'Bỏ lọc':'',fn2:()=>{ONL.mktQ='';onlTrReq(0,1);}});return;}
+  if(sub===1){const L=onlTradables();if(!L.length)note('Túi đồ và đội chưa có gì bán được (đồ đang mặc và nhân vật chính không bán được).');
+    else note('Chọn một món rồi nhập giá. Món đem bán rời khỏi túi / đội ngay; '+3+' ngày không ai mua thì về Hòm thư.');
+    for(const x of L){const o=onlObj(x.k,x.ref),sel=ONL.tsel&&ONL.tsel.ref===x.ref;const r=row(o,x.w+' · '+o.ds+(x.k==='it'&&typeof sellPrice==='function'?' · Tạp hóa mua '+sellPrice(x.ref)+' bạc':''),r=>btn(sel?'✓ Đã chọn':'Chọn',()=>{ONL.tsel=sel?null:x;onlRender();},r));if(sel)r.style.background='#2c2440';}
+    if(ONL.tsel){const o=onlObj(ONL.tsel.k,ONL.tsel.ref);input('Giá bán '+o.nm+' (bạc)',v=>onlTrSell(ONL.tsel,v),{max:7,lab:'Đăng bán'}).inputMode='numeric';}return;}
+  if(sub===2){const L=ONL.mmine;if(!L){note('Đang tải...');onlTrReq(2);return;}
+    if(!L.length)note('Thầy chưa treo bán món nào.');
+    for(const x of L){const o=onlObj(x.k,x.d),h=Math.max(0,Math.round((x.exp-Date.now())/36e5));row(o,o.ds+' · '+x.p+' bạc · còn '+h+' giờ',r=>btn('Gỡ',()=>{onlRaw({t:'mcancel',id:x.id});},r));}return;}
+  if(sub===3){const I=ONL.tinv;
+    if(I&&performance.now()-I.t0<60000&&!T){const r=document.createElement('div');r.className='chips';const sp=document.createElement('span');sp.textContent=I.from+' mời thầy giao dịch ';r.appendChild(sp);
+      btn('Đồng ý',()=>{onlRaw({t:'tans',from:I.from,ok:1});ONL.tinv=null;onlUI();},r);btn('Từ chối',()=>{onlRaw({t:'tans',from:I.from,ok:0});ONL.tinv=null;onlUI();},r);B.appendChild(r);}
+    if(!T){note('Giao dịch trực tiếp: hai người cùng online đổi trang bị, đồng hành và bạc cho nhau. Chạm tên một người trong khung chat rồi chọn Giao dịch, hoặc nhập tên tài khoản ở dưới.');
+      msgs7();input('Tên người chơi muốn giao dịch...',v=>{onlRaw({t:'tinv',to:v});},{max:18,lab:'Mời'});return;}
+    const side=(t,S)=>{const h=document.createElement('p');h.className='note';h.textContent=t+(S.ok?' · ĐÃ XÁC NHẬN':S.lock?' · đã khóa':' · đang chọn');h.style.color=S.ok?'#a8f0b0':S.lock?'#ffd870':'';B.appendChild(h);
+      if(!S.its.length&&!S.s)note('(chưa đưa gì)');for(const x of S.its){const o=onlObj(x.k,x.d);row(o,o.ds);}if(S.s)row({nm:S.s+' bạc'},'');};
+    side('Thầy đưa',T.me);side(T.w+' đưa',T.them);
+    const r=document.createElement('div');r.className='chips';
+    if(!T.me.ok){if(!T.me.lock)btn('Khóa',()=>onlRaw({t:'tlock'}),r);else if(T.them.lock)btn('Xác nhận',b=>{if(!b.dataset.ok){b.dataset.ok=1;b.textContent='Chắc chắn? Bấm lần nữa';return;}onlTrConfirm();},r);else{const sp=document.createElement('span');sp.textContent='Chờ '+T.w+' khóa ';r.appendChild(sp);}}
+    else{const sp=document.createElement('span');sp.textContent='Chờ '+T.w+' xác nhận ';r.appendChild(sp);}
+    btn('Hủy giao dịch',()=>onlRaw({t:'tcancel'}),r);B.appendChild(r);
+    note('Hai bên khóa rồi mới xác nhận được. Đổi đồ hay bạc thì cả hai phải khóa lại. Xác nhận xong đồ rời túi, giao dịch xong đồ của bên kia vào Hòm thư.');
+    if(!T.me.ok&&!T.me.lock){const h=document.createElement('p');h.className='note';h.textContent='Chọn đồ đem đổi (tối đa 6 món):';B.appendChild(h);
+      for(const x of onlTradables()){const o=onlObj(x.k,x.ref),on=ONL.tRefs.some(y=>y.ref===x.ref);row(o,x.w+' · '+o.ds,r=>btn(on?'Bỏ ra':'Đưa',()=>{if(on)ONL.tRefs=ONL.tRefs.filter(y=>y.ref!==x.ref);else{if(ONL.tRefs.length>=6){toast('Tối đa 6 món');return;}ONL.tRefs.push({k:x.k,ref:x.ref});}onlTrOffer();},r)).style.background=on?'#2c2440':'';}
+      input('Số bạc đưa thêm',v=>{ONL.tS=Math.max(0,Math.min(G.silver|0,Math.floor(+String(v).replace(/[^0-9]/g,''))||0));onlTrOffer();},{max:8,lab:'Đặt bạc'}).inputMode='numeric';}
+    msgs7();return;}
+  if(sub===4){const L=ONL.mail,Q=G.tq||[];note('Đồ mua được, đồ giao dịch, đồ gỡ khỏi chợ và bạc bán được đều về đây, rồi tự vào túi / đội / tháp khi thầy ở bản đồ và còn chỗ (túi 12 món, đội 6, tháp '+(typeof TOWER_MAX==='number'?TOWER_MAX:50)+').');
+    if(!L.length&&!Q.length)note('Hòm thư trống.');
+    for(const e of L){const o=onlObj(e.k,e.k==='s'?e.s:e.d);row(o,(e.m||'')+(e.k==='it'&&(G.inv||[]).length>=12?' · Túi đầy':''));}
+    for(const e of Q){const o=onlObj(e.k,e.d);row(o,(e.m||'Trả lại')+' · chờ chỗ trống');}
+    msgs7();}
+  function msgs7(){const L=ONL.ch[7].slice(-20);if(!L.length)return;const h=document.createElement('p');h.className='note';h.textContent='Nhật ký giao dịch:';B.appendChild(h);
+    for(const m of L){const p=document.createElement('p');p.className='sys';const i=document.createElement('i');i.textContent=m.nm+': ';p.appendChild(i);p.appendChild(document.createTextNode(m.t));B.appendChild(p);}}}
 let onlLastVis='',onlLastRender=0,onlRectK='';
 function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.ui.feed.style.display='none';}return;}const U=onlBuildUI();const showBtn=false;
   const n=ONL.room?ONL.peers.size+1:0,lab=(ONL.room?(ONL.conn?n+' online':ONL.dead?'ngắt kết nối':'đang nối...'):'offline')+'|'+ONL.unread+'|'+showBtn;
@@ -602,4 +727,4 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,onlPeerFrame,onlLookFr,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,onlPeerFrame,onlLookFr,onlTradables,onlTrSell,onlTrBuy,onlTrConfirm,onlTrOffer,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
