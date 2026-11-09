@@ -45,6 +45,7 @@ rồi mở http://localhost:8787 (cần tạo `server/public` như bước 4). H
 - `src/hub.js`: lõi server (sảnh, phòng đấu, chuyển tiếp trạng thái, giới hạn tốc độ, bảng xếp hạng)
 - `src/accounts.js`: tài khoản, phiên đăng nhập và bản lưu theo tài khoản
 - `src/trade.js`: giao dịch giữa người chơi (Chợ, giao dịch trực tiếp, Hòm thư)
+- `src/admin.js`, `src/admin-page.js`: quản trị (khóa nick, gửi thư / quà), trang `/admin`
 - `src/worker.js`: bản Cloudflare (một Durable Object "World" giữ cả thế giới)
 - `src/node-server.js`: bản Node (tự host trên VPS nếu muốn)
 - Phía game: `online/onl.js` (hàm `onlWsRoom`), tạo bản game bằng `online/build_online.py --server ...`
@@ -75,3 +76,17 @@ Server trả lời `xr` (giữ đồ / trả lại) và ghi kết quả vào kho
 Thư đã nhận ghi trong `G.mailDone` để không nhận hai lần. Kho: `ml:<mã>` món đang bán, `mli` danh sách chợ, `mb:<tài khoản>` hòm thư.
 
 Lưu ý: bản lưu vẫn do máy người chơi giữ (server chỉ lưu hộ), nên server không kiểm tra được người chơi có thật sự có món đồ / số bạc đó. Muốn chống gian lận hoàn toàn thì phải chuyển túi đồ và bạc sang server quản lý.
+
+## Quản trị (`src/admin.js`, trang `/admin`)
+
+Trang quản trị: `https://game.giangmaluc.workers.dev/admin`. Chỉ mở được bằng mã quản trị bí mật.
+
+**Đặt mã (làm một lần):** Cloudflare dashboard → Workers & Pages → `game` → Settings → Variables and Secrets → Add → loại **Secret**, tên `ADMIN_KEY`, giá trị là một chuỗi dài khó đoán (ít nhất 12 ký tự, nên 24+) → Deploy. Chưa đặt thì `/admin/api/*` trả 404. Sai mã 10 lần thì địa chỉ đó bị chặn 10 phút. Chạy thử trên máy: ghi `ADMIN_KEY=...` vào `server/.dev.vars` (wrangler) hoặc biến môi trường (node).
+
+Trên trang:
+- **Người chơi**: tìm theo tên tài khoản, xem ngày tạo, đang online hay không, bị khóa hay không. Chọn một người để xem nhân vật, cấp, bạc, công đức, thuốc, số đồng hành (đọc từ bản lưu), số thư chưa nhận.
+- **Khóa nick**: 1/3/7/30 ngày hoặc vĩnh viễn, kèm lý do. Người đang online bị đẩy ra ngay và thấy lý do; đăng nhập lại cũng bị từ chối với lý do và hạn khóa. **Mở khóa** gỡ ngay. **Đẩy khỏi game** chỉ ngắt kết nối, không khóa.
+- **Gửi thư và quà**: cho người đang chọn, một danh sách tên, hoặc tất cả. Lời nhắn + bạc, thuốc máu, thuốc linh lực, công đức. Thư vào Hòm thư (mục Giao dịch → Hòm thư), quà tự cộng khi người chơi ở trên bản đồ.
+- **Nhật ký quản trị**: 100 việc gần nhất (khóa, mở khóa, gửi thư...).
+
+Dữ liệu: khóa lưu ở `u:<tên>.ban = {until, why, at}` (until 0 = vĩnh viễn); thư quà dạng `{k:'g', d:{s,hp,mp,mer}, m}` trong `mb:<tên>`; nhật ký ở `adm:log`.

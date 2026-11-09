@@ -1,7 +1,8 @@
 // Tài khoản người chơi: đăng ký, đăng nhập, phiên (token) và bản lưu tiến trình theo tài khoản.
 // Không phụ thuộc nền tảng: dùng WebCrypto (có sẵn trên Cloudflare Workers và Node 20+).
 // store: {get(k), put(k,v), delete(k)}
-//   'u:<tên thường>' -> {n, s, h, at, tk:[token...], g}  n: tên hiển thị, s/h: muối + băm PBKDF2 của mật khẩu, g: mã Google (sub) nếu đã liên kết
+//   'u:<tên thường>' -> {n, s, h, at, tk:[token...], g, ban}  n: tên hiển thị, s/h: muối + băm PBKDF2 của mật khẩu, g: mã Google (sub) nếu đã liên kết
+//                       ban: {until, why, at} khi bị ban quản trị khóa (until 0 = vĩnh viễn), xem admin.js
 //   'g:<sub Google>' -> tên thường                        tài khoản Google nào ứng với tài khoản game nào
 //   't:<token>'      -> {u, exp}                         u: tên thường
 //   's:<tên thường>' -> {d, at}                          d: chuỗi bản lưu của game
@@ -15,7 +16,7 @@ async function hash(pw, salt) {
   const key = await crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveBits']);
   return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: te.encode(salt), iterations: ACC.iter }, key, 256));
 }
-function same(a, b) { if (typeof a !== 'string' || typeof b !== 'string') return false; if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }
+export function same(a, b) { if (typeof a !== 'string' || typeof b !== 'string') return false; if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }
 
 // ---- Đăng nhập bằng Google: kiểm chữ ký ID token (JWT RS256) bằng khóa công khai của Google ----
 const G_CERTS = 'https://www.googleapis.com/oauth2/v3/certs';
@@ -26,6 +27,13 @@ const jpart = s => JSON.parse(new TextDecoder().decode(b64u(s)));
 export function nameFrom(s) {
   s = String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, c => c === 'đ' ? 'd' : 'D').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 13);
   return s.length >= 3 ? s : (s + 'phapsu').slice(0, 8);
+}
+
+// tài khoản đang bị khóa? trả {until, why} hoặc null
+export function banOf(rec) { const b = rec && rec.ban; return b && (!b.until || b.until > Date.now()) ? { until: b.until || 0, why: b.why || '' } : null; }
+export function banText(b) {
+  const t = b.until ? 'đến ' + new Date(b.until).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : 'vĩnh viễn';
+  return 'Tài khoản đã bị khóa ' + t + (b.why ? '. Lý do: ' + b.why : '') + '.';
 }
 
 export class Accounts {
@@ -121,6 +129,7 @@ export class Accounts {
 
   async issue(u) {
     const rec = await this.store.get('u:' + u); if (!rec) return { err: 'Không có tài khoản' };
+    const b = banOf(rec); if (b) return { err: banText(b), ban: b };
     const tok = rand(24);
     await this.store.put('t:' + tok, { u, exp: Date.now() + ACC.tokenDays * 864e5 });
     rec.tk = [...(rec.tk || []), tok];
@@ -130,13 +139,17 @@ export class Accounts {
   }
 
   // token -> {u: tên thường, n: tên hiển thị} hoặc null
-  async verify(tok) {
+  async verify(tok) { const a = await this.check(tok); return a && !a.ban ? a : null; }
+  // như verify nhưng tài khoản bị khóa thì trả {u, n, ban} để server báo lý do cho máy người chơi
+  async check(tok) {
     if (typeof tok !== 'string' || !/^[0-9a-f]{48}$/.test(tok)) return null;
     const t = await this.store.get('t:' + tok);
     if (!t) return null;
     if (t.exp < Date.now()) { await this.store.delete('t:' + tok); return null; }
     const rec = await this.store.get('u:' + t.u);
-    return rec ? { u: t.u, n: rec.n } : null;
+    if (!rec) return null;
+    const b = banOf(rec);
+    return b ? { u: t.u, n: rec.n, ban: b } : { u: t.u, n: rec.n };
   }
 
   async logout(tok) {
