@@ -190,7 +190,7 @@ function onlPeers(ch){
   for(const p of ch.peers){if(p.sameTab||p.kind!=='viewer')continue;const s=p.presence||{};live.add(p.peer);
     let r=ONL.peers.get(p.peer);const fresh=!r;
     if(!r){r={peer:p.peer,x:+s.x||0,y:+s.y||0,sayI:0,sayT:'',sayAt:0};ONL.peers.set(p.peer,r);}
-    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.lvp=s.lvp|0;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;if(r.lvp&&G){const d=diep();r.lv=(d?d.lv:1)+r.lvp;}r.sc=String(s.sc||'');
+    r.nm=onlClean(s.nm).slice(0,18)||'Pháp Sư';r.hn=[...onlClean(s.hn)].slice(0,12).join('');r.bot=!!s.bot;r.lvp=s.lvp|0;r.guest=p.guest;r.tx=+s.x||0;r.ty=+s.y||0;r.f=s.f<0?-1:1;r.m=!!s.m;r.lv=s.lv|0;if(r.lvp&&G){const d=diep();r.lv=(d?d.lv:1)+r.lvp;}r.sc=String(s.sc||'');r.lk=s.lk&&typeof s.lk==='object'?s.lk:null;
     r.rl=s.rl|0;r.rp=s.rp|0||1000;r.w=s.w|0;r.l=s.l|0;r.on=s.sc&&s.sc!=='title';
     if(fresh||Math.abs(r.tx-r.x)>96||Math.abs(r.ty-r.y)>96){r.x=r.tx;r.y=r.ty;}
     const sy=s.say&&typeof s.say==='object'?s.say:null;
@@ -243,7 +243,7 @@ function onlSay(t){t=onlClean(t).slice(0,120);if(!t)return;const now=performance
 function onlSend(force){if(!ONL.room)return;const now=performance.now();if(!force&&now-ONL.lastSend<125)return;
   const P=onlPvp(),d=G?diep():null;
   const o={v:1,nm:onlNick(),sc:!G||scene==='title'?'title':AR&&AR.pvp?'pvp':scene==='arena'?'arena':scene==='battle'?'battle':scene==='map'?'map':'menu'};
-  if(G&&o.sc!=='title'){o.x=Math.round(PL.px);o.y=Math.round(PL.py);o.f=PL.face<0?-1:1;o.m=PL.moving?1:0;o.lv=d?d.lv:1;if(G.hn)o.hn=G.hn;o.rp=P.rp;o.w=P.w;o.l=P.l;if(G.realm)o.rl=G.realm|0;}
+  if(G&&o.sc!=='title'){o.x=Math.round(PL.px);o.y=Math.round(PL.py);o.f=PL.face<0?-1:1;o.m=PL.moving?1:0;o.lv=d?d.lv:1;if(G.hn)o.hn=G.hn;if(G.look)o.lk=G.look;o.rp=P.rp;o.w=P.w;o.l=P.l;if(G.realm)o.rl=G.realm|0;}
   if(ONL.sayI)o.say={i:ONL.sayI,t:ONL.sayT,at:Date.now()-Math.round(now-ONL.sayAt)};
   const D=ONL.duel;o.du=D&&D.st==='ask'?{to:D.to,n:D.n,st:'ask'}:D&&D.role==='b'?{to:D.to,n:D.n,st:'ok'}:ONL.inv&&ONL.inv.no?{to:ONL.inv.from,n:ONL.inv.n,st:'no'}:null;
   const j=JSON.stringify(o);if(j===ONL.lastJ&&!force)return;ONL.lastJ=j;ONL.lastSend=now;ONL.room.presence(o).catch(()=>{});}
@@ -255,7 +255,7 @@ function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
     const hx=Math.round(r.x-camX),hy=Math.round(r.y-camY);if(hx<-40||hy<-60||hx>W+40||hy>H+40)continue;
     const tx=clamp(Math.round((r.x+8)/TS),0,MW-1),ty=clamp(Math.round((r.y+8)/TS),0,MH-1);if(!seen[ty*MW+tx])continue;
     c.globalAlpha=.3;rect(hx+4,hy+14,8,2,'#000');c.globalAlpha=1;
-    const HF=heroMapFrame(r.mv?'w'+(Math.floor(time/110)%4):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
+    const HF=onlPeerFrame(r.lk,r.mv?'w'+(Math.floor(time/110)%4):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
     const top=hy+15-HF.oy-2,tag=(r.hn||r.nm)+(r.sc==='battle'||r.sc==='arena'||r.sc==='pvp'?' ⚔':'');
     txt(tag,hx+8,top-8,{size:7,align:'center',color:r.sc==='pvp'?'#ffb070':'#9fe8ff',outline:'#120d18'});
     if(ONL_BUBBLE&&r.sayT&&performance.now()-r.sayAt<6000){const L=wrap(r.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=top-10-h;
@@ -385,6 +385,9 @@ const ONL_HY=typeof arFxHit==='function'?11:16,ONL_HR=typeof arFxHit==='function
 function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...a);else if(k==='ko'&&typeof arFxKO==='function')arFxKO(...a);
   else if(k==='slash'&&typeof arFxSlash==='function')arFxSlash(...a);else if(k==='trail'&&typeof arFxTrail==='function')arFxTrail(...a);else if(k==='upd'&&typeof arFxUpdate==='function')arFxUpdate(...a);}catch(e){}}
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
+/* v16.42: tạo hình nhân vật. ANIM.diep.fr đã là tạo hình của chính mình (lookApply), nên người chơi khác vẽ bằng lookFrames(look của họ); không có look = hình gốc. Minh Dạ không ra sân PvP nên đấu trường không cần */
+function onlLookFr(lk){const a=ANIM.diep;let L=null;try{if(typeof lookFrames==='function')L=lookFrames(lk||{});}catch(e){L=null;}return L&&L.fr||a.fr0||a.fr;}
+function onlPeerFrame(lk,k,fl){const a=ANIM.diep,f=onlLookFr(lk)[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
@@ -599,4 +602,4 @@ function onlUIFrame(){if(!ONLM){if(ONL.ui){ONL.ui.btn.style.display='none';ONL.u
   if(D&&D.st==='ask')U.wait.querySelector('button').onclick=()=>{ONL.duel=null;onlSend(true);onlUI();};else U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   const now=performance.now();if(ONL.open&&onlUIq&&now-onlLastRender>400){onlUIq=0;onlLastRender=now;const a=document.activeElement,keep=a&&a.tagName==='INPUT'?{v:a.value,s:a.selectionStart}:null;ONL.inpFocus=!!keep;onlRender();
     if(keep){const ni=ONL.ui.foot.querySelector('input');if(ni){ni.value=keep.v;ni.focus();try{ni.setSelectionRange(keep.s,keep.s);}catch(_){}}}}}
-window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
+window.__onl={ONL,onlSay,onlOpen,onlClose,onlChallenge,onlArenaDuel,onlArenaTop,onlAccept,onlDecline,onlSysList,onlRaw,onlDmOpen,onlPeerFrame,onlLookFr,sysNow(){onlSysT=0;},get AR(){return AR},onlFree,dodge:()=>typeof arDodgeP==='function'&&arDodgeP(),upload:f=>onlUpload(f),save:()=>save(),items:()=>titleItems().map(o=>o.l)};
