@@ -11,3 +11,4 @@ server/board.json
 
 __pycache__/
 tools/protect/node_modules/
+server/.dev.vars

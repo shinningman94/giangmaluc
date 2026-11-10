@@ -6,6 +6,8 @@ import { WebSocketServer } from 'ws';
 import { Hub } from './hub.js';
 import { Accounts } from './accounts.js';
 import { allowOrigin } from './origin.js';
+import { Admin } from './admin.js';
+import { ADMIN_PAGE } from './admin-page.js';
 
 const PORT = +process.argv[2] || +process.env.PORT || 8787;
 const FILE = process.env.BOARD_FILE || 'board.json';
@@ -13,9 +15,11 @@ const store = {
   get: async k => { try { return JSON.parse(fs.readFileSync(FILE, 'utf8'))[k]; } catch { return undefined; } },
   put: async (k, v) => { let o = {}; try { o = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch {} o[k] = v; fs.writeFileSync(FILE, JSON.stringify(o)); },
   delete: async k => { let o = {}; try { o = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch {} delete o[k]; fs.writeFileSync(FILE, JSON.stringify(o)); },
+  list: async p => { try { return Object.keys(JSON.parse(fs.readFileSync(FILE, 'utf8'))).filter(k => k.startsWith(p)).sort(); } catch { return []; } },
 };
 const acc = new Accounts(store, { google: process.env.GOOGLE_CLIENT_ID });
 const hub = new Hub({ send: (ws, s) => ws.send(s), close: (ws, code, why) => ws.close(code || 1013, why || 'full'), store, auth: acc });
+const admin = new Admin(hub, store, process.env.ADMIN_KEY);
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, PUT, OPTIONS', 'content-type': 'application/json; charset=utf-8' };
 const srv = http.createServer(async (req, res) => {
   const path = req.url.split('?')[0];
@@ -26,6 +30,13 @@ const srv = http.createServer(async (req, res) => {
     let body = null; try { body = raw ? JSON.parse(raw) : null; } catch {}
     const r = await acc.http(req.method, path, req.headers.authorization, body, req.socket.remoteAddress);
     if (r) { res.writeHead(r.status, H); return res.end(JSON.stringify(r.body)); }
+  }
+  if (path === '/admin' || path === '/admin/') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-frame-options': 'DENY' }); return res.end(ADMIN_PAGE); }
+  if (path.startsWith('/admin/api/')) {
+    let raw = ''; for await (const c of req) { raw += c; if (raw.length > 2e5) break; }
+    let body = null; try { body = raw ? JSON.parse(raw) : null; } catch {}
+    const r = await admin.http(req.method, path, req.headers.authorization, body, req.socket.remoteAddress, new URL(req.url, 'http://x').searchParams);
+    res.writeHead(r.status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }); return res.end(JSON.stringify(r.body));
   }
   if (req.url.startsWith('/top')) { res.writeHead(200, H); return res.end(JSON.stringify(await hub.top(50))); }
   res.writeHead(200, H); res.end(JSON.stringify({ game: 'Giáng Ma Sư Online', online: hub.online() }));

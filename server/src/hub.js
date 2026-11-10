@@ -17,7 +17,7 @@
 //   {t:'up', r, peer, p}          một người đổi presence
 //   {t:'gone', r, peer}           một người rời phòng
 //   {t:'auth', u}                 đăng nhập xong (u: tên tài khoản), lúc này mới vào sảnh
-//   {t:'err', m}                  m: 'auth' phiên hết hạn / 'dup' tài khoản vừa vào từ máy khác (server đóng kết nối)
+//   {t:'err', m}                  m: 'auth' phiên hết hạn / 'dup' tài khoản vừa vào từ máy khác / 'ban' bị khóa ({why, until}) / 'kick' ban quản trị đá ra (server đóng kết nối)
 
 export const LIMITS = { maxPeers: 400, maxRoomsPerPeer: 8, maxPresence: 4096, maxMsgPerSec: 45, maxDuelRoom: 4, maxMsg: 32000 };
 const ROOM_RE = /^duel-[a-z0-9]{4,16}$/;
@@ -64,7 +64,7 @@ export class Hub {
       if (!this.auth) { if (ID_RE.test(m.id || '')) peer.dev = m.id; return; }
       if (peer.ok || peer.q) return;
       peer.q = [];
-      this.auth.verify(m.tok).then(a => this.authed(peer, a), () => this.authed(peer, null));
+      (this.auth.check ? this.auth.check(m.tok) : this.auth.verify(m.tok)).then(a => this.authed(peer, a), () => this.authed(peer, null));
       return;
     }
     if (!peer.ok) { if (peer.q && peer.q.length < 40) peer.q.push(raw); return; } // chờ xác minh phiên xong
@@ -93,6 +93,7 @@ export class Hub {
   authed(peer, a) {
     if (!this.peers.has(peer.sock)) return;
     if (!a) { this.out(peer, { t: 'err', m: 'auth' }); this.close(peer.sock, 4001, 'auth'); return; }
+    if (a.ban) { this.out(peer, { t: 'err', m: 'ban', why: a.ban.why, until: a.ban.until }); this.close(peer.sock, 4003, 'ban'); return; }
     // một tài khoản chỉ chơi ở một nơi: máy vào sau đẩy máy trước ra (tránh hai máy ghi đè bản lưu của nhau)
     for (const q of this.peers.values()) if (q !== peer && q.acc && q.acc.u === a.u) { this.out(q, { t: 'err', m: 'dup' }); this.close(q.sock, 4002, 'dup'); this.closed(q.sock); }
     peer.acc = a; peer.dev = 'a:' + a.u; peer.ok = true;
@@ -128,6 +129,14 @@ export class Hub {
     this.social.gone(peer).catch(() => {});
     this.trade.gone(peer).catch(() => {});
   }
+
+  // ban quản trị: đẩy một tài khoản đang online ra (khóa nick hoặc đá khỏi game)
+  kick(u, o) {
+    let n = 0;
+    for (const q of [...this.peers.values()]) if (q.acc && q.acc.u === u) { this.out(q, o); this.close(q.sock, o.m === 'ban' ? 4003 : 4004, o.m); this.closed(q.sock); n++; }
+    return n;
+  }
+  isOn(u) { for (const q of this.peers.values()) if (q.ok && q.acc && q.acc.u === u) return true; return false; }
 
   out(peer, o) { if (!peer.sock) return; try { this.send(peer.sock, JSON.stringify(o)); } catch { this.closed(peer.sock); } }
   cast(r, s, except) {
