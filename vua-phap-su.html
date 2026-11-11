@@ -1071,7 +1071,7 @@ function floraOb(o,x,y){const[kind,pal]=o.split(':');let set=kind,v='';
 const PSCALE={qmieu:1.5};
 function floraOb0(o,x,y,vv){const[kind,pal]=o.split(':');let set=kind,v=vv;
   if(kind==='X')return{k:QX,w:1,h:1};if(o==='P:stilt')return stiltArt();
-  if(kind==='P'&&pal.startsWith('t_')){const nm=pal.slice(2),A=blPart(nm);const m=nm==='bush2'||nm==='bonsai'?1.3:.85;/* v16.26: người chơi muốn cây trong làng to hơn một chút (cũ 1 và .62) */return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
+  if(kind==='P'&&pal.startsWith('t_')){const nm=pal.slice(2),A=blPart(nm);const m=nm==='bush2'||nm==='bonsai'?1.3:1;/* v16.45: người chơi muốn cây trong làng to bằng cây bên ngoài (cùng ảnh oak/sakura2/banana/oak3, nay cùng cỡ 1; trước .85, gốc .62) */return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='P'){const A=blPart(pal);const m=PSCALE[pal]||1;return A?{k:A.k,w:A.lw*m,h:A.lh*m}:null;}
   if(kind==='round'||kind==='lime'||kind==='pine'){const z=zoneAt(x,y);if(kind==='round'&&(z===0||z===1))set='round0';if(kind==='pine'&&z===1)set='pine1';if(pal==='ghost')v=vv||'ghost';}
   else if(!FLSET[kind])return null;
