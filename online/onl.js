@@ -395,8 +395,9 @@ function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...
   else if(k==='slash'&&typeof arFxSlash==='function')arFxSlash(...a);else if(k==='trail'&&typeof arFxTrail==='function')arFxTrail(...a);else if(k==='upd'&&typeof arFxUpdate==='function')arFxUpdate(...a);}catch(e){}}
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
 /* v16.42: tạo hình nhân vật. ANIM.diep.fr đã là tạo hình của chính mình (lookApply), nên người chơi khác vẽ bằng lookFrames(look của họ); không có look = hình gốc. Minh Dạ không ra sân PvP nên đấu trường không cần */
-function onlLookFr(lk){const a=ANIM.diep;let L=null;try{if(typeof lookFrames==='function')L=lookFrames(lk||{});}catch(e){L=null;}return L&&L.fr||a.fr0||a.fr;}
-function onlPeerFrame(lk,k,fl){const a=ANIM.diep,f=onlLookFr(lk)[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
+function onlBaseA(){return (typeof MC!=='undefined'&&MC.orig&&MC.orig.a)||ANIM.diep;}
+function onlLookFr(lk){const a=onlBaseA();let L=null;if(lk&&lk.v===2)return a.fr0||a.fr;try{if(typeof lookFrames==='function')L=lookFrames(lk||{});}catch(e){L=null;}return L&&L.fr||a.fr0||a.fr;}
+function onlPeerFrame(lk,k,fl){if(lk&&lk.v===2&&typeof mcPeerAnim==='function'){let A=null;try{A=mcPeerAnim(mcKey(lk));}catch(e){A=null;}if(A)return heroMapFrame(k,fl,A);}const a=onlBaseA(),f=onlLookFr(lk)[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};
