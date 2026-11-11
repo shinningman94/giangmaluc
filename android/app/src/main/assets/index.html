@@ -7086,7 +7086,8 @@ function onlPush(tab,m,key){m.at=Date.now();let L;if(tab===5){L=ONL.dm.get(key);
   if(!m.me&&!vis&&tab!==1){ONL.un[tab]=(ONL.un[tab]||0)+1;if(tab===5)ONL.dmUn.set(key,(ONL.dmUn.get(key)||0)+1);}
   onlUnread();if(!vis)onlFeed((tab===4?'[Đội] ':tab===5?'[Riêng] ':tab===6?'[Bang] ':tab===7?'[Giao dịch] ':'')+m.nm,m.t,m.me,!!m.sys);onlUI();}
 function onlUnread(){ONL.unread=(ONL.un[0]||0)+(ONL.un[4]||0)+(ONL.un[5]||0)+(ONL.un[6]||0);}
-function onlBestTab(){for(const t of[5,4,6,0])if(ONL.un[t])return t;return ONL.tab===3?0:ONL.tab;}
+/* nút CHAT mở mục chat có tin chưa đọc, không thì mục chat dùng gần nhất (không bao giờ là Giao dịch: 7 có nút riêng) */
+function onlBestTab(){for(const t of[5,4,6,0])if(ONL.un[t])return t;const c=ONL.ctab|0;return [0,1,2,4,5,6].includes(c)?c:0;}
 const onlSoc=()=>!!(ONL.room&&ONL.room.raw);
 function onlRaw(o){if(onlSoc()&&ONL.conn){ONL.room.raw(o);return true;}toast('Chưa nối được server');return false;}
 function onlDmKey(n){return onlClean(n).slice(0,18).toLowerCase();}
@@ -7394,7 +7395,7 @@ function onlBuildUI(){if(ONL.ui)return ONL.ui;const st=document.createElement('s
   U.inv.querySelector('.ok').onclick=()=>{audio();onlAccept();};U.inv.querySelector('.no').onclick=onlDecline;
   U.wait.querySelector('button').onclick=()=>{if(ONL.duel)ONL.duel.cancel=1;};
   ONL.ui=U;return U;}
-function onlOpen(t){if(scene!=='map'&&scene!=='title'){toast('Ra bản đồ rồi mở bảng online');return;}const U=onlBuildUI();ONL.tab=t|0;ONL.open=true;U.panel.style.display='flex';ONL.un[ONL.tab]=0;if(ONL.tab===5&&!ONL.dmTo&&ONL.dm.size){let bk='',bt=-1;for(const[k,L]of ONL.dm){const at=(ONL.dmUn.get(k)?1e15:0)+(L.length?L[L.length-1].at:0);if(at>bt){bt=at;bk=k;}}ONL.dmTo=bk;}if(ONL.tab===5&&ONL.dmTo)ONL.dmUn.delete(ONL.dmTo);if(ONL.tab===5&&!ONL.dmTo)ONL.un[5]=[...ONL.dmUn.values()].reduce((a,b)=>a+b,0);if(ONL.tab===7)onlTrReq(ONL.tsub|0,1);onlUnread();held.length=0;onlRender();}
+function onlOpen(t){if(scene!=='map'&&scene!=='title'){toast('Ra bản đồ rồi mở bảng online');return;}const U=onlBuildUI();ONL.tab=t|0;if(ONL.tab!==7&&ONL.tab!==3)ONL.ctab=ONL.tab;ONL.open=true;U.panel.style.display='flex';ONL.un[ONL.tab]=0;if(ONL.tab===5&&!ONL.dmTo&&ONL.dm.size){let bk='',bt=-1;for(const[k,L]of ONL.dm){const at=(ONL.dmUn.get(k)?1e15:0)+(L.length?L[L.length-1].at:0);if(at>bt){bt=at;bk=k;}}ONL.dmTo=bk;}if(ONL.tab===5&&ONL.dmTo)ONL.dmUn.delete(ONL.dmTo);if(ONL.tab===5&&!ONL.dmTo)ONL.un[5]=[...ONL.dmUn.values()].reduce((a,b)=>a+b,0);if(ONL.tab===7)onlTrReq(ONL.tsub|0,1);onlUnread();held.length=0;onlRender();}
 function onlClose(){ONL.open=false;if(ONL.ui)ONL.ui.panel.style.display='none';try{cv.focus();}catch(_){}}
 function onlFeed(nm,t,me,sys){const U=onlBuildUI(),el=document.createElement('div');if(sys)el.className='sys';const i=document.createElement('i');i.textContent=nm+': ';el.appendChild(i);el.appendChild(document.createTextNode(t));
   U.feed.appendChild(el);while(U.feed.children.length>3)U.feed.firstChild.remove();setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),700);},sys?10000:6000);}
