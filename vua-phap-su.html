@@ -1230,7 +1230,7 @@ function townFields(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed
     if(bp){lay(bp[0],'F');lay(bp[1],'Y');}}}
 /* v16.23 (người chơi: thêm cây nhỏ trong làng xóm): cây nhỏ đứng lẻ trên bãi cỏ trong làng, cách nhau ít nhất 4 ô,
    tám ô xung quanh đều trống (không đường, nhà, ruộng, điểm đến) nên không bao giờ chắn lối đi */
-const TTREE=['oak','sakura2','banana','oak3','bush2','bonsai','sakura2','oak'];
+const TTREE=['oak','sakura2','banana','oak3','bush2','bonsai','sakura2','oak','k_tsak','k_twhite','k_tgreen','k_tyel','k_tred','k_twis','bamboo2','k_bonsai','k_tsak','k_tgreen'];
 function townTrees(o){const{g,ob,dc,pois,road,tz}=o,mw=o.MW,mh=o.MH,seed=o.seed;if(!tz)return 0;const PS=new Set(pois.map(p=>p.y*mw+p.x)),pl=[];let n=0;for(const T of o.towns||[])for(const v of T.vil)PS.add(v.hy*mw+v.hx);
   const clear=(x,y)=>{if(x<1||y<1||x>=mw-1||y>=mh-1)return false;const j=y*mw+x,t=g[y][x];return tz[j]&&!road[j]&&!PS.has(j)&&!ob[y][x]&&t!=='='&&t!=='t'&&t!=='w'&&t!=='F'&&t!=='Y';};
   for(let y=3;y<mh-3;y++)for(let x=3;x<mw-3;x++){if(hash(x,y,seed+331)>.16)continue;let ok=true;for(let dy=-1;dy<=1&&ok;dy++)for(let dx=-1;dx<=1&&ok;dx++)if(!clear(x+dx,y+dy))ok=false;
@@ -5247,10 +5247,18 @@ function buildTowns(o){const{g,ob,dc,pois,road,zone,seed,nodes}=o,mw=o.MW,mh=o.M
       for(const i of G8)fr.add(i);
       const props=[];const free=(x,y)=>inT(x,y)&&pass(x,y)&&!road[y*mw+x]&&!dp.has(y*mw+x)&&!isPoi(x,y)&&!fr.has(y*mw+x)&&!LMZ.has(y*mw+x)&&!(Math.abs(x-n.x)<=6&&Math.abs(y-n.y)<=4)&&!props.some(q=>Math.abs(q[0]-x)+Math.abs(q[1]-y)<3);
       const put=(x,y,nm)=>{if(!free(x,y))return false;ob[y][x]='P:'+nm;dc[y][x]=null;if(ok()){props.push([x,y]);return true;}ob[y][x]=null;return false;};
-      const PRK={cho:['crates','jars','cart','stall','banner','crate','cart2','stall2','wine','jar2','bucket'],y:['jars','banner2','flower','crate','censer','jar2','bench','slant2'],nha:['well','cart','crates','flower','fence','jars','cart2','bonsai','well2','bench','bucket','jar2','fence2','post'],dt:['banner','banner2','censer','lpole','lion']};
-      const PRR=['lantern','slantern','sakura','stele','lion','bonsai','banner2','flower','lantern','sakura','torii','lpole','fu','slant2','well2','wine','lpole','fence3','qaltarW','qaltarS','qeave','qlionL','qlionR','qslab'];
+      const PRK={cho:['crates','jars','cart','stall','banner','crate','cart2','stall2','wine','jar2','bucket','k_stall1','k_stall2','k_stall3','k_stall4','k_stall1','k_stall3','k_barrel','k_basks','k_crate2','k_jar','k_table','k_crate'],y:['jars','banner2','flower','crate','censer','jar2','bench','slant2','k_bask','k_bask2','k_jar','k_sl3','k_ban3','k_pot'],nha:['well','cart','crates','flower','fence','jars','cart2','bonsai','well2','bench','bucket','jar2','fence2','post','a_well','a_well','k_barrel','k_fen1','k_fen3','k_bask','a_smoke','a_smoke','k_crate','k_cart','k_pump','k_mill','k_pump2'],dt:['banner','banner2','censer','lpole','lion','a_flag','k_ban1','k_ban2','a_torch','k_rack','k_spear','k_rack2']};
+      const PRR=['lantern','slantern','sakura','stele','lion','bonsai','banner2','flower','lantern','sakura','torii','lpole','fu','slant2','well2','wine','lpole','fence3','qaltarW','qaltarS','qeave','qlionL','qlionR','qslab','k_lamp','k_lstr','k_sl1','k_sl2','k_cen','k_cen2','k_board','k_stele','k_lion','k_lion2','a_pin','a_pin','a_flag','a_lpost','a_lpost','a_torch','k_bfire','k_shr','k_board2','k_hydra','k_pbush','k_obush','k_tsak','k_twhite','k_tred','k_twis','bamboo2'];
       T.b.forEach((bi,j)=>{const b=blds[bi],L=PRK[b.t];const spots=[[b.x-1,b.y+b.h-1],[b.x+b.w,b.y+b.h-1],[b.x-1,b.y+b.h-2],[b.x+b.w,b.y+b.h-2]];let k=0;
         for(const[x,y]of spots){if(k>=(b.t==='cho'?2:1))break;if(put(x,y,L[Math.floor(hash(x,y,seed+81)*L.length)]))k++;}});
+      /* v16.55: công trình mới trong làng chiếm nhiều ô (ô giữa vẽ tranh, ô còn lại 'X' chặn lối); luôn giữ đường tới nhà và điểm đến */
+      {const LM=[['b_pav',3,2,0],['b_tower',3,2,0],['b_taiji',3,2,0],['b_shrine',1,1,0],['b_ltower',1,1,0]].map((q,i)=>[hash(ti,i,seed+905),q]).sort((a,b)=>a[0]-b[0]).map(q=>q[1]);
+        if(big&&hash(ti,1,seed+906)<.6)LM.unshift(['b_daoquan',7,3,1]);let nl=0;const NL=big?3:2;
+        for(const[nm,fw,fh,bg]of LM){if(nl>=NL)break;if(bg&&!big)continue;const hw=fw>>1;
+          for(let t2=0;t2<90;t2++){const x=n.x+Math.round((hash(t2,ti*13+nl,seed+903)-.5)*2*rx),y=n.y+Math.round((hash(ti*7+nl,t2,seed+904)-.5)*2*ry);let good=true;const cs=[];
+            for(let yy=y-fh+1;yy<=y+1&&good;yy++)for(let xx=x-hw-1;xx<=x+hw+1&&good;xx++){const edge=yy===y+1||xx<x-hw||xx>x+hw;if(edge){if(!inT(xx,yy)||(ob[yy]&&ob[yy][xx]&&ob[yy][xx]!=='B'))good=false;}else{if(!free(xx,yy))good=false;else cs.push([xx,yy]);}}
+            if(!good)continue;for(const[xx,yy]of cs){ob[yy][xx]=xx===x&&yy===y?'P:'+nm:'X';dc[yy][xx]=null;}
+            if(ok()){for(const q of cs)props.push(q);nl++;break;}for(const[xx,yy]of cs)ob[yy][xx]=null;}}}
       /* v6.5: cổng ở chỗ đường lớn vào làng theo chiều dọc, cột đèn hai bên chỗ đường vào theo chiều ngang;
          rào gỗ dọc mép trên và dưới làng, bụi cây dọc mép trái phải; chừa khoảng hở và không chắn đường */
       T.gates=[];const put2=(x,y,nm)=>{if(!(inT(x,y)&&pass(x,y)&&!road[y*mw+x]&&!dp.has(y*mw+x)&&!isPoi(x,y)&&!fr.has(y*mw+x)&&!LMZ.has(y*mw+x)))return false;ob[y][x]='P:'+nm;dc[y][x]=null;if(ok()){props.push([x,y]);return true;}ob[y][x]=null;return false;};
@@ -5342,7 +5350,7 @@ function bldSpr(b){const gch=WD.g[b.fy]&&WD.g[b.fy][b.dx]||'.',key=b.t+b.v+gch;i
 let GROW=null,GROWD=null;
 function gateRow(){if(GROWD===WD)return GROW;GROWD=WD;GROW=new Map();for(const t of WD.towns||[])for(const q of t.gates||[]){if(!GROW.has(q.y))GROW.set(q.y,[]);GROW.get(q.y).push(q);}return GROW;}
 function drawGates(y,camX,camY){const l=gateRow().get(y);if(!l)return;const A=rdPart('gate');if(!A)return;
-  for(const q of l){if(!seen[q.y*MW+q.x])continue;const dw=q.w2?68:60,dh=Math.round(A.h*dw/A.w),sx=q.x*TS-camX+8+(q.w2||0)*8-dw/2,sy=q.y*TS-camY+24-dh;if(sx>W||sx+dw<0)continue;c.drawImage(A.k,Math.round(sx),sy,dw,dh);}}
+  for(const q of l){if(!seen[q.y*MW+q.x])continue;const dw=(q.w2?68:60)*(A.gs||1),dh=Math.round(A.h*dw/A.w),sx=q.x*TS-camX+8+(q.w2||0)*8-dw/2,sy=q.y*TS-camY+24-dh;if(sx>W||sx+dw<0)continue;c.drawImage(A.k,Math.round(sx),sy,dw,dh);}}
 function drawBldRow(y,camX,camY){drawPhongDo(y,camX,camY);drawGates(y,camX,camY);if(!WD.bRow)return;const l=WD.bRow.get(y);if(!l)return;
   for(const b of l){const sx=b.x*TS-camX,sy=(b.y+b.h)*TS-camY;if(sx>W+20||sx+b.w*TS<-20)continue;
     let vis=false;for(let x=b.x;x<b.x+b.w&&!vis;x++)for(let yy=b.y;yy<b.y+b.h;yy++)if(seen[yy*MW+x]){vis=true;break;}if(!vis)continue;
@@ -5351,6 +5359,66 @@ function drawBldRow(y,camX,camY){drawPhongDo(y,camX,camY);drawGates(y,camX,camY)
     const s=bldSpr(b),ox=sx+Math.round((b.w*TS-s.img.width)/2),oy=sy-s.img.height+2;c.drawImage(s.img,ox,oy);
     if(s.lab)txt(s.lab,ox+s.lx,oy+s.ly-1,{size:7,align:'center',color:'#fff4c0'});}}
 
+/* ===== v16.55 bộ tài nguyên bản đồ mới (người chơi gửi sheet 2026-11-11, "thêm bộ này để cải thiện lại bản đồ game"):
+   nhà dân / chợ / y quán / tiệm rèn / cổng làng vẽ lại, cây trong làng (anh đào, lê trắng, phong đỏ, ngân hạnh, tử đằng, tre, bonsai),
+   đồ trang trí, công trình mới (Đạo Quán, đình bát giác, tháp canh, sân bát quái, miếu nhỏ), quầy hàng có người bán,
+   vật có hoạt cảnh (đuốc, chong chóng, cờ, giếng, guồng nước, bếp khói, đèn lồng) và bướm, cánh hoa bay trong làng.
+   Ảnh img/mpk.png + toạ độ MKM do tools/mapkit/cut.py tạo. ===== */
+const MKA=new Image();MKA.src='img/mpk.png';
+const MKM={"b_daoquan":[0,0,441,232,255.8,134.6],"b_tower":[443,0,113,190,65.5,110.2],"b_gate":[558,0,248,171,143.8,99.2],"b_pav":[808,0,119,168,69.0,97.4],"b_tiem":[929,0,159,131,92.2,76.0],"b_phan":[1090,0,181,126,105.0,73.1],"b_tra":[0,234,164,125,95.1,72.5],"k_ban3":[166,234,56,123,22.4,49.2],"b_duoc":[224,234,131,122,76.0,70.8],"k_ban1":[357,234,54,122,21.6,48.8],"k_stall3":[413,234,107,122,42.8,48.8],"k_ban2":[522,234,43,119,17.2,47.6],"k_stall4":[567,234,121,118,48.4,47.2],"b_ltower":[690,234,52,116,30.2,67.3],"b_shed":[744,234,119,116,69.0,67.3],"k_tsak":[865,234,118,115,53.1,51.8],"b_thuong":[985,234,159,114,92.2,66.1],"k_stall1":[1146,234,128,113,51.2,45.2],"k_stall2":[1276,234,103,112,41.2,44.8],"k_tgreen":[0,361,90,109,40.5,49.1],"k_spear":[92,361,46,103,18.4,41.2],"k_board":[140,361,102,102,40.8,40.8],"b_ren":[244,361,117,101,67.9,58.6],"b_awn":[363,361,136,100,78.9,58.0],"k_lamp":[501,361,58,99,23.2,39.6],"k_wallc":[561,361,91,99,36.4,39.6],"b_long":[654,361,158,98,91.6,56.8],"k_tyel":[814,361,84,96,37.8,43.2],"k_bfire":[900,361,77,96,30.8,38.4],"b_kho":[979,361,155,93,89.9,53.9],"k_twis":[1136,361,86,91,38.7,41.0],"k_twhite":[1224,361,85,90,38.2,40.5],"k_lstr":[1311,361,66,90,26.4,36.0],"k_tred":[0,472,83,87,37.4,39.1],"k_board2":[85,472,74,87,29.6,34.8],"k_lion":[161,472,59,87,23.6,34.8],"n_phu":[222,472,53,81,27.6,42.1],"k_lion2":[277,472,37,79,14.8,31.6],"b_taiji":[316,472,128,78,74.2,45.2],"k_cen":[446,472,59,78,23.6,31.2],"k_bamboo":[507,472,83,77,37.4,34.6],"k_cart":[592,472,98,77,39.2,30.8],"k_pump2":[692,472,52,77,20.8,30.8],"a_flag1":[746,472,45,76,18.0,30.4],"a_flag2":[793,472,43,76,17.2,30.4],"a_wheel1":[838,472,78,76,31.2,30.4],"a_wheel2":[918,472,76,76,30.4,30.4],"k_bonsai":[996,472,104,75,46.8,33.8],"k_rack":[1102,472,69,75,27.6,30.0],"a_flag0":[1173,472,41,75,16.4,30.0],"k_sl3":[1216,472,42,74,16.8,29.6],"a_lpost0":[1260,472,56,74,22.4,29.6],"a_lpost1":[1318,472,43,74,17.2,29.6],"a_wheel0":[0,561,74,74,29.6,29.6],"n_truong":[76,561,43,74,22.4,38.5],"n_dan":[121,561,38,73,19.8,38.0],"n_ngu":[161,561,62,73,32.2,38.0],"n_buu":[225,561,51,73,26.5,38.0],"b_shrine":[278,561,62,72,36.0,41.8],"n_duoc":[342,561,37,72,19.2,37.4],"n_nu":[381,561,37,72,19.2,37.4],"k_sl1":[420,561,41,71,16.4,28.4],"k_sl2":[463,561,41,71,16.4,28.4],"n_thuong":[506,561,43,71,22.4,36.9],"n_daosi":[551,561,40,71,20.8,36.9],"k_rock":[593,561,62,70,27.9,31.5],"k_mill":[657,561,80,70,32.0,28.0],"k_pump":[739,561,48,70,19.2,28.0],"k_shr":[789,561,39,69,15.6,27.6],"k_door":[830,561,50,69,20.0,27.6],"a_smoke2":[882,561,47,69,18.8,27.6],"e_rip":[931,561,65,69,65,69],"k_stele":[998,561,43,68,17.2,27.2],"a_well0":[1043,561,76,68,30.4,27.2],"a_well1":[1121,561,76,68,30.4,27.2],"a_smoke0":[1199,561,45,67,18.0,26.8],"n_tieu":[1246,561,34,67,17.7,34.8],"k_cen2":[1282,561,61,65,24.4,26.0],"a_smoke1":[1345,561,46,63,18.4,25.2],"k_rack2":[0,637,72,60,28.8,24.0],"k_pot":[74,637,66,59,26.4,23.6],"a_pin2":[142,637,38,59,15.2,23.6],"k_crate2":[182,637,87,58,34.8,23.2],"a_pin0":[271,637,35,58,14.0,23.2],"a_pin1":[308,637,35,58,14.0,23.2],"k_barrel":[345,637,65,55,26.0,22.0],"k_obush":[412,637,54,51,24.3,22.9],"k_table":[468,637,78,51,31.2,20.4],"e_wisp":[548,637,26,51,26,51],"a_torch0":[576,637,37,49,14.8,19.6],"k_hydra":[615,637,64,48,28.8,21.6],"k_fen3":[681,637,53,48,21.2,19.2],"a_torch1":[736,637,37,48,14.8,19.2],"a_torch2":[775,637,36,48,14.4,19.2],"a_torch3":[813,637,37,48,14.8,19.2],"k_fen4":[852,637,37,47,14.8,18.8],"k_fen5":[891,637,38,45,15.2,18.0],"k_crate":[931,637,75,45,30.0,18.0],"k_jar":[1008,637,42,44,16.8,17.6],"k_bask2":[1052,637,36,43,14.4,17.2],"k_basks":[1090,637,70,40,28.0,16.0],"k_pbush":[1162,637,64,39,28.8,17.6],"k_pinkf":[1228,637,49,38,22.1,17.1],"k_grass":[1279,637,49,37,22.1,16.7],"k_bask":[1330,637,36,37,14.4,14.8],"k_fen1":[0,699,65,37,26.0,14.8],"k_fen2":[67,699,63,37,25.2,14.8],"k_fen6":[132,699,54,37,21.6,14.8],"k_daisy":[188,699,39,31,17.6,14.0],"e_bf0":[229,699,24,26,24,26],"e_bf1":[255,699,25,26,25,26],"e_bf2":[282,699,17,21,17,21],"e_bf3":[301,699,21,21,21,21],"e_leaf0":[324,699,19,19,19,19],"e_gold1":[345,699,17,18,17,18],"e_bf4":[364,699,14,17,14,17],"e_pet0":[380,699,17,15,17,15],"e_leaf1":[399,699,16,15,16,15],"e_gold0":[417,699,16,15,16,15],"e_pet1":[435,699,5,14,5,14],"e_pet2":[442,699,10,14,10,14],"e_pet3":[454,699,4,11,4,11]};
+const MKK={};
+function mkOk(){return MKA.complete&&MKA.naturalWidth>0;}
+function mkPart(n){if(MKK[n])return MKK[n];if(!mkOk())return null;const m=MKM[n];if(!m)return null;
+  const k=document.createElement('canvas');k.width=m[2];k.height=m[3];k.getContext('2d').drawImage(MKA,m[0],m[1],m[2],m[3],0,0,m[2],m[3]);
+  return MKK[n]={k,w:m[2],h:m[3],lw:m[4],lh:m[5]};}
+/* cỡ logic riêng cho công trình đứng ngoài (nhà trong houseArt tự co theo bề rộng nền) */
+const MKSC={b_daoquan:.29,b_pav:.44,b_tower:.42,b_taiji:.42,b_shrine:.46,b_ltower:.44,k_stall1:.32,k_stall2:.32,k_stall3:.32,k_stall4:.32};
+/* quầy hàng có người bán đứng cạnh: quầy (cỡ .32) + người (cỡ .42) */
+const MKV={v_s1:['k_stall1','n_thuong'],v_s2:['k_stall2','n_nu'],v_s3:['k_stall3','n_duoc'],v_s4:['k_stall4','n_dan']};
+function mkVend(n){if(MKK[n])return MKK[n];const d=MKV[n],S=mkPart(d[0]),P=mkPart(d[1]);if(!S||!P)return null;
+  const ss=.32/.40,ps=.42/.52,sw=S.w*ss,sh=S.h*ss,pw=P.w*ps,ph=P.h*ps,W2=Math.ceil(sw+pw*.62),H2=Math.ceil(Math.max(sh,ph)),k=document.createElement('canvas');k.width=W2;k.height=H2;const g=k.getContext('2d');
+  g.drawImage(S.k,0,H2-sh,sw,sh);g.drawImage(P.k,W2-pw,H2-ph,pw,ph);return MKK[n]={k,w:W2,h:H2,lw:W2*.4,lh:H2*.4};}
+function mkGet(n){const A=MKV[n]?mkVend(n):mkPart(n);if(!A)return null;const s=MKSC[n];if(s&&!MKV[n])return{k:A.k,w:A.w,h:A.h,lw:A.w*s,lh:A.h*s};return A;}
+/* vật có hoạt cảnh: số khung, ms mỗi khung; lệch pha theo ô cho khỏi chạy đều tăm tắp */
+const MKAN={a_torch:[4,120],a_pin:[3,150],a_flag:[3,240],a_well:[2,1400],a_wheel:[3,170],a_smoke:[3,300],a_lpost:[2,800]};
+function mkAni(n,x,y){const a=MKAN[n];if(!a)return mkGet(n);const f=Math.floor((performance.now()+hash(x,y,977)*9000)/a[1])%a[0];return mkGet(n+f);}
+function mkOb(o,x,y){const nm=o.startsWith('P:t_')?o.slice(4):o.slice(2);const A=mkAni(nm,x,y);if(!A)return{k:QX,w:1,h:1};
+  const m=nm==='k_bonsai'?1.15:1;return{k:A.k,w:A.lw*m,h:A.lh*m};}
+const mkIs=o=>typeof o==='string'&&(o.startsWith('P:k_')||o.startsWith('P:a_')||o.startsWith('P:v_')||o.startsWith('P:b_')||o.startsWith('P:t_k_'));
+{const _hdOb=hdOb;hdOb=function(o,x,y){return mkIs(o)?mkOb(o,x,y):_hdOb(o,x,y);};}
+/* nhà dân, chợ (tạp hóa), y quán, tiệm rèn: tranh mới; nhà tranh (b.v 2) giữ kiểu vẽ cũ */
+const MKH={nha:['b_awn','b_long','b_tra','b_kho','b_awn','b_long'],cho:['b_tiem','b_thuong','b_phan'],y:['b_duoc'],ren:['b_ren']};
+/* nhà vùng ma (b.v 1): cùng tranh mới nhưng nhạt màu, tối và ngả tím */
+function mkDark(n){const K=n+'#d';if(MKK[K])return MKK[K];const A=mkPart(n);if(!A)return null;const k=document.createElement('canvas');k.width=A.w;k.height=A.h;const g=k.getContext('2d');
+  g.drawImage(A.k,0,0);g.globalCompositeOperation='saturation';g.fillStyle='rgba(128,128,128,.6)';g.fillRect(0,0,A.w,A.h);
+  g.globalCompositeOperation='source-atop';g.fillStyle='rgba(22,16,40,.34)';g.fillRect(0,0,A.w,A.h);g.globalCompositeOperation='destination-in';g.drawImage(A.k,0,0);g.globalCompositeOperation='source-over';
+  return MKK[K]={k,w:A.w,h:A.h,lw:A.lw,lh:A.lh};}
+{const _hA=houseArt;houseArt=function(b){const L=MKH[b.t];if(L&&(b.v||0)!==2&&mkOk()){const n=L[Math.floor(hash(b.x,b.y,573)*L.length)],A=b.v===1?mkDark(n):mkPart(n);if(A)return{k:A.k,w:A.w,h:A.h};}return _hA(b);};}
+/* cổng làng: cổng tam quan có sư tử đá */
+{const _rd=rdPart;rdPart=function(n,v){if(n==='gate'&&!v&&mkOk()){const A=mkPart('b_gate');if(A)return{k:A.k,w:A.w,h:A.h,lw:A.lw,lh:A.lh,gs:1.45};}return _rd(n,v);};}
+/* ---- bướm bay trong làng, cánh hoa rơi dưới cây anh đào / lê trắng ---- */
+const MKP=[];let mkLT=0;
+function mkFxTick(camX,camY){const now=performance.now(),dt=Math.min(80,now-(mkLT||now));mkLT=now;if(!WD||!mkOk())return;
+  const x0=Math.floor(camX/TS)-2,y0=Math.floor(camY/TS)-2,x1=x0+Math.ceil(W/TS)+4,y1=y0+Math.ceil(H/TS)+6;
+  for(let i=MKP.length-1;i>=0;i--){const p=MKP[i];p.t+=dt;
+    if(p.k==='bf'){p.a+=(hash(p.id,Math.floor(p.t/700),3)-.5)*.25;p.x+=Math.cos(p.a)*dt*.012;p.y+=Math.sin(p.a)*dt*.008;}
+    else{p.x+=Math.sin(p.t/380+p.id)*dt*.006+dt*.004;p.z-=dt*.007;}
+    if(p.t>p.life||p.z<0||p.x<x0*TS-40||p.x>x1*TS+40||p.y<y0*TS-40||p.y>y1*TS+40)MKP.splice(i,1);}
+  if(MKP.length>40)return;
+  /* bướm: chỉ khi đứng trong làng, tối đa 5 con */
+  const intn=typeof inTown==='function'&&inTown(PL.x,PL.y);
+  if(intn&&MKP.filter(p=>p.k==='bf').length<5&&Math.random()<dt/900){const X=PL.x+Math.round((Math.random()-.5)*14),Y=PL.y+Math.round((Math.random()-.5)*9);
+    if(X>0&&Y>0&&X<MW&&Y<MH&&inTown(X,Y))MKP.push({k:'bf',id:Math.random()*99,x:X*TS+8,y:Y*TS+8,z:10+Math.random()*8,a:Math.random()*6.3,t:0,life:9000+Math.random()*6000,s:Math.floor(Math.random()*5)});}
+  /* cánh hoa: cây anh đào / lê trắng đang thấy trên màn hình */
+  if(Math.random()<dt/260){const TR=[];for(let y=Math.max(1,y0);y<Math.min(MH-1,y1);y++)for(let x=Math.max(1,x0);x<Math.min(MW-1,x1);x++){const o=WD.ob[y][x];if(o==='P:t_k_tsak'||o==='P:t_k_twhite'||o==='P:k_tsak'||o==='P:k_twhite')TR.push([x,y,o.endsWith('white')]);}
+    if(TR.length){const[tx,ty,wh]=TR[Math.floor(Math.random()*TR.length)];MKP.push({k:wh?'pw':'pp',id:Math.random()*99,x:tx*TS+8+(Math.random()-.5)*36,y:ty*TS+14,z:22+Math.random()*16,t:0,life:7000,s:Math.floor(Math.random()*4)});}}}
+function mkFxRow(y,camX,camY){if(!MKP.length)return;for(const p of MKP){if(Math.floor(p.y/TS)!==y)continue;const sx=p.x-camX,sy=p.y-camY-p.z;
+    if(p.k==='bf'){const A=mkPart('e_bf'+p.s);if(!A)continue;const fl=Math.abs(Math.sin(p.t/90));const w=9*(.35+.65*fl),h=9;c.globalAlpha=.95;c.drawImage(A.k,sx-w/2,sy-h/2,w,h);}
+    else{const A=mkPart('e_pet'+p.s);if(!A)continue;const sz=4.2;c.globalAlpha=Math.min(1,p.z/6)*(p.k==='pw'?.7:1);
+      c.save();c.translate(sx,sy);c.rotate(p.t/400+p.id);c.drawImage(A.k,-sz/2,-sz/2,sz,sz);c.restore();}
+    c.globalAlpha=1;}}
+{const _dbr=drawBldRow;let mkLY=1e9;drawBldRow=function(y,camX,camY){if(y<=mkLY)mkFxTick(camX,camY);mkLY=y;_dbr(y,camX,camY);mkFxRow(y,camX,camY);};}
+/* ===== hết v16.55 ===== */
 /* ---------- dân làng ---------- */
 const VLINE={
   all:['Trong làng có Trấn Ma Ti trông coi nên quỷ không dám bén mảng. Thầy cứ yên tâm nghỉ chân.','Ra khỏi cổng làng là đường hoang, quỷ hay chặn người qua lại lắm. Thầy đi đường cẩn thận.',
