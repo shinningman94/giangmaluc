@@ -6301,12 +6301,16 @@ function setLand(on){ROTL=on;try{if(window.AndroidApp&&window.AndroidApp.setLand
 /* ghép trận: bot có điểm hạng gần nhất (lệch ngẫu nhiên), đội của bot mạnh theo điểm hạng */
 function arMatch(A){arBotsSim(A,8);let best=null,bd=1e9;const tgt=A.rp+ri(-120,120);for(const b of A.bots){const d=Math.abs(b.rp-tgt)+R()*60;if(d<bd){bd=d;best=b;}}return best;}
 function arenaFoes(sel,bot){const A=arenaData(),avg=Math.round(sel.reduce((s,u)=>s+u.lv,0)/sel.length),lv=avg+clamp(Math.round((bot.rp-A.rp)/110),-4,6)+Math.min(3,Math.floor(A.st/3));
-  return bot.tm.map(id=>makeUnit(id,Math.max(1,lv+ri(-1,1))));}
+  /* v16.60: đối thủ cân bằng với đội người chơi: mỗi ô dùng loài cùng hạng với quái ở ô tương ứng của người chơi (giữ loài của bot nếu đã cùng hạng),
+     và được x1,5 Máu/Linh lực như đồng hành (ALLYM) */
+  const pool=rk=>Object.keys(SPECIES).filter(id=>id!=='diep'&&rankOf(id)===rk&&ANIM[id]);
+  return bot.tm.map((id,i)=>{const rk=sel[i]?rankOf(sel[i].id):'';if(rk&&rankOf(id)!==rk){const P=pool(rk).filter(x=>!bot.tm.includes(x));if(P.length)id=P[ri(0,P.length-1)];}
+    const u=makeUnit(id,Math.max(1,lv+ri(-1,1)));u.mhp=Math.round(u.mhp*ALLYM);u.mmp=Math.round(u.mmp*ALLYM);u.hp=u.mhp;u.mp=u.mmp;u.ab=1;return u;});}
 async function arenaFight(sel){const A=arenaData();
   await say(['Đang tìm đối thủ cùng tầm hạng...'],'Đấu Trường');const bot=arMatch(A),te=arenaFoes(sel,bot);
   await say(['Đã tìm thấy: '+bot.n+' · '+arRank(bot.rp)+' ('+bot.rp+' điểm).','Đội đối thủ: '+te.map(u=>u.name+' Lv '+u.lv).join(', ')+'.','Trống trận nổi lên. Khán giả reo hò!'],'Quản Đấu Trường');
   const ta=sel.map(u=>({...u,b:{}}));scene='trans';sfx('enc');held.length=0;await tween(450,t=>{stripes=t;});
-  setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:bot.n,iq:clamp((bot.rp-700)/1500,.1,1)};AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=arFighter(AR.te[0],'e');
+  setLand(true);await new Promise(r=>setTimeout(r,350));const L=arLay();AR={L,ta:ta.slice(),sa:sel.slice(),te:te.slice(),ai:0,ei:0,kills:0,a:null,e:null,pj:[],pops:[],fx:[],rg:[],sl:[],shk:0,sha:0,flash:0,phase:'ready',pt:1300,t:0,hold:null,res:null,foe:bot.n,iq:clamp((bot.rp-700)/1500,.45,1)/* v16.60: AI đối thủ khá hơn */};AR.a=arFighter(AR.ta[0],'a',AR.sa[0]);AR.e=arFighter(AR.te[0],'e');
   scene='arena';await tween(350,t=>{stripes=1-t;});
   const win=await new Promise(r=>{AR.res=r;});const kills=AR.kills;
   scene='trans';await tween(350,t=>{stripes=t;});AR=null;AJ.on=false;setLand(false);await new Promise(r=>setTimeout(r,300));scene='map';await tween(350,t=>{stripes=1-t;});
