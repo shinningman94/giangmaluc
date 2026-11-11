@@ -62,7 +62,7 @@ def build(server='', dual=False, src_path=None):
     rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();')
     # đặt tên nhân vật khi bắt đầu chơi online; mọi chữ "Minh Dạ" hiện ra được thay bằng tên đó
     rep('async function startNew(){newGame();',
-        "async function startNew(){if(ONLM&&typeof MCNAME!=='undefined')MCNAME=onlHeroDef();newGame();")
+        "async function startNew(){let hn;if(ONLM&&!(hn=await onlHeroAsk(onlHeroDef())))return;newGame();if(hn)onlHeroSet(hn);")
     rep('async function continueGame(){applySave(SAVED);', 'async function continueGame(){applySave(SAVED);if(ONLM)await onlHeroFix();')
     rep('function txt(s,x,y,o={}){', 'function txt(s,x,y,o={}){s=onlHN(s);')
     rep('function wrap(s,maxW,size){', 'function wrap(s,maxW,size){s=onlHN(s);')
