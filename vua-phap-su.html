@@ -2386,7 +2386,7 @@ function arrive(){G.steps++;if(!G.realm)vtMark(PL.x,PL.y);if(G.steps%4===0&&hasE
   /* v10.3: người chơi muốn gặp sự kiện trên đường ít hơn (gặp người 1% -> .5%, thư sinh .7% -> .3%); v10.3.1: quỷ sai tuần đêm giữ .6% như cũ */
   if(r2<.006&&z>0)return patrolRun();
   if(r2<.011)return meetRun();
-  if(r2<.014)return roadRunner(wanderer,{k:'sinh'});
+  if(r2<.014)return roadRunner(wanderer,{k:'sinh',pk:'khach'});
 }
 /* v7.3: người chơi muốn sự kiện dọc đường cũng có người chạy tới như quái: người/quỷ hiện ra cách 5-7 ô, kêu "!" rồi chạy tới sát thầy pháp mới mở sự kiện */
 let RUNR=null;
@@ -2396,7 +2396,7 @@ function roadRunner(fn,o){const N=MW*MH,st=PL.y*MW+PL.x,D=new Int16Array(N).fill
   if(!cand.length)return run(fn);const sn=cand.filter(i=>seen[i]),pool=sn.length?sn:cand,i0=pool[Math.floor(R()*pool.length)];
   const path=[];for(let j=prev[i0];j>=0&&j!==st;j=prev[j])path.push(j);
   const x=i0%MW,y=(i0-x)/MW;PL.npcGoal=null;held.length=0;
-  RUNR={x,y,fx:x,fy:y,mv:0,mt:0,face:PL.x>=x?1:-1,up:false,k:o.k,id:o.id,path,t:650,res:null,go:false};sfx('sel');
+  RUNR={x,y,fx:x,fy:y,hx:x,hy:y,pk:o.pk,mv:0,mt:0,face:PL.x>=x?1:-1,up:false,k:o.k,id:o.id,/* v16.59: giữ nguyên người và màu áo khi NPC sự kiện chạy tới */path,t:650,res:null,go:false};sfx('sel');
   run(async()=>{await new Promise(res=>{RUNR.res=res;});if(PL.x!==RUNR.x)PL.face=RUNR.x>PL.x?1:-1;await wait(150);try{await fn();}finally{RUNR=null;}});}
 /* v7.8: đường cắt qua sông hồ thành cầu gỗ có lan can */
 function drawBridge(sx,sy,x,y){const isR=(X,Y)=>X>=0&&Y>=0&&X<MW&&Y<MH&&(WD.g[Y][X]==='='||WD.g[Y][X]==='t');const hz=(isR(x-1,y)||isR(x+1,y))&&!(isR(x,y-1)&&isR(x,y+1)&&!(isR(x-1,y)&&isR(x+1,y)));
@@ -2427,7 +2427,7 @@ function avoidLv(lv){if(!SET.av||lv<diep().lv+SET.av)return false;if(time-AVT>25
 async function wild(){/* v15.13: trận đại chiến 2-3 quái khi có ít nhất 2 người còn sức; v16.10.1 người chơi muốn gặp nhiều hơn: 22% lên 45% */const grp=alive().length>1&&R()<.45,n=grp?(R()<.5?3:2):G.party.length>1&&R()<.3?2:1;G.wc=4;const g=wildGroup(n);if(g.every(u=>avoidLv(u.lv)))return;await startBattle(g,{kind:'wild',grp:grp||g.some(u=>u.id==='ky_si')&&alive().length>1});}
 async function patrol(g){G.wc=4;await say('Tiếng xích sắt kéo lê... Một toán quỷ sai tuần đêm chặn đường!');g=g||wildGroup(R()<.5?2:1,1);g.forEach(u=>u.pat=true);await startBattle(g,{kind:'pat'});}
 function patrolRun(){const g=wildGroup(R()<.5?2:1,1);if(g.some(u=>hidR(u.id)))return patrol(g);/* v15.26: quái hạng A/S không chạy trên bản đồ, gặp thẳng */roadRunner(()=>patrol(g),{id:g[0].id});}
-function meetRun(){const r=ri(0,2);roadRunner(()=>meet(r),{k:['nong','ba','dong'][r]});}
+function meetRun(){const r=ri(0,2);roadRunner(()=>meet(r),{k:['nong','co','dong'][r],pk:['nong','co','dong'][r]})/* v16.59: thôn nữ là cô gái trẻ, tiểu đồng là cậu bé */;}
 
 /* v12.0: người chơi muốn sự kiện thưởng phạt ngẫu nhiên, không cố định: mỗi khoản dao động 50%..150%, việc thiện có thể gặp thêm may mắn, việc xấu dễ gặp xui
    o: m công đức, mm trừ công đức, s bạc, hp Minh Dạ mất (tỉ lệ máu), heal cả đội hồi (tỉ lệ), mp đầy linh lực, luck cơ hội may thêm, risk cơ hội xui */
@@ -5619,8 +5619,8 @@ function vlaPick(lk,hx,hy){const al=VLALT[lk];if(!al)return lk;const r=hash(hx,h
    Khung lao động nằm sau 8 khung thường, mỗi ô rộng gấp đôi. Mỗi người theo chu kỳ 16 giây: khoảng 7 giây đứng thường, còn lại làm một việc ngẫu nhiên */
 const VLAWK={};/* 16.42: người chơi bỏ đổi tư thế làm việc (phu,thon,chu,an,be,bep) */
 function vlaWork(pk,hx,hy){const A=VLAWK[pk];if(!A)return -1;const P=16000,t=time+hash(hx,hy,41)*P,ph=t%P;if(ph<7000)return -1;const a=A[Math.floor(hash(hx,hy,Math.floor(t/P)%97+43)*A.length)];return a[Math.floor(time/900)%a.length];}
-function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const pk=vlaPick(lk,hx,hy),im=VLA[pk];if(!im||!im.complete||!im.width)return null;
-  if(walkT==null&&!(q.gt&&time-q.gt<1500)){const wj=vlaWork(pk,hx,hy);if(wj>=0){const k=im.height/560,vr=Math.floor(hash(hx,hy,17)*4),top=sy+16.5-40.8*VLS,x0=(720+wj*180)*k;if(alpha!=null)c.globalAlpha=alpha;
+function vlaDraw(q,lk,sx,sy,face,walkT,alpha){const hx=q.hx!=null?q.hx:q.x,hy=q.hy!=null?q.hy:q.y;const pk=q.pk&&VLA[q.pk]?q.pk:vlaPick(lk,hx,hy),im=VLA[pk];if(!im||!im.complete||!im.width)return null;
+  if(walkT==null&&!q.pk&&!(q.gt&&time-q.gt<1500)){const wj=vlaWork(pk,hx,hy);if(wj>=0){const k=im.height/560,vr=Math.floor(hash(hx,hy,17)*4),top=sy+16.5-40.8*VLS,x0=(720+wj*180)*k;if(alpha!=null)c.globalAlpha=alpha;
     if(face<0){c.save();c.translate(sx+8,0);c.scale(-1,1);c.drawImage(im,x0,vr*140*k,180*k,140*k,-27*VLS,top,54*VLS,42*VLS);c.restore();}else c.drawImage(im,x0,vr*140*k,180*k,140*k,sx+8-27*VLS,top,54*VLS,42*VLS);
     c.globalAlpha=1;return top+5*VLS;}}
   const vr=Math.floor(hash(hx,hy,17)*4);let f;
