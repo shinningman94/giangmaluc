@@ -1,4 +1,5 @@
-/* v16.50: Tạo nhân vật cổ trang (người chơi gửi 2 gói: 35 hoạt ảnh + bộ phận ghép). Mỗi bộ phận là một tấm img/mc_<id>.png
+/* v16.51: nét vẽ anime cel-shaded, độ phân giải gấp đôi (MCX.k=2), mỗi tấm chỉ giữ phần có hình (MCX.r: x,y,w,h,ox,oy từng khung).
+   v16.50: Tạo nhân vật cổ trang (người chơi gửi 2 gói: 35 hoạt ảnh + bộ phận ghép). Mỗi bộ phận là một tấm img/mc_<id>.png
    9 cột x 6 hàng khung 232x244 theo MCX.anims (đứng/đi/chém nhìn phải, trúng đòn, chiến thắng, đứng chính diện, ôm quyền).
    G.look={v:2,g,s,e,h,c,o,m}: giới tính, da, mắt, kiểu tóc, màu tóc, bộ đồ, đội mũ. Ghép các lớp theo thứ tự [layer,order] thành ANIM.diep mới. */
 const MC={img:{},cache:{},orig:null};
@@ -21,21 +22,23 @@ function mcImg(p){if(MC.img[p])return MC.img[p];return MC.img[p]=new Promise(res
 async function mcBuild(l,idx){const L=mcLayers(l),ims=await Promise.all(L.map(x=>mcImg(x[2]))),fw=MCX.fw,fh=MCX.fh,fr=[],cmb=new Set();
   for(const a of MCX.anims)if(a[5])for(let i=0;i<a[2];i++)cmb.add(a[1]+i);
   const all=idx||Array.from({length:MCX.anims.reduce((s,a)=>s+a[2],0)},(_,i)=>i);
-  for(const k of all){const cv=document.createElement('canvas');cv.width=fw;cv.height=fh;const x=cv.getContext('2d'),sx=(k%MCX.cols)*fw,sy=Math.floor(k/MCX.cols)*fh;
-    L.forEach((ly,j)=>{if(ly[3]&&!cmb.has(k))return;const im=ims[j];if(im)x.drawImage(im,sx,sy,fw,fh,0,0,fw,fh);});fr[k]=cv;}
+  for(const k of all){const cv=document.createElement('canvas');cv.width=fw;cv.height=fh;const x=cv.getContext('2d');
+    L.forEach((ly,j)=>{if(ly[3]&&!cmb.has(k))return;const im=ims[j];if(im){const r=mcRect(ly[2],k);if(r)x.drawImage(im,r[0],r[1],r[2],r[3],r[4],r[5],r[2],r[3]);}});fr[k]=cv;}
   return fr;}
+const MCRC={};
+function mcRect(p,k){let R=MCRC[p];if(!R){const t=(MCX.r[p]||'').split(';');R=MCRC[p]=t.map(q=>q?q.split(',').map(Number):null);}return R[k]||null;}
 const MCA=Object.fromEntries(MCX.anims.map(a=>[a[0],Array.from({length:a[2]},(_,i)=>a[1]+i)]));
 /* bộ hình dạng ANIM cho Minh Dạ: cùng tên tư thế với hình cũ, thêm seq để động tác chạy nhiều khung */
-function mcAnim(fr,l){const A=MCA,h=MCX.fh,box=[60,24,100,h-26];
-  return{n:fr.length,w:MCX.fw,h,box,sc:63.5/219,hmk:31.75/219,fr,mc:mcKey(l),iseq:A.cho_phai,
+function mcAnim(fr,l){const A=MCA,h=MCX.fh,K=MCX.k||1,box=[60*K,24*K,100*K,h-26*K];
+  return{n:fr.length,w:MCX.fw,h,box,sc:63.5/219/K,hmk:31.75/219/K,fr,mc:mcKey(l),iseq:A.cho_phai,
     pose:{idle:A.cho_phai[0],ready:A.chem_phai[0],guard:A.chem_phai[0],turn:A.cho_phai[3],raise:A.chien_thang[2],breath:A.chien_thang[2],halo:A.chien_thang[4],
       dash:A.chem_phai[3],sweep:A.chem_phai[4],throw:A.chem_phai[4],spin:A.chem_phai[5],shock:A.trung_don[1],hit:A.trung_don[1],down:A.trung_don[5],rec:A.trung_don[0],
       back:A.cho_phai[0],front:A.cho_xuong[0],w0:A.di_phai[0],w1:A.di_phai[2],w2:A.di_phai[4],w3:A.di_phai[6]},
     seq:{dash:A.chem_phai.slice(0,5),sweep:A.chem_phai,throw:A.chem_phai,spin:A.chem_phai,raise:A.chien_thang.slice(0,4),halo:A.chien_thang,breath:A.chien_thang.slice(0,5),
       hit:A.trung_don.slice(0,3),shock:A.trung_don.slice(0,3),down:A.trung_don,ready:[A.chem_phai[0]],guard:[A.chem_phai[0]]}};}
-function mcStill(a){const f=a.fr[a.pose.front],[bx,by,bw,bh]=[44,8,128,MCX.fh-8];
+function mcStill(a){const f=a.fr[a.pose.front],K=MCX.k||1,[bx,by,bw,bh]=[44*K,8*K,128*K,MCX.fh-8*K];
   const s=document.createElement('canvas'),k=a.sc;s.width=Math.round(bw*k);s.height=Math.round(bh*k);const x=s.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(f,bx,by,bw,bh,0,0,s.width,s.height);
-  try{const q=x.getImageData(0,0,s.width,s.height);for(let j=3;j<q.data.length;j+=4)q.data[j]=q.data[j]<110?0:255;x.putImageData(q,0,0);}catch(e){}return s;}
+  return s;}
 /* đặt hình cho nhân vật chính; l không phải v2 thì dùng lại cách cũ (Minh Dạ gốc hoặc tạo hình 16.42) */
 async function heroLook(l){if(!ANIM.diep)return;if(!MC.orig)MC.orig={a:ANIM.diep,s:SPR.diep};
   if(!l||l.v!==2){ANIM.diep=MC.orig.a;SPR.diep=MC.orig.s;try{lookApply(l);}catch(e){}mcMini();return;}
@@ -58,7 +61,7 @@ function mcCss(){if(MCUI)return;MCUI=1;const st=document.createElement('style');
 #mcCr .bx{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-start;justify-content:center;width:min(96vw,820px);max-height:96dvh;overflow:auto;padding:10px 12px;box-sizing:border-box;background:#151022f4;border:2px solid #f0d890;border-radius:8px;overscroll-behavior:contain}
 #mcCr h3{flex-basis:100%;margin:0;text-align:center;font-weight:normal;font-size:26px;color:#ffe8a0;text-shadow:0 2px 0 #5a1a18}
 #mcCr .pv{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px}
-#mcCr canvas{width:232px;height:244px;image-rendering:pixelated;background:radial-gradient(circle at 50% 78%,#46345e,#120c1c 72%);border:1px solid #5a4a6a;border-radius:6px;cursor:pointer}
+#mcCr canvas{width:232px;height:244px;background:radial-gradient(circle at 50% 78%,#46345e,#120c1c 72%);border:1px solid #5a4a6a;border-radius:6px;cursor:pointer}
 #mcCr .an{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;max-width:250px}
 #mcCr .op{flex:1 1 320px;min-width:270px;display:flex;flex-direction:column;gap:6px}
 #mcCr .rw b{display:block;font-weight:normal;color:#ffd27a;margin-bottom:2px}
@@ -75,7 +78,7 @@ function mcCss(){if(MCUI)return;MCUI=1;const st=document.createElement('style');
 function mcAsk(cur,canBack=true){mcCss();held.length=0;let L=cur&&cur.v===2?mcNorm(cur):mcDef(0);
   let name=(G&&G.hn)||MCNAME||'';
   return new Promise(done=>{const d=document.createElement('div');d.id='mcCr';
-    d.innerHTML=`<div class="bx"><h3>Tạo nhân vật</h3><div class="pv"><canvas width="232" height="244"></canvas><div class="an"></div><span class="ld"></span></div><div class="op"></div></div>`;document.body.appendChild(d);
+    d.innerHTML=`<div class="bx"><h3>Tạo nhân vật</h3><div class="pv"><canvas width="${MCX.fw}" height="${MCX.fh}"></canvas><div class="an"></div><span class="ld"></span></div><div class="op"></div></div>`;document.body.appendChild(d);
     for(const ev of['keydown','keyup','pointerdown','touchstart','wheel'])d.addEventListener(ev,e=>e.stopPropagation(),{passive:true});
     const op=d.querySelector('.op'),an=d.querySelector('.an'),ld=d.querySelector('.ld'),pc=d.querySelector('canvas'),px=pc.getContext('2d');
     let alive=true,fr=null,ver=0,anim=-1,t0=performance.now();
@@ -103,9 +106,9 @@ function mcAsk(cur,canBack=true){mcCss();held.length=0;let L=cur&&cur.v===2?mcNo
       if(canBack)ft.appendChild(btn('Quay lại',0,()=>close(null)));op.appendChild(ft);};
     const close=v=>{alive=false;d.remove();try{cv.focus();}catch(_){}done(v);};
     pc.onclick=()=>{const i=AN.findIndex(a=>a[1]===anim);anim=AN[(i+1)%AN.length][1];t0=performance.now();draw();};
-    const tick=now=>{if(!alive)return;px.clearRect(0,0,pc.width,pc.height);px.fillStyle='#0007';px.beginPath();px.ellipse(116,MCX.fh-6,40,7,0,0,7);px.fill();
+    const tick=now=>{if(!alive)return;px.clearRect(0,0,pc.width,pc.height);px.fillStyle='#0007';px.beginPath();px.ellipse(MCX.fw/2,MCX.fh-6*(MCX.k||1),40*(MCX.k||1),7*(MCX.k||1),0,0,7);px.fill();
       if(fr){let id=anim,e=now-t0;if(id===-1){id=AUTO[Math.floor(e/2400)%AUTO.length];e%=2400;}const a=MCX.anims.find(x=>x[0]===id),n=a[2],i=a[4]?Math.floor(e/1000*a[3])%n:Math.min(n-1,Math.floor(e/1000*a[3])%(n+6));
-        px.imageSmoothingEnabled=false;px.drawImage(fr[a[1]+Math.min(i,n-1)],0,0);}
+        px.imageSmoothingEnabled=true;px.drawImage(fr[a[1]+Math.min(i,n-1)],0,0);}
       requestAnimationFrame(tick);};
     d.addEventListener('keydown',e=>{if(e.key==='Escape'&&canBack)close(null);});
     draw();rebuild();requestAnimationFrame(tick);});}
