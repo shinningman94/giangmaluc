@@ -279,6 +279,10 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
 function onlTitle(){}
 /* v16.17.2: MENU/AUTO/SỰ KIỆN thu nhỏ thành một hàng 3 nút 20px dưới bản đồ nhỏ; CHAT là nút riêng cùng cỡ ngay dưới MENU */
 function onlHudBtns(x,y,w,h,ty,sz){
+  /* 16.66 UI Sơn mài: MENU, CHAT, GIAO DỊCH là nút tròn kiểu ấn triện (sealBtn) */
+  if(h===19&&typeof sealBtn==='function'){const cy=y+h+2,gx=x+w+1;sealBtn(x,y,w,h,'MENU');sealBtn(x,cy,w,h,'CHAT','#2f4f6b');sealBtn(gx,cy,w,h,'GIAO\nDỊCH','#6a4a1a');
+    const bd=(bx,n)=>{if(!n)return;n=String(Math.min(99,n));const bw=Math.max(7,n.length*4+3);rect(bx+w-bw+3,cy-2,bw,7,'#0c0a18');rect(bx+w-bw+4,cy-1,bw-2,5,'#d03030');txt(n,bx+w-bw/2+3,cy-3,{size:7,align:'center',color:'#fff'});};
+    bd(x,ONL.unread);bd(gx,ONL.un[7]|0);return;}
   win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',x+w/2,ty,{size:sz,align:'center',color:'#fff8e0'});
   const cy=y+h+2;win(x,cy,w,h,'#2a4a7a','#1a2a50','#ffe8a0');txt('CHAT',x+w/2,ty+h+2,{size:sz,align:'center',color:'#fff8e0'});
   const bdg=(bx,n)=>{if(!n)return;n=String(Math.min(99,n));const bw=Math.max(7,n.length*4+3);rect(bx+w-bw+3,cy-2,bw,7,'#0c0a18');rect(bx+w-bw+4,cy-1,bw-2,5,'#d03030');txt(n,bx+w-bw/2+3,cy-3,{size:7,align:'center',color:'#fff'});};
