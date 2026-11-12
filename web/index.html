@@ -642,8 +642,9 @@ ANIM_SRC.cung_thu={n:8,w:250,h:272,box:[46,24,188,246],sc:.5/2,fd:[1,1,1,1,-1,1,
   src:'img/cung_thu.png',lo:'img/cung_thu_lo.png'};
 LOOK.cung_thu=()=>LOOK.kiem_si();
 /* Minh Dạ (nhân vật chính, id vẫn là diep) cùng hồ ly linh: 0 đứng, 1 thủ thế, 2 giơ kiếm, 3 chém, 4 thu kiếm, 5 giật mình, 6-7 nhăn đau, 8 gượng dậy, 9-11 bước đi (0,9,10,11 là vòng đi bộ) */
-ANIM_SRC.diep={n:12,w:480,h:444,box:[51,51,315,381],sc:.5/3,pose:{idle:1,ready:1,guard:1,turn:4,raise:2,breath:2,halo:2,dash:3,sweep:3,shock:5,hit:6,down:7,rec:8,back:0,w0:0,w1:9,w2:10,w3:11},
-  src:'img/diep.png'};
+ANIM_SRC.diep={n:50,w:476,h:283,box:[139,0,199,273],sc:.2034,pose:{idle:0,ready:19,guard:31,turn:35,raise:49,breath:48,halo:31,dash:12,sweep:17,shock:44,hit:45,down:47,rec:46,back:35,spin:22,throw:37,wave:26,pillar:34,quake:34,phantom:41,dive:33,curl:46},
+  seq:{walk:[3,4,5,6,7,8,9],ready:[15,16,19],guard:[30,31,32],raise:[48,49],breath:[48,49],halo:[30,31,32],dash:[10,11,12,13,14],sweep:[16,17,18],hit:[44,45],down:[46,47],spin:[21,22,23],throw:[35,36,37,38],wave:[24,25,26,27],pillar:[33,34],quake:[33,34],phantom:[40,41,43],dive:[33,34]},
+  src:'img/minhda.png'};/* v16.64: Minh Dạ mới (tấm 50 khung của người chơi): 0 đứng, 3-9 đi, 10-14 lao, 15-29 kiếm, 30-32 trận phù, 33-34 nhảy đập, 36-38 chưởng, 40-43 kiếm khí, 44-47 trúng đòn/gục, 48-49 tụ khí */
 /* v15.1.1: Cài đặt > Hình ảnh: Cao dùng hình quái cắt 2x, Thấp dùng hình cũ (nhẹ máy, tải nhanh) */
 let HQ=true;try{HQ=localStorage.getItem('gms-hq')!=='0';}catch(e){}
 /* v16.2: Hổ Nha Hùng Miêu (Yêu Linh hạng A), tấm 34 khung của người chơi xếp lại 7x5 rồi cắt nét cao cut7; seq = chuỗi khung chạy mượt theo động tác (đứng chờ vẫn 1 khung) */ANIM_SRC.honha={n:35,w:408,h:320,box:[56,72,306,226],sc:0.17293,fd:[-1,-1,-1,1,1,1,1,1,1,1,1,0,1,-1,-1,1,1,1,-1,-1,1,1,1,1,1,0,0,1,1,1,-1,-1,-1,1,-1],pose:{idle:4,walk:3,ready:7,turn:19,back:28,dash:12,throw:16,sweep:10,raise:15,spin:13,breath:17,halo:30,guard:14,hit:20,down:22},seq:{walk:[3,4,5,6],ready:[7],dash:[8,9,12],sweep:[7,9,10],raise:[7,15],throw:[9,16],breath:[9,17],spin:[12,13],halo:[29,30],guard:[11,14],hit:[18,20],down:[21,22]},src:'img/honha.png',lo:'img/honha_lo.png'};
@@ -2229,7 +2230,7 @@ const LOOKO=[{n:'Lam Bào',j:null,r:null,a:'#2a3a6a',b:'#d8302a'},{n:'Thanh Y',j
   {n:'Tử Y',j:[280,.95,1.2,.02],r:[330,.75,1.05,0],a:'#4a2a6a',b:'#d84a98'},{n:'Hồng Y',j:[338,.55,1.5,.12],r:[352,.5,1.12,.06],a:'#a8587a',b:'#e07890'},
   {n:'Huyết Y',j:[352,.95,1.25,0],r:[230,.3,.55,0],a:'#6a1420',b:'#2a2a3a'}];
 /* khung đầu (vùng tóc) gần đúng của 12 khung Minh Dạ, toạ độ trong khung 480x444 */
-const LOOKHB=[[131,66,238,133],[196,104,275,180],[205,95,300,180],[220,140,325,215],[173,113,263,176],[121,60,236,139],[28,82,149,147],[161,61,266,155],[164,77,277,161],[135,66,233,134],[114,74,223,144],[132,64,238,134]];
+const LOOKHB=[[189,3,278,66],[196,3,286,66],[186,3,275,69],[193,3,283,66],[204,3,293,67],[209,5,295,67],[209,5,296,67],[213,5,301,67],[207,3,295,65],[200,3,290,67],[232,19,321,82],[238,20,326,83],[252,23,340,85],[259,25,345,89],[258,24,344,88],[213,25,301,87],[190,17,280,80],[198,16,288,82],[224,35,310,97],[199,16,289,79],[198,34,282,94],[208,33,292,95],[222,33,307,95],[257,56,341,117],[199,30,286,92],[199,33,283,93],[180,35,265,95],[192,37,275,96],[0,-400,60,-340],[202,30,288,92],[193,69,270,124],[200,70,275,125],[198,71,274,126],[237,23,316,80],[213,50,294,108],[213,53,292,108],[226,71,301,126],[227,71,304,127],[210,56,289,114],[206,71,286,128],[216,55,292,108],[196,77,270,129],[0,-400,60,-340],[219,64,297,118],[183,56,259,110],[176,60,256,118],[244,116,318,172],[285,162,369,244],[194,60,279,117],[201,63,286,117]];
 function lookDef(g){return g?{g:1,h:3,c:0,o:5}:{g:0,h:0,c:0,o:0};}
 function lookNorm(l){if(!l||typeof l!=='object')return lookDef(0);if(l.v===2)return lookDef(l.g===1?1:0);/* bản lưu có nhân vật cổ trang 16.50 (đã gỡ): về tạo hình 16.42 theo giới tính */const n=(v,m)=>Number.isInteger(v)&&v>=0&&v<m?v:0;return{g:n(l.g,2),h:n(l.h,LOOKH.length),c:n(l.c,LOOKC.length),o:n(l.o,LOOKO.length)};}
 function lookKey(l){l=lookNorm(l);return l.h+'.'+l.c+'.'+l.o;}
@@ -2241,7 +2242,7 @@ function lookClasses(){if(LOOKCLS)return LOOKCLS;const a=ANIM.diep,im=a.im0||a.i
   for(let i=0;i<a.n;i++){const k=animCut(im,a,i),d=k.getContext('2d').getImageData(0,0,a.w,a.h).data,cl=new Uint8Array(a.w*a.h),hb=LOOKHB[i]||LOOKHB[0];
     for(let p=0,y=0;y<a.h;y++)for(let x=0;x<a.w;x++,p++){const o=p*4;if(d[o+3]<16)continue;const[h,s,v]=rgb2hsv(d[o],d[o+1],d[o+2]);
       const inH=x>=hb[0]-6&&x<=hb[2]+6&&y>=hb[1]-14&&y<=hb[3];
-      if(h>=165&&h<=250&&s>.25){if(inH){if(!(h<200&&v>.86&&s<.6)&&!((i===2||i===3)&&h<200&&v>.7))cl[p]=1;}else if(h>=205&&v<.62)cl[p]=2;}
+      if(h>=165&&h<=250&&s>.25){if(inH){if(!(h<200&&v>.86&&s<.6)&&!(h<200&&v>.7))cl[p]=1;}else if(h>=205&&v<.62)cl[p]=2;}
       else if((h>=338||h<=11)&&s>.55&&v>.22)cl[p]=3;}
     out.push(cl);}
   return LOOKCLS=out;}
@@ -2317,8 +2318,8 @@ function lookAsk(cur,canBack=true){lookCss();held.length=0;let L=cur?lookNorm(cu
     if(canBack)ft.appendChild(btn('Quay lại',0,()=>close(null)));op.appendChild(ft);};
   const close=v=>{alive=false;d.remove();try{cv.focus();}catch(_){}done(v?lookNorm(v):null);};
   pc.onclick=()=>{act=performance.now();};
-  const tick=now=>{if(!alive)return;const F=lookFrames(L),a=ANIM.diep;px.clearRect(0,0,pc.width,pc.height);if(F&&a){const e=now-act,W8=[0,9,10,11];
-      let i=e<1500?[1,2,3,3,4][Math.min(4,Math.floor(e/300))]:((now-t0)%8000<5000?W8[Math.floor(now/160)%4]:[1,1,5,8][Math.floor((now-t0)%8000/750)%4]);
+  const tick=now=>{if(!alive)return;const F=lookFrames(L),a=ANIM.diep;px.clearRect(0,0,pc.width,pc.height);if(F&&a){const e=now-act,W8=[3,4,5,6,7,8,9];
+      let i=e<1500?[15,16,17,18,19][Math.min(4,Math.floor(e/300))]:((now-t0)%8000<5000?W8[Math.floor(now/110)%7]:[0,0,48,49][Math.floor((now-t0)%8000/750)%4]);
       const s=.92,[bx,by,bw,bh]=a.box,dx=(pc.width-bw*s)/2-bx*s+20,dy=pc.height-8-(by+bh)*s;
       px.fillStyle='#0006';px.beginPath();px.ellipse(pc.width/2+10,pc.height-12,bw*s*.42,14,0,0,7);px.fill();
       px.imageSmoothingEnabled=true;px.imageSmoothingQuality='high';px.drawImage(F.fr[i],dx,dy,a.w*s,a.h*s);}
@@ -2353,7 +2354,7 @@ function mapInput(k){if(PL.moving||busy)return;
   if(k==='a'){{const d=DV[PL.dir],v=vilAt(PL.x+d[0],PL.y+d[1]);if(v){run(()=>vilTalk(v));return;}const b=bldAt(PL.x+d[0],PL.y+d[1]);if(b&&PL.dir==='up'&&PL.x===b.dx){run(()=>enterB(b));return;}}if(G.realm){toast('Đang ở '+RLM[G.realm].n+'. Kiếp nạn kế tiếp chờ ở Nhân Giới');return;}if(G.qt&&Math.abs(PL.x-G.qt.x)+Math.abs(PL.y-G.qt.y)<=1){const dx=G.qt.x-PL.x,dy=G.qt.y-PL.y;if(dx||dy)PL.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';run(quest);return;}if(G.qt){const d=G.qt.x-PL.x,e=G.qt.y-PL.y;toast(`Kiếp nạn kế tiếp: ${Math.abs(d)+Math.abs(e)} bước về phía ${Math.abs(d)>=Math.abs(e)?(d>=0?'Đông':'Tây'):(e>0?'Nam':'Bắc')}`);}}}
 function tryMove(dir){PL.dir=dir;if(dir==='left')PL.face=-1;else if(dir==='right')PL.face=1;const d=DV[dir];const nx=PL.x+d[0],ny=PL.y+d[1];if(G.qt&&!G.realm&&nx===G.qt.x&&ny===G.qt.y){if(!busy){PL.path=null;PL.npcGoal=null;run(quest);}return;}{const b=bldAt(nx,ny);if(b){if(dir==='up'&&nx===b.dx&&ny===b.fy-1&&!busy){PL.path=null;PL.npcGoal=null;run(()=>enterB(b));}return;}const v=vilAt(nx,ny);if(v&&(!PL.path||!PL.path.length)&&time-(v.tk||-1e9)>3000){if(!busy){PL.path=null;PL.npcGoal=null;run(()=>vilTalk(v));}return;}}if(blocked(nx,ny))return;npcSwap(nx,ny);PL.moving=true;PL.fx=PL.x;PL.fy=PL.y;PL.x=nx;PL.y=ny;PL.t=0;}
 /* Minh Dạ on the map: the battle sheet itself at a quarter size, so one source pixel lands on one screen pixel (canvas is 4x) and he keeps all the detail he has in battle */
-const HMK=40/ANIM_SRC.diep.w/* v14.9: khung Minh Dạ nét gấp 3, giữ cỡ trên bản đồ */;
+const HMK=.107/* v16.64: giữ cỡ Minh Dạ trên bản đồ như cũ *//* v14.9: khung Minh Dạ nét gấp 3, giữ cỡ trên bản đồ */;
 /* followers walk in Minh Dạ's footsteps: a trail of his recent positions, each companion a fixed distance back along it */
 function trackTrail(){const t=PL.trail||(PL.trail=[]),p=t[0];if(!p||Math.abs(p.x-PL.px)+Math.abs(p.y-PL.py)>24){PL.trail=[{x:PL.px,y:PL.py,f:PL.face||1}];return;}
   if(p.x!==PL.px||p.y!==PL.py){t.unshift({x:PL.px,y:PL.py,f:PL.face||1});if(t.length>90)t.length=90;}}
@@ -2376,6 +2377,7 @@ function drawFollower(f,camX,camY){const id=f.u.id,a=ANIM[id],mv=PL.moving,float
   const bob=float?Math.sin(time/380+f.i*2)*1.5-2:mv?-Math.abs(Math.sin(time/90+f.i*1.7))*1.5:Math.sin(time/700+f.i)*.4;
   const sx=f.x-camX+8,sy=f.y-camY+15;c.globalAlpha=.28;c.beginPath();c.ellipse(sx,sy,F.w*.32,1.6,0,0,Math.PI*2);c.fillStyle='#000';c.fill();c.globalAlpha=float?.9:1;
   c.drawImage(F.img,sx-F.w/2,sy-F.h+bob,F.w,F.h);c.globalAlpha=1;}
+function hwN(){const a=ANIM.diep;return a&&a.seq&&a.seq.walk?a.seq.walk.length:4;}
 function heroMapFrame(k,fl){const a=ANIM.diep,f=a.fr[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;
   return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
 function updateMap(dt){mineTick(dt);
@@ -2776,7 +2778,7 @@ function drawMap0(Z,W0,H0){
     for(const q of npcList())if(npcRow(q)===y)drawNpc(q,camX,camY);
     drawRunner(y,camX,camY);onlDrawRow(y,camX,camY);
     const rowP=PL.moving?Math.max(PL.y,PL.fy):PL.y;if(y===rowP&&!(scene==='battle'&&B&&B.mb)){{c.globalAlpha=.3;rect(Math.round(PL.px-camX)+4,Math.round(PL.py-camY)+14,8,2,'#000');c.globalAlpha=1;
-      const hx=Math.round(PL.px-camX),hy=Math.round(PL.py-camY),fl=PL.face<0,HF=ANIM.diep?heroMapFrame(PL.moving?'w'+(Math.floor(time/110)%4):'w0',fl):null;
+      const hx=Math.round(PL.px-camX),hy=Math.round(PL.py-camY),fl=PL.face<0,HF=ANIM.diep?heroMapFrame(PL.moving?'w'+(Math.floor(time/95)%hwN()):'w0',fl):null;
       const fol=G.party.filter(u=>u.id!=='diep').slice(0,2).map((u,i)=>({u,i,...folPos(18*(i+1))}));
       for(const f of fol)if(f.y<=PL.py)drawFollower(f,camX,camY);
       const wet=HF&&tileG(Math.round(PL.px/TS),Math.round(PL.py/TS))==='w';
@@ -6922,7 +6924,7 @@ function drawTrailer(){const dt=Math.min(50,time-(TRL.last||time));TRL.last=time
     trlBg('mount',1.1,-u*.004,0);rect(0,0,W,H,'rgba(10,10,40,.45)');
     const fl=u>200&&u<700?(1-Math.abs(u-350)/350):0;
     const walk=u<3000,x=W*.18+tEase(Math.min(1,u/3000))*W*.32,hh=Math.min(H*.5,W*(PORT?.62:.42)),gy3=H*(PORT?.7:.86);
-    trlMon('diep',walk?'w'+(Math.floor(u/150)%4):'raise',x,gy3,hh,true,{});
+    trlMon('diep',walk?'w'+(Math.floor(u/130)%hwN()):'raise',x,gy3,hh,true,{});
     if(!walk)trlMon('ho_ly','idle',x-hh*.55,gy3,hh*.42,true,{a:tIn(u,3000,3600)*.9});
     trlEmbers('#9fe0ff',1,.6);trlVig(.75);
     trlText('Một Giáng Ma Sư trẻ tuổi lên đường hàng ma.',H*.1,11,tIn(u,1200,2000)*tOut(u,4400,5200));
@@ -7004,7 +7006,7 @@ function drawGLoad(){const L=GLD;rect(0,0,W,H,'#07050d');if(!L)return;const t=ti
   c.restore();c.globalAlpha=1;
   {const k=1+.05*Math.sin(t*4),w=Math.round(R*.42*k),h=Math.round(R*.9*k),x=cx-w/2,y=cy-h/2;c.save();c.translate(cx,cy);c.rotate(Math.sin(t*2)*.08);c.translate(-cx,-cy);rect(x,y,w,h,'#e8c860');rect(x+1,y+1,w-2,h-2,'#f4dc80');c.strokeStyle='#b0201a';c.lineWidth=1;c.beginPath();c.moveTo(cx,y+3);c.lineTo(cx,y+h-3);for(let i=1;i<5;i++){const yy=y+h*i/5;c.moveTo(x+3,yy);c.lineTo(x+w-3,yy+(i%2?2:-2));}c.stroke();c.fillStyle='#b0201a';c.beginPath();c.arc(cx,y+h*.2,w*.18,0,7);c.fill();c.restore();}
   const bw=Math.min(PORT?W-40:180,W-40),bx=Math.round(cx-bw/2),by=Math.round(H*(PORT?.66:.62));
-  trlMon('diep','w'+(Math.floor(time/130)%4),bx+bw*L.p,by-2,PORT?34:28,true,{});
+  trlMon('diep','w'+(Math.floor(time/115)%hwN()),bx+bw*L.p,by-2,PORT?34:28,true,{});
   rect(bx-1,by-1,bw+2,8,'#3a2a20');rect(bx,by,bw,6,'#140c10');
   {const w=Math.round(bw*L.p),g=c.createLinearGradient(bx,0,bx+bw,0);g.addColorStop(0,'#8a2a1a');g.addColorStop(1,'#ffd27a');c.fillStyle=g;c.fillRect(bx,by,w,6);c.globalAlpha=.5+.5*Math.sin(t*6);rect(bx+w-2,by-1,3,8,'#fff0c0');c.globalAlpha=1;}
   txt(L.t+(['','.','..','...'][Math.floor(t*3)%4]),cx,by+11,{size:10,align:'center',color:'#e8dcc8'});

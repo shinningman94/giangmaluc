@@ -261,7 +261,7 @@ function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
     const hx=Math.round(r.x-camX),hy=Math.round(r.y-camY);if(hx<-40||hy<-60||hx>W+40||hy>H+40)continue;
     const tx=clamp(Math.round((r.x+8)/TS),0,MW-1),ty=clamp(Math.round((r.y+8)/TS),0,MH-1);if(!seen[ty*MW+tx])continue;
     c.globalAlpha=.3;rect(hx+4,hy+14,8,2,'#000');c.globalAlpha=1;
-    const HF=onlPeerFrame(r.lk,r.mv?'w'+(Math.floor(time/110)%4):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
+    const HF=onlPeerFrame(r.lk,r.mv?'w'+(Math.floor(time/110)%(typeof hwN==='function'?hwN():4)):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
     const top=hy+15-HF.oy-2,tag=(r.hn||r.nm)+(r.sc==='battle'||r.sc==='arena'||r.sc==='pvp'?' ⚔':'');
     txt(tag,hx+8,top-8,{size:7,align:'center',color:r.sc==='pvp'?'#ffb070':'#9fe8ff',outline:'#120d18'});
     if(ONL_BUBBLE&&r.sayT&&performance.now()-r.sayAt<6000){const L=wrap(r.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=top-10-h;
