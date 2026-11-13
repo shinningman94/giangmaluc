@@ -38,7 +38,31 @@ body.arw .keys{display:none}
 
 <script>
 (()=>{
-'use strict';
+'use strict';/*CEL17*//* v16.69 (người chơi): phong cách 2D anime cel-shaded: hình đã tô lại (viền mực, bóng tím, màu phẳng) nằm ở img/cel, bật/tắt ở Cài đặt > Hệ thống > Phong cách */
+let CEL=true;try{CEL=localStorage.getItem('gms-cel')!=='0';}catch(e){}
+const CELIMG=new Set('amida amida_lo anhyeu anhyeu_lo ao_trang ao_trang_lo aoandon aoandon_lo ara bach_cuong bach_cuong_lo bihi bihi_lo bla cdimg chuy_thu chuy_thu_lo chuyenda chuyenda_lo chuyenyeu chuyenyeu_lo conlon conlon_lo cung_thu cung_thu_lo cungky cungky_lo cuong_thi cuong_thi_lo cuopduong cuopduong_lo cuu_vi cuu_vi_lo cuuquyxa cuuquyxa_lo daibang daibang_lo dang_lung dang_lung_lo dao_hoa dao_hoa_lo daongot daongot_lo den_long den_long_lo diemla diemla_lo diep dote dote_lo eliza eliza_lo fla gautruc gautruc_lo geroh geroh_lo giap_sat giap_sat_lo grd grd2 hamduong hamduong_lo han_bat han_bat_lo handiem handiem_lo hanmac hanmac_lo ho_ly ho_ly_lo hoihoi hoihoi_lo hon_ma hon_ma_lo honha honha_lo huyetbuc huyetbuc_lo ibaraki ibaraki_lo ita jaguar jaguar_lo kaguya kaguya_lo kappa kappa_lo karate karate_lo kiem_si kiem_si_lo ky_si ky_si_lo la_da la_da_lo langnha langnha_lo lee lee_lo linhgiao linhgiao_lo linhkiem linhkiem_lo linhnhi linhno linhno_lo locthuc locthuc_lo luc_cuong luc_cuong_lo ma_da ma_da_lo mahat mahat_lo mao_cuong mao_cuong_lo matang matang_lo minhda morphin morphin_lo nga_quy nga_quy_lo ngua_ma ngua_ma_lo nu_oan nu_oan_lo ong_ba_bi ong_ba_bi_lo ootengu ootengu_lo phi_cuong phi_cuong_lo phongdo phongdo_lo phuchu phuchu_lo quynguu quynguu_lo quynu quynu_lo rda renw shuten shuten_lo sontru sontru_lo susanoo susanoo_lo taishaku taishaku_lo tamamo tamamo_lo tatphong tatphong_lo thachcuong thachcuong_lo thaothiet thaothiet_lo thay_boi thay_boi_lo thay_do thay_do_lo thich_khach thich_khach_lo thien_linh thien_linh_lo thientuoc thientuoc_lo thophi thophi_lo thuong_si thuong_si_lo thuongluong thuongluong_lo thuy_quy thuy_quy_lo tmtimg trachnguu trachnguu_lo tsukuyomi tsukuyomi_lo tu_cuong tu_cuong_lo tu_than tu_than_lo tuyet_nu tuyet_nu_lo tuyetanh tuyetanh_lo ubume ubume_lo vla_an vla_bacu vla_be vla_bep vla_chu vla_co vla_dong vla_khach vla_lang vla_langn vla_lao vla_nong vla_phu vla_quan vla_ren vla_su vla_thon vla_tieu vla_vu vo_si vo_si_lo vo_tuong vo_tuong_lo zashiki zashiki_lo'.split(' '));
+if(CEL){const D=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');if(D&&D.set&&!HTMLImageElement.__cel){HTMLImageElement.__cel=1;Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,enumerable:D.enumerable,get(){return D.get.call(this);},set(v){if(typeof v==='string'){const m=/^img\/(\w+)\.png$/.exec(v);if(m&&CELIMG.has(m[1])){const im=this,o=v;v='img/cel/'+m[1]+'.png';im.addEventListener('error',function f(){im.removeEventListener('error',f);D.set.call(im,o);});}}D.set.call(this,v);}});}}
+/* ô nền vẽ bằng code (cỏ, đất, đá lát, nước) được tô lại kiểu cel khi tạo: mịn hạt, chia mảng sáng / giữa / bóng tím, màu tươi hơn */
+const CELK=0.8,CELD=new WeakSet();
+function celTile(k){if(!CEL||!k||CELD.has(k))return k;CELD.add(k);let d;const w=k.width,h=k.height,x=k.getContext('2d');try{d=x.getImageData(0,0,w,h);}catch(e){return k;}
+  const p=d.data,n=w*h,s=new Float32Array(n*3);let mr=0,mg=0,mb=0,c=0;
+  for(let y=0;y<h;y++)for(let X=0;X<w;X++){const i=y*w+X,o=i*4;if(p[o+3]<8)continue;let r=0,g=0,b=0,ws=0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const yy=Math.min(h-1,Math.max(0,y+dy)),xx=Math.min(w-1,Math.max(0,X+dx)),q=(yy*w+xx)*4;if(p[q+3]<8)continue;
+      const e=(p[q]-p[o])**2+(p[q+1]-p[o+1])**2+(p[q+2]-p[o+2])**2,wt=Math.exp(-e/1800);r+=p[q]*wt;g+=p[q+1]*wt;b+=p[q+2]*wt;ws+=wt;}
+    s[i*3]=r/ws;s[i*3+1]=g/ws;s[i*3+2]=b/ws;mr+=s[i*3];mg+=s[i*3+1];mb+=s[i*3+2];c++;}
+  if(!c)return k;mr/=c;mg/=c;mb/=c;const Lm=.299*mr+.587*mg+.114*mb;let v=0;
+  for(let i=0;i<n;i++)if(p[i*4+3]>=8){const L=.299*s[i*3]+.587*s[i*3+1]+.114*s[i*3+2];v+=(L-Lm)**2;}const sd=Math.sqrt(v/c)+4;
+  for(let i=0;i<n;i++){const o=i*4;if(p[o+3]<8)continue;let r=s[i*3],g=s[i*3+1],b=s[i*3+2];const L=.299*r+.587*g+.114*b,t=(L-Lm)/sd;
+    const st=Math.min(1,Math.max(0,(t+.55)/.25)),hi=Math.min(1,Math.max(0,(t-.75)/.25));
+    /* mảng giữa kéo về màu chung, bóng ngả tím, sáng hơi ấm */
+    const fr=mr*.5+r*.5,fg=mg*.5+g*.5,fb=mb*.5+b*.5;
+    let R=fr*(.80+.14*st+.12*hi)+(1-st)*16,G=fg*(.80+.14*st+.12*hi)+(1-st)*6,B=fb*(.80+.14*st+.12*hi)+(1-st)*30;
+    const Y=.299*R+.587*G+.114*B;R=Y+(R-Y)*1.2;G=Y+(G-Y)*1.2;B=Y+(B-Y)*1.2;
+    p[o]=p[o]+(R-p[o])*CELK;p[o+1]=p[o+1]+(G-p[o+1])*CELK;p[o+2]=p[o+2]+(B-p[o+2])*CELK;}
+  x.putImageData(d,0,0);return k;}
+if(CEL){const cw=f=>function(){return celTile(f.apply(this,arguments));};ground=cw(ground);grassTile=cw(grassTile);fieldTile=cw(fieldTile);slabTile=cw(slabTile);cobbleTile=cw(cobbleTile);pierTile=cw(pierTile);}
+
+/*CEL17e*/
 let W=240,H=160,PORT=false;const S=4,TS=16;
 const cv=document.getElementById('game');
 cv.width=W*S;cv.height=H*S;
@@ -244,6 +268,10 @@ function rkFix(){for(const u of(G.party||[]).concat(G.box||[])){if(!u||u.rkv||u.
 const SK={
   diep0:{n:'Bùa Trấn Hồn',c:8,k:'dmg',x:1.6,d:'Phóng bùa, sát thương x1.6'},
   diep1:{n:'Tịnh Tâm Chú',c:10,k:'heal',x:.35,d:'Hồi 35% HP cho bản thân'},
+  ln0:{n:'Phong Phiến Trảm',c:9,k:'dmg',x:1.3,aoe:.5,mg:1,pose:'wave',d:'Vung quạt ngọc tung lưỡi gió x1.3, lan nửa sức sang các con quỷ khác'},
+  ln1:{n:'Đào Hoa Hồi Xuân',c:12,k:'heal',x:.5,pose:'breath',d:'Mưa hoa đào hồi 50% HP cho bản thân'},
+  tp0:{n:'Thanh Phong Kiếm Khí',c:8,k:'dmg',x:1.8,cr:15,pose:'sweep',d:'Chém ra kiếm khí xanh x1.8, dễ chí mạng'},
+  tp1:{n:'Phong Ảnh Phá Giáp',c:10,k:'brk',x:1.4,pose:'spin',d:'Xoay kiếm như gió lốc x1.4, phá giáp 3 lượt'},
   dong:{n:'Bách Hồn Tề Tựu',c:12,k:'rally',x:1.2,pose:'halo',d:'Đánh x1.2 rồi gọi mọi đồng hành trong đội hình cùng ra đòn'},
   amduong:{n:'Triệu Thức Thần',c:12,k:'sum',sm:'shiki',x:.9,pose:'halo',d:'Gọi thức thần (Hồ Ly Con hoặc Quạ Yêu) đánh x0.9 trong 3 lượt, chắn 20% sát thương cho thầy'},
   daosi:{n:'Ngự Thi Phù',c:13,k:'sum',sm:'thi',x:1.1,p:.3,pose:'halo',d:'Cương Thi Nhỏ nhảy ra đánh x1.1 trong 3 lượt, 30% làm choáng'},
@@ -369,7 +397,9 @@ function lskDesc(s){const pc=v=>Math.round(v*100)+'%';let d;
   else d=s.n;
   if(s.cd)d+=', hồi chiêu '+s.cd+' lượt';if(s.max&&s.k!=='steal')d+=', tối đa '+s.max+' lần mỗi trận';return d;}
 function lskP(k){if(LSKC[k])return LSKC[k];const s=LSK[k];return LSKC[k]={n:s.n,c:s.c,k:s.k,x:s.x,L:k,pose:s.pose,cd:s.cd||0,max:s.max||0,d:lskDesc(s)};}
-function allSkillsOf(u){if(u.id==='diep')return[SK.diep0,SK.diep1].concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0})).concat(G.sect?SECTLV.map((lv,i)=>({s:SK[G.sect+(i+2)],lv})).filter(o=>o.s):[]);
+/* v16.71: kỹ năng khởi đầu theo nhân vật chính đã chọn */
+function heroSK(){let g=0;try{g=G&&G.look?lookNorm(G.look).g:0;}catch(e){}return g===1?[SK.ln0,SK.ln1]:g===2?[SK.tp0,SK.tp1]:[SK.diep0,SK.diep1];}
+function allSkillsOf(u){if(u.id==='diep')return heroSK().concat(G.sect?[SK[G.sect]]:[]).map(s=>({s,lv:0})).concat(G.sect?SECTLV.map((lv,i)=>({s:SK[G.sect+(i+2)],lv})).filter(o=>o.s):[]);
   const a=typeof AIC!=='undefined'&&AIC[u.id];
   const own=a?a.n.sk.filter(k=>!LSK[k].enr).map(lskP):u.id==='eliza'?[SK.eliza0,SK.eliza1]:u.id==='morphin'?[SK.morphin0,SK.morphin1]:SK[u.id]?[SK[u.id]]:[];
   const t=SK[TSK[u.kind]],all=t?own.concat([t]):own,b=0;/* v14.3: kỹ năng mở theo cấp thật của đồng hành (cấp 3, 6, 10, 14, 18...), không tính từ cấp lúc thu phục; quái thu phục giữ cấp nên có đủ chiêu của cấp đó */
@@ -673,11 +703,16 @@ ANIM_SRC.linhnhi={n:41,cols:9,w:738,h:246,box:[291,1,157,244],sc:.2254,hmk:.108,
   pose:{idle:0,ready:13,guard:23,turn:40,raise:37,breath:38,halo:23,dash:11,sweep:15,shock:33,hit:34,down:36,rec:35,back:40,spin:24,throw:21,wave:31,pillar:29,quake:30,phantom:28,dive:26,curl:39},
   seq:{walk:[1,2,3,4,5,6,7,8],ready:[13,14],guard:[16,23],raise:[37,38],breath:[19,20],halo:[17,23],dash:[9,10,11,12],sweep:[14,15],hit:[33,34],down:[35,36],spin:[17,18,24],throw:[22,21],wave:[14,31],pillar:[25,26,29],quake:[29,30],phantom:[27,28,32],dive:[25,26]},
   lp:{atk:[13,14,15,15,16],walk:[1,2,3,4,5,6,7,8],idle:[0,0,19,37]},src:'img/linhnhi.png'};
+/* v16.71: nam chính Thanh Phong (tấm 40 khung, lưới 8 cột), chọn ở bước tạo hình */
+ANIM_SRC.thanhphong={n:40,cols:8,w:398,h:247,box:[108,1,183,245],sc:.2327,hmk:.113,
+  pose:{idle:0,ready:12,guard:22,turn:38,raise:36,breath:37,halo:30,dash:10,sweep:14,shock:32,hit:33,down:35,rec:34,back:38,spin:19,throw:18,wave:23,pillar:29,quake:29,phantom:20,dive:28,curl:34},
+  seq:{walk:[4,5,6,7],ready:[12,39],guard:[15,22],raise:[36,37],breath:[1,2],halo:[24,30],dash:[8,9,10,11],sweep:[13,14],hit:[32,33],down:[34,35],spin:[16,19],throw:[15,18],wave:[21,23],pillar:[13,29],quake:[17,29],phantom:[20,28],dive:[17,21]},
+  lp:{atk:[12,13,14,14,16],walk:[4,5,6,7],idle:[0,1,2,36]},src:'img/thanhphong.png'};
 function loadAnims(){return Promise.all(Object.entries(ANIM_SRC).map(([id,a])=>new Promise(res=>{const im=new Image();
   if(!HQ&&a.lo)a={...a,src:a.lo,w:a.w/2,h:a.h/2,box:a.box.map(v=>v/2),sc:a.sc*2};
   im.onload=()=>{const fr=[];
     /* v15.1: hình quái cắt lại 2x nên khung được tạo khi cần và chỉ giữ cho 16 loài dùng gần nhất (đỡ tốn bộ nhớ máy yếu) */
-    if(id==='diep'||id==='linhnhi')for(let i=0;i<a.n;i++)fr.push(animCut(im,a,i));else for(let i=0;i<a.n;i++)Object.defineProperty(fr,i,{get:()=>animFr(id,i),enumerable:true});
+    if(id==='diep'||id==='linhnhi'||id==='thanhphong')for(let i=0;i<a.n;i++)fr.push(animCut(im,a,i));else for(let i=0;i<a.n;i++)Object.defineProperty(fr,i,{get:()=>animFr(id,i),enumerable:true});
     // still image for the map, party screen and minis: frame 0 trimmed to its body, at game scale
     const[bx,by,bw,bh]=a.box,s=document.createElement('canvas');s.width=Math.round(bw*a.sc);s.height=Math.round(bh*a.sc);const x=s.getContext('2d');
     x.imageSmoothingQuality='high';if(nativeLeft(a,0)){x.translate(s.width,0);x.scale(-1,1);}x.drawImage(im,bx,by,bw,bh,0,0,s.width,s.height);try{const d=x.getImageData(0,0,s.width,s.height);for(let i=3;i<d.data.length;i+=4)d.data[i]=d.data[i]<110?0:255;x.putImageData(d,0,0);}catch(e){}
@@ -2245,7 +2280,9 @@ function regKey(x,y){if(G&&G.realm&&WD.rz)return 100+WD.rz[clamp(y,0,MH-1)*MW+cl
 function regName(k){if(G&&G.realm){const R0=RLM[G.realm];return k>=100&&R0.rn?R0.rn[k-100]:R0.n;}/* v15.42: tên vùng riêng của từng giới */return BION[Math.floor(k/10)]||ZONES[k%10].n;}
 /* v16.42: Tạo hình nhân vật (giới tính, kiểu tóc, màu tóc, trang phục). G.look={g,h,c,o}; bản lưu cũ không có look nên giữ đúng hình Minh Dạ gốc.
    Màu đổi theo vùng (tóc, áo khoác, khăn đỏ) trên tấm diep gốc; kiểu tóc vẽ thêm phía sau đầu theo khung đầu từng khung hình. */
-const LOOKG=['Nam · Minh Dạ','Nữ · Linh Nhi'];var HN='Minh Dạ';
+const LOOKG=['Nam · Minh Dạ','Nữ · Linh Nhi','Nam · Thanh Phong'];
+/* v16.71: nhân vật chính có tấm riêng (không đổi màu): g=1 Linh Nhi, g=2 Thanh Phong */
+const HEROS=[null,{id:'linhnhi',n:'Linh Nhi',k:'LN',d:'Nữ pháp sư dùng quạt ngọc, áo trắng thắt đai đỏ.'},{id:'thanhphong',n:'Thanh Phong',k:'TP',d:'Kiếm khách áo xanh thẫm, khăn lục bay, kiếm khí như gió.'}];var HN='Minh Dạ';
 function hnS(t){return HN!=='Minh Dạ'&&typeof t==='string'&&t.indexOf('Minh Dạ')>=0?t.split('Minh Dạ').join(HN):t;}
 const LOOKH=[{n:'Tóc rối',g:0},{n:'Búi tóc',g:0},{n:'Đuôi ngựa',g:2},{n:'Tóc dài',g:1},{n:'Hai búi',g:1},{n:'Buộc thấp',g:2}];/* g: 0 hợp nam, 1 hợp nữ, 2 cả hai */
 const LOOKC=[{n:'Lam',c:'#1f6a86'},{n:'Đen',c:'#26232e',t:[230,.22,.42,0]},{n:'Nâu',c:'#6a3a1e',t:[24,.78,.92,0]},{n:'Bạc',c:'#c8ccd8',t:[215,.08,1.05,.4]},
@@ -2257,12 +2294,12 @@ const LOOKO=[{n:'Lam Bào',j:null,r:null,a:'#2a3a6a',b:'#d8302a'},{n:'Thanh Y',j
   {n:'Huyết Y',j:[352,.95,1.25,0],r:[230,.3,.55,0],a:'#6a1420',b:'#2a2a3a'}];
 /* khung đầu (vùng tóc) gần đúng của 12 khung Minh Dạ, toạ độ trong khung 480x444 */
 const LOOKHB=[[131,66,238,133],[196,104,275,180],[205,95,300,180],[220,140,325,215],[173,113,263,176],[121,60,236,139],[28,82,149,147],[161,61,266,155],[164,77,277,161],[135,66,233,134],[114,74,223,144],[132,64,238,134]];
-function lookDef(g){return g?{g:1,h:0,c:0,o:0}:{g:0,h:0,c:0,o:0};}
-function lookNorm(l){if(!l||typeof l!=='object')return lookDef(0);if(l.v===2)return lookDef(l.g===1?1:0);/* bản lưu có nhân vật cổ trang 16.50 (đã gỡ): về tạo hình 16.42 theo giới tính */const n=(v,m)=>Number.isInteger(v)&&v>=0&&v<m?v:0;return{g:n(l.g,2),h:n(l.h,LOOKH.length),c:n(l.c,LOOKC.length),o:n(l.o,LOOKO.length)};}
-function lookKey(l){l=lookNorm(l);return l.g===1?'LN':l.h+'.'+l.c+'.'+l.o;}
+function lookDef(g){return{g:g>0&&g<LOOKG.length?g:0,h:0,c:0,o:0};}
+function lookNorm(l){if(!l||typeof l!=='object')return lookDef(0);if(l.v===2)return lookDef(l.g===1?1:0);/* bản lưu có nhân vật cổ trang 16.50 (đã gỡ): về tạo hình 16.42 theo giới tính */const n=(v,m)=>Number.isInteger(v)&&v>=0&&v<m?v:0;return{g:n(l.g,LOOKG.length),h:n(l.h,LOOKH.length),c:n(l.c,LOOKC.length),o:n(l.o,LOOKO.length)};}
+function lookKey(l){l=lookNorm(l);return HEROS[l.g]?HEROS[l.g].k:l.h+'.'+l.c+'.'+l.o;}
 /* khung gốc của Minh Dạ (trước khi đổi màu hay đổi sang Linh Nhi) */
 function lookMD(){const a=ANIM.diep;if(!a.md)a.md={n:a.n,w:a.w,h:a.h,box:a.box,sc:a.sc,pose:a.pose,seq:a.seq,cols:a.cols,hmk:a.hmk,lp:a.lp,im:a.im,fr:a.fr,spr:SPR.diep};return a.md;}
-function lookAnim(l){return lookNorm(l).g===1&&ANIM.linhnhi||lookMD();}
+function lookAnim(l){const h=HEROS[lookNorm(l).g];return h&&ANIM[h.id]||lookMD();}
 const LOOKS={};let LOOKCLS=null;
 function rgb2hsv(r,g,b){r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,g,b),d=M-m;let h=0;if(d){if(M===r)h=((g-b)/d+6)%6;else if(M===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;}return[h,M?d/M:0,M];}
 function hsv2rgb(h,s,v){h=((h%360)+360)%360/60;const i=Math.floor(h),f=h-i,p=v*(1-s),q=v*(1-s*f),t=v*(1-s*(1-f));const o=[[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i%6];return o.map(x=>Math.round(Math.max(0,Math.min(1,x))*255));}
@@ -2296,7 +2333,7 @@ function lookHair(i,hs,col,W,H){if(!hs)return null;const lc=document.createEleme
   return lc;}
 /* bộ khung + hình tĩnh cho một tạo hình; giữ trong LOOKS để bản online có thể dùng cho người chơi khác */
 function lookFrames(l){l=lookNorm(l);const key=lookKey(l);if(LOOKS[key])return LOOKS[key];if(!ANIM.diep)return null;
-  if(key==='LN'){const N=ANIM.linhnhi;return N?(LOOKS[key]={fr:N.fr,spr:SPR.linhnhi}):lookFrames({g:0,h:0,c:0,o:0});}
+  if(HEROS[l.g]){const h=HEROS[l.g],N=ANIM[h.id];return N?(LOOKS[key]={fr:N.fr,spr:SPR[h.id]}):lookFrames({g:0,h:0,c:0,o:0});}
   const a=lookMD(),im=a.im;
   if(key==='0.0.0'){return LOOKS[key]={fr:a.fr,spr:a.spr};}
   const cls=lookClasses(),hc=l.c?LOOKC[l.c].t:null,O=LOOKO[l.o],fr=[];
@@ -2308,13 +2345,13 @@ function lookFrames(l){l=lookNorm(l);const key=lookKey(l);if(LOOKS[key])return L
     x.putImageData(D,0,0);fr.push(k);}
   const[bx,by,bw,bh]=a.box,s=document.createElement('canvas');s.width=Math.round(bw*a.sc);s.height=Math.round(bh*a.sc);const sx=s.getContext('2d');sx.imageSmoothingQuality='high';sx.drawImage(fr[0],bx,by,bw,bh,0,0,s.width,s.height);
   try{const q=sx.getImageData(0,0,s.width,s.height);for(let j=3;j<q.data.length;j+=4)q.data[j]=q.data[j]<110?0:255;sx.putImageData(q,0,0);}catch(e){}
-  const ks=Object.keys(LOOKS);if(ks.length>6){const z0=ks.find(z=>z!=='0.0.0'&&z!=='LN'),old=LOOKS[z0];if(old)for(const f of old.fr){flipC.delete(f);whiteC.delete(f);}delete LOOKS[z0];}
+  const ks=Object.keys(LOOKS);if(ks.length>6){const z0=ks.find(z=>z!=='0.0.0'&&z!=='LN'&&z!=='TP'),old=LOOKS[z0];if(old)for(const f of old.fr){flipC.delete(f);whiteC.delete(f);}delete LOOKS[z0];}
   return LOOKS[key]={fr,spr:s};}
 /* dùng tạo hình cho Minh Dạ ở mọi nơi (bản đồ, trận, menu, đấu trường) */
-function lookApply(l){const a=ANIM.diep;if(!a)return;const M=lookMD();l=lookNorm(l);const N=l.g===1&&ANIM.linhnhi?ANIM.linhnhi:null,S=N||M;
+function lookApply(l){const a=ANIM.diep;if(!a)return;const M=lookMD();l=lookNorm(l);const HH=HEROS[l.g],N=HH&&ANIM[HH.id]?ANIM[HH.id]:null,S=N||M;
   for(const k of['n','w','h','box','sc','pose','seq','cols','hmk','lp','im'])a[k]=S[k];
-  if(N){a.fr=N.fr;SPR.diep=SPR.linhnhi;}else{let L;try{L=lookFrames(l);}catch(e){L=null;}if(!L)L={fr:M.fr,spr:M.spr};a.fr=L.fr;SPR.diep=L.spr;}
-  HN=N?'Linh Nhi':'Minh Dạ';SPECIES.diep.name=HN;try{if(G)for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep')u.name=HN;}catch(e){}
+  if(N){a.fr=N.fr;SPR.diep=SPR[HH.id];}else{let L;try{L=lookFrames(l);}catch(e){L=null;}if(!L)L={fr:M.fr,spr:M.spr};a.fr=L.fr;SPR.diep=L.spr;}
+  HN=N?HH.n:'Minh Dạ';SPECIES.diep.name=HN;try{if(G)for(const u of G.party.concat(G.box||[]))if(u&&u.id==='diep')u.name=HN;}catch(e){}
   BVIS.delete('diep');for(const k in MINI)if(k==='diep'||k.indexOf('diep')===0)delete MINI[k];}
 function lookBoot(){try{if(SAVED&&SAVED.G&&SAVED.G.look)lookApply(SAVED.G.look);}catch(e){}}
 /* màn tạo hình (lớp HTML trên canvas, giống ô đặt tên của bản online) */
@@ -2346,7 +2383,7 @@ function lookAsk(cur,canBack=true){lookCss();held.length=0;let L=cur?lookNorm(cu
     if(L.g===0){row('Kiểu tóc',LOOKH.map((h,i)=>({h,i})).filter(o=>o.h.g===2||o.h.g===L.g).map(({h,i})=>btn(h.n,L.h===i,()=>{L.h=i;})));
     row('Màu tóc',LOOKC.map((c,i)=>btn(c.n,L.c===i,()=>{L.c=i;},'sw',c.c)));
     row('Trang phục',LOOKO.map((o,i)=>btn(`<i style="background:${o.a}"></i>${o.n}`,L.o===i,()=>{L.o=i;})));}
-    else{const r=document.createElement('div');r.className='rw';r.innerHTML='<b>Linh Nhi</b><span style="color:#a397b6">Nữ pháp sư dùng quạt ngọc, áo trắng thắt đai đỏ.</span>';op.appendChild(r);}
+    else{const h=HEROS[L.g],r=document.createElement('div');r.className='rw';r.innerHTML='<b>'+h.n+'</b><span style="color:#a397b6">'+h.d+'</span>';op.appendChild(r);}
     const ft=document.createElement('div');ft.className='ft';
     ft.appendChild(btn('Bắt đầu ▸',0,()=>{try{sfx('ok');}catch(e){}close(L);},'go'));
     if(L.g===0)ft.appendChild(btn('Ngẫu nhiên',0,()=>{const hs=LOOKH.map((h,i)=>({h,i})).filter(o=>o.h.g===2||o.h.g===L.g);L={g:L.g,h:hs[Math.floor(Math.random()*hs.length)].i,c:Math.floor(Math.random()*LOOKC.length),o:Math.floor(Math.random()*LOOKO.length)};}));
@@ -3048,7 +3085,8 @@ function setRows(){if(MENU&&MENU.sg)return[
   {l:'Tầm nhìn bản đồ',v:ZOOMN[ZOOMI],f:cycleZoom,d:'Gần, Xa hoặc Rất xa: thu phóng bản đồ khi đi lại.'},
   {l:'Góc nhìn',v:SET.tl?'Nghiêng 2.5D':'Thẳng xuống',f:setTg('tl'),d:'Thẳng xuống: nhìn bản đồ từ trên xuống như cũ. Nghiêng 2.5D: ống kính nghiêng chéo, đất phía xa thu nhỏ dần, cây, nhà, người và quái đứng thẳng có chiều sâu.'},
   {l:'Hình ảnh',v:HQ?'Cao':'Thấp',f:()=>{sfx('sel');ask('Đổi hình ảnh sang '+(HQ?'Thấp':'Cao')+'?',HQ?'Hình quái như bản cũ, nhẹ máy và tải nhanh hơn. Game sẽ lưu và tải lại.':'Hình quái nét gấp đôi, tốn bộ nhớ hơn. Game sẽ lưu và tải lại.',[{t:'Đổi'},{t:'Thôi'}]).then(i=>{if(i!==0)return;try{localStorage.setItem('gms-hq',HQ?'0':'1');}catch(e){}save();location.reload();});},d:'Cao: hình quái nét gấp đôi. Thấp: hình quái như bản cũ, nhẹ máy hơn. Đổi xong game tự lưu và tải lại.'},
-  {l:'Hiệu ứng hạt',v:SET.lfx?'Giảm':'Đầy đủ',f:setTg('lfx'),d:'Giảm bớt tia sáng, bụi và hạt hiệu ứng để máy yếu chạy mượt hơn.'},
+  /*CEL17r*/{l:'Phong cách',v:CEL?'Anime':'Gốc',f:()=>{sfx('sel');ask('Đổi phong cách sang '+(CEL?'Gốc':'Anime')+'?',CEL?'Hình nhân vật, quái và cảnh vật như bản cũ. Game sẽ lưu và tải lại.':'Hình 2D anime cel-shaded: viền mực, bóng tô phẳng, màu tươi. Game sẽ lưu và tải lại.',[{t:'Đổi'},{t:'Thôi'}]).then(i=>{if(i!==0)return;try{localStorage.setItem('gms-cel',CEL?'0':'1');}catch(e){}save();location.reload();});},d:'Anime: hình tô kiểu hoạt hình cel-shaded (viền mực, bóng phẳng, màu tươi). Gốc: hình như bản cũ. Đổi xong game tự lưu và tải lại.'},
+  /*CEL17re*/{l:'Hiệu ứng hạt',v:SET.lfx?'Giảm':'Đầy đủ',f:setTg('lfx'),d:'Giảm bớt tia sáng, bụi và hạt hiệu ứng để máy yếu chạy mượt hơn.'},
   {l:'Tên chiêu trên đầu',v:onOff(SET.skn),f:setTg('skn'),d:'Hiện tên chiêu thức trên đầu nhân vật và đối thủ khi thi triển.'},
   {l:'Hiệu ứng thời tiết',v:onOff(SET.wx),f:setTg('wx'),d:'Mưa, tuyết, gió bụi và sấm sét trên bản đồ.'},
   {l:'Rung màn hình',v:onOff(SET.shk),f:setTg('shk'),d:'Rung khung cảnh khi trúng đòn trong trận.'}];}
@@ -7119,6 +7157,201 @@ layout.ready=1;layout();relayout();
 function imgsReady(){return Promise.all([FLA,BLA,RDA,TMTIMG,CDIMG,FXA,ITA,SMA,ARA].map(im=>im.complete?0:new Promise(r=>{im.addEventListener('load',r);im.addEventListener('error',r);})));}
 const go=()=>{if(go.d)return;go.d=1;requestAnimationFrame(frame);};
 Promise.all([(document.fonts&&document.fonts.load?document.fonts.load('10px VT323'):Promise.resolve()).catch(()=>{}),loadAnims().then(lookBoot),imgsReady()]).then(go,go);setTimeout(go,6000);
-window.__loy={loyTick:()=>loyTick(),loyLose:()=>loyLose(),useCons:(k,u)=>useCons(k,u),openTower:()=>openTower(),itAdd:(k,n)=>itAdd(k,n)};window.__dexi=id=>dexIds().indexOf(id);window.__dexi2=id=>dexList().indexOf(id);window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
+window.__loy={loyTick:()=>loyTick(),loyLose:()=>loyLose(),useCons:(k,u)=>useCons(k,u),openTower:()=>openTower(),itAdd:(k,n)=>itAdd(k,n)};window.__dexi=id=>dexIds().indexOf(id);window.__dexi2=id=>dexList().indexOf(id);/*LGK*//* ===== v16.70 Linh Giới dựng lại bằng bộ tài nguyên người chơi gửi 2026-11-13
+   ("dùng bộ tài nguyên này sắp xếp tạo dựng linh giới 1 cách hợp lý sống động với các làng chính và các khu bên ngoài làng").
+   Ảnh img/lgk.png + toạ độ LGM do tools/linhgioi/cut.py tạo; chèn vào game bằng tools/linhgioi/patch_lgk.py.
+   Chỉ đổi Linh Giới (realmGen(1)); Nhân Giới, Quỷ Giới, Ma Giới giữ nguyên.
+   - 4 làng chính: Linh Môn Trấn (ngay dưới cổng đến), Vạn Hoa Thôn, Ngọc Tuyền Thôn (có sông và cầu đá vòm), Thức Thần Tự (chùa).
+     Mỗi làng: phố lát đá, quảng trường, nhà lớn, sạp hàng, giếng, đèn, cây hoa, dân làng đi lại và nói chuyện khi thầy pháp tới gần.
+     Trong làng là đất an toàn (inTown): không gặp quỷ, quỷ không đi vào.
+   - Đường đất nối cổng với các làng (bắc cầu khi qua nước), đèn ven đường.
+   - Ngoài làng: cây theo từng vùng (anh đào, mận, phong đỏ, thông, cây thần), và các khu: miếu thờ cáo thần, trại tiều phu,
+     vườn hoa, hồ sen, đình nghỉ chân. ===== */
+const LGA=new Image();LGA.src='img/lgk.png';
+const LGM={"b_well":[0,0,319,320],"b_hall2":[321,0,277,294],"b_hall":[600,0,292,282],"b_pagoda":[894,0,186,267],"b_house2":[1082,0,287,241],"b_house1":[1371,0,258,211],"b_house3":[1631,0,181,195],"x_bridge":[0,322,268,184],"t_sakura":[270,322,129,179],"b_house4":[401,322,208,178],"t_oak":[611,322,144,168],"t_plum":[757,322,126,143],"t_maple":[885,322,109,127],"f_bed":[996,322,141,126],"t_spirit":[1139,322,77,121],"p_logs":[1218,322,128,113],"p_bench":[1348,322,114,112],"p_pump":[1464,322,59,112],"p_jar":[1525,322,66,108],"t_pine":[1593,322,61,105],"n_elder":[1656,322,69,101],"p_banner":[1727,322,40,98],"t_green":[1769,322,87,97],"t_round":[1858,322,115,96],"b_kiosk":[1975,322,70,92],"t_yellow":[0,508,97,92],"n_91":[99,508,46,91],"p_lamp":[147,508,37,90],"n_83":[186,508,47,90],"n_84":[235,508,47,90],"n_89":[284,508,51,90],"n_92":[337,508,54,90],"n_90":[393,508,53,89],"n_93":[448,508,46,89],"n_87":[496,508,37,88],"p_cab2":[535,508,54,87],"n_88":[591,508,46,87],"p_awning":[639,508,148,86],"p_tower":[789,508,59,86],"n_86":[850,508,39,86],"n_113":[891,508,51,84],"p_altar":[944,508,79,83],"p_bed":[1025,508,90,83],"p_stall":[1117,508,118,83],"n_110":[1237,508,42,83],"p_shrine":[1281,508,69,82],"n_81":[1352,508,49,82],"n_85":[1403,508,47,82],"n_111":[1452,508,38,82],"p_stonebox":[1492,508,92,80],"n_112":[1586,508,51,80],"n_115":[1639,508,46,80],"n_109":[1687,508,45,79],"n_82":[1734,508,36,78],"p_lstand":[1772,508,52,77],"n_114":[1826,508,49,77],"n_116":[1877,508,36,77],"n_117":[1915,508,35,77],"n_girl":[1952,508,49,76],"n_108":[2003,508,37,76],"n_107":[0,602,36,75],"p_wellr":[38,602,59,74],"p_basin":[99,602,62,74],"p_cab":[163,602,67,73],"n_102":[232,602,52,73],"n_124":[286,602,44,73],"p_crate":[332,602,85,72],"n_126":[419,602,37,72],"n_128":[458,602,44,72],"n_103":[504,602,49,71],"n_105":[555,602,46,71],"n_123":[603,602,45,71],"f_red":[650,602,78,70],"n_125":[730,602,43,70],"p_chest":[775,602,66,68],"n_104":[843,602,40,68],"n_130":[885,602,42,68],"n_132":[929,602,38,66],"n_131":[969,602,39,65],"n_133":[1010,602,37,65],"n_135":[1049,602,38,65],"n_136":[1089,602,37,65],"f_box":[1128,602,80,64],"p_lpost":[1210,602,45,64],"n_127":[1257,602,36,64],"n_129":[1295,602,34,64],"n_134":[1331,602,38,64],"p_fount":[1371,602,78,63],"n_137":[1451,602,39,63],"p_fire":[1492,602,58,61],"p_fox":[1552,602,62,61],"n_138":[1616,602,35,61],"n_140":[1653,602,43,59],"f_lily":[1698,602,83,58],"n_139":[1783,602,44,58],"n_kid":[1829,602,37,56],"n_k2":[1868,602,41,53],"n_k3":[1911,602,35,52],"p_hay":[1948,602,62,50],"n_k1":[0,679,50,49],"n_k4":[52,679,29,46],"p_brazier":[83,679,35,40],"p_fence":[120,679,91,34],"p_logb":[213,679,87,33],"p_logb2":[302,679,115,30]};
+const LGK={},LGQ=document.createElement('canvas');LGQ.width=LGQ.height=1;
+const LGS={b:.45,t:.5,p:.42,n:.44,x:.33,f:.42};
+const LGSC={b_kiosk:.55,p_fox:.4,t_sakura:.55,t_oak:.55,p_awning:.38,f_bed:.38,p_logs:.36,n_elder:.42,p_jar:.36,p_pump:.38};
+function lgOk(){return LGA.complete&&LGA.naturalWidth>0;}
+function lgSc(n){return LGSC[n]||LGS[n[0]]||.45;}
+function lgSize(n){const m=LGM[n],s=lgSc(n);return m?{w:m[2]*s,h:m[3]*s}:{w:16,h:16};}
+function lgPart(n,fl){const K=fl?n+'#f':n;let A=LGK[K];if(A)return A;if(!lgOk())return null;const m=LGM[n];if(!m)return null;
+  const k=document.createElement('canvas');k.width=m[2];k.height=m[3];const g=k.getContext('2d');
+  if(fl){g.translate(m[2],0);g.scale(-1,1);}g.drawImage(LGA,m[0],m[1],m[2],m[3],0,0,m[2],m[3]);
+  const s=lgSc(n);return LGK[K]={k,w:m[2]*s,h:m[3]*s};}
+function lgOb(n){const A=lgPart(n);return A?{k:A.k,w:A.w,h:A.h}:{k:LGQ,w:1,h:1};}
+{const _h=hdOb;hdOb=function(o,x,y){if(typeof o==='string'&&o.startsWith('P:lk_'))return lgOb(o.slice(5));return _h(o,x,y);};}
+{const _d=hdDeco;hdDeco=function(d,x,y){if(typeof d==='string'&&d.startsWith('lk_'))return lgOb(d.slice(3));return _d(d,x,y);};}
+/* trong làng Linh Giới coi như trong làng: đất an toàn, phố lát đá */
+{const _t=inTown;inTown=function(x,y){if(_t(x,y))return true;const v=WD&&WD.lkv;return !!v&&x>=0&&y>=0&&x<MW&&y<MH&&v[y*MW+x]>0;};}
+function lgVilAt(x,y){const v=WD&&WD.lkv;return v&&x>=0&&y>=0&&x<MW&&y<MH?v[y*MW+x]:0;}
+
+const LGN=['n_81','n_82','n_83','n_84','n_85','n_86','n_87','n_88','n_89','n_90','n_91','n_92','n_93','n_102','n_103','n_104','n_105','n_107','n_108','n_109','n_110','n_111','n_112','n_113','n_114','n_115','n_116','n_117',
+  'n_123','n_124','n_125','n_126','n_127','n_128','n_129','n_130','n_131','n_132','n_133','n_134','n_135','n_136','n_137','n_138','n_139','n_140','n_girl','n_kid','n_k1','n_k2','n_k3','n_k4'];
+const LGT=[/* cây ngoài làng theo vùng rz 0..6 */
+  ['t_oak','t_round','t_green','t_yellow','t_sakura'],['t_green','t_yellow','t_round','t_oak'],['t_sakura','t_plum','t_sakura','t_maple','t_plum'],
+  ['t_oak','t_green','t_round','t_pine'],['t_spirit','t_pine','t_spirit','t_plum'],['t_pine','t_maple','t_pine','t_green'],['t_plum','t_round','t_yellow','t_sakura']];
+const LGL=[/* câu dân làng nói, theo làng */
+  ['Linh Môn Trấn đón khách từ Nhân Giới đã mấy trăm năm rồi.','Thầy pháp đi đường xa, ghé quán uống chén trà đã.','Ra khỏi trấn nhớ đi theo đường đèn, tinh linh hoang hay lạc lối lắm.','Đêm rằm cổng sáng lắm, cả trấn ra xem.','Chợ phiên sáng nay đông vui ghê!','Ngọc Tảo Tiền giữ cổng nghiêm lắm, thầy qua được là giỏi đó.'],
+  ['Vạn Hoa Thôn quanh năm hoa nở, không có mùa đông.','Cánh hoa rơi xuống suối là hóa thành tinh linh nhỏ đấy.','Bà tôi trồng cây anh đào này từ hồi còn bé.','Ong ở đây cũng biết nói, thầy tin không?'],
+  ['Nước suối Ngọc Tuyền uống vào sáng mắt, khoẻ người.','Đừng câu cá dưới cầu, cá ở đó là thủy linh đấy.','Cây cầu đá này do thức thần xây trong một đêm.','Hồ sen phía tây có tiên nữ tắm trăng.'],
+  ['Mô Phật, thí chủ đến lễ thần cáo sao?','Thức thần trong chùa canh giữ Linh Giới ngày đêm.','Thắp một nén nhang, cầu bình an cho đường thu yêu.','Tượng cáo đá mà mỉm cười là điềm lành đó.'],
+  ['Củi ở Linh Giới cháy không khói, thơm như trầm.','Thầy có gặp cáo trắng thì nhường đường cho nó nhé.','Nghỉ chân sưởi lửa đã, đường còn xa.'],
+  ['Xóm nhỏ thôi nhưng ai đi qua cũng được mời bát nước.','Theo đường đất có đèn là về được Linh Môn Trấn.','Đêm ở đây tinh linh đom đóm bay đầy trời.','Nhà tôi ba đời làm nghề chăm cây cho tinh linh.']];
+
+function lgBuild(W,sd){
+  const N=MW*MH,G0=ZONES[RLM[1].z].g;
+  let a=(sd*2654435761)>>>0;const rnd=()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};
+  const pick=L=>L[Math.floor(rnd()*L.length)];
+  const inb=(x,y)=>x>2&&y>2&&x<MW-3&&y<MH-3;
+  W.lkv=new Uint8Array(N);W.lkb=[];W.lkn=[];W.lkV=[];if(!W.bridge)W.bridge=new Uint8Array(N);
+  const occ=new Uint8Array(N);/* ô đã đặt đồ của bộ mới */
+  const clr=(x,y)=>{W.ob[y][x]=null;W.dc[y][x]=null;};
+  const free=(x,y)=>inb(x,y)&&W.g[y][x]!=='w'&&!W.ob[y][x]&&!occ[y*MW+x];
+  /* đồ 1 ô (cây, đèn...) */
+  const put=(n,x,y,force)=>{if(!inb(x,y))return false;const i=y*MW+x;if(!force&&(!free(x,y)||W.road[i]||W.g[y][x]==='='||W.g[y][x]==='t'))return false;W.ob[y][x]='P:lk_'+n;W.dc[y][x]=null;occ[i]=1;return true;};
+  /* công trình lớn: chân đế fw x fh ô, đáy ở hàng by, giữa ở cx */
+  const big=(n,cx,by,opt={})=>{const S=lgSize(n),sc=opt.s||1,fw=Math.max(2,Math.round(S.w*sc/TS)-1),fh=opt.fh||Math.max(2,Math.min(5,Math.round(S.h*sc*.36/TS)));
+    const x0=cx-Math.floor(fw/2);for(let y=by-fh+1;y<=by;y++)for(let x=x0;x<x0+fw;x++){if(!inb(x,y))continue;W.ob[y][x]='B';W.dc[y][x]=null;occ[y*MW+x]=1;}
+    W.lkb.push({n,ax:cx,ay:by,s:sc,oy:opt.oy||0});return fw;};
+  const ppl=(n,x,y,vi,walk,line)=>W.lkn.push({n,x,y,hx:x,hy:y,tx:x,ty:y,v:vi,w:walk,t:rnd()*3000,f:rnd()<.5,line});
+
+  /* ---------- làng ---------- */
+  const cx0=W.rx,cy0=W.ry,VS=[];
+  const fits=(X,Y,w,h)=>{if(X<4||Y<4||X+w>MW-4||Y+h>MH-4)return false;let wt=0;
+    for(let y=Y-2;y<Y+h+2;y++)for(let x=X-2;x<X+w+2;x++){if(W.g[y][x]==='w')wt++;}
+    if(wt>(w+4)*(h+4)*.06)return false;
+    if(Math.abs(X+w/2-cx0)<w/2+4&&cy0+3>Y-2&&cy0-3<Y+h)return false;
+    for(const v of VS)if(X<v.x+v.w+8&&X+w+8>v.x&&Y<v.y+v.h+8&&Y+h+8>v.y)return false;return true;};
+  const place=(tx,ty,w,h)=>{/* tìm chỗ gần (tx,ty), lùi dần về tâm */for(let r=0;r<60;r+=2)for(let k=0;k<12;k++){const an=k/12*Math.PI*2,X=Math.round(tx+Math.cos(an)*r-w/2),Y=Math.round(ty+Math.sin(an)*r*.7-h/2);if(fits(X,Y,w,h))return{X,Y};}return null;};
+  const TPL=[
+    {nm:'Linh Môn Trấn',w:56,h:34,nl:['b_house1','b_pagoda'],nh:'b_hall2',nr:['b_well','b_house2'],sl:['b_house3','b_hall','b_house4'],sr:['b_house1','b_house2','b_house3'],tr:['t_sakura','t_plum'],np:22},
+    {nm:'Vạn Hoa Thôn',w:46,h:32,nl:['b_house3','b_house1'],nh:'b_pagoda',nr:['b_house4','b_house3'],sl:['b_house2','b_house4'],sr:['b_house1','b_house3'],tr:['t_sakura','t_plum','t_sakura'],np:14,flower:1},
+    {nm:'Ngọc Tuyền Thôn',w:46,h:32,nl:['b_house4','b_house2'],nh:'b_well',nr:['b_house1','b_house3'],sl:['b_house3','b_house4'],sr:['b_house2','b_house4'],tr:['t_round','t_green','t_plum'],np:14,river:1},
+    {nm:'Thức Thần Tự',w:42,h:30,nl:['b_pagoda','b_kiosk'],nh:'b_hall',nr:['b_kiosk','b_pagoda'],sl:['b_house3','b_kiosk'],sr:['b_kiosk','b_house4'],tr:['t_spirit','t_pine'],np:10,temple:1},
+    /* xóm nhỏ ở ba vùng còn lại */
+    {nm:'Xóm Thanh Linh',w:36,h:26,nl:['b_house4'],nh:'b_house1',nr:['b_house3'],sl:['b_house3','b_kiosk'],sr:['b_house4'],tr:['t_green','t_round'],np:7,small:1},
+    {nm:'Bản Bích Vân',w:36,h:26,nl:['b_house3'],nh:'b_pagoda',nr:['b_house4'],sl:['b_house4'],sr:['b_kiosk','b_house3'],tr:['t_pine','t_maple'],np:7,small:1},
+    {nm:'Xóm Nguyệt Quang',w:36,h:26,nl:['b_house4'],nh:'b_house2',nr:['b_house3'],sl:['b_house3'],sr:['b_house4','b_kiosk'],tr:['t_plum','t_yellow'],np:7,small:1}];
+  const RZ=[null,2,3,4,1,5,6];
+  for(let vi=0;vi<TPL.length;vi++){const T=TPL[vi];let tx,ty;
+    if(vi===0){tx=cx0;ty=cy0+6+T.h/2;}else{const c=W.rzc&&W.rzc[RZ[vi]];if(!c)continue;tx=c.x;ty=c.y;}
+    const p=place(tx,ty,T.w,T.h);if(!p)continue;const X=p.X,Y=p.Y,w=T.w,h=T.h,cx=X+Math.floor(w/2),sy=Y+Math.floor(h/2),px0=cx-7,px1=cx+7,py0=sy-4,py1=sy+5;
+    const V={id:vi,name:T.nm,x:X,y:Y,w,h,cx,sy,ex:[]};VS.push(V);W.lkV.push(V);
+    for(let y=Y-1;y<=Y+h;y++)for(let x=X-1;x<=X+w;x++){if(!inb(x,y))continue;W.g[y][x]=G0;clr(x,y);W.road[y*MW+x]=0;if(y>=Y&&y<Y+h&&x>=X&&x<X+w)W.lkv[y*MW+x]=vi+1;}
+    const pave=(x,y,t)=>{if(inb(x,y)){W.g[y][x]=t;clr(x,y);}};
+    for(let x=X;x<X+w;x++){pave(x,sy,'=');pave(x,sy+1,'=');pave(x,Y+h-2,'=');pave(x,Y+h-1,'=');}
+    for(let y=py1;y<Y+h;y++){pave(cx-1,y,'=');pave(cx,y,'=');pave(cx+1,y,'=');}
+    for(let y=py0;y<=py1;y++)for(let x=px0;x<=px1;x++)pave(x,y,'t');
+    V.ex=[[X-1,sy],[X+w,sy],[X-1,Y+h-2],[X+w,Y+h-2],[cx,Y+h]];
+    /* nhà phía bắc phố chính */
+    const row=(L,xa,xb,by,dir)=>{let cur=dir>0?xa:xb;for(const n of L){const S=lgSize(n),fw=Math.max(2,Math.round(S.w/TS)-1);
+        let c=dir>0?cur+Math.ceil(fw/2):cur-Math.ceil(fw/2);if(dir>0?c+Math.ceil(fw/2)>xb:c-Math.ceil(fw/2)<xa)break;big(n,c,by);
+        const gx=dir>0?c+Math.ceil(fw/2)+1:c-Math.ceil(fw/2)-1;cur=dir>0?gx+1:gx-1;
+        if(gx>xa&&gx<xb&&rnd()<.8)put(pick(['p_lamp','f_box','p_crate','p_hay','p_cab','p_jar','p_lstand']),gx,by,true);}};
+    row(T.nl,X+1,px0-1,sy-1,1);row(T.nr,px1+1,X+w-2,sy-1,-1);
+    big(T.nh,cx,py0-1);
+    row(T.sl,X+1,cx-3,Y+h-3,1);row(T.sr,cx+3,X+w-2,Y+h-3,-1);
+    /* quảng trường */
+    if(T.temple){put('p_altar',cx,py0+2,true);put('p_fox',cx-3,py0+2,true);put('p_fox',cx+3,py0+2,true);put('p_banner',px0+1,py0+1,true);put('p_banner',px1-1,py0+1,true);
+      put('p_brazier',cx-5,py1-1,true);put('p_brazier',cx+5,py1-1,true);put('p_jar',cx,py1-2,true);}
+    else if(T.small){put('p_wellr',cx-3,py1-1,true);put('p_hay',cx+3,py1-1,true);put('p_bench',cx+4,py0+2,true);}
+    else{put('p_stall',cx-5,py0+2,true);put('p_awning',cx+5,py0+2,true);put('p_wellr',cx-3,py1-1,true);put('p_fire',cx+3,py1-1,true);
+      put(T.flower?'f_bed':'f_box',px0+1,py1-1,true);put(T.flower?'f_bed':'f_box',px1-1,py1-1,true);if(T.river)put('p_fount',cx,py0+5,true);}
+    /* đèn dọc phố chính, cây góc làng */
+    for(let x=X+2;x<X+w-2;x+=6)if(x<px0-1||x>px1+1)put(x%12<6?'p_lpost':'p_lamp',x,sy+2);
+    for(const[x,y]of[[X+1,Y+2],[X+w-2,Y+2],[X+1,sy+4],[X+w-2,sy+4]])put(pick(T.tr),x,y,true);
+    for(let k=0;k<(T.flower?16:6);k++){const x=X+1+Math.floor(rnd()*(w-2)),y=Y+1+Math.floor(rnd()*(h-2));if(free(x,y)&&W.g[y][x]===G0)put(pick(T.flower?['t_sakura','t_plum','f_red','f_box']:T.tr),x,y);}
+    /* đèn hai bên lối ra */
+    for(const[x,y]of V.ex){if(y===sy||y===Y+h-2){put('p_lpost',x,y-1,true);}}
+    /* dân làng */
+    const L=T.small?LGL[5]:LGL[vi]||LGL[0];
+    if(!T.temple&&!T.small){ppl(pick(LGN),cx-5,py0+3,vi,0,'Mua gì đi thầy ơi, đồ ở sạp này toàn hàng Linh Giới!');ppl(pick(LGN),cx+5,py0+3,vi,0,'Bánh hoa đào mới ra lò đây!');}
+    else for(let k=0;k<3;k++)ppl('n_elder',cx-4+k*4,py0+4,vi,0,pick(L));
+    for(let k=0;k<T.np;k++){for(let t=0;t<30;t++){const x=X+Math.floor(rnd()*w),y=Y+Math.floor(rnd()*h);const g=W.g[y][x];if((g==='='||g==='t')&&!W.ob[y][x]){ppl(T.temple&&rnd()<.5?'n_elder':pick(LGN),x,y,vi,rnd()<.7?1:0,pick(L));break;}}}
+    /* Ngọc Tuyền: sông chảy dọc phía đông làng, cầu đá vòm trên phố chính */
+    if(T.river){const rx=X+w+3;for(let y=Y-14;y<Y+h+14;y++){const o=Math.round(Math.sin(y/5+vi)*1.2);for(let d=-1;d<=1;d++){const x=rx+o+d;if(!inb(x,y))continue;W.g[y][x]='w';clr(x,y);W.road[y*MW+x]=0;}}
+      const o=Math.round(Math.sin(sy/5+vi)*1.2),o2=Math.round(Math.sin((sy+1)/5+vi)*1.2);
+      for(let x=X+w;x<=rx+4;x++)for(const y of[sy,sy+1]){if(!inb(x,y))continue;const wtr=W.g[y][x]==='w';W.g[y][x]='=';clr(x,y);if(wtr)W.bridge[y*MW+x]=1;W.road[y*MW+x]=1;}
+      W.lkb.push({n:'x_bridge',ax:rx+Math.round((o+o2)/2),ay:sy+1,s:1,oy:4,flat:1});V.ex[1]=[rx+5,sy];}
+  }
+  /* ---------- đường đất nối cổng và các làng ---------- */
+  const path=(sx,sy2,tx,ty)=>{/* Dijkstra thô: đất 1, cây 3, nước 9; tránh đi xuyên làng khác */
+    const D=new Int32Array(N).fill(1e9),P=new Int32Array(N).fill(-1),Bk=[];const s=sy2*MW+sx,t=ty*MW+tx;D[s]=0;Bk[0]=[s];
+    for(let d=0;d<Bk.length;d++){const L=Bk[d];if(!L)continue;for(const i of L){if(D[i]!==d)continue;if(i===t){d=Bk.length;break;}const x=i%MW,y=(i-x)/MW;
+      for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(!inb(X,Y))continue;const j=Y*MW+X;if(W.lkv[j]&&j!==t)continue;if(W.ob[Y][X]==='B'||occ[j]&&W.ob[Y][X])continue;
+        const c=d+(W.g[Y][X]==='w'?9:W.road[j]?1:W.ob[Y][X]?3:2);if(c<D[j]){D[j]=c;P[j]=i;(Bk[c]||(Bk[c]=[])).push(j);}}}}
+    if(D[t]>=1e9)return;let i=t,n=0;
+    while(i>=0&&i!==s){const x=i%MW,y=(i-x)/MW;if(!W.lkv[i]){const wtr=W.g[y][x]==='w';W.g[y][x]='=';W.ob[y][x]=null;W.dc[y][x]=null;W.road[i]=1;if(wtr)W.bridge[i]=1;
+        if(++n%13===0){for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){if(put('p_lpost',x+dx,y+dy))break;}}}i=P[i];}};
+  const gate=[W.rx,W.ry+2];
+  for(const V of VS){let b=null,bd=1e9;for(const e of V.ex){const d=Math.abs(e[0]-gate[0])+Math.abs(e[1]-gate[1]);if(d<bd){bd=d;b=e;}}if(b)path(gate[0],gate[1],b[0],b[1]);}
+  for(let k=1;k<VS.length;k++){const A=VS[k],B2=VS[k%(VS.length-1)+1];if(A===B2)continue;let best=null,bd=1e9;for(const e of A.ex)for(const f of B2.ex){const d=Math.abs(e[0]-f[0])+Math.abs(e[1]-f[1]);if(d<bd){bd=d;best=[e,f];}}if(best)path(best[0][0],best[0][1],best[1][0],best[1][1]);}
+  /* ---------- các khu ngoài làng ---------- */
+  const near=(x,y,r)=>{for(const V of VS)if(x>V.x-r&&x<V.x+V.w+r&&y>V.y-r&&y<V.y+V.h+r)return true;return Math.abs(x-W.rx)<r+3&&Math.abs(y-W.ry)<r+3;};
+  const area=(x,y,w,h)=>{for(let yy=y-h;yy<=y+h;yy++)for(let xx=x-w;xx<=x+w;xx++){if(!inb(xx,yy)||W.g[yy][xx]==='w'||W.road[yy*MW+xx]||W.lkv[yy*MW+xx]||occ[yy*MW+xx])return false;}return true;};
+  const KHU={
+    shrine:(x,y)=>{for(let yy=y-1;yy<=y+1;yy++)for(let xx=x-3;xx<=x+3;xx++){W.g[yy][xx]='t';clr(xx,yy);}put('p_altar',x,y-1,true);put('p_fox',x-3,y-1,true);put('p_fox',x+3,y-1,true);
+      put('p_lpost',x-4,y+1,true);put('p_lpost',x+4,y+1,true);put('t_spirit',x-5,y-3,true);put('t_spirit',x+5,y-3,true);put('p_brazier',x,y+2,true);ppl('n_elder',x+1,y+1,4,0,pick(LGL[3]));},
+    camp:(x,y)=>{put('p_fire',x,y,true);put('p_logb',x-2,y+1,true);put('p_logb2',x+2,y+1,true);put('p_logs',x+3,y-2,true);put('p_crate',x-3,y-2,true);put('p_hay',x-4,y,true);put('p_fence',x,y-3,true);ppl(pick(LGN),x-1,y-1,4,0,pick(LGL[4]));},
+    garden:(x,y)=>{put('f_bed',x,y,true);put('f_box',x-3,y+1,true);put('f_box',x+3,y+1,true);put('p_basin',x,y+2,true);put('t_sakura',x-3,y-2,true);put('t_plum',x+3,y-2,true);for(let k=0;k<5;k++){const xx=x-4+Math.floor(rnd()*9),yy=y-3+Math.floor(rnd()*7);if(free(xx,yy))W.dc[yy][xx]='lk_f_red';}},
+    pond:(x,y)=>{const rx2=4+rnd()*1.5,ry2=2.8+rnd();for(let yy=y-4;yy<=y+4;yy++)for(let xx=x-5;xx<=x+5;xx++){const d=((xx-x)/rx2)**2+((yy-y)/ry2)**2+(noise(xx,yy,3,sd+77)-.5)*.5;if(d<1){W.g[yy][xx]='w';clr(xx,yy);if(rnd()<.18)W.dc[yy][xx]='lily';}}
+      put('f_lily',x-Math.ceil(rx2)-1,y,true);put('f_lily',x+Math.ceil(rx2)+1,y+1,true);put(pick(['t_round','t_green','t_sakura']),x,y-Math.ceil(ry2)-2,true);put('p_lpost',x+2,y+Math.ceil(ry2)+1,true);},
+    pavilion:(x,y)=>{for(let yy=y-1;yy<=y+2;yy++)for(let xx=x-3;xx<=x+3;xx++){W.g[yy][xx]='t';clr(xx,yy);}big('b_kiosk',x,y);put('p_bench',x-3,y+2,true);put('p_lpost',x+3,y+2,true);put('p_lamp',x-4,y,true);ppl(pick(LGN),x+1,y+2,4,0,pick(LGL[4]));},
+    blossom:(x,y)=>{for(let k=0;k<6;k++){const an=k/6*6.28+rnd(),xx=Math.round(x+Math.cos(an)*4),yy=Math.round(y+Math.sin(an)*3);put(pick(['t_sakura','t_plum']),xx,yy,true);}
+      for(let k=0;k<6;k++){const xx=x-2+Math.floor(rnd()*5),yy=y-1+Math.floor(rnd()*3);if(free(xx,yy))W.dc[yy][xx]='lk_f_red';}put('p_bench',x,y,true);}};
+  const KZ0=[['pavilion','camp','blossom','shrine'],['pond','garden','pond','camp'],['garden','blossom','pond','blossom'],['pond','pond','camp','pavilion'],['shrine','shrine','shrine','camp'],['camp','shrine','pavilion','pond'],['pavilion','pond','blossom','garden']],KZ=KZ0.map(l=>l.concat(l,l));
+  for(let z=0;z<7;z++){if(!W.rz)break;const C=[];for(let i=0;i<N;i+=7)if(W.rz[i]===z&&W.g[(i-i%MW)/MW][i%MW]!=='w')C.push(i);
+    for(const k of KZ[z])for(let t=0;t<60;t++){const i=C[Math.floor(rnd()*C.length)],x=i%MW,y=(i-x)/MW;if(near(x,y,8)||!area(x,y,6,5))continue;
+      for(let yy=y-4;yy<=y+4;yy++)for(let xx=x-5;xx<=x+5;xx++)clr(xx,yy);KHU[k](x,y);(W.lkK||(W.lkK=[])).push([k,x,y]);for(let yy=y-4;yy<=y+4;yy++)for(let xx=x-5;xx<=x+5;xx++)occ[yy*MW+xx]=1;break;}}
+  /* cây ngoài làng: thay một phần cây cũ bằng cây trong bộ mới, giữ khoảng cách cho tán to không chồng nhau */
+  if(W.rz){const T3=new Uint8Array(N);for(let y=4;y<MH-4;y++)for(let x=4;x<MW-4;x++){const i=y*MW+x,o=W.ob[y][x];if(!o||o==='B'||occ[i]||W.lkv[i])continue;
+      if(near(x,y,1)||rnd()>.42)continue;let ok=true;for(let dy=-2;dy<=2&&ok;dy++)for(let dx=-3;dx<=3&&ok;dx++)if(T3[(y+dy)*MW+x+dx])ok=false;if(!ok)continue;
+      W.ob[y][x]='P:lk_'+pick(LGT[W.rz[i]]||LGT[0]);T3[i]=1;occ[i]=1;}}
+  /* bỏ cây cũ che lối vào làng */
+  for(const V of VS)for(let y=V.y-3;y<V.y+V.h+3;y++)for(let x=V.x-3;x<V.x+V.w+3;x++){if(!inb(x,y)||W.lkv[y*MW+x])continue;const o=W.ob[y][x];if(o&&!o.startsWith('P:lk_')&&o!=='B')W.ob[y][x]=null;}
+  /* hàng vẽ */
+  W.lkr=new Map();for(const b of W.lkb){const l=W.lkr.get(b.ay);if(l)l.push(b);else W.lkr.set(b.ay,[b]);}
+  W.lkn.forEach((q,k)=>{q.id=k;q.px=q.x;q.py=q.y;});
+  W.lk={info:VS.map(v=>[v.name,v.x,v.y,v.w,v.h]),khu:W.lkK||[]};
+}
+{const _rg=realmGen;realmGen=function(r){const W=_rg(r);if(r===1){try{lgBuild(W,((G.seed*31+r*7919)%99991)+1);}catch(e){console.error('lgBuild',e);}}return W;};}
+/* quỷ không sinh trong làng */
+function lgFilt(){if(!G||G.realm!==1||!G.lg||!WD.lkv)return;const n=G.lg.length;G.lg=G.lg.filter(g=>!lgVilAt(g.hx??g.x,g.hy??g.y)&&!lgVilAt(g.x,g.y));if(G.lg.length!==n)lReset();}
+{const _sp=spawnRealm;spawnRealm=function(){_sp();lgFilt();};}
+{const _rs=realmSwap;realmSwap=function(r,pos){_rs(r,pos);lgFilt();};}
+
+/* ---------- vẽ: nhà lớn, cầu, dân làng (theo hàng để che khuất đúng) ---------- */
+let lgT0=0,lgLV=0,lgTalk=null;
+function lgTick(){const now=performance.now(),dt=Math.min(100,now-(lgT0||now));lgT0=now;const L=WD.lkn;if(!L)return;
+  let best=null,bd=2.3;
+  for(const q of L){if(Math.abs(q.x-PL.x)>40||Math.abs(q.y-PL.y)>30)continue;
+    const d=Math.hypot(q.px-PL.px/TS,q.py-PL.py/TS);if(d<bd&&q.line){bd=d;best=q;}
+    if(q.w&&!(best===q)){const dx=q.tx-q.px,dy=q.ty-q.py,dd=Math.hypot(dx,dy);
+      if(dd<.02){q.px=q.tx;q.py=q.ty;q.x=q.tx;q.y=q.ty;q.t-=dt;q.mv=0;if(q.t<=0){q.t=1200+Math.random()*3500;
+          const D=[[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random()*4)],len=1+Math.floor(Math.random()*5);let x=q.x,y=q.y;
+          for(let k=0;k<len;k++){const X=x+D[0],Y=y+D[1];if(X<0||Y<0||X>=MW||Y>=MH)break;const g=WD.g[Y][X];if((g!=='='&&g!=='t')||WD.ob[Y][X]||lgVilAt(X,Y)!==q.v+1)break;x=X;y=Y;}
+          if(x!==q.x||y!==q.y){q.tx=x;q.ty=y;if(D[0])q.f=D[0]<0;}}}
+      else{const sp=dt*.0016;q.mv=1;q.px+=dx/dd*Math.min(sp,dd);q.py+=dy/dd*Math.min(sp,dd);}}}
+  lgTalk=best;
+  const v=lgVilAt(PL.x,PL.y);if(v!==lgLV){if(v&&WD.lkV[v-1])toast(WD.lkV[v-1].name);lgLV=v;}}
+function lgDrawBig(b,camX,camY){const A=lgPart(b.n);if(!A)return;const dw=A.w*b.s,dh=A.h*b.s,sx=b.ax*TS+8-camX-dw/2,sy=(b.ay+1)*TS-camY+2+b.oy-dh;
+  if(sx>W+8||sx+dw<-8||sy>H+8||sy+dh<-8)return;if(!seen[b.ay*MW+b.ax])return;
+  if(!b.flat){c.globalAlpha=.28;c.fillStyle='#10180c';c.beginPath();c.ellipse(sx+dw/2,sy+dh-4,dw*.46,7,0,0,7);c.fill();c.globalAlpha=1;}
+  c.drawImage(A.k,Math.round(sx),Math.round(sy),dw,dh);}
+function lgDrawPpl(q,camX,camY){const A=lgPart(q.n,q.f);if(!A)return;const bob=q.mv?Math.abs(Math.sin(time/120+q.id))*1.5:Math.sin(time/700+q.id)*.4,
+  x=q.px*TS+8-camX,y=q.py*TS+15-camY;if(x<-30||x>W+30||y<-10||y>H+50)return;if(!seen[Math.round(q.py)*MW+Math.round(q.px)])return;
+  c.globalAlpha=.3;c.fillStyle='#000';c.beginPath();c.ellipse(x,y,6,2,0,0,7);c.fill();c.globalAlpha=1;
+  c.drawImage(A.k,Math.round(x-A.w/2),Math.round(y-A.h-bob+2),A.w,A.h);
+  if(q===lgTalk&&scene==='map'&&!DLG){c.font=`9px ${FONT}`;const ws=q.line.split(' '),Ls=[''];for(const w of ws){const t=(Ls[Ls.length-1]+' '+w).trim();if(c.measureText(t).width>120&&Ls[Ls.length-1])Ls.push(w);else Ls[Ls.length-1]=t;}
+    const tw=Math.max(...Ls.map(l=>c.measureText(l).width)),bh=Ls.length*9+3,bx=Math.round(x-tw/2-4),by=Math.round(y-A.h-bh-3);
+    c.globalAlpha=.9;c.fillStyle='#fff8e8';c.fillRect(bx,by,tw+8,bh);c.fillRect(Math.round(x)-2,by+bh,4,2);c.globalAlpha=1;c.strokeStyle='#5a3a20';c.lineWidth=1;c.strokeRect(bx+.5,by+.5,tw+7,bh-1);
+    Ls.forEach((l,k)=>txt(l,Math.round(x),by+1+k*9,{size:9,align:'center',color:'#3a2414',outline:false}));}}
+{const _db=drawBldRow;drawBldRow=function(y,camX,camY){_db(y,camX,camY);if(!WD||WD.rlm!==1||!WD.lkr)return;
+  const y0=Math.floor(camY/TS),yl=y0+Math.ceil(H/TS)+5;if(y===Math.max(0,y0-1))lgTick();
+  const one=yy=>{const l=WD.lkr.get(yy);if(l)for(const b of l)lgDrawBig(b,camX,camY);};one(y);if(y===Math.min(MH-1,yl))for(let k=1;k<=10;k++)one(y+k);
+  for(const q of WD.lkn)if(Math.round(q.py)===y)lgDrawPpl(q,camX,camY);};}
+/*LGK-END*/
+window.__vps={INFOH,get W(){return W;},get H(){return H;},get PORT(){return PORT;},CAM,sprite,get G(){return G;},get B(){return B;},get scene(){return scene;},get MENU(){return MENU;},get DLG(){return DLG;},get CH(){return CH;},get busy(){return busy;},get WD(){return WD;},PL,press,blocked,ANIM,LSK,lScore,npcSpr,bubble,NPCS,hold,startBattle,makeUnit,quest,placeMarker,arrive,save:safeSave};
 })();
 </script>

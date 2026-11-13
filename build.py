@@ -5,7 +5,7 @@ import pathlib, re, shutil
 ROOT = pathlib.Path(__file__).resolve().parent
 WEB = ROOT / 'web'
 ASSETS = ROOT / 'android' / 'app' / 'src' / 'main' / 'assets'
-VERSION = 309
+VERSION = 311
 
 src = (ROOT / 'vua-phap-su.html').read_text(encoding='utf-8')
 # Chế độ online gộp vào app: thêm nút "Chơi online" ở màn hình đầu (chế độ một người giữ nguyên).
@@ -57,12 +57,13 @@ IMG = sorted(p.name for p in (ROOT / 'img').glob('*.*'))
 shutil.rmtree(WEB / 'img', ignore_errors=True)
 shutil.copytree(ROOT / 'img', WEB / 'img')
 files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
-         'vt323-latin.woff2', 'vt323-latin-ext.woff2', 'vt323-vietnamese.woff2'] + ['img/' + n for n in IMG]
+         'vt323-latin.woff2', 'vt323-latin-ext.woff2', 'vt323-vietnamese.woff2'] + [('img/cel/' if (ROOT / 'img' / 'cel' / n).exists() else 'img/') + n for n in IMG]
+# v16.69: mặc định phong cách Anime nên cài sẵn hình img/cel; hình gốc (khi chọn Gốc) tải lúc cần rồi lưu vào cache
 (WEB / 'sw.js').write_text(f"""const CACHE='vua-phap-su-v{VERSION}';
 const FILES={files!r};
 self.addEventListener('install',e=>{{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)));self.skipWaiting();}});
 self.addEventListener('activate',e=>{{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();}});
-self.addEventListener('fetch',e=>{{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));}});
+self.addEventListener('fetch',e=>{{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{{if(x.ok&&e.request.method==='GET'&&new URL(e.request.url).origin===location.origin){{const y=x.clone();caches.open(CACHE).then(c=>c.put(e.request,y));}}return x;}})));}});
 """, encoding='utf-8')
 
 (WEB / 'manifest.webmanifest').write_text("""{
