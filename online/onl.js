@@ -261,7 +261,7 @@ function onlDrawRow(y,camX,camY){if(!ONLM||!ONL.peers.size||!ANIM.diep)return;
     const hx=Math.round(r.x-camX),hy=Math.round(r.y-camY);if(hx<-40||hy<-60||hx>W+40||hy>H+40)continue;
     const tx=clamp(Math.round((r.x+8)/TS),0,MW-1),ty=clamp(Math.round((r.y+8)/TS),0,MH-1);if(!seen[ty*MW+tx])continue;
     c.globalAlpha=.3;rect(hx+4,hy+14,8,2,'#000');c.globalAlpha=1;
-    const HF=onlPeerFrame(r.lk,r.mv?'w'+(Math.floor(time/110)%4):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
+    const HF=onlPeerFrame(r.lk,r.mv?'w'+Math.floor(time/110):'w0',r.f<0);c.globalAlpha=r.sc==='map'?1:.55;c.drawImage(HF.img,hx+8-HF.ox,hy+15-HF.oy,HF.w,HF.h);c.globalAlpha=1;
     const top=hy+15-HF.oy-2,tag=(r.hn||r.nm)+(r.sc==='battle'||r.sc==='arena'||r.sc==='pvp'?' ⚔':'');
     txt(tag,hx+8,top-8,{size:7,align:'center',color:r.sc==='pvp'?'#ffb070':'#9fe8ff',outline:'#120d18'});
     if(ONL_BUBBLE&&r.sayT&&performance.now()-r.sayAt<6000){const L=wrap(r.sayT,90,7).slice(0,3),w=Math.min(96,Math.max(...L.map(l=>tw(l,7)))+8),h=L.length*8+4,bx=Math.round(hx+8-w/2),by=top-10-h;
@@ -279,6 +279,10 @@ function onlTick(dt){if(!ONLM){if(ONL.ui)onlUIFrame();return;}
 function onlTitle(){}
 /* v16.17.2: MENU/AUTO/SỰ KIỆN thu nhỏ thành một hàng 3 nút 20px dưới bản đồ nhỏ; CHAT là nút riêng cùng cỡ ngay dưới MENU */
 function onlHudBtns(x,y,w,h,ty,sz){
+  /* 16.66 UI Sơn mài: MENU, CHAT, GIAO DỊCH là nút tròn kiểu ấn triện (sealBtn) */
+  if(h===19&&typeof sealBtn==='function'){const cy=y+h+2,gx=x+w+1;sealBtn(x,y,w,h,'MENU');sealBtn(x,cy,w,h,'CHAT','#2f4f6b');sealBtn(gx,cy,w,h,'GIAO\nDỊCH','#6a4a1a');
+    const bd=(bx,n)=>{if(!n)return;n=String(Math.min(99,n));const bw=Math.max(7,n.length*4+3);rect(bx+w-bw+3,cy-2,bw,7,'#0c0a18');rect(bx+w-bw+4,cy-1,bw-2,5,'#d03030');txt(n,bx+w-bw/2+3,cy-3,{size:7,align:'center',color:'#fff'});};
+    bd(x,ONL.unread);bd(gx,ONL.un[7]|0);return;}
   win(x,y,w,h,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',x+w/2,ty,{size:sz,align:'center',color:'#fff8e0'});
   const cy=y+h+2;win(x,cy,w,h,'#2a4a7a','#1a2a50','#ffe8a0');txt('CHAT',x+w/2,ty+h+2,{size:sz,align:'center',color:'#fff8e0'});
   const bdg=(bx,n)=>{if(!n)return;n=String(Math.min(99,n));const bw=Math.max(7,n.length*4+3);rect(bx+w-bw+3,cy-2,bw,7,'#0c0a18');rect(bx+w-bw+4,cy-1,bw-2,5,'#d03030');txt(n,bx+w-bw/2+3,cy-3,{size:7,align:'center',color:'#fff'});};
@@ -395,9 +399,14 @@ function onlFx(k,...a){try{if(k==='hit'&&typeof arFxHit==='function')arFxHit(...
   else if(k==='slash'&&typeof arFxSlash==='function')arFxSlash(...a);else if(k==='trail'&&typeof arFxTrail==='function')arFxTrail(...a);else if(k==='upd'&&typeof arFxUpdate==='function')arFxUpdate(...a);}catch(e){}}
 function onlStubFighter(t){const u=makeUnit(t.id,t.lv);u.name=t.name;const f=arFighter(u,'e');f.net=1;return f;}
 /* v16.42: tạo hình nhân vật. ANIM.diep.fr đã là tạo hình của chính mình (lookApply), nên người chơi khác vẽ bằng lookFrames(look của họ); không có look = hình gốc. Minh Dạ không ra sân PvP nên đấu trường không cần */
-function onlBaseA(){return (typeof MC!=='undefined'&&MC.orig&&MC.orig.a)||ANIM.diep;}
+function onlBaseA(){return (typeof MC!=='undefined'&&MC.orig&&MC.orig.a)||(typeof lookMD==='function'&&ANIM.diep?lookMD():ANIM.diep);}
+/* 16.68: nữ chính Linh Nhi (look.g===1) có tấm hình riêng (khung, box, pose, hmk khác Minh Dạ): người chơi khác vẽ theo lookAnim(look của họ) */
+function onlPeerA(lk){try{if(typeof lookAnim==='function'&&ANIM.diep){const A=lookAnim(lk||{});if(A&&A.pose&&A.box)return A;}}catch(e){}return onlBaseA();}
 function onlLookFr(lk){const a=onlBaseA();let L=null;if(lk&&lk.v===2)return a.fr0||a.fr;try{if(typeof lookFrames==='function')L=lookFrames(lk||{});}catch(e){L=null;}return L&&L.fr||a.fr0||a.fr;}
-function onlPeerFrame(lk,k,fl){if(lk&&lk.v===2&&typeof mcPeerAnim==='function'){let A=null;try{A=mcPeerAnim(mcKey(lk));}catch(e){A=null;}if(A)return heroMapFrame(k,fl,A);}const a=onlBaseA(),f=onlLookFr(lk)[a.pose[k]],img=fl?flip(f):f,[bx,by,bw,bh]=a.box;return{img,w:a.w*HMK,h:a.h*HMK,ox:(fl?a.w-bx-bw/2:bx+bw/2)*HMK,oy:(by+bh)*HMK};}
+function onlWalkN(A){if(!A._wn){let n=0;while(A.pose['w'+n]!=null)n++;A._wn=n||1;}return A._wn;}
+function onlPeerFrame(lk,k,fl){if(lk&&lk.v===2&&typeof mcPeerAnim==='function'){let A=null;try{A=mcPeerAnim(mcKey(lk));}catch(e){A=null;}if(A)return heroMapFrame(k,fl,A);}
+  const a=onlPeerA(lk),F=onlLookFr(lk),m=/^w(\d+)$/.exec(k);if(m)k='w'+(+m[1]%onlWalkN(a));const pi=a.pose[k]!=null?a.pose[k]:(a.pose.w0!=null?a.pose.w0:0),f=F[pi]||F[0],img=fl?flip(f):f,[bx,by,bw,bh]=a.box,K=a.hmk||HMK;
+  return{img,w:a.w*K,h:a.h*K,ox:(fl?a.w-bx-bw/2:bx+bw/2)*K,oy:(by+bh)*K};}
 /* bên đánh tự tính sát thương rồi gửi đi; bên bị đánh trừ máu khi nhận */
 function onlHurtRemote(a,b,x,o){const P=AR.pvp;if(AR.phase!=='fight')return;
   const hit=h=>{h.i=++P.hi;P.hits.push(h);if(P.hits.length>12)P.hits.shift();};

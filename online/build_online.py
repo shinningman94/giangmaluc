@@ -54,9 +54,10 @@ def build(server='', dual=False, src_path=None):
     a1="win(W-64,44,20,16,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',W-54,48,{size:8,align:'center',color:'#fff8e0'});"
     rep(a1, 'if(ONLM)onlHudBtns(W-64,44,20,16,48,8);else{'+a1+'}')
     rep('hit(W-65,42,22,19,()=>openMenu());', 'if(ONLM)onlHudHits(W-65,42,22,19);else hit(W-65,42,22,19,()=>openMenu());')
-    a2="win(176,44,20,13,'#7a2a22','#5a1a18','#ffe8a0');txt('MENU',186,46,{size:8,align:'center',color:'#fff8e0'});"
-    rep(a2, 'if(ONLM)onlHudBtns(176,44,20,13,46,8);else{'+a2+'}')
-    rep('hit(176,44,20,13,()=>openMenu());', 'if(ONLM)onlHudHits(176,44,20,13);else hit(176,44,20,13,()=>openMenu());')
+    # 16.66 (UI Sơn mài): nút MENU tròn kiểu ấn triện, cao 19
+    a2="sealBtn(176,44,20,19,'MENU');"
+    rep(a2, 'if(ONLM)onlHudBtns(176,44,20,19,46,8);else{'+a2+'}')
+    rep('hit(176,44,20,19,()=>openMenu());', 'if(ONLM)onlHudHits(176,44,20,19);else hit(176,44,20,19,()=>openMenu());')
     rep("[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},{t:'Rời đấu trường',def:1}]);",
         "[{t:'Tìm trận xếp hạng'},{t:'Bảng xếp hạng'},{t:'Cách chơi'},...(ONLM?[{t:'Thách đấu người chơi online'},...(ONL.top?[{t:'Bảng xếp hạng online'}]:[])]:[]),{t:'Rời đấu trường',def:1}]);")
     rep('if(i===0)await arenaPick();', 'if(ONLM&&i===3){if(await onlArenaDuel())return;continue;}if(ONLM&&i===4&&ONL.top){await onlArenaTop();continue;}if(i===0)await arenaPick();')
