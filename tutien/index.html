@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#14121c">
+<title>Tu Tiên Lộ</title>
+<style>
+:root{--ink:#14121c;--panel:#1d1a29e6;--line:#3b3552;--txt:#efe6d2;--dim:#a79fb8;--gold:#eab23a;--red:#d8504a;--jade:#58c7b5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--txt);font:15px/1.35 system-ui,"Segoe UI",Roboto,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{position:fixed;left:0;top:0}
+#art{image-rendering:pixelated;image-rendering:crisp-edges;transform-origin:0 0}
+#txt{pointer-events:none}
+.px{image-rendering:pixelated}
+#hud{position:fixed;inset:0;pointer-events:none;display:none}
+#hud>*{pointer-events:auto}
+#me{position:absolute;left:10px;top:calc(10px + env(safe-area-inset-top));width:210px;background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:8px 10px}
+#me b{font-size:16px}#me .rl{color:var(--gold);font-weight:700;font-size:13px}
+.bar{height:11px;background:#0d0b14;border:1px solid var(--line);border-radius:3px;margin-top:5px;position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--red)}.bar.xp i{background:var(--jade)}
+.bar span{position:absolute;inset:0;font-size:9px;line-height:10px;text-align:center;font-weight:700;text-shadow:0 1px 0 #000}
+#info{font-size:12px;color:var(--dim);margin-top:5px;display:flex;justify-content:space-between}
+#mini{position:absolute;right:10px;top:calc(10px + env(safe-area-inset-top));border:2px solid var(--line);border-radius:6px;background:#0d0b14;padding:2px;text-align:right}
+#mini canvas{position:static;display:block;width:144px;height:108px}
+#net{font-size:11px;color:var(--dim);padding:2px 3px 0}
+#log{position:absolute;left:10px;bottom:calc(178px + env(safe-area-inset-bottom));width:min(330px,62vw);max-height:118px;overflow:hidden;font-size:13px;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none;text-shadow:0 1px 2px #000,0 0 3px #000}
+#log div{padding:1px 0}#log .s{color:var(--gold)}#log .n{color:#9fd8ff;font-weight:700}
+#chat{position:absolute;left:10px;bottom:calc(150px + env(safe-area-inset-bottom));width:min(330px,62vw);display:none}
+#chat input{width:100%;padding:8px 10px;border-radius:6px;border:2px solid var(--gold);background:#0d0b14;color:var(--txt);font:inherit;outline:none;user-select:text;-webkit-user-select:text}
+#joy{position:absolute;left:18px;bottom:calc(22px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:#ffffff14;border:2px solid #ffffff2a}
+#joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:#ffffff40;border:2px solid #ffffff70}
+#btns{position:absolute;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));width:196px;height:170px}
+.sk{position:absolute;width:58px;height:58px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:var(--txt);font:700 12px/1.1 system-ui,sans-serif;overflow:hidden;padding:0}
+.sk small{display:block;font-size:9px;color:var(--dim);font-weight:400}
+.sk u{position:absolute;left:0;right:0;bottom:0;background:#000a;height:0;pointer-events:none}
+.sk:active{transform:scale(.94)}.sk[disabled]{opacity:.35}
+#b0{right:0;bottom:0;width:84px;height:84px;font-size:15px;border-color:var(--gold)}
+#b1{right:92px;bottom:0}#b2{right:74px;bottom:68px}#b3{right:6px;bottom:96px}#bc{right:140px;bottom:112px;width:44px;height:44px;font-size:17px}
+#bt{position:absolute;left:50%;top:calc(92px + env(safe-area-inset-top));transform:translateX(-50%);display:none;padding:10px 22px;border-radius:8px;border:2px solid #fff3c0;background:linear-gradient(#f3c14e,#c8861c);color:#2b1a05;font:800 16px system-ui,sans-serif;animation:pulse 1s infinite alternate;box-shadow:0 0 22px #eab23a99}
+@keyframes pulse{to{transform:translateX(-50%) scale(1.07)}}
+#dead{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#2a000055;font-size:20px;font-weight:700;text-shadow:0 2px 4px #000;pointer-events:none}
+#start{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 35%,#2c2740,#14121c 70%);display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pan-y}
+#card{width:min(440px,94vw);padding:18px;text-align:center}
+#card h1{margin:0;font-size:38px;letter-spacing:3px;color:var(--gold);text-shadow:0 3px 0 #5a3a08,0 0 26px #eab23a55}
+#card p{margin:4px 0 14px;color:var(--dim)}
+#pick{display:flex;gap:12px;justify-content:center;margin-bottom:12px}
+#pick button{width:128px;border:2px solid var(--line);background:#1d1a29;border-radius:10px;color:var(--txt);font:700 15px system-ui,sans-serif;padding:8px 0 10px}
+#pick button.on{border-color:var(--gold);background:#2b2540;box-shadow:0 0 16px #eab23a44}
+#pick canvas{position:static;width:120px;height:168px;display:block;margin:0 auto}
+#realms{display:flex;justify-content:center;gap:2px;margin:2px 0 14px}
+#realms div{font-size:10px;color:var(--dim);width:64px}#realms canvas{position:static;width:60px;height:84px;display:block;margin:0 auto}
+#name{width:100%;padding:11px 12px;border-radius:8px;border:2px solid var(--line);background:#0d0b14;color:var(--txt);font:inherit;font-size:17px;text-align:center;outline:none;user-select:text;-webkit-user-select:text}
+#name:focus{border-color:var(--gold)}
+#go{margin-top:12px;width:100%;padding:13px;border-radius:8px;border:2px solid #fff3c0;background:linear-gradient(#f3c14e,#c8861c);color:#2b1a05;font:800 18px system-ui,sans-serif}
+#tip{margin-top:12px;font-size:12px;color:var(--dim)}
+@media (hover:hover) and (pointer:fine){#joy{display:none}}
+</style>
+</head>
+<body>
+<canvas id="art"></canvas><canvas id="txt"></canvas>
+<div id="hud">
+  <div id="me"><b id="mname"></b> <span class="rl" id="mrealm"></span>
+    <div class="bar"><i id="hpb"></i><span id="hpt"></span></div>
+    <div class="bar xp"><i id="xpb"></i><span id="xpt"></span></div>
+    <div id="info"><span id="gold"></span><span id="atk"></span></div></div>
+  <div id="mini"><canvas id="mm" class="px" width="96" height="72"></canvas><div id="net"></div></div>
+  <button id="bt">⚡ ĐỘT PHÁ</button>
+  <div id="log"></div>
+  <div id="chat"><input id="ci" maxlength="120" placeholder="Nhập lời nhắn rồi Enter" enterkeyhint="send"></div>
+  <div id="joy"><i></i></div>
+  <div id="btns">
+    <button class="sk" id="b0">QUYỀN<small>J</small><u></u></button>
+    <button class="sk" id="b1">Khí Đạn<small>K</small><u></u></button>
+    <button class="sk" id="b2">Chấn Địa<small>L</small><u></u></button>
+    <button class="sk" id="b3">Thiền<small>M</small></button>
+    <button class="sk" id="bc" aria-label="Chat">💬</button>
+  </div>
+  <div id="dead">Trọng thương… đang hồi phục</div>
+</div>
+<div id="start"><div id="card">
+  <h1>TU TIÊN LỘ</h1><p>Từ Luyện Khí đến Hóa Thần, cùng đạo hữu khắp nơi</p>
+  <div id="pick"><button data-g="0" class="on"><canvas class="px" width="40" height="56"></canvas>Nam tu</button><button data-g="1"><canvas class="px" width="40" height="56"></canvas>Nữ tu</button></div>
+  <div id="realms"></div>
+  <input id="name" maxlength="14" placeholder="Đạo hiệu của bạn">
+  <button id="go">Bước vào tiên lộ</button>
+  <div id="tip">Di chuyển: WASD / cần ảo · J đánh · K Khí Đạn · L Chấn Địa · M ngồi thiền · Enter chat</div>
+</div></div>
+<script src="sprites.js"></script>
+<script src="sim.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
